@@ -2,7 +2,13 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Börü">
+    <meta name="application-name" content="Börü">
     <title>Börü: Son Kral</title>
     <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,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">
     <link rel="icon" href="favicon.ico" sizes="48x48">
@@ -465,6 +471,157 @@
             #bossUi { top: 70px !important; }
             #pauseBtnFixed { top: 12px; left: 12px; width: 46px; height: 46px; }
         }
+
+        /* ===================== MOBİL ARAYÜZ v2 (body.m = dokunmatik cihaz) ===================== */
+        body.m { --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px); --sal: env(safe-area-inset-left, 0px); --sar: env(safe-area-inset-right, 0px); overscroll-behavior: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+        body.m #stats, body.m #topControls, body.m #hireBossBtn, body.m #levelIndicator, body.m #loreCorner, body.m #loreCounter, body.m #territoryPanel, body.m #leftHud, body.m #ui { display: none !important; }
+
+        /* Üst bilgi şeridi */
+        #mHud { display: none; }
+        body.m.in-game #mHud { display: flex; position: fixed; z-index: 30; top: calc(var(--sat) + 8px); left: calc(var(--sal) + 8px); right: calc(var(--sar) + 8px); flex-direction: column; gap: 6px; pointer-events: none; }
+        #mHud .mh-row { display: flex; align-items: center; gap: 8px; }
+        #mHud button, #mHud .mh-coin { pointer-events: auto; }
+        body.m #mHud #pauseBtnFixed { position: static !important; display: flex !important; width: 38px !important; height: 38px !important; flex: 0 0 38px; font-size: 15px; padding: 0; border-width: 1.5px; }
+        body.m #mHud #xpBarContainer { position: static !important; transform: none !important; top: auto !important; left: auto !important; width: auto !important; flex: 1; min-width: 0; height: 30px; }
+        body.m #mHud #xpLvlBadge { flex: 0 0 30px; height: 30px; font-size: 13px; border-width: 2px; margin-right: -8px; }
+        body.m #mHud #xpTrack { height: 16px; }
+        body.m #mHud #xpBarText { font-size: 9px; letter-spacing: 0; }
+        .mh-coin { background: rgba(0,0,0,0.55); border: 1px solid rgba(255,215,0,0.45); border-radius: 14px; padding: 5px 10px; color: #ffd700; font-weight: 800; font-size: 14px; white-space: nowrap; }
+        .mh-coin #coinCount { font-size: 14px !important; }
+        #mMenuBtn { width: 38px; height: 38px; flex: 0 0 38px; border-radius: 50%; background: rgba(0,0,0,0.6); border: 1.5px solid rgba(255,255,255,0.4); color: #fff; font-size: 18px; display: flex; align-items: center; justify-content: center; padding: 0; }
+        #mHud .mh-bars { gap: 10px; }
+        .mh-bar { display: flex; align-items: center; gap: 4px; font-size: 11px; min-width: 0; }
+        .mh-bar.hp { flex: 2.2; } .mh-bar.rage, .mh-bar.pl { flex: 1; }
+        body.m #mHud .bar-container { float: none !important; clear: none !important; flex: 1; width: auto !important; min-width: 0; height: 8px !important; margin: 0 !important; border-width: 1px !important; border-radius: 5px; }
+        body.m #mHud .mh-bar.hp .bar-container { height: 11px !important; }
+        #mHud .mh-chips { display: flex; gap: 6px; justify-content: center; }
+        body.m #mHud #ghostIndicator, body.m #mHud #safeZoneIndicator { float: none; clear: none; margin: 0; font-size: 10.5px; padding: 2px 8px; border-radius: 10px; background: rgba(0,0,0,0.55); }
+
+        /* Mini harita, boss, iksirler, sığınak */
+        body.m #minimapCanvas { top: calc(var(--sat) + 88px) !important; bottom: auto !important; right: calc(var(--sar) + 8px) !important; width: 72px !important; height: 72px !important; opacity: 0.85; }
+        body.m.tut-on #minimapCanvas { display: none !important; }
+        body.m #bossUi { top: calc(var(--sat) + 88px) !important; left: calc(var(--sal) + 8px); width: calc(100% - 104px); transform: none; }
+        body.m #bossName { font-size: 12px; letter-spacing: 2px; margin-bottom: 3px; }
+        body.m #bossHpContainer { height: 10px; border-width: 1px; }
+        body.m #potionBar { display: flex !important; flex-direction: column; gap: 6px; left: calc(var(--sal) + 8px) !important; right: auto !important; bottom: auto !important; top: calc(var(--sat) + 128px) !important; z-index: 25; }
+        body.m .potion-slot { width: 40px; height: 40px; font-size: 16px; }
+        body.m .potion-slot.empty { display: none; }
+        body.m #sanctuaryBtn { top: calc(var(--sat) + 92px) !important; bottom: auto !important; padding: 7px 14px !important; font-size: 12px !important; border-width: 1px; z-index: 26; }
+        body.m.tut-on #sanctuaryBtn { top: auto !important; bottom: calc(var(--sab) + 280px) !important; }
+
+        /* Kontroller: yüzen joystick (sol yarı) + başparmak kümesi (sağ alt) */
+        body.m #mobileControls { display: block !important; position: fixed; inset: 0; z-index: 20; pointer-events: none; }
+        body.m:not(.in-game) #mobileControls { display: none !important; }
+        #joyArea { display: none; }
+        body.m #joyArea { display: block; position: absolute; left: 0; bottom: 0; width: 52%; height: 60%; pointer-events: auto; }
+        body.m #joystickZone { position: absolute; width: 120px !important; height: 120px !important; left: calc(var(--sal) + 22px); bottom: calc(var(--sab) + 26px); pointer-events: none; background: rgba(255,255,255,0.06); border: 2px solid rgba(255,255,255,0.22); opacity: 0.5; transition: opacity 0.15s; }
+        body.m #joystickZone.on { opacity: 1; }
+        body.m #joystickKnob { width: 52px !important; height: 52px !important; background: rgba(255,255,255,0.55); }
+        body.m #mobRight { position: absolute; right: calc(var(--sar) + 16px); bottom: calc(var(--sab) + 20px); width: 190px; height: 190px; display: block; pointer-events: none; }
+        body.m #mobGrid { display: contents; }
+        body.m .mobBtn { position: absolute; pointer-events: auto; margin: 0 !important; width: 60px !important; height: 60px !important; font-size: 9px !important; line-height: 1.15; display: flex; flex-direction: column; align-items: center; justify-content: center; --cd: 0; transition: transform 0.08s; }
+        body.m .mobBtn::after { content: ''; position: absolute; inset: -2px; border-radius: 50%; background: conic-gradient(rgba(0,0,0,0.62) calc(var(--cd) * 1turn), transparent 0); pointer-events: none; }
+        body.m .mobBtn.pressed { transform: scale(0.9); filter: brightness(1.35); }
+        body.m #fireBtn { right: 0; bottom: 0; width: 94px !important; height: 94px !important; font-size: 12px !important; background: radial-gradient(circle, rgba(255,110,30,0.7), rgba(150,20,0,0.55)); }
+        body.m #roarBtn { right: 104px; bottom: 2px; }
+        body.m #ghostBtn { right: 90px; bottom: 80px; }
+        body.m #plasmaBtnM { right: 16px; bottom: 106px; }
+        body.m #callBtn, body.m #hireBtnM, body.m #journalBtnM { display: none !important; }
+
+        /* Eğitim kartı, iç ses, duyurular */
+        body.m #tutPanel { top: calc(var(--sat) + 86px) !important; left: calc(var(--sal) + 8px); right: calc(var(--sar) + 8px); width: auto; transform: none; padding: 8px 12px; border-radius: 10px; background: rgba(20,6,3,0.84); }
+        body.m .tp-top { font-size: 9px; letter-spacing: 2px; }
+        body.m .tp-top button { padding: 3px 9px; }
+        body.m .tp-title { font-size: 14px !important; margin: 3px 0 2px; letter-spacing: 1px; }
+        body.m .tp-how { font-size: 12.5px !important; margin-top: 3px; line-height: 1.45; }
+        body.m .tp-how kbd { font-size: 11px; padding: 0 6px; }
+        body.m .tp-why { font-size: 11.5px !important; margin-top: 5px; }
+        .tp-why-t { background: none; border: none; color: #ffb070; font-size: 11px; padding: 0; margin-top: 5px; text-decoration: underline; cursor: pointer; }
+        body.m .tp-bar { margin-top: 6px; height: 5px; } body.m .tp-cnt { font-size: 10px; } body.m .tp-ok { margin-top: 4px; font-size: 11px; }
+        body.m #innerVoice { bottom: calc(var(--sab) + 214px); font-size: 13.5px !important; width: 86vw; }
+        body.m .iv-who { font-size: 9px; letter-spacing: 4px; }
+        body.m #waveAnnouncer { font-size: 26px !important; letter-spacing: 4px !important; top: 34%; width: 90vw; }
+        body.m #loreBanner { font-size: 13px; padding: 14px 16px; width: 88vw; }
+
+        /* Hızlı menü (☰) */
+        #mMenu { display: none; position: fixed; inset: 0; z-index: 150; background: rgba(0,0,0,0.55); align-items: flex-end; justify-content: center; }
+        #mMenu.open { display: flex; }
+        .mm-sheet { width: 100%; max-width: 560px; background: linear-gradient(170deg, #1c0a06, #070304); border-top: 2px solid #ff5a1a; border-radius: 18px 18px 0 0; padding: 14px 14px calc(var(--sab, 0px) + 16px); touch-action: manipulation !important; }
+        .mm-sheet * { touch-action: manipulation !important; }
+        .mm-h { color: #ff9a5a; font-size: 11px; letter-spacing: 3px; text-align: center; margin-bottom: 10px; font-weight: bold; }
+        .mm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .mm-grid button { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,140,80,0.35); border-radius: 12px; color: #fff; padding: 12px 4px; font-size: 12px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; }
+        .mm-grid button span { font-size: 24px; }
+        .mm-grid button small { color: #bba; font-weight: normal; font-size: 10px; }
+        .mm-grid button:disabled { opacity: 0.38; }
+        .mm-close { width: 100%; margin-top: 12px; padding: 11px; border-radius: 10px; background: transparent; border: 1px solid #666; color: #ccc; font-weight: bold; font-family: inherit; }
+
+        /* Ana menü */
+        body.m .menu-inner { padding: calc(var(--sat) + 14px) 12px calc(var(--sab) + 40px); }
+        body.m #titleText { font-size: 30px; letter-spacing: 3px; }
+        body.m .menu-emblem { width: 72px; height: 72px; margin-bottom: 6px; }
+        body.m .menu-subtitle { font-size: 12px; margin-bottom: 10px; text-align: center; letter-spacing: 1px; }
+        body.m .world-badge { margin-bottom: 10px; padding: 6px 14px; font-size: 13px; }
+        body.m .menu-stats { gap: 6px; margin-bottom: 12px; width: 100%; max-width: 380px; }
+        body.m .menu-stat { min-width: 0; flex: 1 1 28%; padding: 5px 4px; }
+        body.m .menu-stat .ms-v { font-size: 13px; } body.m .menu-stat .ms-l { font-size: 8px; letter-spacing: 0.5px; }
+        body.m #playerNameInput { width: 100%; max-width: 380px; font-size: 16px; padding: 10px; margin-bottom: 12px; }
+        body.m .starter-cards { flex-direction: row !important; gap: 8px !important; width: 100%; max-width: 380px; margin: 0 0 12px; }
+        body.m .starter-card { flex: 1; width: auto !important; padding: 10px 4px !important; display: block !important; }
+        body.m .starter-card h2 { font-size: 26px !important; margin: 0 !important; }
+        body.m .starter-card h3 { font-size: 11px !important; margin-top: 4px !important; }
+        body.m .starter-card.active { transform: scale(1.04); }
+        body.m .starter-card .sc-desc { display: none; }
+        body.m .menu-btns { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px !important; width: 100%; max-width: 380px !important; margin-top: 0 !important; }
+        body.m .menu-btns .action-btn { margin-top: 0; padding: 11px 6px; font-size: 13px; letter-spacing: 1px; }
+        body.m .menu-btns #startBtn, body.m .menu-btns #continueBtn { grid-column: 1 / -1; font-size: 16px; padding: 14px; }
+        body.m .menu-tip { margin-top: 12px; }
+        body.m .menu-footer { display: none; }
+        body.m #settingsBtnMain { top: calc(var(--sat) + 10px); right: calc(var(--sar) + 10px); width: 42px; height: 42px; font-size: 20px; }
+
+        /* Açılır ekranlar (duraklat, evrim, ölüm) kaydırılabilir olsun */
+        body.m .overlay { overflow-y: auto; justify-content: safe center; padding: calc(var(--sat) + 16px) 14px calc(var(--sab) + 16px); touch-action: pan-y !important; }
+        body.m .overlay * { touch-action: pan-y; }
+        body.m .overlay h1 { font-size: 26px; }
+        body.m #pauseMenu .action-btn { margin-top: 8px; padding: 11px 20px; font-size: 14px; width: min(300px, 88vw); }
+        body.m #cardsContainer { gap: 10px; margin-top: 14px; }
+        body.m .upgrade-card { width: min(330px, 92vw); padding: 10px 12px; display: grid; grid-template-columns: 44px 1fr; column-gap: 10px; text-align: left; align-items: center; }
+        body.m .upgrade-card > div:first-child { font-size: 30px !important; margin: 0 !important; grid-row: span 3; }
+        body.m .upgrade-card > div:nth-child(2) { font-size: 15px !important; margin: 0 !important; }
+        body.m .upgrade-card .buff-lvl { margin-top: 2px; }
+        body.m .upgrade-card:hover { transform: none; }
+
+        /* Yatay telefon */
+        @media (orientation: landscape) and (max-height: 520px) {
+            body.m.in-game #mHud { flex-direction: row; align-items: center; gap: 12px; top: calc(var(--sat) + 6px); }
+            body.m #mHud .mh-top { flex: 1.3; min-width: 0; }
+            body.m #mHud .mh-bars { flex: 1; min-width: 0; }
+            body.m #minimapCanvas { top: calc(var(--sat) + 52px) !important; width: 64px !important; height: 64px !important; }
+            body.m #tutPanel { top: calc(var(--sat) + 52px) !important; left: 20%; right: 20%; }
+            body.m #bossUi { top: calc(var(--sat) + 52px) !important; left: 25%; width: 50%; }
+            body.m #sanctuaryBtn { top: calc(var(--sat) + 54px) !important; }
+            body.m.tut-on #sanctuaryBtn { top: calc(var(--sat) + 54px) !important; bottom: auto !important; left: calc(var(--sal) + 8px); transform: none; }
+            body.m .menu-stats, body.m .menu-subtitle, body.m .menu-tip { display: none !important; }
+            body.m .menu-emblem { width: 46px; height: 46px; margin-bottom: 2px; }
+            body.m #titleText { font-size: 24px; }
+            body.m .world-badge { margin-bottom: 8px; padding: 4px 12px; font-size: 12px; }
+            body.m #playerNameInput { padding: 7px; margin-bottom: 8px; }
+            body.m .starter-cards { margin-bottom: 8px; }
+            body.m .starter-card { padding: 5px 4px !important; }
+            body.m .starter-card h2 { font-size: 20px !important; }
+            body.m .menu-btns { grid-template-columns: repeat(3, 1fr); max-width: 560px !important; }
+            body.m .menu-btns .action-btn { padding: 9px 6px; font-size: 12px; }
+            body.m .menu-btns #startBtn, body.m .menu-btns #continueBtn { padding: 10px; font-size: 15px; }
+            body.m #potionBar { top: calc(var(--sat) + 54px) !important; flex-direction: row; }
+            body.m #joyArea { width: 45%; height: 78%; }
+            body.m #joystickZone { width: 104px !important; height: 104px !important; bottom: calc(var(--sab) + 16px); left: calc(var(--sal) + 30px); }
+            body.m #mobRight { transform: scale(0.8); transform-origin: bottom right; bottom: calc(var(--sab) + 10px); right: calc(var(--sar) + 22px); }
+            body.m #innerVoice { bottom: calc(var(--sab) + 12px); width: 40vw; font-size: 12.5px !important; }
+            body.m #waveAnnouncer { top: 30%; }
+            .mm-grid { grid-template-columns: repeat(6, 1fr); }
+            body.m .upgrade-card { width: 30vw; display: block; text-align: center; }
+            body.m .upgrade-card > div:first-child { margin-bottom: 4px !important; }
+        }
     </style>
 </head>
 <body>
@@ -522,19 +679,27 @@
     </div>
 
     <div id="mobileControls">
+        <div id="joyArea"></div>
         <div id="joystickZone"><div id="joystickKnob"></div></div>
         <div id="mobRight">
             <div id="mobGrid">
                 <div id="callBtn" class="mobBtn">📡<br>ÇAĞIR</div>
                 <div id="hireBtnM" class="mobBtn">🐍<br>KÖLE</div>
-                <div id="plasmaBtnM" class="mobBtn">⚛️<br>PLAZMA</div>
-                <div id="roarBtn" class="mobBtn">📢<br>KÜKRE</div>
-                <div id="ghostBtn" class="mobBtn">👻<br>HAYALET</div>
+                <div id="plasmaBtnM" class="mobBtn"><span style="font-size:20px">⚛️</span>PLAZMA</div>
+                <div id="roarBtn" class="mobBtn"><span style="font-size:20px">📢</span>KÜKRE</div>
+                <div id="ghostBtn" class="mobBtn"><span style="font-size:20px">👻</span>HAYALET</div>
                 <div id="journalBtnM" class="mobBtn">📖<br>GÜNLÜK</div>
             </div>
-            <div id="fireBtn" class="mobBtn">🔥<br>ATEŞ</div>
+            <div id="fireBtn" class="mobBtn"><span style="font-size:30px">🔥</span>ATEŞ</div>
         </div>
     </div>
+
+    <div id="mHud">
+        <div class="mh-row mh-top"><span id="mhSlotPause"></span><span id="mhSlotXp"></span><div class="mh-coin">💰 <span id="mhSlotCoin"></span></div><button id="mMenuBtn" onclick="openMMenu()" aria-label="Menü">☰</button></div>
+        <div class="mh-row mh-bars"><div class="mh-bar hp">❤️<span id="mhSlotHp"></span></div><div class="mh-bar rage">💢<span id="mhSlotRage"></span></div><div class="mh-bar pl">⚛️<span id="mhSlotPl"></span></div></div>
+        <div class="mh-chips" id="mhChips"></div>
+    </div>
+    <div id="mMenu" onclick="if(event.target===this)closeMMenu()"><div class="mm-sheet"><div class="mm-h">HIZLI MENÜ</div><div class="mm-grid" id="mmGrid"></div><button class="mm-close" onclick="closeMMenu()">↩ OYUNA DÖN</button></div></div>
 
     <div id="bossUi">
         <div id="bossName">HİÇLİK BEHEMOTU</div>
@@ -572,7 +737,7 @@
                 </div>
             </div>
 
-            <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 640px; margin-top:6px;">
+            <div class="menu-btns" style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 640px; margin-top:6px;">
                 <button class="action-btn" id="continueBtn" style="display:none; background:#00aa55; border-color:#00ff88; color:#fff;">▶ KAYITTAN DEVAM ET</button>
                 <button class="action-btn menu-btn-primary" id="startBtn">⚔️ SIFIRDAN BAŞLA</button>
                 <button class="action-btn" onclick="openMarket()" style="background: rgba(153,0,255,0.2); border-color:#9900ff; color:#fff;">🛒 MARKET</button>
@@ -932,8 +1097,8 @@
             store.setItem('boruShakeIntensity', shakeIntensity);
         });
 
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
-        let viewScale = parseFloat(store.getItem('boruZoom')) || (isMobile ? 0.75 : 1.0);
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768 || !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
+        let viewScale = parseFloat(store.getItem('boruZoom')) || (isMobile ? (Math.min(window.innerWidth, window.innerHeight) < 500 ? 0.66 : 0.72) : 1.0);
 
         // --- GELİŞMİŞ AYARLAR ---
         let gfxQuality = store.getItem('boruGfx') || (isMobile ? 'mid' : 'high');
@@ -1465,7 +1630,7 @@
             // Base stat hesaplamaları (Market eşyaları hariç)
             maxHp = 2400 + (buffLevels.hp * 500 * (1 + (buffLevels.hp * 0.2)));
             stats.fireDamage = 1.5 + (level * 0.2) + (buffLevels.fire * 0.2); // Level scale + buff cards
-            stats.baseMaxSpeed = (isMobile ? 11.5 : 14) * Math.pow(1.05, buffLevels.speed);
+            stats.baseMaxSpeed = (isMobile ? 9.5 : 14) * Math.pow(1.05, buffLevels.speed);
             stats.trailDamage = false;
             stats.lifeStealChance = (buffLevels.lifesteal * 5 * (1 + buffLevels.lifesteal * 0.2));
             stats.fireVolume = 4 + Math.floor(2 * (1 + buffLevels.fire * 0.2));
@@ -3709,7 +3874,7 @@
         const sahmeranProjectiles = []; const poisonPools = [];
 
         let lastBiomeDisplayName = ""; let tick = 0; const gridSize = 120;
-        const stats = { baseMaxSpeed: isMobile ? 11.5 : 14, fireVolume: 4, fireDamage: 1.5, lifeStealChance: 0, rageEfficiency: 1, fireSizeMult: 1, critChance: 0, trailDamage: false };
+        const stats = { baseMaxSpeed: isMobile ? 9.5 : 14, fireVolume: 4, fireDamage: 1.5, lifeStealChance: 0, rageEfficiency: 1, fireSizeMult: 1, critChance: 0, trailDamage: false };
         const world = { dragonX: 0, dragonY: 0, lastX: 0, lastY: 0, speed: 0, comfortZone: 70, deadZone: 6 };
         let buffLevels = { fire: 0, hp: 0, speed: 0, lifesteal: 0, rage: 0, size: 0, crit: 0, hiveFavor: 0, swiftClaw: 0, roarPower: 0 };
         let shieldDmgMult = 1; // Kalkan İksiri aktifken gelen hasarı yarıya indirir (her frame animate() içinde güncellenir)
@@ -4383,29 +4548,44 @@
             if(loadGame()) { prepGameStart(); }
         });
 
-        let isJoyActive = false; let joyTouchId = null;
-        const joyZone = document.getElementById('joystickZone'); const joyKnob = document.getElementById('joystickKnob'); let joyCenterX = 0, joyCenterY = 0;
-        // NOT: e.touches[0] o parmağa özel değildir - sayfadaki TÜM aktif dokunuşların ilkini verir.
-        // Ateş/kükreme/hayalet butonlarıyla aynı anda kullanılırsa joystick yanlış parmağı takip edebiliyordu.
-        // Bu yüzden dokunuş kimliği (identifier) ile takip ediyoruz.
-        joyZone.addEventListener('touchstart', (e) => {
-            const t = e.changedTouches[0]; joyTouchId = t.identifier; isJoyActive = true;
-            const rect = joyZone.getBoundingClientRect(); joyCenterX = rect.left + rect.width / 2; joyCenterY = rect.top + rect.height / 2;
+        // YÜZEN JOYSTICK: ekranın sol yarısında parmağın değdiği yerde belirir. Analog: çubuk ne kadar
+        // itilirse ejderha o kadar hızlı uçar. Dokunuşlar kimliğiyle (identifier) takip edilir, böylece
+        // ateş/kükreme butonlarıyla aynı anda kullanılabilir.
+        let isJoyActive = false; let joyTouchId = null; let joyDX = 0, joyDY = 0;
+        const joyZone = document.getElementById('joystickZone'); const joyKnob = document.getElementById('joystickKnob'); const joyArea = document.getElementById('joyArea'); let joyCenterX = 0, joyCenterY = 0;
+        joyArea.addEventListener('touchstart', (e) => {
+            if (isJoyActive) return;
+            const t = e.changedTouches[0]; e.preventDefault();
+            joyTouchId = t.identifier; isJoyActive = true;
+            const R = joyZone.offsetWidth / 2;
+            const cx = Math.max(R + 6, Math.min(window.innerWidth - R - 6, t.clientX));
+            const cy = Math.max(R + 6, Math.min(window.innerHeight - R - 6, t.clientY));
+            joyZone.style.left = (cx - R) + 'px'; joyZone.style.top = (cy - R) + 'px'; joyZone.style.bottom = 'auto';
+            joyZone.classList.add('on'); joyCenterX = cx; joyCenterY = cy;
             updateJoystick(t);
-        });
-        joyZone.addEventListener('touchmove', (e) => {
+        }, { passive: false });
+        window.addEventListener('touchmove', (e) => {
             if (!isJoyActive) return;
             for (let i = 0; i < e.touches.length; i++) { if (e.touches[i].identifier === joyTouchId) { e.preventDefault(); updateJoystick(e.touches[i]); break; } }
-        });
-        function endJoystick() { isJoyActive = false; joyTouchId = null; joyKnob.style.transform = `translate(0px, 0px)`; mouseScreenX = canvas.width / 2; mouseScreenY = canvas.height / 2; }
-        joyZone.addEventListener('touchend', endJoystick);
-        joyZone.addEventListener('touchcancel', endJoystick);
-
+        }, { passive: false });
+        function joyRelease(e) { if (!isJoyActive) return; for (const t of e.changedTouches) if (t.identifier === joyTouchId) { endJoystick(); break; } }
+        window.addEventListener('touchend', joyRelease);
+        window.addEventListener('touchcancel', joyRelease);
+        function endJoystick() {
+            isJoyActive = false; joyTouchId = null; joyDX = 0; joyDY = 0;
+            joyKnob.style.transform = 'translate(0px, 0px)'; joyZone.classList.remove('on');
+            joyZone.style.left = ''; joyZone.style.top = ''; joyZone.style.bottom = '';
+            mouseScreenX = canvas.width / 2; mouseScreenY = canvas.height / 2;
+        }
         function updateJoystick(touch) {
             const dx = touch.clientX - joyCenterX; const dy = touch.clientY - joyCenterY;
-            const dist = Math.min(Math.hypot(dx, dy), 40); const angle = Math.atan2(dy, dx);
-            joyKnob.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
-            mouseScreenX = (canvas.width / 2) + Math.cos(angle) * (dist/40) * 300; mouseScreenY = (canvas.height / 2) + Math.sin(angle) * (dist/40) * 300;
+            const R = joyZone.offsetWidth * 0.36;
+            const dist = Math.min(Math.hypot(dx, dy), R); const angle = Math.atan2(dy, dx);
+            joyKnob.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`;
+            joyDX = Math.cos(angle) * dist; joyDY = Math.sin(angle) * dist;
+            const frac = dist / R; const k = frac < 0.15 ? 0 : Math.pow((frac - 0.15) / 0.85, 1.2);
+            const reach = world.deadZone + k * (world.comfortZone - world.deadZone);
+            mouseScreenX = (canvas.width / 2) + Math.cos(angle) * reach; mouseScreenY = (canvas.height / 2) + Math.sin(angle) * reach;
         }
 
         document.getElementById('fireBtn').addEventListener('touchstart', (e) => { e.preventDefault(); if(!isPaused) isBreathingFire = true; });
@@ -4650,7 +4830,7 @@
 
         function triggerRoar() {
             if(roarCooldown > 0 || (MP.active && MP.localDead)) return;
-            roarCooldown = (equippedBlackMarket.ancientRoar ? 75 : 150) / (1 + (stats.roarPower || 0) * 0.15);
+            roarCooldown = roarCdMax = (equippedBlackMarket.ancientRoar ? 75 : 150) / (1 + (stats.roarPower || 0) * 0.15);
             const hx = joints[0].x + Math.cos(joints[0].angle) * 30, hy = joints[0].y + Math.sin(joints[0].angle) * 30;
             roars.push({ x: hx, y: hy, angle: joints[0].angle, radius: 20, life: 1.0, seed: Math.random() * 100 }); MP.ro++;
             // Ağızdan saçılan toz / kıvılcım parçacıkları
@@ -7092,7 +7272,7 @@
             const o = objectiveInfo();
             const bt = bossTypeForWave(currentWave);
             const waveLine = inMirrorArena ? '' : `<div class="ob-w">🌊 Dalga ${currentWave} · ${Math.min(killsInCurrentWave, killsNeededForNextWave)}/${killsNeededForNextWave} ruh ${bt ? (waveBossPending ? '· ⚠️ BOSS SAVAŞI' : '· ardından BOSS gelir') : '· ardından yeni dalga'}</div>`;
-            el.innerHTML = `<div class="ob-h">🎯 AMACIM</div><div class="ob-t">${o.t}</div><div class="ob-y">${o.w}</div>${waveLine}<div class="ob-k">📖 Hikâye ve amacın: ${isTouchUI ? 'GÜNLÜK butonu' : 'J tuşu'}</div>`;
+            el.innerHTML = `<div class="ob-h">🎯 AMACIM</div><div class="ob-t">${o.t}</div><div class="ob-y">${o.w}</div>${waveLine}<div class="ob-k">📖 Hikâye ve amacın: ${isTouchUI ? '☰ → Günlük' : 'J tuşu'}</div>`;
         }
         const JOURNAL = [
             { t: 'I · Ateşyurt', x: 'Bir zamanlar ejderhaların yurdu Ateşyurt, yıldızların en sıcak ışığıydı. Sonra gökyüzünü karartan o sürü geldi ve yurdumuzu bir gecede yuttu.' },
@@ -7153,7 +7333,7 @@
                     <div class="gl-step"><div class="gl-n">3</div><div><b>200 kovan → Kara Delik II · Yıkılmış Ateşyurt.</b> Yurdumun küllerine dönüş. Onu yutan sürünün anası orada yuvalanmış.</div></div>
                     <div class="gl-step"><div class="gl-n">4</div><div><b>300 kovan → Kara Delik III · Yıldızların Mezarlığı.</b> Sürüyü gönderen, her şeyin arkasındaki üç başlı kıyamet.</div></div>
                 </div>
-                <div class="gl-how"><b>Yol boyunca:</b> Dalgalar büyüdükçe devler gelir; 25 ruh yaktıktan sonra dalganın bossu çıkar. Sığınakta yaralarını sar ve onu büyüt (${kk('B', 'SIĞINAK butonu')}). Köle topla (${kk('Q+W', 'KÖLE')}), fethettiğin kovanlardan takviye çağır (${kk('Q+S', 'ÇAĞIR')}). Ne kadar uzağa gidersen düşmanların o kadar çok koin bırakır.<br><br>Amacını unutursan: <b>📖 Günlüğe (${kk('J', 'GÜNLÜK')})</b> bak.</div>
+                <div class="gl-how"><b>Yol boyunca:</b> Dalgalar büyüdükçe devler gelir; 25 ruh yaktıktan sonra dalganın bossu çıkar. Sığınakta yaralarını sar ve onu büyüt (${kk('B', 'SIĞINAK butonu')}). Köle topla (${kk('Q+W', '☰ → Köle')}), fethettiğin kovanlardan takviye çağır (${kk('Q+S', '☰ → Takviye')}). Ne kadar uzağa gidersen düşmanların o kadar çok koin bırakır.<br><br>Amacını unutursan: <b>📖 Günlüğe (${kk('J', '☰ → Günlük')})</b> bak.</div>
                 <button class="action-btn menu-btn-primary" onclick="closeGoal()">🔥 YEMİNİMİ HATIRLIYORUM</button>`;
             goalPausedByMe = gameActive && !isPaused && !MP.active;
             if (goalPausedByMe || (gameActive && journalPausedByMe)) { isPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; goalPausedByMe = true; journalPausedByMe = false; }
@@ -7175,7 +7355,7 @@
             { id: 'move', title: '🕯️ ANNEMİN KÖZÜ',
               why: 'Bu sığınak annemin son hediyesi. O gece beni içeri itti; kendisi kapının önünde düştü. Düştüğü yerde hâlâ sönmeyen bir kor yanıyor. Her uyanışımda önce ona giderim.',
               pc: { k: ['FARE'], t: 'İmleci ejderhanın uzağına götür: ne kadar uzağa götürürsen o kadar hızlı uçarsın, yakına getirince yavaşlarsın. Parlayan halkaya uç.' },
-              mob: { k: ['ÇUBUK'], t: 'Sol alttaki çubuğu kaydırarak uç. Parlayan halkaya git.' },
+              mob: { k: ['ÇUBUK'], t: 'Sol yarıya parmağını koy ve kaydır; ne kadar itersen o kadar hızlı uçarsın. Parlayan halkaya git.' },
               voice: ['Yine aynı rüya… Ateşyurt yanıyor, gökyüzü sürüyle kararıyor.', 'Uyan. Önce annemin közüne git.'],
               done: [['ANNEMİN SESİ', '"Kanatlarını kapat yavrum. Fırtına geçecek."'], 'Fırtına geçmedi anne. Fırtına artık benim.'] },
             { id: 'fire', title: '🔥 ATEŞİN DİLİ',
@@ -7211,7 +7391,7 @@
             { id: 'slave', title: '🐍 ZİNCİR',
               why: 'Kaçanları zincire vurdum. Köleler yanımda uçar, beni korur, düşmanlarıma saldırır. Ama unutma: korkuyla bağlanan sadakat ölümle çözülür — ölen köle zincirini kırıp düşmana döner.',
               pc: { k: ['Q', '+', 'W'], t: 'İkisine aynı anda bas (120 koin). En fazla 6 köle.' },
-              mob: { k: ['🐍 KÖLE'], t: 'Bas (120 koin). En fazla 6 köle.' },
+              mob: { k: ['☰', '→', '🐍 KÖLE'], t: 'Sağ üstteki menüyü aç ve köle çağır (120 koin). En fazla 6 köle.' },
               voice: ['Bir zamanlar zinciri onlar vururdu.'],
               done: ['Şimdi zincir benim pençemde.'] },
             { id: 'plasma', title: '⚛️ ATEŞYURT\'UN SON IŞIĞI',
@@ -7223,7 +7403,7 @@
             { id: 'sanct', title: '🏰 SIĞINAK',
               why: 'Annemin hayatı pahasına beni ittiği yer artık benim kalem. İçinde kimse bana dokunamaz, yaralarım kapanır. Kazandığım koinle surlarını, kulelerini ve şifa pınarını büyütürüm.',
               pc: { k: ['B'], t: 'Sığınağın (turkuaz halka) içine uç ve yönetimi aç.' },
-              mob: { k: ['🏰 SIĞINAK'], t: 'Sığınağın içine uç ve beliren butona bas.' },
+              mob: { k: ['🏰 SIĞINAK'], t: 'Sığınağın içine uç ve üstte beliren butona bas.' },
               voice: ['Yaralarımı saracağım. Sonra av başlar.'],
               done: ['Burası benim. Ve artık bu dünya da.'] },
             { id: 'goal', title: '🔥 YEMİN', why: '', pc: { k: [], t: '' }, mob: { k: [], t: '' } }
@@ -7341,6 +7521,17 @@
             const s = TUT_STEPS[TUT.i]; if (!s || s.id === 'goal') { p.style.display = 'none'; return; }
             const how = isTouchUI ? s.mob : s.pc;
             p.style.display = 'block';
+            if (isTouchUI) {
+                const keys = how.k.map(k => k === '+' ? '+' : '<kbd>' + k + '</kbd>').join(' ');
+                p.innerHTML = `<div class="tp-top"><span>İLK GECE · ${TUT.i + 1} / ${TUT_STEPS.length - 1}</span><button onclick="tutSkip()">Atla ⏭</button></div>
+                    <div class="tp-title">${s.title}</div>
+                    <div class="tp-how">${keys} ${how.t}</div>
+                    ${TUT.whyOpen ? `<div class="tp-why">${s.why}</div>` : ''}
+                    <button class="tp-why-t" onclick="TUT.whyOpen=!TUT.whyOpen;tutRender()">${TUT.whyOpen ? '▲ kapat' : '📜 neden?'}</button>
+                    ${TUT.need > 1 ? `<div class="tp-bar"><i style="width:${Math.min(100, TUT.count / TUT.need * 100)}%"></i></div><div class="tp-cnt">${Math.min(TUT.count, TUT.need)} / ${TUT.need}</div>` : ''}
+                    ${TUT.transition ? '<div class="tp-ok">✔ TAMAMLANDI</div>' : ''}`;
+                return;
+            }
             p.innerHTML = `<div class="tp-top"><span>İLK GECE · ${TUT.i + 1} / ${TUT_STEPS.length - 1}</span><button onclick="tutSkip()">Eğitimi atla ⏭</button></div>
                 <div class="tp-title">${s.title}</div>
                 <div class="tp-why"><b>NEDEN?</b>${s.why}</div>
@@ -7374,7 +7565,7 @@
             if (!gameActive) return;
             if (isPaused) return;
             
-            tick += 0.06; if (!inMirrorArena) updateEnemySpawn();
+            tick += 0.06; if (!inMirrorArena) updateEnemySpawn(); if ((++mbTick & 3) === 0) updateMobileButtons();
             if (TUT.active) tutUpdate();
             if (tick % 3 < 0.06 && !inMirrorArena) ensureHivesNearPlayer();
             if (tick % 1 < 0.06) renderTerritoryPanel();
@@ -8443,8 +8634,7 @@
             // dönüş HIZINI kontrol eder (ne kadar çabuk hizalanır), hareket hızını değil.
             let desiredHeadAngle = joints[0].angle;
             if (isJoyActive) {
-                const rect = joyZone.getBoundingClientRect(); const jdx = joyKnob.getBoundingClientRect().left + 30 - (rect.left + rect.width / 2); const jdy = joyKnob.getBoundingClientRect().top + 30 - (rect.top + rect.height / 2);
-                if (Math.hypot(jdx, jdy) > 5) desiredHeadAngle = Math.atan2(jdy, jdx);
+                if (Math.hypot(joyDX, joyDY) > 5) desiredHeadAngle = Math.atan2(joyDY, joyDX);
             } else if (distFromCenter > 1) {
                 desiredHeadAngle = Math.atan2(screenDy, screenDx);
             }
@@ -8472,6 +8662,80 @@
             drawHUDCompass(); ctx.restore();
             if (uiSettings.minimap) drawMinimap();
         }
+
+        // =====================================================================
+        // MOBİL ARAYÜZ v2: sade üst şerit, yüzen joystick, başparmak kümesi, ☰ hızlı menü, tam ekran
+        // =====================================================================
+        let mbTick = 0; let roarCdMax = 150;
+        function updateMobileButtons() {
+            if (!document.body.classList.contains('m')) return;
+            const set = (id, v) => { const el = document.getElementById(id); if (el) el.style.setProperty('--cd', Math.max(0, Math.min(1, v)).toFixed(3)); };
+            set('roarBtn', roarCooldown > 0 ? roarCooldown / roarCdMax : 0);
+            set('ghostBtn', 1 - ghostEnergy / GHOST_MAX);
+            set('plasmaBtnM', (isSuperBeamCharging || isSuperBeamFiring) ? 0 : 1 - plasmaCharge / PLASMA_MAX);
+        }
+        (function mobileInit() {
+            if (!isTouchUI) return;
+            document.body.classList.add('m');
+            const put = (slotId, elId) => { const slot = document.getElementById(slotId), el = document.getElementById(elId); if (slot && el) slot.replaceWith(el); };
+            put('mhSlotPause', 'pauseBtnFixed'); put('mhSlotXp', 'xpBarContainer'); put('mhSlotCoin', 'coinCount');
+            put('mhSlotHp', 'hpBarContainer'); put('mhSlotRage', 'rageBarContainer'); put('mhSlotPl', 'plasmaBarContainer');
+            const chips = document.getElementById('mhChips');
+            chips.appendChild(document.getElementById('ghostIndicator')); chips.appendChild(document.getElementById('safeZoneIndicator'));
+            document.getElementById('sanctuaryBtn').textContent = '🏰 SIĞINAK';
+            document.getElementById('ghostIndicator').textContent = '👻 HAYALET';
+            document.getElementById('safeZoneIndicator').textContent = '🛡️ SIĞINAKTASIN';
+            // Butonlara basınca hafif küçülme hissi
+            document.querySelectorAll('.mobBtn').forEach(b => {
+                b.addEventListener('touchstart', () => b.classList.add('pressed'), { passive: true });
+                const up = () => b.classList.remove('pressed');
+                b.addEventListener('touchend', up); b.addEventListener('touchcancel', up);
+            });
+            // Ekran dönünce joystick temiz başlasın
+            window.addEventListener('orientationchange', () => { try { endJoystick(); } catch (e) {} setTimeout(resizeCanvas, 250); });
+        })();
+        let mMenuPaused = false;
+        function renderMMenu() {
+            const rc = reinforceCooldown > 0 ? Math.ceil(reinforceCooldown / 60) + ' sn' : 'hazır';
+            const items = [
+                ['call', '📡', 'Takviye', rc, false],
+                ['slave', '🐍', 'Köle Çağır', hiredBosses.length + '/6 · 120💰', hiredBosses.length >= 6],
+                ['sanct', '🏰', 'Sığınak', playerInSanctuary ? 'yönet' : 'sığınakta açılır', !playerInSanctuary],
+                ['journal', '📖', 'Günlük', 'hikâye · amaç', false],
+                ['market', '🛒', 'Market', 'kostüm · iksir', false],
+                ['settings', '⚙️', 'Ayarlar', 'ses · görüntü', false]
+            ];
+            document.getElementById('mmGrid').innerHTML = items.map(([a, ic, t, sub, dis]) => `<button ${dis ? 'disabled' : ''} onclick="mAct('${a}')"><span>${ic}</span>${t}<small>${sub}</small></button>`).join('');
+        }
+        window.openMMenu = function () {
+            if (!gameActive) return;
+            renderMMenu(); document.getElementById('mMenu').classList.add('open');
+            if (!isPaused) { isPaused = true; mMenuPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
+        };
+        window.closeMMenu = function () {
+            document.getElementById('mMenu').classList.remove('open');
+            if (mMenuPaused) { isPaused = false; mMenuPaused = false; world.lastX = world.dragonX; world.lastY = world.dragonY; }
+        };
+        window.mAct = function (a) {
+            closeMMenu();
+            if (a === 'call') triggerReinforcementCall();
+            else if (a === 'slave') hireSlaveBoss();
+            else if (a === 'sanct') openSanctuary();
+            else if (a === 'journal') openJournal();
+            else if (a === 'market') { togglePause(); openMarket(); }
+            else if (a === 'settings') { togglePause(); openSettingsModal(); }
+        };
+        // TAM EKRAN: ana ekrana eklenmiş uygulamada zaten tam ekran açılır; tarayıcıda (Android) oyuna
+        // başlarken tam ekrana geçilir.
+        function isStandaloneApp() { return (window.matchMedia && (matchMedia('(display-mode: fullscreen)').matches || matchMedia('(display-mode: standalone)').matches)) || navigator.standalone === true; }
+        function goFullscreen() {
+            if (!isTouchUI || isStandaloneApp()) return;
+            const el = document.documentElement; const f = el.requestFullscreen || el.webkitRequestFullscreen;
+            if (!f || document.fullscreenElement || document.webkitFullscreenElement) return;
+            try { const r = f.call(el, { navigationUI: 'hide' }); if (r && r.catch) r.catch(() => {}); } catch (e) {}
+        }
+        ['startBtn', 'continueBtn'].forEach(id => document.getElementById(id).addEventListener('click', goFullscreen));
+        if ('serviceWorker' in navigator && location.protocol === 'https:') { window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {})); }
     </script>
 </body>
 </html>

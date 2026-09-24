@@ -1,0 +1,19 @@
+{
+  "name": "Börü: Son Kral",
+  "short_name": "Börü",
+  "description": "Gökten düşen son ejderhanın fetih destanı",
+  "id": "./",
+  "start_url": "./?kaynak=anaekran",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#030000",
+  "theme_color": "#030000",
+  "lang": "tr",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
