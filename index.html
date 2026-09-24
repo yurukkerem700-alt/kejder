@@ -622,6 +622,51 @@
             body.m .upgrade-card { width: 30vw; display: block; text-align: center; }
             body.m .upgrade-card > div:first-child { margin-bottom: 4px !important; }
         }
+
+        /* ===================== v3: market yazıları, büyük harita, kurulum ===================== */
+        #marketModal { color: #fff; }
+        .market-stats { color: #fff !important; text-shadow: 0 0 6px rgba(0,0,0,0.8); }
+        #marketCoinDisplay, #marketLevelDisplay { color: #ffe14d; text-shadow: 0 0 10px rgba(255,215,0,0.7); }
+        .req-line { color: #f4f4f8; }
+        .req-line span:first-child { color: #ffffff; text-shadow: 0 0 6px rgba(255,255,255,0.35); }
+        .met { color: #5dff95 !important; text-shadow: 0 0 8px rgba(0,255,102,0.8) !important; }
+        .unmet { color: #ff6b8a !important; text-shadow: 0 0 8px rgba(255,51,102,0.8) !important; }
+
+        #minimapCanvas { pointer-events: auto !important; cursor: zoom-in; }
+        #bigMap { position: fixed; inset: 0; z-index: 330; background: #020304; display: none; touch-action: none; }
+        #bigMap.open { display: block; }
+        #bigMapCanvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+        #bigMapCanvas.drag { cursor: grabbing; }
+        .bm-top { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 10px); left: 12px; right: 12px; display: flex; align-items: center; gap: 10px; pointer-events: none; }
+        .bm-title { color: #8ab4ff; font-weight: 900; letter-spacing: 3px; font-size: 16px; text-shadow: 0 0 10px #5a8cff; background: rgba(0,0,0,0.6); padding: 7px 12px; border-radius: 10px; border: 1px solid rgba(138,180,255,0.35); }
+        .bm-legend { flex: 1; display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 11px; color: #dde; background: rgba(0,0,0,0.55); padding: 6px 10px; border-radius: 10px; }
+        .bm-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+        .bm-x { pointer-events: auto; width: 44px; height: 44px; flex: 0 0 44px; border-radius: 50%; background: rgba(255,40,70,0.18); border: 2px solid #ff4466; color: #fff; font-size: 20px; font-weight: bold; cursor: pointer; }
+        .bm-zoom { position: absolute; right: 12px; bottom: calc(env(safe-area-inset-bottom, 0px) + 74px); display: flex; flex-direction: column; gap: 8px; }
+        .bm-zoom button { width: 48px; height: 48px; border-radius: 12px; background: rgba(0,0,0,0.7); border: 1.5px solid #5a8cff; color: #cfe0ff; font-size: 22px; font-weight: bold; cursor: pointer; }
+        .bm-info { position: absolute; left: 12px; right: 76px; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); background: rgba(0,0,0,0.7); border: 1px solid rgba(138,180,255,0.35); border-radius: 12px; padding: 9px 12px; color: #e8ecff; font-size: 13px; line-height: 1.45; }
+        .bm-info b { color: #fff; }
+        @media (max-width: 600px) { .bm-legend { display: none; } }
+
+        .mm-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .mm-head .mm-h { margin: 0; flex: 1; }
+        .mm-x { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,40,70,0.15); border: 2px solid #ff4466; color: #fff; font-size: 18px; font-weight: bold; font-family: inherit; }
+        .mm-grid { grid-template-columns: repeat(4, 1fr) !important; }
+        #mmMsg { min-height: 18px; text-align: center; font-size: 12px; font-weight: bold; margin: 2px 0 8px; color: #ffd27a; }
+
+        #installHelp { position: fixed; inset: 0; z-index: 420; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; padding: 16px; }
+        #installHelp.open { display: flex; }
+        .ih-box { width: 100%; max-width: 440px; max-height: 92vh; overflow-y: auto; touch-action: pan-y !important; background: linear-gradient(170deg, #1c0a06, #070304); border: 2px solid #ff7a2a; border-radius: 16px; padding: 20px; color: #f3e6da; }
+        .ih-box * { touch-action: pan-y; }
+        .ih-box h2 { color: #ff9a5a; font-size: 18px; letter-spacing: 2px; margin-bottom: 10px; text-align: center; }
+        .ih-box ol { padding-left: 20px; font-size: 14px; line-height: 1.6; }
+        .ih-box li { margin-bottom: 6px; }
+        .ih-box b { color: #fff; }
+        .ih-note { font-size: 12px; color: #c9b8a8; margin-top: 10px; line-height: 1.5; }
+        .ih-btns { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+        .ih-btns button { padding: 12px; border-radius: 10px; font-weight: bold; font-size: 14px; font-family: inherit; border: 1.5px solid #ff7a2a; background: rgba(255,122,42,0.12); color: #ffd7b0; }
+        #installBtnMenu { display: none; }
+        body.m.can-install #installBtnMenu { display: block; grid-column: 1 / -1; background: rgba(0,255,204,0.1); border-color: #00ffcc; color: #bffff0; }
     </style>
 </head>
 <body>
@@ -699,7 +744,16 @@
         <div class="mh-row mh-bars"><div class="mh-bar hp">❤️<span id="mhSlotHp"></span></div><div class="mh-bar rage">💢<span id="mhSlotRage"></span></div><div class="mh-bar pl">⚛️<span id="mhSlotPl"></span></div></div>
         <div class="mh-chips" id="mhChips"></div>
     </div>
-    <div id="mMenu" onclick="if(event.target===this)closeMMenu()"><div class="mm-sheet"><div class="mm-h">HIZLI MENÜ</div><div class="mm-grid" id="mmGrid"></div><button class="mm-close" onclick="closeMMenu()">↩ OYUNA DÖN</button></div></div>
+    <div id="mMenu"><div class="mm-sheet"><div class="mm-head"><span style="width:40px"></span><div class="mm-h">HIZLI MENÜ</div><button class="mm-x" onclick="closeMMenu()" aria-label="Kapat">✕</button></div><div id="mmMsg"></div><div class="mm-grid" id="mmGrid"></div><button class="mm-close" onclick="closeMMenu()">✕ KAPAT VE OYUNA DÖN</button></div></div>
+    <div id="bigMap">
+        <canvas id="bigMapCanvas"></canvas>
+        <div class="bm-top"><div class="bm-title">🗺️ HARİTA</div>
+            <div class="bm-legend"><span><i style="background:#2f8cff"></i>Senin kovanın</span><span><i style="background:#ff3355"></i>Düşman kovanı</span><span><i style="background:#ffaa00"></i>Hükümdar savaşı</span><span><i style="background:#00ffcc"></i>Sığınak</span><span><i style="background:#b77bff"></i>Kara delik</span><span><i style="background:#ffd700"></i>Kalıntı</span></div>
+            <button class="bm-x" onclick="closeBigMap()" aria-label="Kapat">✕</button></div>
+        <div class="bm-zoom"><button onclick="bmZoom(1.5)" aria-label="Yakınlaştır">＋</button><button onclick="bmZoom(1/1.5)" aria-label="Uzaklaştır">－</button><button onclick="bmCenter()" aria-label="Ejderhaya dön">◎</button><button onclick="bmShowAll()" aria-label="Tüm kovanlar">🏴</button></div>
+        <div class="bm-info" id="bmInfo"></div>
+    </div>
+    <div id="installHelp"><div class="ih-box" id="ihBox"></div></div>
 
     <div id="bossUi">
         <div id="bossName">HİÇLİK BEHEMOTU</div>
@@ -740,6 +794,7 @@
             <div class="menu-btns" style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 640px; margin-top:6px;">
                 <button class="action-btn" id="continueBtn" style="display:none; background:#00aa55; border-color:#00ff88; color:#fff;">▶ KAYITTAN DEVAM ET</button>
                 <button class="action-btn menu-btn-primary" id="startBtn">⚔️ SIFIRDAN BAŞLA</button>
+                <button class="action-btn" id="installBtnMenu" onclick="doInstall()">📲 UYGULAMA OLARAK YÜKLE (TAM EKRAN)</button>
                 <button class="action-btn" onclick="openMarket()" style="background: rgba(153,0,255,0.2); border-color:#9900ff; color:#fff;">🛒 MARKET</button>
                 <button class="action-btn" onclick="openWorlds()" style="background: rgba(90,140,255,0.12); border-color:#5a8cff; color:#cfe0ff;">🌍 DÜNYALAR</button>
                 <button class="action-btn" onclick="playStory(null)" style="background: rgba(255,120,40,0.1); border-color:#ff7a2a; color:#ffcc99;">📜 HİKÂYE</button>
@@ -841,6 +896,7 @@
                     <b>1 - 4</b><span>İksir kullan</span>
                     <b>B</b><span>Sığınak yönetimi (sığınaktayken)</span>
                     <b>J</b><span>Günlük: hikâye ve amacın</span>
+                    <b>M</b><span>Büyük harita (mini haritaya tıklayarak da açılır)</span>
                     <b>A / Esc</b><span>Duraklat</span>
                 </div>
             </div>
@@ -1062,6 +1118,7 @@
             LP.a = joints[0].angle; LP.ghost = spacePressed; LP.safe = inSafeZone && !inMirrorArena; LP.dead = false;
             LP.sm = sizeMultiplier; LP.maxHp = maxHp; LP.hp = dragonHp; LP.name = dragonName;
         }
+        const COIN_RATE = 0.5; // oyunda kazanılan koin çarpanı
         let gameActive = false;
         let isPaused = false;
         
@@ -1368,7 +1425,7 @@
         };
         window.closeSettingsModal = function() {
             document.getElementById('settingsModal').style.display = 'none';
-            if (gameActive && isPaused) document.getElementById('pauseMenu').style.display = 'flex';
+            if (gameActive && isPaused && !mMenuOpen()) document.getElementById('pauseMenu').style.display = 'flex';
         };
 
         document.getElementById('sensitivitySlider').addEventListener('input', (e) => {
@@ -1453,7 +1510,7 @@
         window.closeMarket = function() {
             document.getElementById('marketModal').style.display = 'none';
             if (!gameActive && typeof renderMenuStats === 'function') renderMenuStats();
-            if (gameActive && isPaused) { document.getElementById('pauseMenu').style.display = 'flex'; } 
+            if (gameActive && isPaused) { if (!mMenuOpen()) document.getElementById('pauseMenu').style.display = 'flex'; } 
             else if (!gameActive) { document.getElementById('startScreen').style.display = 'flex'; }
         };
 
@@ -2362,7 +2419,7 @@
             isPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0;
             renderSanctuary(); document.getElementById('sanctuaryModal').style.display = 'flex';
         };
-        window.closeSanctuary = function() { document.getElementById('sanctuaryModal').style.display = 'none'; isPaused = false; world.lastX = world.dragonX; world.lastY = world.dragonY; };
+        window.closeSanctuary = function() { document.getElementById('sanctuaryModal').style.display = 'none'; if (!mMenuOpen()) isPaused = false; world.lastX = world.dragonX; world.lastY = world.dragonY; };
         window.upgradeSanct = function(id) {
             const it = sanctDB.find(x => x.id === id); if (!it || sanct[id] >= SANCT_MAX) return;
             const cost = sanctCost(it); if (coins < cost) return;
@@ -2374,7 +2431,7 @@
         };
 
         function claimAltarChest() {
-            const reward = Math.round(80 * (1 + sanct.altar * 0.8) * (1 + currentWave * 0.1));
+            const reward = earn(80 * (1 + sanct.altar * 0.8) * (1 + currentWave * 0.1));
             coins += reward; document.getElementById('coinCount').innerText = coins;
             let msg = '🎁 HAZİNE SANDIĞI: +' + reward + ' KOİN';
             if (Math.random() < 0.3 + sanct.altar * 0.08) {
@@ -3905,7 +3962,7 @@
 
         function buildQuest(t, scale) {
             let target = (t.type === 'boss' || t.type === 'core') ? t.base : Math.round(t.base * scale);
-            return { type: t.type, icon: t.icon, label: t.label(target), target: target, progress: 0, coinReward: Math.round(target * t.coinPerUnit * scale), xpReward: Math.round(target * t.xpPerUnit * scale), done: false };
+            return { type: t.type, icon: t.icon, label: t.label(target), target: target, progress: 0, coinReward: Math.round(target * t.coinPerUnit * scale * COIN_RATE), xpReward: Math.round(target * t.xpPerUnit * scale), done: false };
         }
 
         function generateQuests() {
@@ -4740,6 +4797,7 @@
             if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
             keyStates[e.code] = true;
             if (MP.active && MP.localDead && ['Space', 'KeyE', 'KeyR', 'Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code)) return;
+            if (e.code === 'Escape' && document.getElementById('bigMap').classList.contains('open')) { closeBigMap(); return; }
             if (e.code === 'Escape' && document.getElementById('settingsModal').style.display === 'flex') { closeSettingsModal(); return; }
             if (e.code === 'Escape' && gameActive && document.getElementById('levelUpScreen').style.display === 'none') togglePause();
             if (e.code === 'KeyA' && gameActive && document.getElementById('levelUpScreen').style.display === 'none') togglePause();
@@ -4753,11 +4811,13 @@
             if (e.code === 'Digit3' && gameActive && !isPaused) usePotion('furyPotion');
             if (e.code === 'Digit4' && gameActive && !isPaused) usePotion('novaPotion');
             if (e.code === 'KeyJ') toggleJournal();
+            if (e.code === 'KeyM' && gameActive) { if (document.getElementById('bigMap').classList.contains('open')) closeBigMap(); else openBigMap(); }
             if (e.code === 'KeyB' && gameActive) { if (document.getElementById('sanctuaryModal').style.display === 'flex') closeSanctuary(); else if (!isPaused) openSanctuary(); }
         });
         window.addEventListener('keyup', (e) => { keyStates[e.code] = false; if (e.code === 'Space') { spacePressed = false; document.getElementById('ghostIndicator').style.display = 'none'; } });
-        window.addEventListener('mousemove', (e) => { if(!isJoyActive && !isPaused){ mouseScreenX = e.clientX; mouseScreenY = e.clientY; }});
-        window.addEventListener('mousedown', (e) => { if(gameActive && !isPaused) isBreathingFire = true; });
+        // Dokunmatik cihazda tarayıcı her dokunuştan sahte bir fare olayı üretir; ejderha ekrana dokununca oraya uçmasın diye yok sayıyoruz.
+        window.addEventListener('mousemove', (e) => { if (document.body.classList.contains('m')) return; if(!isJoyActive && !isPaused){ mouseScreenX = e.clientX; mouseScreenY = e.clientY; }});
+        window.addEventListener('mousedown', (e) => { if (document.body.classList.contains('m')) return; if (e.target && e.target.id === 'minimapCanvas') return; if(gameActive && !isPaused) isBreathingFire = true; });
         window.addEventListener('mouseup', () => { isBreathingFire = false; });
         // NOT: Bu genel dinleyici sadece dokunmatik EKRANLI PC/masaüstü içindir.
         // Mobilde (isMobile) zaten özel bir ATEŞ butonu var; bu global dinleyici aktif kalsaydı
@@ -4868,6 +4928,7 @@
         function showWaveText(text, isBoss = false, color = null) {
             const w = document.getElementById('waveAnnouncer');
             w.innerText = text; w.style.opacity = '1'; w.style.color = color ? color : (isBoss ? '#ff0055' : 'white');
+            if (typeof mMenuOpen === 'function' && mMenuOpen()) { const mm = document.getElementById('mmMsg'); if (mm) { mm.textContent = text; mm.style.color = color || '#ffd27a'; } }
             setTimeout(() => { w.style.opacity = '0'; }, 3000);
         }
 
@@ -7112,7 +7173,7 @@
         }
         function onFleeingKilled(e) {
             score++; document.getElementById('killCount').innerText = score;
-            coins += 1; document.getElementById('coinCount').innerText = coins;
+            coins += earn(1); document.getElementById('coinCount').innerText = coins;
             xpGems.push({ x: e.x, y: e.y, size: 9 });
             addScorch(e.x, e.y, (e.size || 14) * 1.6); addWisp(e.x, e.y);
             if (Math.random() < 0.3) addWhisper(e.x, e.y, ['…annem…', '…lütfen…', '…yavrum…']);
@@ -7128,7 +7189,7 @@
                     enemies.splice(i, 1); n++;
                 }
             }
-            if (n) { coins += n; document.getElementById('coinCount').innerText = coins; showWaveText('🕯️ KOVANIN HALKI DİZ ÇÖKTÜ (' + n + ')', false, '#d8b890'); }
+            if (n) { coins += earn(n); document.getElementById('coinCount').innerText = coins; showWaveText('🕯️ KOVANIN HALKI DİZ ÇÖKTÜ (' + n + ')', false, '#d8b890'); }
             addWhisper(h.x, h.y - 60, ['…efendimiz…', '…Gökteki Kıyamet\'e biat…', '…bizi yakma…']);
         }
         function onHiveCaptured(h) {
@@ -7778,7 +7839,7 @@
                 pas.isHit = false;
                 for (let p of fireParticles) { if (p.life > 0.3 && (pas.x - p.x)**2 + (pas.y - p.y)**2 < (pas.size + p.size * 0.4)**2) { pas.hp -= stats.fireDamage; p.life -= 0.15; pas.isHit = true; } }
                 for (let tp of trailParticles) { if (tp.life > 0 && (pas.x - tp.x)**2 + (pas.y - tp.y)**2 < (pas.size + tp.size)**2) { pas.hp -= stats.fireDamage * 0.5; pas.isHit = true; } }
-                if (pas.hp <= 0) { coins += 1; document.getElementById('coinCount').innerText = coins; for(let k = 0; k < 4; k++) healParticles.push({ x: pas.x + (Math.random()-0.5)*15, y: pas.y + (Math.random()-0.5)*15, size: 7 + Math.random()*3 }); passives.splice(i, 1); continue; }
+                if (pas.hp <= 0) { coins += earn(1); document.getElementById('coinCount').innerText = coins; for(let k = 0; k < 4; k++) healParticles.push({ x: pas.x + (Math.random()-0.5)*15, y: pas.y + (Math.random()-0.5)*15, size: 7 + Math.random()*3 }); passives.splice(i, 1); continue; }
                 let px = pas.x - camX; let py = pas.y - camY;
                 ctx.save(); ctx.translate(px, py); ctx.fillStyle = pas.isHit ? "#ffffff" : "rgba(0, 255, 190, 0.25)"; ctx.strokeStyle = "#00ffcc"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, pas.size, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); let ox = Math.cos(tick * 2.5) * (pas.size + 6); let oy = Math.sin(tick * 2.5) * (pas.size + 6); ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.arc(ox, oy, 3, 0, Math.PI * 2); ctx.fill(); ctx.restore();
             }
@@ -7961,7 +8022,7 @@
                             // TOPLANMA YERİ: kral/kraliçe savaşı yok - yıkılınca kalıcı olarak yok olur, ödül verir
                             h.status = 'destroyed';
                             score += 5; document.getElementById('killCount').innerText = score;
-                            coins += Math.round(140 * dangerBonusMult(h.x, h.y)); document.getElementById('coinCount').innerText = coins; gainXp(70);
+                            coins += earn(140 * dangerBonusMult(h.x, h.y)); document.getElementById('coinCount').innerText = coins; gainXp(70);
                             for (let k = 0; k < 24; k++) xpGems.push({ x: h.x + (Math.random()-0.5)*160, y: h.y + (Math.random()-0.5)*160, size: 14 });
                             showWaveText("🚩 TOPLANMA YERİ YOK EDİLDİ!", false, "#aa44ff"); applyShake(18); SND.net('hiveBurst', { x: h.x, y: h.y });
                             saveHives(); continue;
@@ -8010,7 +8071,7 @@
                         else h.turretCd = 15;
                     }
                     // VERGİ: her dost kovan dakikada 6 koin getirir
-                    h.taxTimer = (h.taxTimer || 0) + 1; if (h.taxTimer >= 3600) { h.taxTimer = 0; coins += 6; document.getElementById('coinCount').innerText = coins; }
+                    h.taxTimer = (h.taxTimer || 0) + 1; if (h.taxTimer >= 3600) { h.taxTimer = 0; coins += earn(6); document.getElementById('coinCount').innerText = coins; }
                     // KUŞATMA: normal düşmanlar bu kovanı geri almaya çalışabilir. Kuşatma altında
                     // değilse yavaşça iyileşir; hp'si tükenirse kovan yeniden düşman eline geçer.
                     if (h.hp === undefined) h.hp = h.maxHp;
@@ -8157,7 +8218,7 @@
                     if(isHit && tick % 2 < 0.2) playHitSound(true, boss.x, boss.y);
 
                     if (boss.hp <= 0) {
-                        playDeathSound(true, boss.x, boss.y, boss.type); score += 30; applyShake(60); document.getElementById('killCount').innerText = score; coins += Math.round(150 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<60; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*200, y: boss.y + (Math.random()-0.5)*200, size: 18 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1);
+                        playDeathSound(true, boss.x, boss.y, boss.type); score += 30; applyShake(60); document.getElementById('killCount').innerText = score; coins += earn(150 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<60; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*200, y: boss.y + (Math.random()-0.5)*200, size: 18 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1);
                     } else {
                         const bx = boss.x - camX; const by = boss.y - camY;
                         ctx.save(); ctx.translate(bx, by);
@@ -8195,7 +8256,7 @@
                     for (let p of fireParticles) { if (p.life > 0.3 && (boss.x-p.x)**2 + (boss.y-p.y)**2 < (boss.size + p.size)**2) { let dmg = fdmg(p); if(Math.random()*100 < stats.critChance) dmg *= 3; boss.hp -= dmg; p.life -= 0.2; isHit = true; addRageP(p, 0.5); } }
                     if(isHit && tick % 2 < 0.2) playHitSound(true, boss.x, boss.y); 
                     
-                    if (boss.hp <= 0) { playDeathSound(true, boss.x, boss.y, boss.type); score += 20; applyShake(60); document.getElementById('killCount').innerText = score; coins += Math.round(100 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<50; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*250, y: boss.y + (Math.random()-0.5)*250, size: 18 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1); }
+                    if (boss.hp <= 0) { playDeathSound(true, boss.x, boss.y, boss.type); score += 20; applyShake(60); document.getElementById('killCount').innerText = score; coins += earn(100 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<50; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*250, y: boss.y + (Math.random()-0.5)*250, size: 18 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1); }
                     else { drawSahmeranBoss(boss, isHit, angleToTarget); }
 
                 } else if (boss.type === 'regular') {
@@ -8232,7 +8293,7 @@
                     if(isHit && tick % 2 < 0.2) playHitSound(true, boss.x, boss.y); 
 
                     if (boss.hp <= 0) {
-                        playDeathSound(true, boss.x, boss.y, boss.type); score += 10; applyShake(50); document.getElementById('killCount').innerText = score; coins += Math.round(50 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<30; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*200, y: boss.y + (Math.random()-0.5)*200, size: 15 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1);
+                        playDeathSound(true, boss.x, boss.y, boss.type); score += 10; applyShake(50); document.getElementById('killCount').innerText = score; coins += earn(50 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<30; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*200, y: boss.y + (Math.random()-0.5)*200, size: 15 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1);
                     }
                     else { drawSerpentBoss(boss, boss.color1 || '#ff0055', boss.color1 || '#ff0055', isHit, boss.joints[0].angle); }
 
@@ -8275,7 +8336,7 @@
                         let hive = hives.find(hh => hh.id === boss.hiveId);
                         playDeathSound(true, boss.x, boss.y, boss.type); score += 25; applyShake(70); document.getElementById('killCount').innerText = score;
                         let kBonus = dangerBonusMult(boss.x, boss.y);
-                        coins += Math.round(600 * kBonus); gainXp(300); document.getElementById('coinCount').innerText = coins;
+                        coins += earn(600 * kBonus); gainXp(300); document.getElementById('coinCount').innerText = coins;
                         for(let i=0; i<70; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*250, y: boss.y + (Math.random()-0.5)*250, size: 18 });
                         hiveTrophies.push({ x: boss.x, y: boss.y, life: 1.0 });
                         if (hive) {
@@ -8331,7 +8392,7 @@
                         let hive = hives.find(hh => hh.id === boss.hiveId);
                         playDeathSound(true, boss.x, boss.y, boss.type); score += 35; applyShake(75); document.getElementById('killCount').innerText = score;
                         let qBonus = dangerBonusMult(boss.x, boss.y);
-                        coins += Math.round(850 * qBonus); gainXp(420); document.getElementById('coinCount').innerText = coins;
+                        coins += earn(850 * qBonus); gainXp(420); document.getElementById('coinCount').innerText = coins;
                         for(let i=0; i<90; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*280, y: boss.y + (Math.random()-0.5)*280, size: 20 });
                         hiveTrophies.push({ x: boss.x, y: boss.y, life: 1.0 });
                         if (hive) {
@@ -8397,7 +8458,7 @@
                     
                     if(isHit && tick % 2 < 0.2) playHitSound(true, boss.x, boss.y); 
 
-                    if (boss.hp <= 0) { playDeathSound(true, boss.x, boss.y, boss.type); score += 50; applyShake(80); document.getElementById('killCount').innerText = score; coins += Math.round(250 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<80; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*300, y: boss.y + (Math.random()-0.5)*300, size: 20 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1); }
+                    if (boss.hp <= 0) { playDeathSound(true, boss.x, boss.y, boss.type); score += 50; applyShake(80); document.getElementById('killCount').innerText = score; coins += earn(250 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<80; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*300, y: boss.y + (Math.random()-0.5)*300, size: 20 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1); }
                     else {
                         const bx = boss.x - camX; const by = boss.y - camY; ctx.save(); ctx.translate(bx, by); ctx.fillStyle = isHit ? '#ffffff' : '#0a0011'; ctx.strokeStyle = '#cc00ff'; ctx.save(); ctx.rotate(tick); ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0, 0, boss.size, 0, Math.PI*2); ctx.stroke(); for(let i=0; i<4; i++) { ctx.rotate(Math.PI/2); ctx.beginPath(); ctx.moveTo(boss.size, 0); ctx.lineTo(boss.size+40, 0); ctx.stroke(); } ctx.restore(); ctx.save(); ctx.rotate(-tick*0.5); ctx.lineWidth = 8; ctx.beginPath(); ctx.arc(0, 0, boss.size*0.7, 0, Math.PI*2); ctx.stroke(); ctx.restore(); const pulse = Math.sin(tick*3)*15; ctx.fillStyle = '#cc00ff'; ctx.beginPath(); ctx.arc(0, 0, 40 + pulse, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.ellipse(0, 0, 10, 25 + pulse*0.5, 0, 0, Math.PI*2); ctx.fill(); ctx.restore();
                     }
@@ -8445,7 +8506,7 @@
                     if (boss.hp <= 0) {
                         playDeathSound(true, boss.x, boss.y, boss.type); let dBonus = dangerBonusMult(boss.x, boss.y);
                         score += 100; applyShake(100); document.getElementById('killCount').innerText = score;
-                        coins += Math.round(600 * dBonus); document.getElementById('coinCount').innerText = coins;
+                        coins += earn(600 * dBonus); document.getElementById('coinCount').innerText = coins;
                         for (let i = 0; i < 120; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*350, y: boss.y + (Math.random()-0.5)*350, size: 22 });
                         if (!unlockedSkins.includes('kingsbane')) { unlockedSkins.push('kingsbane'); store.setItem('boruSkins', JSON.stringify(unlockedSkins)); setTimeout(() => showWaveText("YENİ KOSTÜM: KRAL AVCISI", true, "#ffaa00"), 1600); }
                         updateQuestProgress('boss', 1);
@@ -8607,7 +8668,7 @@
                     playDeathSound(false, e.x, e.y); score++; document.getElementById('killCount').innerText = score; if (!e.tut) killsInCurrentWave++; onEnemyKilled(e);
 
                     let eBiomeMultiplier = getBiomeAt(e.x, e.y).multiplier || 1;
-                    coins += Math.round(2 * eBiomeMultiplier * dangerBonusMult(e.x, e.y)); document.getElementById('coinCount').innerText = coins;
+                    coins += earn(2 * eBiomeMultiplier * dangerBonusMult(e.x, e.y)); document.getElementById('coinCount').innerText = coins;
 
                     xpGems.push({ x: e.x, y: e.y, size: 10 + Math.random()*10 });
                     if(Math.random()*100 < stats.lifeStealChance && dragonHp < maxHp) { dragonHp = Math.min(maxHp, dragonHp + 5); updateUI(); }
@@ -8667,6 +8728,190 @@
         // MOBİL ARAYÜZ v2: sade üst şerit, yüzen joystick, başparmak kümesi, ☰ hızlı menü, tam ekran
         // =====================================================================
         let mbTick = 0; let roarCdMax = 150;
+        // =====================================================================
+        // v3: KOİN EKONOMİSİ — oyunda kazanılan koinler yarıya indirildi (fiyatlar aynı kaldı).
+        // Küçük ödüller olasılıklı yuvarlanır: 1.5 koin = yarı yarıya 1 ya da 2.
+        // =====================================================================
+        function earn(n) { const v = Math.max(0, n) * COIN_RATE; const f = Math.floor(v); return f + (Math.random() < v - f ? 1 : 0); }
+
+        // =====================================================================
+        // v3: BÜYÜK HARİTA — sürükle/kaydır, tekerlek veya iki parmakla yakınlaştır.
+        // Fethedilen kovanlar kalıcı kayıttan (hiveStates) okunur, uzaktakiler de görünür.
+        // =====================================================================
+        const BM = { open: false, cx: 0, cy: 0, scale: 0.05, paused: false, ptrs: new Map(), pinch: null, moved: 0, sel: null, raf: 0 };
+        const bmCanvas = document.getElementById('bigMapCanvas'); const bmCtx = bmCanvas.getContext('2d');
+        function bmKnownHives() {
+            const map = new Map();
+            for (const id in hiveStates) {
+                const st = hiveStates[id]; if (!st || st.status === 'destroyed' || !id.startsWith('poi_')) continue;
+                const [cx, cy] = id.slice(4).split('_').map(Number);
+                const poi = (cx === 0 && cy === -1) ? FIRST_POI : chunkPOI(cx, cy); if (!poi) continue;
+                map.set(id, { id, x: poi.x, y: poi.y, status: st.status, name: st.commanderName, garrison: st.garrison || 0 });
+            }
+            for (const h of hives) if (h.status !== 'destroyed') map.set(h.id, { id: h.id, x: h.x, y: h.y, status: h.status, name: h.commanderName, garrison: h.garrisonCount || 0, live: h });
+            return [...map.values()];
+        }
+        function bmResize() { const d = Math.min(2, window.devicePixelRatio || 1); bmCanvas.width = innerWidth * d; bmCanvas.height = innerHeight * d; bmCtx.setTransform(d, 0, 0, d, 0, 0); }
+        function bmW2S(x, y) { return [innerWidth / 2 + (x - BM.cx) * BM.scale, innerHeight / 2 + (y - BM.cy) * BM.scale]; }
+        function bmDraw() {
+            if (!BM.open) return;
+            const W = innerWidth, H = innerHeight, c = bmCtx;
+            c.fillStyle = '#05070a'; c.fillRect(0, 0, W, H);
+            // Biyom renkleri
+            const cell = 26;
+            for (let sy = 0; sy < H; sy += cell) for (let sx = 0; sx < W; sx += cell) {
+                const wx = BM.cx + (sx + cell / 2 - W / 2) / BM.scale, wy = BM.cy + (sy + cell / 2 - H / 2) / BM.scale;
+                c.fillStyle = hexA(getBiomeAt(wx, wy).gridColor, 0.13); c.fillRect(sx, sy, cell, cell);
+            }
+            // Izgara (her kare 2 km)
+            const step = 2000; c.strokeStyle = 'rgba(138,180,255,0.08)'; c.lineWidth = 1;
+            const x0 = Math.floor((BM.cx - W / 2 / BM.scale) / step) * step, y0 = Math.floor((BM.cy - H / 2 / BM.scale) / step) * step;
+            for (let x = x0; x < BM.cx + W / 2 / BM.scale; x += step) { const [sx] = bmW2S(x, 0); c.beginPath(); c.moveTo(sx, 0); c.lineTo(sx, H); c.stroke(); }
+            for (let y = y0; y < BM.cy + H / 2 / BM.scale; y += step) { const [, sy] = bmW2S(0, y); c.beginPath(); c.moveTo(0, sy); c.lineTo(W, sy); c.stroke(); }
+            // Sığınak
+            { const [sx, sy] = bmW2S(safeZone.x, safeZone.y); const r = Math.max(8, safeZone.radius * BM.scale);
+              c.fillStyle = 'rgba(0,255,204,0.12)'; c.strokeStyle = '#00ffcc'; c.lineWidth = 2; c.beginPath(); c.arc(sx, sy, r, 0, Math.PI * 2); c.fill(); c.stroke();
+              c.font = '16px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('🏰', sx, sy); }
+            // Kalıntılar (bulunanlar)
+            for (const i of loreFound) { const lf = loreFragmentPoints[i]; if (!lf) continue; const [sx, sy] = bmW2S(lf.x, lf.y); c.fillStyle = '#ffd700'; c.beginPath(); c.arc(sx, sy, 3.5, 0, Math.PI * 2); c.fill(); }
+            // Kadim çekirdekler
+            for (const pc of powerCores) { const [sx, sy] = bmW2S(pc.x, pc.y); c.fillStyle = '#ffaa00'; c.beginPath(); c.arc(sx, sy, 5, 0, Math.PI * 2); c.fill(); }
+            // Kara delik
+            if (blackHolePortal) { const [sx, sy] = bmW2S(blackHolePortal.x, blackHolePortal.y); c.strokeStyle = '#b77bff'; c.lineWidth = 3; c.beginPath(); c.arc(sx, sy, 10, 0, Math.PI * 2); c.stroke(); c.fillStyle = '#000'; c.beginPath(); c.arc(sx, sy, 7, 0, Math.PI * 2); c.fill(); }
+            // Kovanlar
+            const hs = bmKnownHives(); const size = Math.max(5, Math.min(14, 90 * BM.scale + 4));
+            for (const h of hs) {
+                const [sx, sy] = bmW2S(h.x, h.y); if (sx < -20 || sy < -20 || sx > W + 20 || sy > H + 20) continue;
+                const col = h.status === 'friendly' ? '#2f8cff' : h.status === 'kingFight' ? '#ffaa00' : '#ff3355';
+                c.save(); c.translate(sx, sy);
+                if (h.status === 'friendly') { c.shadowBlur = 12; c.shadowColor = col; }
+                c.fillStyle = col; c.strokeStyle = BM.sel === h.id ? '#fff' : 'rgba(0,0,0,0.8)'; c.lineWidth = BM.sel === h.id ? 3 : 1.5;
+                c.beginPath(); for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3 + Math.PI / 6; c.lineTo(Math.cos(a) * size, Math.sin(a) * size); } c.closePath(); c.fill(); c.stroke();
+                c.shadowBlur = 0;
+                if (h.status === 'friendly' && size > 7) { c.fillStyle = '#fff'; c.font = `bold ${Math.round(size)}px sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('⚑', 0, 1); }
+                c.restore();
+            }
+            // Bosslar
+            for (const b of activeBosses) { const [sx, sy] = bmW2S(b.x, b.y); c.font = '16px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('💀', sx, sy); }
+            // Köleler ve ejderha
+            for (const hb of hiredBosses) { const [sx, sy] = bmW2S(hb.x, hb.y); c.fillStyle = '#66aaff'; c.beginPath(); c.arc(sx, sy, 3, 0, Math.PI * 2); c.fill(); }
+            { const [sx, sy] = bmW2S(world.dragonX, world.dragonY); c.save(); c.translate(sx, sy); c.rotate(joints[0].angle);
+              c.shadowBlur = 14; c.shadowColor = activeTheme.mainColor; c.fillStyle = '#fff'; c.strokeStyle = activeTheme.mainColor; c.lineWidth = 2;
+              c.beginPath(); c.moveTo(14, 0); c.lineTo(-9, -9); c.lineTo(-4, 0); c.lineTo(-9, 9); c.closePath(); c.fill(); c.stroke(); c.restore(); }
+            // Ölçek çubuğu
+            { const len = 1000 * BM.scale; c.strokeStyle = '#cfe0ff'; c.lineWidth = 2; const bx = 16, by = H - (document.body.classList.contains('m') ? 96 : 84);
+              c.beginPath(); c.moveTo(bx, by); c.lineTo(bx + len, by); c.moveTo(bx, by - 5); c.lineTo(bx, by + 5); c.moveTo(bx + len, by - 5); c.lineTo(bx + len, by + 5); c.stroke();
+              c.fillStyle = '#cfe0ff'; c.font = '11px sans-serif'; c.textAlign = 'left'; c.textBaseline = 'bottom'; c.fillText('100 m', bx, by - 7); }
+            bmInfo(hs);
+        }
+        function bmInfo(hs) {
+            const el = document.getElementById('bmInfo');
+            const mine = hs.filter(h => h.status === 'friendly'), foes = hs.filter(h => h.status !== 'friendly');
+            const sel = BM.sel && hs.find(h => h.id === BM.sel);
+            if (sel) {
+                const d = Math.round(Math.hypot(sel.x - world.dragonX, sel.y - world.dragonY) / 10);
+                el.innerHTML = sel.status === 'friendly'
+                    ? `<b>🏴 ${escapeHtml(sel.name || 'Fethedilen Kovan')}</b> · senin kovanın<br>⚔️ Garnizon: ${sel.garrison} asker · 📍 ${d} m uzakta`
+                    : `<b>${sel.status === 'kingFight' ? '👑 Hükümdar savaşı sürüyor' : '🔴 Düşman kovanı'}</b><br>📍 ${d} m uzakta`;
+            } else {
+                const ds = Math.round(Math.hypot(safeZone.x - world.dragonX, safeZone.y - world.dragonY) / 10);
+                el.innerHTML = `<b>🏴 ${mine.length}</b> kovan senin · <b>🔴 ${foes.length}</b> düşman kovanı biliniyor · 🏰 Sığınak ${ds} m<br><span style="color:#aab">Toplam fetih: ${totalHivesCapturedLifetime} · Bir kovana dokun, bilgisini gör.</span>`;
+            }
+        }
+        function bmLoop() { if (!BM.open) return; bmDraw(); BM.raf = requestAnimationFrame(bmLoop); }
+        window.openBigMap = function () {
+            if (!gameActive || BM.open) return;
+            if (inMirrorArena) { showWaveText('🕳️ KARA DELİKTE HARİTA ÇALIŞMAZ', false, '#b77bff'); return; }
+            BM.open = true; BM.sel = null; BM.cx = world.dragonX; BM.cy = world.dragonY;
+            BM.scale = Math.min(innerWidth, innerHeight) / 9000;
+            bmResize(); document.getElementById('bigMap').classList.add('open');
+            if (!isPaused && !MP.active) { isPaused = true; BM.paused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
+            if (typeof endJoystick === 'function') try { endJoystick(); } catch (e) {}
+            bmLoop();
+        };
+        window.closeBigMap = function () {
+            BM.open = false; cancelAnimationFrame(BM.raf); document.getElementById('bigMap').classList.remove('open'); BM.ptrs.clear(); BM.pinch = null;
+            if (BM.paused) { BM.paused = false; if (!mMenuOpen()) { isPaused = false; world.lastX = world.dragonX; world.lastY = world.dragonY; } }
+        };
+        function bmClampScale(sc) { return Math.max(0.006, Math.min(0.6, sc)); }
+        window.bmZoom = function (f, px, py) {
+            px = px === undefined ? innerWidth / 2 : px; py = py === undefined ? innerHeight / 2 : py;
+            const wx = BM.cx + (px - innerWidth / 2) / BM.scale, wy = BM.cy + (py - innerHeight / 2) / BM.scale;
+            BM.scale = bmClampScale(BM.scale * f);
+            BM.cx = wx - (px - innerWidth / 2) / BM.scale; BM.cy = wy - (py - innerHeight / 2) / BM.scale;
+        };
+        window.bmCenter = function () { BM.cx = world.dragonX; BM.cy = world.dragonY; BM.sel = null; };
+        window.bmShowAll = function () {
+            const pts = bmKnownHives().filter(h => h.status === 'friendly').map(h => [h.x, h.y]); pts.push([world.dragonX, world.dragonY], [safeZone.x, safeZone.y]);
+            const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+            const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+            BM.cx = (minX + maxX) / 2; BM.cy = (minY + maxY) / 2;
+            BM.scale = bmClampScale(Math.min((innerWidth - 80) / Math.max(1500, maxX - minX), (innerHeight - 200) / Math.max(1500, maxY - minY)));
+        };
+        bmCanvas.addEventListener('pointerdown', (e) => { bmCanvas.setPointerCapture(e.pointerId); BM.ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); BM.moved = 0; bmCanvas.classList.add('drag');
+            if (BM.ptrs.size === 2) { const [a, b] = [...BM.ptrs.values()]; BM.pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) }; } });
+        bmCanvas.addEventListener('pointermove', (e) => {
+            const p = BM.ptrs.get(e.pointerId); if (!p) return;
+            const dx = e.clientX - p.x, dy = e.clientY - p.y; p.x = e.clientX; p.y = e.clientY;
+            if (BM.ptrs.size === 1) { BM.cx -= dx / BM.scale; BM.cy -= dy / BM.scale; BM.moved += Math.abs(dx) + Math.abs(dy); }
+            else if (BM.ptrs.size === 2 && BM.pinch) { const [a, b] = [...BM.ptrs.values()]; const d = Math.hypot(a.x - b.x, a.y - b.y); bmZoom(d / BM.pinch.d, (a.x + b.x) / 2, (a.y + b.y) / 2); BM.pinch.d = d; BM.moved += 99; }
+        });
+        function bmUp(e) {
+            const wasTap = BM.ptrs.size === 1 && BM.moved < 8;
+            BM.ptrs.delete(e.pointerId); if (BM.ptrs.size < 2) BM.pinch = null; if (!BM.ptrs.size) bmCanvas.classList.remove('drag');
+            if (wasTap) {
+                let best = null, bd = 26;
+                for (const h of bmKnownHives()) { const [sx, sy] = bmW2S(h.x, h.y); const d = Math.hypot(sx - e.clientX, sy - e.clientY); if (d < bd) { bd = d; best = h; } }
+                BM.sel = best ? best.id : null;
+            }
+        }
+        bmCanvas.addEventListener('pointerup', bmUp); bmCanvas.addEventListener('pointercancel', bmUp);
+        bmCanvas.addEventListener('wheel', (e) => { e.preventDefault(); bmZoom(e.deltaY < 0 ? 1.2 : 1 / 1.2, e.clientX, e.clientY); }, { passive: false });
+        window.addEventListener('resize', () => { if (BM.open) bmResize(); });
+        document.getElementById('minimapCanvas').addEventListener('click', () => openBigMap());
+
+        // =====================================================================
+        // v3: UYGULAMA OLARAK YÜKLEME — tarayıcı sekmesinde değil, tam ekran uygulama olarak açılsın.
+        // Android/Chrome: gerçek "Yükle" penceresi. iPhone: adım adım yönerge.
+        // =====================================================================
+        let deferredInstall = null;
+        function isIOSDevice() { return /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+        function updateInstallUI() { document.body.classList.toggle('can-install', isTouchUI && !isStandaloneApp()); }
+        window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredInstall = e; updateInstallUI(); });
+        window.addEventListener('appinstalled', () => { deferredInstall = null; updateInstallUI(); closeInstallHelp(); });
+        window.closeInstallHelp = function () { document.getElementById('installHelp').classList.remove('open'); };
+        window.doInstall = async function () {
+            if (isStandaloneApp()) { showWaveText('📲 ZATEN UYGULAMA OLARAK AÇIK', false, '#00ffcc'); return; }
+            if (deferredInstall) {
+                const ev = deferredInstall; deferredInstall = null;
+                try { ev.prompt(); await ev.userChoice; } catch (e) {}
+                updateInstallUI(); return;
+            }
+            const ios = isIOSDevice();
+            const steps = ios ? `
+                <ol>
+                    <li>Bu sayfayı <b>Safari</b>'de aç (Chrome'daysan sağ üstteki paylaş simgesini kullanabilirsin).</li>
+                    <li>Alttaki <b>Paylaş</b> düğmesine (kare ve yukarı ok) dokun.</li>
+                    <li><b>Ana Ekrana Ekle</b>'yi seç.</li>
+                    <li><b>"Web Uygulaması olarak aç"</b> seçeneği varsa <b>açık</b> olsun, sonra <b>Ekle</b>.</li>
+                    <li>Oyunu artık Safari'den değil, <b>ana ekrandaki Börü ikonundan</b> aç.</li>
+                </ol>` : `
+                <ol>
+                    <li>Bu sayfayı <b>Chrome</b>'da aç.</li>
+                    <li>Sağ üstteki <b>⋮</b> menüsüne dokun.</li>
+                    <li><b>Uygulamayı yükle</b>'yi seç. Sadece "Ana ekrana ekle" varsa ona dokun ve açılan pencerede <b>Yükle</b>'yi seç.</li>
+                    <li><b>"Kısayol oluştur"u seçme</b>: o seçenek oyunu yine tarayıcı sekmesinde açar.</li>
+                    <li>Samsung İnternet'te: menü → <b>Sayfayı ekle</b> → <b>Ana ekran</b>.</li>
+                </ol>`;
+            document.getElementById('ihBox').innerHTML = `<h2>📲 TAM EKRAN UYGULAMA</h2>
+                <div style="font-size:13px;margin-bottom:10px;color:#e8d8c8">Oyun şu an tarayıcı sekmesinde açık. Uygulama olarak yüklersen adres çubuğu ve sekmeler olmadan, tam ekran açılır.</div>
+                ${steps}
+                <div class="ih-note">⚠️ Daha önce eklediğin eski Börü ikonunu önce <b>sil</b>. Eski kısayol tarayıcıda açılmaya devam eder.<br>💾 ${ios ? 'iPhone\'da ana ekrandaki uygulamanın kaydı Safari\'dekinden <b>ayrı</b> tutulur. İlerlemeni taşımak için önce burada Ayarlar → Kayıt Yedeği → <b>Dosyaya aktar</b>, sonra uygulamada <b>Dosyadan yükle</b>.' : 'Kayıtların silinmez; uygulama aynı Chrome kaydını kullanır.'}</div>
+                <div class="ih-btns">${!ios && (document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen) ? '<button onclick="closeInstallHelp(); goFullscreen();">⛶ Şimdilik bu sekmede tam ekran yap</button>' : ''}<button onclick="closeInstallHelp()">✔ TAMAM</button></div>`;
+            document.getElementById('installHelp').classList.add('open');
+        };
+        updateInstallUI();
+
         function updateMobileButtons() {
             if (!document.body.classList.contains('m')) return;
             const set = (id, v) => { const el = document.getElementById(id); if (el) el.style.setProperty('--cd', Math.max(0, Math.min(1, v)).toFixed(3)); };
@@ -8695,6 +8940,7 @@
             window.addEventListener('orientationchange', () => { try { endJoystick(); } catch (e) {} setTimeout(resizeCanvas, 250); });
         })();
         let mMenuPaused = false;
+        function mMenuOpen() { const m = document.getElementById('mMenu'); return !!m && m.classList.contains('open'); }
         function renderMMenu() {
             const rc = reinforceCooldown > 0 ? Math.ceil(reinforceCooldown / 60) + ' sn' : 'hazır';
             const items = [
@@ -8703,31 +8949,36 @@
                 ['sanct', '🏰', 'Sığınak', playerInSanctuary ? 'yönet' : 'sığınakta açılır', !playerInSanctuary],
                 ['journal', '📖', 'Günlük', 'hikâye · amaç', false],
                 ['market', '🛒', 'Market', 'kostüm · iksir', false],
-                ['settings', '⚙️', 'Ayarlar', 'ses · görüntü', false]
+                ['settings', '⚙️', 'Ayarlar', 'ses · görüntü', false],
+                ['map', '🗺️', 'Harita', 'kovanlarını gör', inMirrorArena],
+                ['install', '📲', 'Tam Ekran', isStandaloneApp() ? 'uygulama modu' : 'uygulama olarak yükle', isStandaloneApp()]
             ];
             document.getElementById('mmGrid').innerHTML = items.map(([a, ic, t, sub, dis]) => `<button ${dis ? 'disabled' : ''} onclick="mAct('${a}')"><span>${ic}</span>${t}<small>${sub}</small></button>`).join('');
         }
         window.openMMenu = function () {
             if (!gameActive) return;
-            renderMMenu(); document.getElementById('mMenu').classList.add('open');
+            renderMMenu(); document.getElementById('mmMsg').textContent = ''; document.getElementById('mMenu').classList.add('open');
             if (!isPaused) { isPaused = true; mMenuPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
         };
         window.closeMMenu = function () {
             document.getElementById('mMenu').classList.remove('open');
             if (mMenuPaused) { isPaused = false; mMenuPaused = false; world.lastX = world.dragonX; world.lastY = world.dragonY; }
         };
+        // Menü, oyuncu ✕ butonuna basana kadar açık kalır; seçilen işlem menünün üstünde açılır.
         window.mAct = function (a) {
-            closeMMenu();
-            if (a === 'call') triggerReinforcementCall();
+            if (a === 'call') { const p = isPaused; isPaused = false; triggerReinforcementCall(); isPaused = p; }
             else if (a === 'slave') hireSlaveBoss();
             else if (a === 'sanct') openSanctuary();
             else if (a === 'journal') openJournal();
-            else if (a === 'market') { togglePause(); openMarket(); }
-            else if (a === 'settings') { togglePause(); openSettingsModal(); }
+            else if (a === 'market') openMarket();
+            else if (a === 'settings') openSettingsModal();
+            else if (a === 'map') openBigMap();
+            else if (a === 'install') doInstall();
+            renderMMenu();
         };
         // TAM EKRAN: ana ekrana eklenmiş uygulamada zaten tam ekran açılır; tarayıcıda (Android) oyuna
         // başlarken tam ekrana geçilir.
-        function isStandaloneApp() { return (window.matchMedia && (matchMedia('(display-mode: fullscreen)').matches || matchMedia('(display-mode: standalone)').matches)) || navigator.standalone === true; }
+        function isStandaloneApp() { if (navigator.standalone === true) return true; if (!window.matchMedia) return false; if (matchMedia('(display-mode: standalone)').matches) return true; return matchMedia('(display-mode: fullscreen)').matches && !document.fullscreenElement && !document.webkitFullscreenElement; }
         function goFullscreen() {
             if (!isTouchUI || isStandaloneApp()) return;
             const el = document.documentElement; const f = el.requestFullscreen || el.webkitRequestFullscreen;
