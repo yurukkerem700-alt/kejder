@@ -472,6 +472,70 @@
             #pauseBtnFixed { top: 12px; left: 12px; width: 46px; height: 46px; }
         }
 
+
+
+        /* ===================== SADE HUD + AMAÇ PANELİ ===================== */
+        /* Tekrarlanan bilgiler kaldırıldı: tuş listesi (Ayarlar'da var), ikinci seviye göstergesi (XP barında var),
+           kara delik paneli (amaç panelinde var), görev listesi, sabit alıntı ve kalıntı sayacı (Günlük'te var). */
+        #ui, #levelIndicator, #territoryPanel, #leftHud, #questPanel, #objectivePanel, #loreCorner, #loreCounter, #killRow { display: none !important; }
+        #goalHud { position: absolute; top: 70px; left: 20px; width: 300px; z-index: 12; pointer-events: none; display: none; background: rgba(12,5,2,0.86); border: 1px solid rgba(255,140,60,0.45); border-left: 3px solid #ff6a1a; border-radius: 8px; padding: 9px 12px; color: #f2e6da; font-size: 12.5px; box-shadow: 0 0 16px rgba(0,0,0,0.55); }
+        body.in-game #goalHud { display: block; }
+        body.tut-on #goalHud { display: none !important; }
+        #goalHud .g1 { font-weight: 800; letter-spacing: 0.5px; }
+        #goalHud .g1 b { color: #ffcf6a; }
+        #goalHud .gbar { height: 6px; background: #2a1a10; border-radius: 3px; margin: 6px 0 5px; overflow: hidden; }
+        #goalHud .gbar i { display: block; height: 100%; background: linear-gradient(90deg, #ff5a1a, #ffd24a); transition: width 0.4s; }
+        #goalHud .g2 { color: #bfe6ff; font-size: 11.5px; }
+        #goalHud.ok .g1 { color: #7dffb0; }
+        body.m #goalHud { position: static; width: auto; max-width: 96vw; padding: 3px 10px; font-size: 10.5px; border-radius: 12px; border-left-width: 1px; background: rgba(0,0,0,0.6); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        body.m #goalHud .gbar, body.m #goalHud .g2 { display: none; }
+        body.m #goalHud .gm { display: inline; }
+        #goalHud .gm { display: none; color: #bfe6ff; font-weight: normal; }
+        #goalHud .gmob { display: none; }
+        body.m #goalHud .g1 { display: none; } body.m #goalHud .gmob { display: inline; font-weight: 800; }
+
+        /* İpucu şeridi: uzun açıklamalar dev dalga yazısı yerine burada, küçük ve okunaklı görünür */
+        #hintToast { position: absolute; top: 162px; left: 50%; transform: translate(-50%, -6px); max-width: min(680px, 90vw); background: rgba(8,4,2,0.88); border: 1px solid var(--hc, #ffd24a); border-radius: 10px; padding: 8px 16px; color: #fff; font-size: 15px; font-weight: 600; text-align: center; z-index: 13; pointer-events: none; opacity: 0; transition: opacity 0.35s, transform 0.35s; box-shadow: 0 0 18px -4px var(--hc, #ffd24a); }
+        #hintToast.show { opacity: 1; transform: translate(-50%, 0); }
+        body.m #hintToast { top: calc(var(--sat, 0px) + 172px); font-size: 12px; padding: 6px 10px; max-width: 80vw; }
+        /* ===================== YETENEK AĞACI ===================== */
+        #skillBtn { position: absolute; top: 20px; left: 20px; z-index: 14; display: none; align-items: center; gap: 8px; background: rgba(10,6,2,0.85); border: 2px solid #6a5a2a; color: #ffe7a0; padding: 8px 14px; border-radius: 22px; font-weight: bold; font-size: 13px; letter-spacing: 1px; cursor: pointer; }
+        body.in-game #skillBtn { display: flex; }
+        #skillBtn .sb-n { display: none; min-width: 22px; height: 22px; border-radius: 11px; background: #ffd700; color: #1a0f00; font-size: 12px; align-items: center; justify-content: center; padding: 0 6px; }
+        #skillBtn.has { border-color: #ffd700; box-shadow: 0 0 16px rgba(255,215,0,0.7); animation: skPulse 1.4s ease-in-out infinite; }
+        #skillBtn.has .sb-n { display: flex; }
+        @keyframes skPulse { 0%,100% { box-shadow: 0 0 8px rgba(255,215,0,0.45); } 50% { box-shadow: 0 0 22px rgba(255,215,0,0.95); } }
+        body.m #skillBtn { position: static; padding: 0 9px; height: 38px; flex: 0 0 auto; font-size: 15px; border-width: 1.5px; gap: 4px; pointer-events: auto; }
+        body.m #skillBtn .sb-t { display: none; }
+        #skillModal { position: fixed; inset: 0; z-index: 315; display: none; justify-content: center; align-items: center; background: rgba(4,2,0,0.9); }
+        #skillModal.open { display: flex; }
+        .sk-box { width: 96%; max-width: 900px; max-height: 94vh; overflow-y: auto; touch-action: pan-y !important; background: linear-gradient(170deg, #1a1206, #070503); border: 2px solid #b8902a; border-radius: 14px; padding: 18px 20px; color: #eee; }
+        .sk-box * { touch-action: pan-y; }
+        .sk-head { display: flex; align-items: center; gap: 12px; }
+        .sk-head h2 { flex: 1; color: #ffd76a; letter-spacing: 4px; font-size: 22px; }
+        .sk-pts { background: rgba(255,215,0,0.12); border: 1px solid #ffd700; color: #ffd700; border-radius: 16px; padding: 5px 12px; font-weight: bold; font-size: 13px; white-space: nowrap; }
+        .sk-x { background: none; border: 1px solid #776; color: #ccb; width: 34px; height: 34px; border-radius: 50%; font-size: 15px; cursor: pointer; }
+        .sk-sub { color: #b8a888; font-size: 12px; font-style: italic; margin: 6px 0 14px; }
+        .sk-branches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .sk-br { background: rgba(255,255,255,0.03); border: 1px solid color-mix(in srgb, var(--bc) 45%, transparent); border-top: 3px solid var(--bc); border-radius: 10px; padding: 10px; }
+        .sk-br h3 { color: var(--bc); font-size: 14px; letter-spacing: 3px; text-align: center; margin-bottom: 2px; }
+        .sk-br .sk-sp { text-align: center; font-size: 10px; color: #998; margin-bottom: 8px; }
+        .sk-tier { font-size: 9.5px; letter-spacing: 2px; color: #887; margin: 8px 0 4px; text-align: center; }
+        .sk-node { display: grid; grid-template-columns: 34px 1fr auto; gap: 8px; align-items: center; background: rgba(0,0,0,0.45); border: 1px solid #3a3226; border-radius: 9px; padding: 7px 8px; margin-bottom: 6px; cursor: pointer; transition: 0.15s; }
+        .sk-node .ic { font-size: 22px; text-align: center; }
+        .sk-node .nm { font-weight: bold; font-size: 12.5px; color: #fff; }
+        .sk-node .ds { font-size: 10.5px; color: #aa9; line-height: 1.3; }
+        .sk-node .pips { display: flex; gap: 3px; margin-top: 4px; }
+        .sk-node .pips i { width: 9px; height: 9px; border-radius: 2px; background: #2a241c; border: 1px solid #554a36; }
+        .sk-node .pips i.on { background: var(--bc); border-color: var(--bc); box-shadow: 0 0 5px var(--bc); }
+        .sk-node .plus { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--bc); color: var(--bc); font-weight: 900; display: flex; align-items: center; justify-content: center; font-size: 17px; }
+        .sk-node.can:hover { background: rgba(255,215,0,0.08); border-color: var(--bc); }
+        .sk-node.max .plus { border-color: #665; color: #887; font-size: 10px; }
+        .sk-node.lock { opacity: 0.4; cursor: default; }
+        .sk-node.nopt .plus { opacity: 0.35; }
+        .sk-box .action-btn { display: block; margin: 14px auto 0; }
+        @media (max-width: 720px) { .sk-branches { grid-template-columns: 1fr; } .sk-head h2 { font-size: 17px; letter-spacing: 2px; } }
+
         /* ===================== MOBİL ARAYÜZ v2 (body.m = dokunmatik cihaz) ===================== */
         body.m { --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px); --sal: env(safe-area-inset-left, 0px); --sar: env(safe-area-inset-right, 0px); overscroll-behavior: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
         body.m #stats, body.m #topControls, body.m #hireBossBtn, body.m #levelIndicator, body.m #loreCorner, body.m #loreCounter, body.m #territoryPanel, body.m #leftHud, body.m #ui { display: none !important; }
@@ -494,7 +558,7 @@
         .mh-bar.hp { flex: 2.2; } .mh-bar.rage, .mh-bar.pl { flex: 1; }
         body.m #mHud .bar-container { float: none !important; clear: none !important; flex: 1; width: auto !important; min-width: 0; height: 8px !important; margin: 0 !important; border-width: 1px !important; border-radius: 5px; }
         body.m #mHud .mh-bar.hp .bar-container { height: 11px !important; }
-        #mHud .mh-chips { display: flex; gap: 6px; justify-content: center; }
+        #mHud .mh-chips { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
         body.m #mHud #ghostIndicator, body.m #mHud #safeZoneIndicator { float: none; clear: none; margin: 0; font-size: 10.5px; padding: 2px 8px; border-radius: 10px; background: rgba(0,0,0,0.55); }
 
         /* Mini harita, boss, iksirler, sığınak */
@@ -594,6 +658,10 @@
         /* Yatay telefon */
         @media (orientation: landscape) and (max-height: 520px) {
             body.m.in-game #mHud { flex-direction: row; align-items: center; gap: 12px; top: calc(var(--sat) + 6px); }
+            body.m #mHud #xpBarContainer { min-width: 120px; }
+            body.m #skillBtn { height: 34px; padding: 0 6px; font-size: 13px; }
+            body.m #skillBtn .sb-n { min-width: 18px; height: 18px; font-size: 11px; }
+            body.m #hintToast { top: calc(var(--sat) + 96px); }
             body.m #mHud .mh-top { flex: 1.3; min-width: 0; }
             body.m #mHud .mh-bars { flex: 1; min-width: 0; }
             body.m #minimapCanvas { top: calc(var(--sat) + 52px) !important; width: 64px !important; height: 64px !important; }
@@ -682,7 +750,7 @@
         <button class="action-btn" onclick="toggleJournal()" style="border-color:#ff9955; color:#ff9955;">📖 GÜNLÜK</button>
     </div>
 
-    <button id="hireBossBtn" onclick="hireSlaveBoss()">🛡️ KÖLE ÇAĞIR (120 KOİN) - Q+W (Max: 6)</button>
+    <button id="hireBossBtn" onclick="hireSlaveBoss()">🛡️ KÖLE ÇAĞIR (120 COIN) - Q+W (Max: 6)</button>
     <button id="sanctuaryBtn" onclick="openSanctuary()">🏰 SIĞINAK YÖNETİMİ (B)</button>
 
     <div id="storyOverlay">
@@ -696,7 +764,7 @@
     <div id="worldsModal">
         <div class="worlds-box">
             <h2>🌍 KAYITLI DÜNYALAR</h2>
-            <div class="worlds-sub">Her dünya tamamen ayrı bir ilerlemedir: koin, kostümler, kovanlar, sığınak ve kayıt o dünyada kalır.<br>Güçlü olmaktan sıkıldıysan yeni bir dünyada sıfırdan başla - eski dünyan seni bekler.</div>
+            <div class="worlds-sub">Her dünya tamamen ayrı bir ilerlemedir: coin, kostümler, kovanlar, sığınak ve kayıt o dünyada kalır.<br>Güçlü olmaktan sıkıldıysan yeni bir dünyada sıfırdan başla - eski dünyan seni bekler.</div>
             <div class="world-list" id="worldList"></div>
             <div class="world-create">
                 <h3>✨ YENİ DÜNYA YARAT</h3>
@@ -739,8 +807,17 @@
         </div>
     </div>
 
+    <div id="goalHud"></div>
+    <div id="hintToast"></div>
+    <button id="skillBtn" onclick="openSkillTree()" title="Yetenek Ağacı (T)">🌳 <span class="sb-t">YETENEK (T)</span><span class="sb-n" id="skillBtnN">0</span></button>
+    <div id="skillModal"><div class="sk-box">
+        <div class="sk-head"><h2>🌳 YETENEK AĞACI</h2><div class="sk-pts" id="skPts"></div><button class="sk-x" onclick="closeSkillTree()" aria-label="Kapat">✕</button></div>
+        <div class="sk-sub">Her seviye atlayışında 2 yetenek puanı, her yenilen biyom kralından 2 puan kazanırsın. Oyun artık seviye atlarken durmaz; puanlarını istediğin an burada harca. Alt kademeler, o daldaki puanınla açılır.</div>
+        <div class="sk-branches" id="skBranches"></div>
+        <button class="action-btn" onclick="closeSkillTree()" style="border-color:#ffd700; color:#ffd700;">✔ KAPAT VE DEVAM ET</button>
+    </div></div>
     <div id="mHud">
-        <div class="mh-row mh-top"><span id="mhSlotPause"></span><span id="mhSlotXp"></span><div class="mh-coin">💰 <span id="mhSlotCoin"></span></div><button id="mMenuBtn" onclick="openMMenu()" aria-label="Menü">☰</button></div>
+        <div class="mh-row mh-top"><span id="mhSlotPause"></span><span id="mhSlotXp"></span><div class="mh-coin">💰 <span id="mhSlotCoin"></span></div><span id="mhSlotSkill"></span><button id="mMenuBtn" onclick="openMMenu()" aria-label="Menü">☰</button></div>
         <div class="mh-row mh-bars"><div class="mh-bar hp">❤️<span id="mhSlotHp"></span></div><div class="mh-bar rage">💢<span id="mhSlotRage"></span></div><div class="mh-bar pl">⚛️<span id="mhSlotPl"></span></div></div>
         <div class="mh-chips" id="mhChips"></div>
     </div>
@@ -891,7 +968,7 @@
                     <b>Space</b><span>Hayalet modu</span>
                     <b>E</b><span>Kükreme</span>
                     <b>R</b><span>Süper plazma</span>
-                    <b>Q + W</b><span>Köle çağır (120 koin)</span>
+                    <b>Q + W</b><span>Köle çağır (120 coin)</span>
                     <b>Q + S</b><span>Takviye çağrısı</span>
                     <b>1 - 4</b><span>İksir kullan</span>
                     <b>B</b><span>Sığınak yönetimi (sığınaktayken)</span>
@@ -942,7 +1019,7 @@
                 <button class="tab-btn" onclick="switchMarketTab(this, 'quests')" style="color: #ffd700;">🗺️ GÖREVLER</button>
                 <button class="tab-btn" onclick="switchMarketTab(this, 'potions')" style="color: #00ffcc;">🧪 İKSİRLER</button>
             </div>
-            <div class="market-stats">Mevcut Koin: <span id="marketCoinDisplay">0</span> 💰 | Max Seviye: <span id="marketLevelDisplay">1</span> 👑</div>
+            <div class="market-stats">Mevcut Coin: <span id="marketCoinDisplay">0</span> 💰 | Max Seviye: <span id="marketLevelDisplay">1</span> 👑</div>
             <div id="marketContent" class="market-content"></div>
             <div style="padding: 15px; text-align: center; background: #08050d; border-top: 1px solid #333;">
                 <button class="close-market-btn" onclick="closeMarket()">❌ MARKETİ KAPAT VE DÖN</button>
@@ -969,7 +1046,7 @@
             <div class="bhr-tag" id="bhrTag"></div>
             <h1 id="bhrTitle"></h1>
             <div class="bhr-lore" id="bhrLore"></div>
-            <div class="bhr-sub">🎁 GÖREV ÖDÜLLERİ</div>
+            <div class="bhr-sub" id="bhrSub">🎁 GÖREV ÖDÜLLERİ</div>
             <div class="bhr-grid" id="bhrGrid"></div>
             <div class="bhr-next" id="bhrNext"></div>
             <div class="bhr-btns">
@@ -990,8 +1067,8 @@
     </div>
 
     <div id="stats">
-        <div style="margin-bottom: 5px;">Koin: <span id="coinCount" style="color:#ffd700; font-weight:bold; font-size:22px;">0</span></div>
-        <div>Yakılan Ruh: <span id="killCount" style="font-weight:bold;">0</span></div>
+        <div style="margin-bottom: 5px;">Coin: <span id="coinCount" style="color:#ffd700; font-weight:bold; font-size:22px;">0</span></div>
+        <div id="killRow">Yakılan Ruh: <span id="killCount" style="font-weight:bold;">0</span></div>
         
         <div class="plasma-wrapper">SÜPER PLAZMA (R)</div>
         <div id="plasmaBarContainer" class="bar-container"><div id="plasmaBar"></div></div>
@@ -1042,7 +1119,7 @@
 
     <script>
         // =====================================================================
-        // KAYITLI DÜNYALAR: her dünyanın kendi ilerlemesi (koin, kostümler, kovanlar, sığınak, kayıt...)
+        // KAYITLI DÜNYALAR: her dünyanın kendi ilerlemesi (coin, kostümler, kovanlar, sığınak, kayıt...)
         // ayrı anahtarlarla saklanır. Ayarlar (ses, hassasiyet vb.) tüm dünyalarda ortaktır.
         // İlk (Ana) dünya eski anahtarları olduğu gibi kullanır - yani mevcut ilerleme hiç kaybolmaz.
         // =====================================================================
@@ -1118,7 +1195,7 @@
             LP.a = joints[0].angle; LP.ghost = spacePressed; LP.safe = inSafeZone && !inMirrorArena; LP.dead = false;
             LP.sm = sizeMultiplier; LP.maxHp = maxHp; LP.hp = dragonHp; LP.name = dragonName;
         }
-        const COIN_RATE = 0.5; // oyunda kazanılan koin çarpanı
+        const COIN_RATE = 0.5; // oyunda kazanılan coin çarpanı
         let gameActive = false;
         let isPaused = false;
         
@@ -1155,7 +1232,10 @@
         });
 
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768 || !!(window.matchMedia && matchMedia('(pointer: coarse)').matches);
-        let viewScale = parseFloat(store.getItem('boruZoom')) || (isMobile ? (Math.min(window.innerWidth, window.innerHeight) < 500 ? 0.66 : 0.72) : 1.0);
+        // userZoom: ayarlardaki yakınlaştırma. viewScale: her karede userZoom × ejderhanın boyutuna göre
+        // hesaplanan otomatik uzaklaştırma (ejderha büyüdükçe ekrana sığsın diye kamera geri çekilir).
+        let userZoom = parseFloat(store.getItem('boruZoom')) || (isMobile ? (Math.min(window.innerWidth, window.innerHeight) < 500 ? 0.66 : 0.72) : 1.0);
+        let viewScale = userZoom;
 
         // --- GELİŞMİŞ AYARLAR ---
         let gfxQuality = store.getItem('boruGfx') || (isMobile ? 'mid' : 'high');
@@ -1174,17 +1254,17 @@
         window.setGfxQuality = function(q) { gfxQuality = q; store.setItem('boruGfx', q); applyUiSettings(); };
         window.resetTutorial = function() { store.removeItem('boruTutorialSeen'); alert('Oynanarak öğretilen eğitim, bir sonraki SIFIRDAN BAŞLA\'da tekrar oynatılacak.'); };
         window.resetAllProgress = function() {
-            if (!confirm('Bu dünyadaki (' + currentWorld().name + ') tüm ilerleme (koin, kostümler, kovanlar, sığınak, kayıt) kalıcı olarak silinecek. Diğer dünyaların etkilenmez. Emin misin?')) return;
+            if (!confirm('Bu dünyadaki (' + currentWorld().name + ') tüm ilerleme (coin, kostümler, kovanlar, sığınak, kayıt) kalıcı olarak silinecek. Diğer dünyaların etkilenmez. Emin misin?')) return;
             if (!confirm('Bu işlem geri alınamaz. Son kez soruyorum: SİLİNSİN Mİ?')) return;
             worldKeys(worldsMeta.active).forEach(k => localStorage.removeItem(k));
             location.reload();
         };
-        document.getElementById('zoomSlider').value = viewScale;
-        document.getElementById('zoomValueText').innerText = viewScale.toFixed(2) + 'x';
+        document.getElementById('zoomSlider').value = userZoom;
+        document.getElementById('zoomValueText').innerText = userZoom.toFixed(2) + 'x';
         document.getElementById('zoomSlider').addEventListener('input', (e) => {
-            viewScale = parseFloat(e.target.value);
-            document.getElementById('zoomValueText').innerText = viewScale.toFixed(2) + 'x';
-            store.setItem('boruZoom', viewScale);
+            userZoom = parseFloat(e.target.value);
+            document.getElementById('zoomValueText').innerText = userZoom.toFixed(2) + 'x';
+            store.setItem('boruZoom', userZoom);
         });
         applyUiSettings();
         
@@ -1228,7 +1308,11 @@
             }
         }
 
-        let maxLevelReached = parseInt(store.getItem('boruMaxLevel')) || 1;
+        // SEVİYE SINIRI: oyunun son seviyesi artık 15. Eski 100 seviyelik güç eğrisi 15 seviyeye sıkıştırıldı
+        // (powLvl): 15. seviyedeki ejderha, eski eğrinin ~32. seviyesi kadar güçlüdür.
+        const MAX_LEVEL = 15;
+        function powLvl() { return 1 + (Math.min(level, MAX_LEVEL) - 1) * 2.2; }
+        let maxLevelReached = Math.min(MAX_LEVEL, parseInt(store.getItem('boruMaxLevel')) || 1);
         let unlockedSkins = safeParseJSON('boruSkins', ['magma', 'ice', 'poison']);
         let activeSkinId = store.getItem('boruActiveSkin') || 'magma';
         let usedPromoCodes = safeParseJSON('boruPromoCodes', []);
@@ -1300,6 +1384,8 @@
         const SKIN_ORDER = ['magma', 'ice', 'poison', 'void', 'terracotta', 'questmaster', 'ragingMagma', 'blood', 'nebula', 'shadow', 'kingsbane', 'toxicWaste', 'abyss', 'ascended', 'mirrorbane', 'bone', 'stormwyrm', 'coral', 'auroraWyrm', 'infernoLord', 'emberheir', 'phoenixLord', 'celestialSerpent', 'crystalDrake', 'obsidianTitan', 'eclipse', 'kiyametavcisi', 'worldEater'];
         skinsDB.forEach(sk => { const i = SKIN_ORDER.indexOf(sk.id); sk.tier = i < 3 ? 0 : i - 2; });
         skinsDB.sort((a, b) => SKIN_ORDER.indexOf(a.id) - SKIN_ORDER.indexOf(b.id));
+        // Seviye şartları 100'lük ölçekten 15'lik ölçeğe, coin fiyatları yeni ekonomiye çekildi
+        skinsDB.forEach(sk => { if (sk.reqLvl < 999) { sk.reqLvl = Math.max(1, Math.ceil(sk.reqLvl * 0.15)); if (sk.reqCoin > 0) sk.reqCoin = Math.max(50, Math.round(sk.reqCoin * 0.4 / 50) * 50); } });
         function skinBonus(sk) { const t = (sk && sk.tier) || 0; return { fire: t * 0.04, hp: t * 0.03 }; }
 
         let shopUnlocks = safeParseJSON('boruShopUnlocks', { bigWings: false, demonHorns: false, dragonHeart: false, fireStorm: false, speedBoots: false, trailOfFire: false, vampireTooth: false, titanScales: false, plasmaCore: false, toxicBreath: false, ancientRoar: false, gemMagnet: false });
@@ -1313,20 +1399,20 @@
         }
 
         const blackMarketDB = [
-            { id: 'bigWings', name: 'Devasa Kanatlar', icon: '🦇', desc: 'Kanat açıklığını artırır.', cost: 150, color: '#ffd700' },
-            { id: 'speedBoots', name: 'Rüzgar Büyüsü', icon: '💨', desc: 'Süzülme hızını %25 artırır.', cost: 200, color: '#00ffff' },
-            { id: 'demonHorns', name: 'İblis Boynuzları', icon: '😈', desc: 'Öne doğru büyüyen dev boynuzlar.', cost: 250, color: '#ff5500' },
-            { id: 'dragonHeart', name: 'Ejderha Kalbi', icon: '❤️', desc: 'Max canı 1500 artırır.', cost: 300, color: '#ff3300' },
-            { id: 'trailOfFire', name: 'Yakan İz', icon: '🌋', desc: 'Kuyruktan ateş dökülür.', cost: 350, color: '#ff8800' },
-            { id: 'fireStorm', name: 'Ateş Fırtınası', icon: '🔥', desc: 'Alev hasarını x2 katlar.', cost: 400, color: '#ffaa00' },
-            { id: 'ancientRoar', name: 'Kadim Kükreme', icon: '🦁', desc: 'Kükreme süresini yarıya indirir.', cost: 400, color: '#ffcc00' },
-            { id: 'vampireTooth', name: 'Vampir Dişi', icon: '🧛', desc: 'Can çalma şansını +%15 artırır.', cost: 450, color: '#ff0044' },
-            { id: 'titanScales', name: 'Titan Pulları', icon: '🛡️', desc: 'Max canı devasa 3000 artırır.', cost: 500, color: '#aaaaaa' },
-            { id: 'toxicBreath', name: 'Zehirli Nefes', icon: '🤢', desc: 'Alevler ekranda çok daha uzun kalır.', cost: 550, color: '#33ff00' },
-            { id: 'plasmaCore', name: 'Plazma Çekirdeği', icon: '⚛️', desc: 'Süper Plazma (R) 2 kat hızlı dolar.', cost: 600, color: '#00ffff' },
-            { id: 'gemMagnet', name: 'Cevher Mıknatısı', icon: '🧲', desc: 'XP cevherlerini çok uzaktan çeker.', cost: 700, color: '#ff00ff' },
-            { id: 'phoenixEmber', name: 'Anka Közü', icon: '🪶', desc: 'Can kritik seviyeye düşünce bir kerelik dev bir iyileşme patlaması tetikler.', cost: 650, color: '#ff9955' },
-            { id: 'stormCore', name: 'Fırtına Çekirdeği', icon: '⚡', desc: 'Kritik hasar şansını +%10 ve kükreme gücünü artırır.', cost: 480, color: '#66ccff' }
+            { id: 'bigWings', name: 'Devasa Kanatlar', icon: '🦇', desc: 'Kanat açıklığını artırır.', cost: 300, color: '#ffd700' },
+            { id: 'speedBoots', name: 'Rüzgar Büyüsü', icon: '💨', desc: 'Süzülme hızını %25 artırır.', cost: 700, color: '#00ffff' },
+            { id: 'demonHorns', name: 'İblis Boynuzları', icon: '😈', desc: 'Öne doğru büyüyen dev boynuzlar.', cost: 400, color: '#ff5500' },
+            { id: 'dragonHeart', name: 'Ejderha Kalbi', icon: '❤️', desc: 'Max canı 1500 artırır.', cost: 900, color: '#ff3300' },
+            { id: 'trailOfFire', name: 'Yakan İz', icon: '🌋', desc: 'Kuyruktan ateş dökülür.', cost: 900, color: '#ff8800' },
+            { id: 'fireStorm', name: 'Ateş Fırtınası', icon: '🔥', desc: 'Alev hasarını x2 katlar.', cost: 1800, color: '#ffaa00' },
+            { id: 'ancientRoar', name: 'Kadim Kükreme', icon: '🦁', desc: 'Kükreme süresini yarıya indirir.', cost: 1100, color: '#ffcc00' },
+            { id: 'vampireTooth', name: 'Vampir Dişi', icon: '🧛', desc: 'Can çalma şansını +%15 artırır.', cost: 1400, color: '#ff0044' },
+            { id: 'titanScales', name: 'Titan Pulları', icon: '🛡️', desc: 'Max canı devasa 3000 artırır.', cost: 1600, color: '#aaaaaa' },
+            { id: 'toxicBreath', name: 'Zehirli Nefes', icon: '🤢', desc: 'Alevler ekranda çok daha uzun kalır.', cost: 1200, color: '#33ff00' },
+            { id: 'plasmaCore', name: 'Plazma Çekirdeği', icon: '⚛️', desc: 'Süper Plazma (R) 2 kat hızlı dolar.', cost: 1500, color: '#00ffff' },
+            { id: 'gemMagnet', name: 'Cevher Mıknatısı', icon: '🧲', desc: 'XP cevherlerini çok uzaktan çeker.', cost: 1000, color: '#ff00ff' },
+            { id: 'phoenixEmber', name: 'Anka Közü', icon: '🪶', desc: 'Can kritik seviyeye düşünce bir kerelik dev bir iyileşme patlaması tetikler.', cost: 1500, color: '#ff9955' },
+            { id: 'stormCore', name: 'Fırtına Çekirdeği', icon: '⚡', desc: 'Kritik hasar şansını +%10 ve kükreme gücünü artırır.', cost: 1400, color: '#66ccff' }
         ];
 
         let activeTheme = skinsDB.find(s => s.id === activeSkinId) || skinsDB[0];
@@ -1351,7 +1437,7 @@
             { id: 'hive_obsidian', cat: 'hive', name: 'Obsidyen Kale', icon: '🗿', cost: 500, pal: { main: '#7a6aff' }, buff: { hpMult: 1, regen: 2, siegeResist: 0.3 }, desc: 'Kovan canı x2 · Onarım x3 · Kuşatma hasarı -%30' },
             { id: 'hive_crystal', cat: 'hive', name: 'Kristal Kovan', icon: '🔮', cost: 550, pal: { main: '#dd66ff' }, buff: { auraMult: 1, auraRange: 0.4 }, desc: 'Muhafız aurası hasarı x2 · Menzil +%40' },
             { id: 'hive_forest', cat: 'hive', name: 'Canlı Orman', icon: '🌳', cost: 450, pal: { main: '#44dd66' }, buff: { prodMult: 1, extraSoldier: 1 }, desc: 'Asker üretimi 2 kat hızlı · Her üretimde +1 asker' },
-            { id: 'hive_gold', cat: 'hive', name: 'Altın Kovan', icon: '💰', cost: 600, pal: { main: '#ffcc00' }, buff: { goldIncome: 20 }, desc: 'Her dost kovan 30 saniyede bir 20 koin üretir' },
+            { id: 'hive_gold', cat: 'hive', name: 'Altın Kovan', icon: '💰', cost: 600, pal: { main: '#ffcc00' }, buff: { goldIncome: 20 }, desc: 'Her dost kovan 30 saniyede bir 20 coin üretir' },
             { id: 'hive_lava', cat: 'hive', name: 'Lav Kalesi', icon: '🌋', cost: 650, pal: { main: '#ff5a00' }, buff: { auraMult: 0.5, siegeResist: 0.5 }, desc: 'Aura hasarı +%50 · Kuşatma hasarı -%50' }
         ];
         // Yeni ordu kostümleri ve tasarım stilleri (her stilin kendi çizimi var)
@@ -1447,21 +1533,21 @@
 
             let success = false;
             if(isDevCode(code)) {
-                coins = 9999999; maxLevelReached = 100; level = 100;
+                coins = 9999999; maxLevelReached = MAX_LEVEL; level = MAX_LEVEL;
                 unlockedSkins = skinsDB.map(s => s.id);
                 for(let key in shopUnlocks) { shopUnlocks[key] = true; equippedBlackMarket[key] = true; }
-                alert('TÜM HİLELER AKTİF! Sınırsız Güç, Sınırsız Koin ve Tüm Kilitler Açıldı!');
+                alert('TÜM HİLELER AKTİF! Sınırsız Güç, Sınırsız Coin ve Tüm Kilitler Açıldı!');
                 success = true;
             } else if(code === 'ILKKAN') {
-                coins += 1000; alert('KOD KABUL EDİLDİ: +1000 Koin!'); success = true;
+                coins += 1000; alert('KOD KABUL EDİLDİ: +1000 Coin!'); success = true;
             } else if(code === 'HIZLIGELISIM') {
-                maxLevelReached = Math.max(maxLevelReached, 20); alert('KOD KABUL EDİLDİ: Max Seviye 20 Açıldı!'); success = true;
+                maxLevelReached = Math.max(maxLevelReached, 8); alert('KOD KABUL EDİLDİ: Max Seviye 8 Açıldı!'); success = true;
             } else if(code === 'VAMPIR') {
                 if(!shopUnlocks.vampireTooth) { shopUnlocks.vampireTooth = true; equippedBlackMarket.vampireTooth = true; alert('KOD KABUL EDİLDİ: Vampir Dişi Karaborsadan açıldı!'); success = true; }
-                else { alert('Bu özelliği zaten açmışsın. Sana 300 koin verelim!'); coins += 300; success = true; }
+                else { alert('Bu özelliği zaten açmışsın. Sana 300 coin verelim!'); coins += 300; success = true; }
             } else if(code === 'TITAN') {
                 if(!unlockedSkins.includes('void')) { unlockedSkins.push('void'); alert('KOD KABUL EDİLDİ: Hiçlik Ejderi Kostümü Açıldı!'); success = true; }
-                else { alert('Bu kostümü zaten açmışsın. Sana 500 koin verelim!'); coins += 500; success = true; }
+                else { alert('Bu kostümü zaten açmışsın. Sana 500 coin verelim!'); coins += 500; success = true; }
             } else {
                 alert('Geçersiz Kod!');
             }
@@ -1552,7 +1638,7 @@
                                     `<div style="color:#ff66aa; text-align:center; font-weight:bold; padding:6px; font-size:12px;">🏆 ÖZEL ÖDÜL<br>Satın alınamaz</div>`
                                 :
                                     `<div class="req-line"><span>Seviye:</span> <span class="${isMetLevel?'met':'unmet'}">${maxLevelReached}/${skin.reqLvl}</span></div>
-                                    <div class="req-line"><span>Koin:</span> <span class="${isMetCoin?'met':'unmet'}">${coins}/${skin.reqCoin}</span></div>
+                                    <div class="req-line"><span>Coin:</span> <span class="${isMetCoin?'met':'unmet'}">${coins}/${skin.reqCoin}</span></div>
                                 `)}
                             </div>
                         </div>
@@ -1569,7 +1655,7 @@
                         html += `<div style="background:#1a1229; border:2px solid ${q.done ? '#00ff66' : '#3d2963'}; border-radius:12px; padding:16px; margin-bottom:14px;">
                             <div style="display:flex; justify-content:space-between; color:#fff; font-weight:bold; margin-bottom:10px; font-size:15px;"><span>${q.icon} ${q.label}</span><span>${Math.min(q.progress, q.target)}/${q.target}</span></div>
                             <div class="quest-bar-bg" style="height:10px;"><div class="quest-bar-fill" style="width:${pct}%; background:${q.done ? '#00ff66' : '#ffd700'};"></div></div>
-                            <div style="color:#aaa; font-size:12px; margin-top:8px;">Ödül: 💰 ${q.coinReward} Koin &nbsp; ✨ ${q.xpReward} XP</div>
+                            <div style="color:#aaa; font-size:12px; margin-top:8px;">Ödül: 💰 ${q.coinReward} Coin &nbsp; ✨ ${q.xpReward} XP</div>
                         </div>`;
                     });
                 } else {
@@ -1587,7 +1673,7 @@
                         let btn;
                         if (eq) btn = `<div style="color:#00ffcc; text-align:center; font-weight:bold; padding:8px;">✔ KUŞANILDI</div>`;
                         else if (owned) btn = `<button class="btn-equip" onclick="equipArmy('${it.id}', event)">KUŞAN</button>`;
-                        else btn = `<button class="btn-equip" style="background:#222; border-color:${coins >= it.cost ? '#00ff66' : '#ff3366'}; color:${coins >= it.cost ? '#00ff66' : '#ff3366'};" onclick="buyArmy('${it.id}', event)">${coins >= it.cost ? 'SATIN AL (' + it.cost + ')' : 'YETERSİZ KOİN (' + it.cost + ')'}</button>`;
+                        else btn = `<button class="btn-equip" style="background:#222; border-color:${coins >= it.cost ? '#00ff66' : '#ff3366'}; color:${coins >= it.cost ? '#00ff66' : '#ff3366'};" onclick="buyArmy('${it.id}', event)">${coins >= it.cost ? 'SATIN AL (' + it.cost + ')' : 'YETERSİZ COIN (' + it.cost + ')'}</button>`;
                         html += `<div class="skin-card ${eq ? 'active-skin' : ''}" style="border-color:${eq ? it.pal.main : '#3d2963'}">
                             <div class="skin-preview" style="color:${it.pal.main}; text-shadow: 0 0 22px ${it.pal.main};">${it.icon}</div>
                             <div class="skin-name" style="color:${it.pal.main}">${it.name}</div>
@@ -1606,7 +1692,7 @@
                             <div class="skin-desc">${p.desc}</div>
                             <div class="requirements" style="text-align:center;">
                                 <div class="req-line"><span>Envanter:</span> <span style="color:#fff;">${count}</span></div>
-                                <button class="btn-equip" style="background:#222; border-color:${isMetCoin ? '#00ff66' : '#ff3366'}; color:${isMetCoin ? '#00ff66' : '#ff3366'};" onclick="buyPotion('${p.id}', event)">${isMetCoin ? 'SATIN AL (' + p.cost + ')' : 'YETERSİZ KOİN'}</button>
+                                <button class="btn-equip" style="background:#222; border-color:${isMetCoin ? '#00ff66' : '#ff3366'}; color:${isMetCoin ? '#00ff66' : '#ff3366'};" onclick="buyPotion('${p.id}', event)">${isMetCoin ? 'SATIN AL (' + p.cost + ')' : 'YETERSİZ COIN'}</button>
                             </div>
                         </div>
                     `;
@@ -1621,8 +1707,8 @@
                     let actionButton = '';
                     if (!isBought) {
                         actionButton = `
-                            <div class="req-line"><span>Bedel:</span> <span style="color:#ffd700">${item.cost} Koin</span></div>
-                            <button class="btn-equip" style="background:#222; border-color:${isMetCoin?'#00ff66':'#ff3366'}; color:${isMetCoin?'#00ff66':'#ff3366'};" onclick="buyBlackMarket('${item.id}', ${item.cost}, event)">${isMetCoin ? 'SATIN AL' : 'YETERSİZ KOİN'}</button>
+                            <div class="req-line"><span>Bedel:</span> <span style="color:#ffd700">${item.cost} Coin</span></div>
+                            <button class="btn-equip" style="background:#222; border-color:${isMetCoin?'#00ff66':'#ff3366'}; color:${isMetCoin?'#00ff66':'#ff3366'};" onclick="buyBlackMarket('${item.id}', ${item.cost}, event)">${isMetCoin ? 'SATIN AL' : 'YETERSİZ COIN'}</button>
                         `;
                     } else if (isEquipped) {
                         actionButton = `<button class="btn-unequip" onclick="toggleBlackMarketEquip('${item.id}', event)">ÇIKAR (KUŞANILDI)</button>`;
@@ -1686,7 +1772,7 @@
 
             // Base stat hesaplamaları (Market eşyaları hariç)
             maxHp = 2400 + (buffLevels.hp * 500 * (1 + (buffLevels.hp * 0.2)));
-            stats.fireDamage = 1.5 + (level * 0.2) + (buffLevels.fire * 0.2); // Level scale + buff cards
+            stats.fireDamage = 1.5 + (powLvl() * 0.2) + (buffLevels.fire * 0.2); // Level scale + buff cards
             stats.baseMaxSpeed = (isMobile ? 9.5 : 14) * Math.pow(1.05, buffLevels.speed);
             stats.trailDamage = false;
             stats.lifeStealChance = (buffLevels.lifesteal * 5 * (1 + buffLevels.lifesteal * 0.2));
@@ -1709,6 +1795,9 @@
             if(equippedBlackMarket.stormCore) { stats.critChance += 10; stats.roarPower = (stats.roarPower || 0) + 0.4; }
             // Kostüm kademesi: her üst kademe ateş hasarını +%4, canı +%3 artırır
             { const sb = skinBonus(activeTheme); stats.fireDamage *= (1 + sb.fire); maxHp = Math.round(maxHp * (1 + sb.hp)); }
+            // Yenilen biyom krallarının kalıcı güçleri
+            if (royalDead('kar')) maxHp = Math.round(maxHp * 1.2);
+            if (royalDead('deniz')) { stats.fireDamage *= 1.15; stats.lifeStealChance += 8; }
 
             dragonHp = Math.min(maxHp, maxHp * oldHpRatio);
             updateUI();
@@ -2384,7 +2473,7 @@
             { id: 'walls', icon: '🧱', name: 'Kadim Surlar', base: 250, desc: 'Sığınak yarıçapını her seviyede +70 genişletir. Düşmanlar surların içine giremez.' },
             { id: 'spring', icon: '⛲', name: 'Şifa Pınarı', base: 200, desc: 'Sığınakta çok daha hızlı iyileşirsin; köle ve askerlerin de iyileşir, plazma ve hayalet enerjisi hızlı dolar.' },
             { id: 'towers', icon: '🗼', name: 'Nöbetçi Kuleleri', base: 300, desc: 'Surların çevresine yaklaşan düşmanları vuran kristal kuleler. Her seviye +2 kule ve daha fazla hasar.' },
-            { id: 'altar', icon: '🎁', name: 'Hazine Sunağı', base: 220, desc: 'Belli aralıklarla sığınakta hazine sandığı belirir (koin + iksir şansı). Seviye ödülü büyütür, süreyi kısaltır.' },
+            { id: 'altar', icon: '🎁', name: 'Hazine Sunağı', base: 220, desc: 'Belli aralıklarla sığınakta hazine sandığı belirir (coin + iksir şansı). Seviye ödülü büyütür, süreyi kısaltır.' },
             { id: 'training', icon: '📖', name: 'Bilgelik Kütüphanesi', base: 350, desc: 'Kazandığın tüm XP her seviyede kalıcı olarak +%10 artar.' }
         ];
         const SANCT_MAX = 5;
@@ -2399,7 +2488,7 @@
         function renderSanctuary() {
             const left = Math.max(0, sanct.nextAltar - Date.now());
             document.getElementById('sanctInfo').innerHTML =
-                `<div>💰 Koin: <b style="color:#ffd700">${coins}</b></div>` +
+                `<div>💰 Coin: <b style="color:#ffd700">${coins}</b></div>` +
                 `<div>📏 Yarıçap: <b>${computeSanctRadius()}</b></div>` +
                 `<div>🗼 Kule: <b>${sanct.towers * 2}</b></div>` +
                 `<div>🌟 Çekirdek bonusu: <b>+${sanct.coreBonus || 0}</b></div>` +
@@ -2433,7 +2522,7 @@
         function claimAltarChest() {
             const reward = earn(80 * (1 + sanct.altar * 0.8) * (1 + currentWave * 0.1));
             coins += reward; document.getElementById('coinCount').innerText = coins;
-            let msg = '🎁 HAZİNE SANDIĞI: +' + reward + ' KOİN';
+            let msg = '🎁 HAZİNE SANDIĞI: +' + reward + ' COIN';
             if (Math.random() < 0.3 + sanct.altar * 0.08) {
                 const p = potionsDB[Math.floor(Math.random() * potionsDB.length)];
                 potionInventory[p.id] = (potionInventory[p.id] || 0) + 1; store.setItem('boruPotions', JSON.stringify(potionInventory));
@@ -2546,21 +2635,21 @@
               portal: { x: 4400, y: -1200 }, center: { x: 40000, y: 40000 }, color: '#00e5ff', rgb: '120,230,255', bossColor: '#ff2a3a', bg: 'rgb(4,12,30)',
               enterText: '🕳️ KARA DELİĞE SÜRÜKLENİYORSUN...', exitText: '🌊 GERÇEK DÜNYAYA DÖNÜYORSUN...',
               enterLore: 'Karanlığın içinden bir yansıma çıktı... ama bu ben değilim. Bu, içimde büyüttüğüm öfkenin ta kendisi — üç kat büyümüş hali.',
-              reward: { coins: 5000, xp: 1500, skin: 'mirrorbane', potions: 2 },
+              reward: { coins: 3000, xp: 1500, skin: 'mirrorbane', potions: 2 },
               winLore: 'Yansımanı parçaladın. Öfken artık seni yönetmiyor — sen onu yönetiyorsun.',
               teaser: 'Kara deliğin öbür ucunda başka bir şey kıpırdıyor... Bir zamanlar Ateşyurt\'u yutan o sürü — ve onu doğuran ANA — hâlâ yurdumuzun küllerinde yuvalanıyor. Üç Kovan Kalbi onu korurken ona dokunamazsın. Kalpler düşünce gökyüzünü karartacak, sürüsünü üstüne salacak. Geçit seni eve, Yıkılmış Ateşyurt\'a götürecek.' },
             { req: 200, key: 'ashland', roman: 'II', bossName: 'SÜRÜ ANA', arenaName: 'Yıkılmış Ateşyurt',
               portal: { x: -4600, y: 2400 }, center: { x: -40000, y: 40000 }, color: '#ff8a2a', rgb: '255,150,70', bossColor: '#c8ff3a', bg: 'rgb(30,9,5)',
               enterText: '🌋 ATEŞYURT\'UN KÜLLERİNE DÜŞÜYORSUN...', exitText: '🔥 İNTİKAM ALINDI, GERİ DÖNÜYORSUN...',
               enterLore: 'Burası... Ateşyurt. Annemin bana anlattığı yer. Şimdi sadece kül, kemik ve o sürünün yuvası var.',
-              reward: { coins: 12000, xp: 4000, skin: 'emberheir', potions: 3 },
+              reward: { coins: 6000, xp: 4000, skin: 'emberheir', potions: 3 },
               winLore: 'Gökyüzünü karartan sürünün anası düştü. Ateşyurt\'un külleri ilk kez yeniden ısınıyor. Babam, annem... bu sizin için.',
               teaser: 'Sürü Ana ölürken son bir çığlıkla yıldızlara seslendi. Cevap veren şey onun efendisiydi: sönmüş yıldızların arasında bekleyen, üç başlı ve tek kalpli bir kıyamet. Başları yenilenir; kalbine ancak üçü birden düştüğünde ulaşabilirsin. Geçit seni Yıldızların Mezarlığı\'na götürecek.' },
             { req: 300, key: 'graveyard', roman: 'III', bossName: 'ÜÇ BAŞLI KIYAMET', arenaName: 'Yıldızların Mezarlığı',
               portal: { x: 1400, y: 5200 }, center: { x: 0, y: -40000 }, color: '#b77bff', rgb: '190,140,255', bossColor: '#b77bff', bg: 'rgb(9,5,20)',
               enterText: '🌌 YILDIZLARIN MEZARLIĞINA ÇEKİLİYORSUN...', exitText: '✨ KIYAMET SUSTU, EVE DÖNÜYORSUN...',
               enterLore: 'Sürü Ana sadece bir hizmetkârmış. Onu gönderen, sönmüş dünyaların arasında bekliyormuş: üç başı, tek bir kalbi olan bir kıyamet.',
-              reward: { coins: 25000, xp: 8000, skin: 'kiyametavcisi', potions: 4 },
+              reward: { coins: 10000, xp: 8000, skin: 'kiyametavcisi', potions: 4 },
               winLore: 'Üç baş da sustu. Yıldızların mezarlığında ilk kez bir ışık yandı — senin ateşin.',
               teaser: null }
         ];
@@ -2568,7 +2657,7 @@
         if (isNaN(blackHoleTier)) blackHoleTier = store.getItem('boruBlackHoleDefeated') === '1' ? 1 : 0;
         let portalBanReq = parseInt(store.getItem('boruPortalBanReq')) || 0;
         if (!portalBanReq && blackHoleTier === 0 && store.getItem('boruPortalBanned') === '1') portalBanReq = 150;
-        const ARENA_R = 2100;
+        const ARENA_R = 3600; // kara delik savaş alanı genişletildi (eski 2100)
         let blackHolePortal = null;
         let inMirrorArena = false;
         let arenaReturnPos = null;
@@ -2594,7 +2683,10 @@
         }
         function arenaTier() { return BH_TIERS[currentArenaTier]; }
         function arenaCenter() { return arenaTier().center; }
-        function playerGrowth() { return 1 + (Math.floor((level - 1) / 5) * 0.20); }
+        // BÜYÜME: ejderha her seviyede biraz büyür (15. seviyede 1.7 kat). Kamera bu büyüklüğe göre kendini uzaklaştırır.
+        function playerGrowth() { return 1 + (Math.min(level, MAX_LEVEL) - 1) * 0.05; }
+        // Köleler ve askerler de ejderhayla birlikte büyür
+        function armyScale() { return 1 + (playerGrowth() - 1) * 0.9; }
         function normAng(a) { while (a > Math.PI) a -= Math.PI * 2; while (a < -Math.PI) a += Math.PI * 2; return a; }
         function clampToArena(o, margin) {
             const c = arenaCenter(); const dx = o.x - c.x, dy = o.y - c.y, d = Math.hypot(dx, dy); const lim = ARENA_R - (margin || 0);
@@ -3709,10 +3801,10 @@
             if (!MP.active) isPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0;
             const box = document.getElementById('bhReward'); box.style.setProperty('--bhc', t.bossColor);
             document.getElementById('bhrTag').innerText = 'KARA DELİK ' + t.roman + (p.cyc ? ' · YANKI ' + p.cyc : '') + ' FETHEDİLDİ · ' + t.arenaName.toUpperCase();
-            document.getElementById('bhrTitle').innerText = t.bossName + ' YENİLDİ';
+            document.getElementById('bhrTitle').innerText = t.bossName + ' YENİLDİ'; document.getElementById('bhrSub').innerText = '🎁 GÖREV ÖDÜLLERİ';
             document.getElementById('bhrLore').innerText = '"' + t.winLore + '"';
             const cards = [
-                ['💰', '+' + (r.coins * (1 + (p.cyc || 0))).toLocaleString('tr-TR'), 'KOİN', '#ffd700'],
+                ['💰', '+' + (r.coins * (1 + (p.cyc || 0))).toLocaleString('tr-TR'), 'COIN', '#ffd700'],
                 ['✨', '+' + (r.xp * (1 + (p.cyc || 0))).toLocaleString('tr-TR'), 'XP', '#7fe8ff'],
                 [skin.icon, skin.name, p.newSkin ? 'YENİ KOSTÜM' : 'KOSTÜM (ZATEN SENDE)', skin.mainColor],
                 ['🧪', '+' + r.potions + ' her iksirden', 'İKSİR', '#00ffcc']
@@ -3742,6 +3834,603 @@
             box.style.display = 'flex';
             SND.play('victory');
         }
+
+        // =====================================================================
+        // BİYOM KRALLARI: dört biyomun her birinin kendi TAHT KOVANI ve onu yöneten bir kralı var.
+        // Krallar kara delik bosslarından da zorludur: her birinin kendine özgü saldırıları, özel bir
+        // koruması, kendi taht görüntüsü ve biyomun havasını değiştiren bir gücü vardır. Canları %25'in
+        // altına inince büyük bir çığlık atarlar ve her türden düşman, harita bossları ve kovan bossları
+        // yardıma koşar. Bir kral düşünce krallığındaki kovanların bir kısmı bize biat eder, kalanlar
+        // hâlâ ayakta olan diğer kralların krallıklarına kaçar.
+        // =====================================================================
+        const ROYALS = [
+            { id: 'kar', biome: 'kar', name: 'DAĞ KAĞANI BUZTEPE', short: 'Buztepe', title: 'Ebedi Kar Dağlarının Kağanı', hive: 'Buztepe Tahtı',
+              throne: { x: 5600, y: -5600 }, color: '#dfeaff', glow: '#7fb0ff', rgb: '200,222,255', size: 118, weather: 'tipi', roar: 'b_mega', touch: 70,
+              weatherText: '❄️ BUZTEPE KIYAMET TİPİSİNİ ÇAĞIRDI: kanatların ağırlaşıyor',
+              protText: '🛡️ TAŞ KALKAN: önünden gelen ateşi durduruyor — etrafından dolaş, arkasından vur!',
+              intro: 'Dağlar titredi. Karların altından bir taç yükseldi: bu toprakların kağanı, kalkanını bana çevirdi.',
+              win: 'Dağ Kağanı diz çöktü. Karlı zirveler ilk kez bir ejderhanın gölgesine boyun eğiyor.',
+              perk: { icon: '🏔️', name: 'Dağ Yüreği', desc: 'Max can kalıcı olarak +%20' }, coins: 4000, xp: 3000, potions: 2 },
+            { id: 'buz', biome: 'buz', name: 'AYAZ ANA KIRAĞI', short: 'Kırağı', title: 'Kutup Buzulunun Kraliçesi', hive: 'Kırağı Sarayı',
+              throne: { x: -5600, y: -5600 }, color: '#8af4ff', glow: '#00d4ff', rgb: '130,240,255', size: 64, weather: 'ayaz', roar: 'b_kiyamet', touch: 55,
+              weatherText: '🌌 KIRAĞI KUTUP GECESİNİ İNDİRDİ: gökyüzü karardı, hayalet enerjin donuyor',
+              protText: '💎 KRİSTAL AYNALAR: aynalar ayaktayken kraliçe neredeyse hasar almaz — önce aynaları kır!',
+              intro: 'Buzun içinden bir şarkı yükseldi. Ayaz Ana dört aynasını çevresine dizdi; her birinde benim yansımam titriyor.',
+              win: 'Aynalar paramparça, şarkı sustu. Buzulun kraliçesi artık benim adıma kış getirecek.',
+              perk: { icon: '❄️', name: 'Ayaz Nefesi', desc: 'Alevin düşmanları yavaşlatır, hayalet enerjisi %30 hızlı dolar' }, coins: 4500, xp: 3200, potions: 2 },
+            { id: 'col', biome: 'col', name: 'KUM SULTANI ZEHRİMAR', short: 'Zehrimar', title: 'Kavurucu Çölün Sultanı', hive: 'Zehrimar Piramidi',
+              throne: { x: 5600, y: 5600 }, color: '#ffc24a', glow: '#ff8a00', rgb: '255,194,74', size: 96, weather: 'kum', roar: 'b_sahmeran', touch: 65,
+              weatherText: '🌪️ ZEHRİMAR BÜYÜK KUM FIRTINASINI KOPARDI: görüşün daraldı',
+              protText: '⏳ KUMA GÖMÜLME: sultan kumun altındayken dokunulmazdır — yere çıkacağı yeri izle ve kaç!',
+              intro: 'Kum dalgalandı, bir piramidin gölgesinden altın taçlı bir akrep çıktı. Kuyruğundaki zehir güneşte parlıyor.',
+              win: 'Sultanın zehri kurudu. Çölün hazinesi artık benim hazinemdir.',
+              perk: { icon: '💰', name: 'Sultan Hazinesi', desc: 'Kazandığın tüm coinler kalıcı olarak +%25' }, coins: 5000, xp: 3200, potions: 2 },
+            { id: 'deniz', biome: 'deniz', name: 'ABİS HAKANI DERİNAY', short: 'Derinay', title: 'Derin Deniz Abisinin Hakanı', hive: 'Derinay Mercan Sarayı',
+              throne: { x: -5600, y: 5600 }, color: '#4aa0ff', glow: '#00e5ff', rgb: '74,160,255', size: 110, weather: 'basinc', roar: 'b_swarmMother', touch: 70,
+              weatherText: '⛈️ DERİNAY ABİS FIRTINASINI UYANDIRDI: yıldırımlara dikkat!',
+              protText: '💧 SU KALKANI: hiçbir hasar geçmez — KÜKRE (E) ya da SÜPER PLAZMA (R) ile patlat!',
+              intro: 'Karanlık sular kabardı. Mercan tacını takmış bir hakan dokunaçlarını açtı; etrafında bir su kalkanı parlıyor.',
+              win: 'Abisin hakanı dibe çöktü. Denizin derinlikleri artık benim adımı fısıldıyor.',
+              perk: { icon: '🌊', name: 'Abis Kudreti', desc: 'Ateş hasarı kalıcı +%15, can çalma +%8' }, coins: 5000, xp: 3400, potions: 3 }
+        ];
+        // var: eski kodlar yüklenirken (TDZ hatası olmadan) erişilebilsin
+        var royalState = safeParseJSON('boruRoyals', {});
+        ROYALS.forEach(r => { if (!royalState[r.id]) royalState[r.id] = { dead: false }; });
+        function saveRoyals() { store.setItem('boruRoyals', JSON.stringify(royalState)); }
+        function royalDead(id) { return !!(royalState && royalState[id] && royalState[id].dead); }
+        function royalById(id) { return ROYALS.find(r => r.id === id); }
+        function royalForBiome(name) { return ROYALS.find(r => r.biome === name) || null; }
+        function livingRoyals() { return ROYALS.filter(r => !royalDead(r.id)); }
+        function royalNearby() { for (const b of activeBosses) if (b.type === 'royal' && (b.x - world.dragonX) ** 2 + (b.y - world.dragonY) ** 2 < 2400 * 2400) return true; return false; }
+        function nearThrone(x, y, d) { return ROYALS.some(r => Math.hypot(x - r.throne.x, y - r.throne.y) < d); }
+        function hashStr(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return ((h >>> 0) % 100000) / 100000; }
+        function kingdomFor(h) { const rb = royalForBiome(getBiomeAt(h.x, h.y).name); return rb ? rb.id : null; }
+        // Kralı düşen krallıktaki bir kovanın kaderi (kimliğe bağlı, her seferinde aynı sonuç)
+        function fallenKingdomFate(id, deadRid) {
+            const alive = livingRoyals().filter(r => r.id !== deadRid);
+            if (hashStr(id + '|' + deadRid) < 0.45 || !alive.length) return { joins: true };
+            return { joins: false, to: alive[Math.floor(hashStr(id + '|k') * alive.length)].id };
+        }
+        function hivePosFromId(id) {
+            const m = /^poi_(-?\d+)_(-?\d+)$/.exec(id); if (!m) return null;
+            const cx = +m[1], cy = +m[2]; const poi = (cx === 0 && cy === -1) ? FIRST_POI : chunkPOI(cx, cy);
+            return poi ? { x: poi.x, y: poi.y, id } : null;
+        }
+        let royalFx = [];
+        function royalDmgScale() { return Math.sqrt(Math.max(1, maxHp / 2400)); }
+        function royalHurt(amount, shake) { return hurtPlayer(LP, amount * diffConfig.dmgMult * royalDmgScale(), shake || 14); }
+        // Alan hasarı: hem ejderhaya hem de yakındaki köle/askerlerimize işler
+        function royalHurtAt(x, y, r, amount, slow) {
+            let hit = false;
+            if ((world.dragonX - x) ** 2 + (world.dragonY - y) ** 2 < (r + 18 * playerGrowth()) ** 2) { hit = royalHurt(amount, 16); if (hit && slow) slowPlayer(LP, slow); }
+            for (const hb of hiredBosses) if ((hb.x - x) ** 2 + (hb.y - y) ** 2 < (r + hb.size) ** 2) hb.hp -= amount * 2.5;
+            for (const s of hiveSoldiers) if ((s.x - x) ** 2 + (s.y - y) ** 2 < (r + s.size) ** 2) s.hp -= amount * 2;
+            return hit;
+        }
+
+        // ---------------------------------------------------------------------
+        // TAHT KOVANLARI
+        // ---------------------------------------------------------------------
+        ROYALS.forEach((r, i) => {
+            const rng = seededRng(9001 + i * 131);
+            r.shape = Array.from({ length: 9 }, () => ({ a: rng() * Math.PI * 2, d: 60 + rng() * 120, s: 0.6 + rng() * 0.8, k: rng() }));
+        });
+        function updateThrones() {
+            if (inMirrorArena || TUT.active) return;
+            const viewR = Math.hypot(canvas.width, canvas.height) / 2 / viewScale + 700;
+            for (const r of ROYALS) {
+                const d = Math.hypot(world.dragonX - r.throne.x, world.dragonY - r.throne.y);
+                if (d < viewR + 1800) drawThrone(r, d);
+                if (royalDead(r.id)) {
+                    // BİZİM TAHTIMIZ: yanında iyileşir, hayalet enerjisi toplarsın
+                    if (d < 420 && !(MP.active && MP.localDead)) { if (dragonHp < maxHp) { dragonHp = Math.min(maxHp, dragonHp + 2.5 + maxHp * 0.0008); if (gFrame % 12 === 0) updateUI(); } ghostEnergy = Math.min(GHOST_MAX, ghostEnergy + 0.15); }
+                    continue;
+                }
+                const act = activeBosses.some(b => b.type === 'royal' && b.rid === r.id);
+                if (!act && d < 1650 && !isArenaTransitioning) spawnRoyal(r);
+            }
+        }
+        function drawThrone(r, d) {
+            const dead = royalDead(r.id); const act = activeBosses.some(b => b.type === 'royal' && b.rid === r.id);
+            const x = r.throne.x - camX, y = r.throne.y - camY; const T = tick; const col = dead ? '#3aa0ff' : r.color;
+            ctx.save(); ctx.translate(x, y);
+            // Kral bölgesi sınırı (kral uyumadan önce uyarı)
+            if (!dead && !act) {
+                ctx.strokeStyle = hexA(r.color, 0.22 + Math.sin(T * 2) * 0.08); ctx.lineWidth = 4; ctx.setLineDash([40, 30]); ctx.lineDashOffset = -T * 20;
+                ctx.beginPath(); ctx.arc(0, 0, 1650, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+            }
+            if (dead) { ctx.strokeStyle = 'rgba(80,200,255,0.3)'; ctx.lineWidth = 2; ctx.setLineDash([12, 12]); ctx.lineDashOffset = -T * 10; ctx.beginPath(); ctx.arc(0, 0, 420, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); }
+            ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.beginPath(); ctx.ellipse(0, 40, 250, 110, 0, 0, Math.PI * 2); ctx.fill();
+            if (r.id === 'kar') {
+                // Buz tutmuş dağ zirveleri, ortada mavi gözlü bir kapı
+                const peaks = [[-170, 30, 90, 190], [-80, 20, 110, 260], [20, 10, 120, 300], [120, 25, 100, 230], [200, 40, 70, 150]];
+                for (const [px, py, w, h] of peaks) {
+                    let g = ctx.createLinearGradient(px, py - h, px, py); g.addColorStop(0, '#f4f8ff'); g.addColorStop(0.28, '#b8c6dc'); g.addColorStop(1, '#2e3848');
+                    ctx.fillStyle = g; ctx.strokeStyle = dead ? '#3aa0ff' : '#8aa8d8'; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.moveTo(px - w / 2, py); ctx.lineTo(px - w * 0.12, py - h * 0.72); ctx.lineTo(px, py - h); ctx.lineTo(px + w * 0.16, py - h * 0.66); ctx.lineTo(px + w / 2, py); ctx.closePath(); ctx.fill(); ctx.stroke();
+                }
+                ctx.fillStyle = '#0a1020'; ctx.beginPath(); ctx.moveTo(-34, 36); ctx.lineTo(-34, -30); ctx.quadraticCurveTo(0, -70, 34, -30); ctx.lineTo(34, 36); ctx.closePath(); ctx.fill();
+                ctx.fillStyle = dead ? '#3aa0ff' : r.glow; ctx.shadowBlur = 25; ctx.shadowColor = ctx.fillStyle; ctx.beginPath(); ctx.ellipse(0, -10, 14, 8 + Math.sin(T * 3) * 3, 0, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+                ctx.strokeStyle = hexA(r.glow, 0.5); ctx.lineWidth = 2; for (let k = 0; k < 10; k++) { const a = k * Math.PI / 5 + T * 0.1; ctx.beginPath(); ctx.arc(Math.cos(a) * 225, Math.sin(a) * 95 + 40, 5, 0, Math.PI * 2); ctx.stroke(); }
+            } else if (r.id === 'buz') {
+                // Kristal kuleler ve etrafında dönen buz parçaları
+                ctx.save(); ctx.globalCompositeOperation = 'lighter';
+                for (const s of r.shape) {
+                    const px = Math.cos(s.a) * s.d * 1.1, py = Math.sin(s.a) * s.d * 0.45 + 20, h = 120 + s.s * 150, w = 22 + s.s * 20;
+                    let g = ctx.createLinearGradient(px, py - h, px, py); g.addColorStop(0, 'rgba(230,255,255,0.95)'); g.addColorStop(0.5, 'rgba(90,220,255,0.55)'); g.addColorStop(1, 'rgba(0,80,140,0.35)');
+                    ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(px - w, py); ctx.lineTo(px - w * 0.8, py - h * 0.8); ctx.lineTo(px, py - h); ctx.lineTo(px + w * 0.8, py - h * 0.8); ctx.lineTo(px + w, py); ctx.closePath(); ctx.fill();
+                }
+                for (let k = 0; k < 8; k++) { const a = T * 0.5 + k * Math.PI / 4; const sx = Math.cos(a) * 240, sy = Math.sin(a) * 90 - 60 + Math.sin(T * 2 + k) * 10;
+                    ctx.fillStyle = 'rgba(180,250,255,0.7)'; ctx.beginPath(); ctx.moveTo(sx, sy - 14); ctx.lineTo(sx + 7, sy); ctx.lineTo(sx, sy + 14); ctx.lineTo(sx - 7, sy); ctx.closePath(); ctx.fill(); }
+                ctx.restore();
+            } else if (r.id === 'col') {
+                // Basamaklı kum piramidi, tepede altın göz; etrafında kum girdabı
+                const tiers = [[260, 70], [190, 70], [120, 70], [56, 60]];
+                let yy = 40; for (let k = 0; k < tiers.length; k++) { const [w, h] = tiers[k];
+                    let g = ctx.createLinearGradient(0, yy - h, 0, yy); g.addColorStop(0, '#f0c070'); g.addColorStop(1, '#8a5a20');
+                    ctx.fillStyle = g; ctx.strokeStyle = dead ? '#3aa0ff' : '#5a3a10'; ctx.lineWidth = 2; ctx.fillRect(-w / 2, yy - h, w, h); ctx.strokeRect(-w / 2, yy - h, w, h); yy -= h; }
+                ctx.fillStyle = dead ? '#3aa0ff' : '#ffd700'; ctx.shadowBlur = 22; ctx.shadowColor = ctx.fillStyle;
+                ctx.beginPath(); ctx.ellipse(0, yy + 26, 18, 10, 0, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#300'; ctx.beginPath(); ctx.arc(0, yy + 26, 5, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+                ctx.strokeStyle = 'rgba(230,180,110,0.35)'; ctx.lineWidth = 3; for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.ellipse(0, 20, 230 + k * 30, 80 + k * 14, 0, T * (0.6 + k * 0.2), T * (0.6 + k * 0.2) + 2.2); ctx.stroke(); }
+            } else {
+                // Karanlık su havuzu, mercan kuleleri, yükselen kabarcıklar
+                let g = ctx.createRadialGradient(0, 30, 20, 0, 30, 250); g.addColorStop(0, '#0a2a5a'); g.addColorStop(1, 'rgba(0,10,30,0.2)');
+                ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(0, 30, 250, 100, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = 'rgba(0,220,255,0.3)'; ctx.lineWidth = 2; for (let k = 0; k < 3; k++) { const rr = ((T * 30 + k * 80) % 240); ctx.beginPath(); ctx.ellipse(0, 30, rr, rr * 0.4, 0, 0, Math.PI * 2); ctx.stroke(); }
+                for (const s of r.shape) { const px = Math.cos(s.a) * s.d * 1.2, py = Math.sin(s.a) * s.d * 0.4 + 30;
+                    ctx.strokeStyle = s.k > 0.5 ? '#ff5aa0' : '#2affd0'; ctx.lineWidth = 7 * s.s; ctx.lineCap = 'round';
+                    ctx.beginPath(); ctx.moveTo(px, py); ctx.quadraticCurveTo(px + Math.sin(T + s.a) * 20, py - 70 * s.s, px + Math.cos(T * 0.7 + s.a) * 16, py - 140 * s.s); ctx.stroke(); }
+                ctx.fillStyle = '#123a6a'; ctx.strokeStyle = dead ? '#3aa0ff' : r.glow; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, 64, Math.PI, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = 'rgba(160,240,255,0.6)'; for (let k = 0; k < 7; k++) { const bx = Math.sin(k * 7.3) * 150, by = 30 - ((T * 40 + k * 60) % 260); ctx.beginPath(); ctx.arc(bx, by, 3 + (k % 3), 0, Math.PI * 2); ctx.fill(); }
+            }
+            // Taç ve yazı
+            ctx.font = '42px Arial'; ctx.textAlign = 'center'; ctx.shadowBlur = 18; ctx.shadowColor = col; ctx.fillText(dead ? '🏳️' : '👑', 0, -230 + Math.sin(T * 2) * 6); ctx.shadowBlur = 0;
+            ctx.font = 'bold 18px Segoe UI'; ctx.fillStyle = col; ctx.shadowBlur = 8; ctx.shadowColor = '#000';
+            ctx.fillText(dead ? '🛡️ ' + r.hive.toUpperCase() + ' · ARTIK SENİN' : r.hive.toUpperCase(), 0, -186);
+            ctx.font = '13px Segoe UI'; ctx.fillStyle = '#fff';
+            ctx.fillText(dead ? 'Yanında iyileşirsin · ' + r.title + ' diz çöktü' : (act ? '⚔️ KRAL SAVAŞTA!' : r.name + ' · yaklaşırsan uyanır'), 0, -166); ctx.shadowBlur = 0;
+            ctx.restore();
+        }
+
+        // ---------------------------------------------------------------------
+        // KRALIN DOĞUŞU
+        // ---------------------------------------------------------------------
+        function spawnRoyal(r) {
+            const hp = Math.round(Math.max(maxHp * 8, 30000 + currentWave * 9000) * diffConfig.mult);
+            const b = { id: Math.random(), type: 'royal', rid: r.id, x: r.throne.x, y: r.throne.y - 60, size: r.size, maxHp: hp, hp, lastHp: hp, cap: hp / (60 * 80),
+                angle: Math.PI / 2, t: 0, state: 'intro', stT: 0, atkCd: 140, hitFlash: 0, wob: 0, screamed: false, enraged: false, prot: 0, speed: stats.baseMaxSpeed, waveT: 0, lightT: 120, protHint: false };
+            if (r.id === 'kar') { b.shA = Math.PI / 2; b.arm = 0; }
+            if (r.id === 'buz') { b.joints = Array.from({ length: 22 }, (_, i) => ({ x: b.x, y: b.y + i * 26, angle: -Math.PI / 2 })); b.orb = 0; b.mirrors = royalMirrors(b); b.mirrorRegrown = false; }
+            if (r.id === 'col') { b.tail = Array.from({ length: 9 }, () => ({ x: b.x, y: b.y, angle: 0 })); b.burrowCd = 420; b.submerged = false; }
+            if (r.id === 'deniz') { b.bubble = true; b.bubbleT = 0; b.popShown = false; }
+            activeBosses.push(b); setBossUi('👑 ' + r.name, r.color);
+            showWaveText('👑 ' + r.name + ' TAHTINDAN KALKTI!', true, r.color); playRoarSound(r.roar, { x: b.x, y: b.y }); applyShake(55); playBossIncomingSting();
+            setTimeout(() => showLoreBanner(r.intro), 1200);
+        }
+        function royalMirrors(b) { return [0, 1, 2, 3].map(i => ({ a: i * Math.PI / 2, hp: b.maxHp * 0.035, maxHp: b.maxHp * 0.035, lastHp: b.maxHp * 0.035, dead: false, flash: 0, shotT: 90 + i * 40 })); }
+
+        // Ateş hasarı: her alev parçacığı için ayrı koruma çarpanı (ör. ön kalkan), dış hasar (askerler,
+        // plazma, kuleler) için genel çarpan. Toplam hasar kare başına sınırlıdır (applyCappedDamage gibi).
+        function royalTakeDamage(b, perP) {
+            let dmg = 0; const R = b.size + (b.rid === 'buz' ? 20 : 30);
+            for (const p of fireNear(b.x, b.y, R)) {
+                if (p.life > 0.3 && (b.x - p.x) ** 2 + (b.y - p.y) ** 2 < (R + p.size * 0.4) ** 2) {
+                    let dm = fdmg(p); if (Math.random() * 100 < stats.critChance) dm *= 3;
+                    dmg += dm * (perP ? perP(p) : b.prot); p.life -= 0.2; addRageP(p, 0.4);
+                }
+            }
+            const ext = Math.max(0, b.lastHp - b.hp);
+            const total = Math.min(b.cap, ext * (b.extProt !== undefined ? b.extProt : b.prot) + dmg);
+            b.hp = b.lastHp - total; b.lastHp = b.hp;
+            if (total > 0.5) { b.hitFlash = 5; if (gFrame % 8 === 0) playHitSound(true, b.x, b.y); }
+        }
+
+        function updateRoyal(b, bi) {
+            const r = royalById(b.rid); b.t++; b.stT++; b.wob += 0.03; if (b.hitFlash > 0) b.hitFlash--;
+            const dP = Math.hypot(world.dragonX - r.throne.x, world.dragonY - r.throne.y);
+            if (dP > 4300) {
+                // Oyuncu kaçtı: kral tahtına döner ve yaraları kapanır
+                activeBosses.splice(bi, 1); royalFx = royalFx.filter(f => f.rid !== r.id);
+                showWaveText('👑 ' + r.name + ' TAHTINA ÇEKİLDİ · canı yenilendi', false, r.color); return;
+            }
+            const TP = LP; const dx = TP.x - b.x, dy = TP.y - b.y, dist = Math.hypot(dx, dy) || 1, toP = Math.atan2(dy, dx);
+            b.extProt = undefined; b.perP = null;
+            if (b.state === 'intro') { b.prot = 0; if (b.stT > 80) { b.state = 'fight'; b.stT = 0; setTimeout(() => hintToast(r.protText, r.color, 6500), 6200); } }
+            else {
+                b.prot = 1;
+                if (r.id === 'kar') royalAI_kar(b, r, TP, dist, toP);
+                else if (r.id === 'buz') royalAI_buz(b, r, TP, dist, toP);
+                else if (r.id === 'col') royalAI_col(b, r, TP, dist, toP);
+                else royalAI_deniz(b, r, TP, dist, toP);
+            }
+            // Kral krallığını terk etmez
+            { const tx = b.x - r.throne.x, ty = b.y - r.throne.y, td = Math.hypot(tx, ty); if (td > 2600) { b.x = r.throne.x + tx / td * 2600; b.y = r.throne.y + ty / td * 2600; } }
+            if (!b.enraged && b.hp < b.maxHp * 0.6) { b.enraged = true; showWaveText('👑 ' + r.name + ' ÖFKELENDİ!', false, r.color); applyShake(30); if (r.id === 'buz' && !b.mirrorRegrown) { b.mirrorRegrown = true; b.mirrors = royalMirrors(b); showWaveText('💎 KRİSTAL AYNALAR YENİDEN DOĞDU!', false, r.color); } }
+            if (!b.screamed && b.hp < b.maxHp * 0.25) royalScream(b, r);
+            royalWeatherTick(b, r);
+            if (!b.submerged && dist < b.size + 24 * playerGrowth() && gFrame % 28 === 0) royalHurt(r.touch, 18);
+            royalTakeDamage(b, b.perP);
+            if (b.hp <= 0) { onRoyalDefeated(b, bi, r); return; }
+            drawRoyal(b, r);
+        }
+        function royalPickAttack(b, list) {
+            b.atkCd--; if (b.atkCd > 0 || b.state !== 'fight') return null;
+            b.atkCd = b.enraged ? 105 : 150; return list[Math.floor(Math.random() * list.length)];
+        }
+        function royalWarn(b, kind, x, y, r, dur, dmg, extra) { royalFx.push(Object.assign({ type: 'warn', rid: b.rid, kind, x, y, r, t: 0, dur, dmg, col: royalById(b.rid).glow }, extra || {})); }
+
+        // ---- DAĞ KAĞANI: ön kalkan, kaya yağmuru, yer sarsıntısı, buz sütunları ----
+        function royalAI_kar(b, r, TP, dist, toP) {
+            const turn = b.enraged ? 0.03 : 0.022; b.shA += Math.max(-turn, Math.min(turn, normAng(toP - b.shA))); b.angle = b.shA;
+            const arc = b.enraged ? 1.25 : 1.05;
+            b.perP = (p) => Math.abs(normAng(Math.atan2(p.y - b.y, p.x - b.x) - b.shA)) < arc ? 0.1 : 1;
+            if (b.state === 'fight') { if (dist > 380) moveTowardFree(b, TP.x, TP.y, b.speed * 0.3); b.arm *= 0.9; }
+            if (b.state === 'slam') {
+                b.arm = Math.min(1, b.stT / 45);
+                if (b.stT === 45 || b.stT === 63 || (b.enraged && b.stT === 81)) { royalFx.push({ type: 'ring', rid: b.rid, x: b.x, y: b.y, rad: b.size, sp: 11, max: 1150, dmg: 110, col: '#cfe2ff', hit: false }); applyShake(22); SND.net('explode', { x: b.x, y: b.y }, 1); }
+                if (b.stT > 95) { b.state = 'fight'; b.stT = 0; }
+                return;
+            }
+            const a = royalPickAttack(b, ['boulders', 'slam', 'spikes']);
+            if (a === 'boulders') {
+                const n = b.enraged ? 5 : 3; for (let k = 0; k < n; k++) { const ox = (TP.vx || 0) * 30 + (k ? (Math.random() - 0.5) * 420 : 0), oy = (TP.vy || 0) * 30 + (k ? (Math.random() - 0.5) * 420 : 0); royalWarn(b, 'boulder', TP.x + ox, TP.y + oy, 150, 62 + k * 8, 230); }
+                showWaveText('🪨 ÇIĞ KAYALARI!', false, r.color);
+            } else if (a === 'slam') { b.state = 'slam'; b.stT = 0; SND.net('bossCharge', { x: b.x, y: b.y }, 'regular'); }
+            else if (a === 'spikes') {
+                const n = b.enraged ? 12 : 9; for (let k = 1; k <= n; k++) royalWarn(b, 'spike', b.x + Math.cos(toP) * (90 + k * 95), b.y + Math.sin(toP) * (90 + k * 95), 80, 36 + k * 5, 150);
+                if (b.enraged) for (const s of [-0.35, 0.35]) for (let k = 1; k <= 7; k++) royalWarn(b, 'spike', b.x + Math.cos(toP + s) * (90 + k * 105), b.y + Math.sin(toP + s) * (90 + k * 105), 70, 44 + k * 5, 130);
+            }
+        }
+        // ---- AYAZ ANA: kristal aynalar, ayaz ışını, buz yağmuru, donduran halka ----
+        function royalAI_buz(b, r, TP, dist, toP) {
+            b.orb += (b.enraged ? 0.012 : 0.008);
+            const want = 540, oa = b.orb * 2 + Math.atan2(b.y - TP.y, b.x - TP.x) * 0.02;
+            const gx = TP.x + Math.cos(oa + b.t * 0.004) * want, gy = TP.y + Math.sin(oa + b.t * 0.004) * want;
+            if (b.state !== 'beam') moveTowardFree(b, gx, gy, b.speed * 0.62);
+            b.angle += normAng((b.state === 'beam' ? b.beamA : Math.atan2(gy - b.y, gx - b.x)) - b.angle) * 0.08;
+            // Gövde
+            b.joints[0].x = b.x; b.joints[0].y = b.y; b.joints[0].angle = b.angle;
+            for (let k = 1; k < b.joints.length; k++) { const pv = b.joints[k - 1], c = b.joints[k]; c.angle = Math.atan2(pv.y - c.y, pv.x - c.x); c.x = pv.x - Math.cos(c.angle) * 26; c.y = pv.y - Math.sin(c.angle) * 26; }
+            // Aynalar
+            let alive = 0;
+            for (const m of b.mirrors) {
+                if (m.dead) continue; alive++; m.a += 0.018; m.x = b.x + Math.cos(m.a) * 270; m.y = b.y + Math.sin(m.a) * 270; if (m.flash > 0) m.flash--;
+                let md = 0; for (const p of fireNear(m.x, m.y, 50)) { if (p.life > 0.3 && (m.x - p.x) ** 2 + (m.y - p.y) ** 2 < (46 + p.size * 0.4) ** 2) { md += fdmg(p); p.life -= 0.25; } }
+                if (md > 0) { m.hp -= Math.min(m.maxHp / (60 * 7), md); m.flash = 4; }
+                if (--m.shotT <= 0 && b.state === 'fight') { m.shotT = b.enraged ? 110 : 160; const a = Math.atan2(TP.y - m.y, TP.x - m.x); royalFx.push({ type: 'proj', rid: b.rid, x: m.x, y: m.y, vx: Math.cos(a) * 10, vy: Math.sin(a) * 10, r: 16, dmg: 60, life: 140, col: '#bff8ff', kind: 'shard', slow: 60 }); }
+                if (m.hp <= 0) { m.dead = true; alive--; applyShake(18); SND.net('explode', { x: m.x, y: m.y }, 1); showWaveText('💎 AYNA KIRILDI!', false, '#bff8ff'); for (let k = 0; k < 10; k++) xpGems.push({ x: m.x + (Math.random() - 0.5) * 80, y: m.y + (Math.random() - 0.5) * 80, size: 12 }); }
+            }
+            b.prot = alive > 0 ? 0.2 : 1;
+            if (b.state === 'beam') {
+                if (b.stT < 45) { b.beamA += normAng(toP - b.beamA) * 0.05; }
+                else { b.beamA += Math.max(-0.013, Math.min(0.013, normAng(toP - b.beamA))) * (b.enraged ? 1.3 : 1);
+                    if (gFrame % 6 === 0) { const ex = b.x + Math.cos(b.beamA) * 1350, ey = b.y + Math.sin(b.beamA) * 1350;
+                        if (distToSegmentSquared(TP, { x: b.x, y: b.y }, { x: ex, y: ey }) < 44 ** 2) { if (royalHurt(26, 6)) slowPlayer(LP, 60); }
+                        for (const hb of hiredBosses) if (distToSegmentSquared(hb, { x: b.x, y: b.y }, { x: ex, y: ey }) < (hb.size + 30) ** 2) hb.hp -= 60; } }
+                if (b.stT > 45 + 90) { b.state = 'fight'; b.stT = 0; }
+                return;
+            }
+            const a = royalPickAttack(b, ['beam', 'icicles', 'ring']);
+            if (a === 'beam') { b.state = 'beam'; b.stT = 0; b.beamA = toP; SND.net('frostBeam', { x: b.x, y: b.y }); showWaveText('❄️ AYAZ IŞINI!', false, r.color); }
+            else if (a === 'icicles') { const n = b.enraged ? 14 : 10; for (let k = 0; k < n; k++) { const ang = Math.random() * Math.PI * 2, d = k === 0 ? 0 : 80 + Math.random() * 420; royalWarn(b, 'icicle', TP.x + Math.cos(ang) * d, TP.y + Math.sin(ang) * d, 72, 48 + Math.random() * 34, 140, { slow: 50 }); } }
+            else if (a === 'ring') { royalFx.push({ type: 'ring', rid: b.rid, x: b.x, y: b.y, rad: b.size, sp: 9, max: 1300, dmg: 90, col: '#9ff4ff', hit: false, slow: 150 }); if (b.enraged) setTimeout(() => royalFx.push({ type: 'ring', rid: b.rid, x: b.x, y: b.y, rad: b.size, sp: 12, max: 1300, dmg: 90, col: '#9ff4ff', hit: false, slow: 150 }), 500); }
+        }
+        // ---- KUM SULTANI: kuma gömülme, zehir iğnesi, kum hortumları, kıskaç hamlesi ----
+        function royalAI_col(b, r, TP, dist, toP) {
+            b.submerged = b.state === 'burrow';
+            if (b.state === 'burrow') {
+                b.prot = 0; moveTowardFree(b, TP.x, TP.y, b.speed * 0.95);
+                if (gFrame % 3 === 0) trailParticles.push({ x: b.x + (Math.random() - 0.5) * 90, y: b.y + (Math.random() - 0.5) * 60, life: 0.7, size: 14 + Math.random() * 12, color: 'rgba(200,150,80,0.7)' });
+                if (b.stT === 150) { royalWarn(b, 'erupt', TP.x, TP.y, 175, 45, 280); b.eruptAt = { x: TP.x, y: TP.y }; }
+                if (b.stT >= 195) { b.x = b.eruptAt.x; b.y = b.eruptAt.y; b.state = 'fight'; b.stT = 0; b.burrowCd = b.enraged ? 400 : 540; }
+                return;
+            }
+            b.angle += normAng(toP - b.angle) * 0.07;
+            if (b.state === 'chargePrep') { if (b.stT > 38) { b.state = 'charge'; b.stT = 0; b.chA = toP; } return; }
+            if (b.state === 'charge') { b.x += Math.cos(b.chA) * b.speed * 3.3; b.y += Math.sin(b.chA) * b.speed * 3.3; if (dist < b.size + 40 && !b.chHit) { b.chHit = true; royalHurt(200, 30); knockPlayer(LP, Math.cos(b.chA) * 160, Math.sin(b.chA) * 160); } if (b.stT > 32) { b.state = 'fight'; b.stT = 0; b.chHit = false; } return; }
+            if (dist > 320) moveTowardFree(b, TP.x, TP.y, b.speed * 0.45);
+            if (--b.burrowCd <= 0) { b.state = 'burrow'; b.stT = 0; showWaveText('⏳ SULTAN KUMA GÖMÜLDÜ!', false, r.color); SND.net('explode', { x: b.x, y: b.y }, 1); applyShake(20); return; }
+            const a = royalPickAttack(b, ['sting', 'tornado', 'charge']);
+            if (a === 'sting') { const n = b.enraged ? 5 : 3; for (let k = 0; k < n; k++) { const s = (k - (n - 1) / 2) * 0.22; royalFx.push({ type: 'proj', rid: b.rid, x: b.x, y: b.y, vx: Math.cos(toP + s) * 11, vy: Math.sin(toP + s) * 11, r: 18, dmg: 95, life: 150, col: '#9dff3a', kind: 'venom', pool: true }); } playAcidSound(); }
+            else if (a === 'tornado') { const n = b.enraged ? 3 : 2; for (let k = 0; k < n; k++) { const ang = Math.random() * Math.PI * 2; royalFx.push({ type: 'tornado', rid: b.rid, x: b.x + Math.cos(ang) * 260, y: b.y + Math.sin(ang) * 260, t: 0, dur: 420, r: 120, sp: 3.4 + k * 0.4 }); } showWaveText('🌪️ KUM HORTUMLARI!', false, r.color); }
+            else if (a === 'charge') { b.state = 'chargePrep'; b.stT = 0; royalFx.push({ type: 'line', rid: b.rid, x: b.x, y: b.y, a: toP, len: 1100, w: b.size, t: 0, dur: 38, col: r.color }); SND.net('bossCharge', { x: b.x, y: b.y }, 'regular'); }
+        }
+        // ---- ABİS HAKANI: su kalkanı, dokunaç darbeleri, girdap, su jetleri, yıldırımlar ----
+        function royalAI_deniz(b, r, TP, dist, toP) {
+            b.angle += normAng(toP - b.angle) * 0.04;
+            if (dist > 460) moveTowardFree(b, TP.x, TP.y, b.speed * 0.34); else { b.x += Math.cos(b.t * 0.02) * 1.2; b.y += Math.sin(b.t * 0.017) * 1.2; }
+            if (isSuperBeamFiring && dist < 1500 && b.bubble) royalPopBubble(b, r);
+            if (!b.bubble) { if (--b.bubbleT <= 0) { b.bubble = true; showWaveText('💧 SU KALKANI YENİDEN KAPANDI!', false, r.color); } }
+            b.prot = b.bubble ? 0 : 1;
+            if (b.bubble && !b.popShown && b.stT > 240) { b.popShown = true; hintToast('💧 Su kalkanını patlat: ' + (isTouchUI ? 'KÜKRE butonu' : 'E tuşuyla kükre') + ' ya da süper plazma!', '#9fe8ff', 5500); }
+            const a = royalPickAttack(b, ['tentacles', 'whirl', 'jets']);
+            if (a === 'tentacles') { const n = b.enraged ? 6 : 4; for (let k = 0; k < n; k++) { const ang = Math.random() * Math.PI * 2, d = k === 0 ? 30 : 120 + Math.random() * 280; royalWarn(b, 'tentacle', TP.x + Math.cos(ang) * d, TP.y + Math.sin(ang) * d, 110, 54 + k * 8, 160, { a: Math.random() * Math.PI }); } playWhipSound(); }
+            else if (a === 'whirl') { royalFx.push({ type: 'whirl', rid: b.rid, x: TP.x, y: TP.y, r: 430, t: 0, dur: 200, pull: b.enraged ? 2.5 : 1.9 }); showWaveText('🌀 GİRDAP! Merkezden uzak dur', false, r.color); }
+            else if (a === 'jets') { const n = b.enraged ? 6 : 4; for (let k = 0; k < n; k++) { const s = (k - (n - 1) / 2) * 0.18; royalFx.push({ type: 'proj', rid: b.rid, x: b.x, y: b.y, vx: Math.cos(toP + s) * 13, vy: Math.sin(toP + s) * 13, r: 16, dmg: 70, life: 130, col: '#7fd8ff', kind: 'jet' }); } }
+        }
+        function royalPopBubble(b, r) { b.bubble = false; b.bubbleT = b.enraged ? 380 : 480; royalFx.push({ type: 'boom', rid: 'x', x: b.x, y: b.y, r: b.size + 70, t: 0, dur: 30, col: '#bff4ff' }); showWaveText('💥 SU KALKANI PATLADI! Şimdi vur!', false, '#bff4ff'); applyShake(25); SND.net('explode', { x: b.x, y: b.y }, 1); }
+        // Kükreme Abis Hakanı'nın su kalkanını patlatır
+        function royalOnRoar() {
+            for (const b of activeBosses) if (b.type === 'royal' && b.rid === 'deniz' && b.bubble && Math.hypot(b.x - world.dragonX, b.y - world.dragonY) < 1050) royalPopBubble(b, royalById('deniz'));
+        }
+        function moveTowardFree(b, tx, ty, sp) { const dx = tx - b.x, dy = ty - b.y, d = Math.hypot(dx, dy); if (d > sp) { b.x += dx / d * sp; b.y += dy / d * sp; } }
+
+        // %25 ÇIĞLIĞI: bütün krallık kralına yardıma koşar
+        function royalScream(b, r) {
+            b.screamed = true; applyShake(90); playRoarSound(r.roar, { x: b.x, y: b.y }); SND.net('alarm');
+            royalFx.push({ type: 'scream', rid: 'x', x: b.x, y: b.y, t: 0, dur: 90, col: r.color });
+            showWaveText('👑 KRAL ÇIĞLIK ATTI!', true, r.color);
+            hintToast('📯 ' + r.name + ' bütün krallığını çağırdı: her türden düşman, harita bossları ve kovan bossları yardıma koşuyor!', r.color, 6500);
+            const hid = 'royal_' + r.id;
+            for (const ty of ['bat', 'scorpion', 'kobra', 'beetle', 'wasp', 'skeleton']) for (let k = 0; k < 4; k++) { const a = Math.random() * Math.PI * 2, d = 480 + Math.random() * 520; spawnHiveGrunt({ x: b.x + Math.cos(a) * d, y: b.y + Math.sin(a) * d, id: hid, archetype: ty }, 'fighter'); }
+            const W = Math.max(1, currentWave), dm = diffConfig.mult, sm = diffConfig.speedMult;
+            const at = (d) => { const a = Math.random() * Math.PI * 2; return { x: b.x + Math.cos(a) * d, y: b.y + Math.sin(a) * d }; };
+            const add = (o) => { o.royalAlly = true; activeBosses.push(o); };
+            // Harita bossları
+            { const p = at(950), h = 25000 * W * 0.35 * dm; add({ id: Math.random(), type: 'regular', chargeState: 'walk', attackTimer: 0, chargeDir: 0, x: p.x, y: p.y, maxHp: h, hp: h, size: 80, speed: stats.baseMaxSpeed * 0.7 * sm, wobble: 0, attackCooldown: 0, color1: r.glow, joints: Array.from({ length: 15 }, () => ({ x: p.x, y: p.y, angle: 0 })) }); }
+            { const p = at(820), h = 15000 * W * 0.35 * dm; add({ id: Math.random(), type: 'plantBoss', x: p.x, y: p.y, maxHp: h, hp: h, size: 75, speed: 0, wobble: 0, attackCooldown: 100 }); }
+            // Kovan bossları
+            { const p = at(700), h = (18000 + W * 1200) * 0.6 * dm; add({ id: Math.random(), type: 'hiveKing', hiveId: hid, chargeState: 'walk', attackTimer: 0, chargeDir: 0, x: p.x, y: p.y, maxHp: h, hp: h, size: 55, speed: stats.baseMaxSpeed * 0.55 * sm, wobble: 0, attackCooldown: 0, joints: Array.from({ length: 12 }, () => ({ x: p.x, y: p.y, angle: 0 })) }); }
+            { const p = at(760), h = (26000 + W * 1600) * 0.6 * dm; add({ id: Math.random(), type: 'hiveQueen', hiveId: hid, x: p.x, y: p.y, maxHp: h, hp: h, size: 65, speed: stats.baseMaxSpeed * 0.4 * sm, wobble: 0, attackCooldown: 0, summonTimer: 260, poisonTimer: 400, angle: 0, wingPhase: 0 }); }
+            for (const o of activeBosses) if (o.royalAlly) for (let k = 0; k < 6; k++) trailParticles.push({ x: o.x, y: o.y, life: 1, size: 18 + Math.random() * 14, color: r.glow });
+        }
+        // Kralın hava gücü: savaş boyunca biyomun olayını zorla ve güçlendir
+        function royalWeatherTick(b, r) {
+            if (b.state === 'intro') return;
+            if (!biomeEvt.royal || biomeEvt.type !== r.weather || biomeEvt.t < 120) {
+                const first = biomeEvt.royal !== r.id;
+                biomeEvt = { type: r.weather, biome: getBiomeAt(world.dragonX, world.dragonY).name, t: BIOME_EVT_DUR, cd: 0, royal: r.id };
+                if (first) setTimeout(() => hintToast(r.weatherText, r.color, 5000), 13500);
+            }
+            // Abis fırtınası yıldırımları
+            if (r.id === 'deniz' && --b.lightT <= 0) { b.lightT = b.enraged ? 70 : 100; const a = Math.random() * Math.PI * 2, d = Math.random() * 360; royalWarn(b, 'lightning', world.dragonX + Math.cos(a) * d, world.dragonY + Math.sin(a) * d, 95, 46, 120); }
+        }
+
+        // ---------------------------------------------------------------------
+        // EFEKTLER: uyarı halkaları, dalgalar, mermiler, hortumlar, girdaplar
+        // ---------------------------------------------------------------------
+        function updateRoyalFx() {
+            for (let i = royalFx.length - 1; i >= 0; i--) {
+                const f = royalFx[i]; const fx = f.x - camX, fy = f.y - camY;
+                if (f.type === 'warn') {
+                    f.t++; const k = f.t / f.dur;
+                    ctx.save(); ctx.translate(fx, fy);
+                    ctx.fillStyle = hexA(f.kind === 'lightning' ? '#ffffaa' : (f.kind === 'erupt' ? '#ffb040' : f.col), 0.12 + k * 0.22); ctx.beginPath(); ctx.arc(0, 0, f.r, 0, Math.PI * 2); ctx.fill();
+                    ctx.strokeStyle = hexA('#ffffff', 0.4 + k * 0.5); ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, f.r * k, 0, Math.PI * 2); ctx.stroke();
+                    ctx.strokeStyle = hexA('#ff3344', 0.5 + Math.sin(f.t * 0.5) * 0.3); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, f.r, 0, Math.PI * 2); ctx.stroke();
+                    if (f.kind === 'boulder' && k > 0.55) { const h = (1 - k) * 900; ctx.fillStyle = '#5a6272'; ctx.strokeStyle = '#dfe8f8'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, -h, 54 * (0.6 + k * 0.4), 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
+                    if (f.kind === 'icicle' && k > 0.6) { const h = (1 - k) * 700; ctx.fillStyle = 'rgba(200,250,255,0.9)'; ctx.beginPath(); ctx.moveTo(-12, -h - 60); ctx.lineTo(12, -h - 60); ctx.lineTo(0, -h); ctx.closePath(); ctx.fill(); }
+                    ctx.restore();
+                    if (f.t >= f.dur) {
+                        royalHurtAt(f.x, f.y, f.r, f.dmg, f.slow || 0);
+                        if (f.kind === 'erupt' && (world.dragonX - f.x) ** 2 + (world.dragonY - f.y) ** 2 < (f.r + 20) ** 2) { const a = Math.atan2(world.dragonY - f.y, world.dragonX - f.x); knockPlayer(LP, Math.cos(a) * 180, Math.sin(a) * 180); }
+                        royalFx.splice(i, 1); royalFx.push({ type: 'boom', rid: f.rid, x: f.x, y: f.y, r: f.r, t: 0, dur: f.kind === 'lightning' ? 16 : 26, col: f.col, kind: f.kind, a: f.a || 0 });
+                        if (f.kind === 'boulder' || f.kind === 'erupt') { addScorch(f.x, f.y, f.r * 0.8); applyShake(16); SND.net('explode', { x: f.x, y: f.y }, 1); }
+                        if (f.kind === 'lightning') { applyShake(12); SND.net('explode', { x: f.x, y: f.y }, 1); }
+                    }
+                    continue;
+                }
+                if (f.type === 'boom') {
+                    f.t++; const k = f.t / f.dur; if (k >= 1) { royalFx.splice(i, 1); continue; }
+                    ctx.save(); ctx.translate(fx, fy); ctx.globalAlpha = 1 - k;
+                    if (f.kind === 'lightning') { ctx.strokeStyle = '#ffffe0'; ctx.lineWidth = 6; ctx.shadowBlur = 25; ctx.shadowColor = '#fff'; ctx.beginPath(); let yy = -900, xx = 0; ctx.moveTo(xx, yy); while (yy < 0) { yy += 90; xx += (Math.random() - 0.5) * 70; ctx.lineTo(xx, Math.min(0, yy)); } ctx.stroke(); ctx.shadowBlur = 0; }
+                    else if (f.kind === 'spike' || f.kind === 'icicle') { ctx.fillStyle = 'rgba(210,245,255,0.95)'; ctx.strokeStyle = '#6fb8ff'; ctx.lineWidth = 2; for (let s = 0; s < 5; s++) { const a = s * 1.256 + f.x * 0.01; ctx.beginPath(); ctx.moveTo(Math.cos(a) * 20, Math.sin(a) * 12); ctx.lineTo(Math.cos(a) * 10, -f.r * 0.9 * (1 - k * 0.5)); ctx.lineTo(Math.cos(a + 0.5) * 20, Math.sin(a + 0.5) * 12); ctx.closePath(); ctx.fill(); ctx.stroke(); } }
+                    else if (f.kind === 'tentacle') { ctx.rotate(f.a); ctx.strokeStyle = '#1a4a8a'; ctx.lineWidth = 34 * (1 - k * 0.5); ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-f.r * 1.2, 0); ctx.quadraticCurveTo(0, -40, f.r * 1.2, 10); ctx.stroke(); ctx.strokeStyle = '#4ae0ff'; ctx.lineWidth = 4; ctx.stroke(); }
+                    ctx.strokeStyle = f.col || '#fff'; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(0, 0, f.r * (0.6 + k * 0.7), 0, Math.PI * 2); ctx.stroke();
+                    ctx.restore(); continue;
+                }
+                if (f.type === 'ring') {
+                    f.rad += f.sp; if (f.rad > f.max) { royalFx.splice(i, 1); continue; }
+                    const d = Math.hypot(world.dragonX - f.x, world.dragonY - f.y);
+                    if (!f.hit && Math.abs(d - f.rad) < 34) { f.hit = true; if (royalHurt(f.dmg, 20) && f.slow) slowPlayer(LP, f.slow); }
+                    for (const hb of hiredBosses) { const hd = Math.hypot(hb.x - f.x, hb.y - f.y); if (Math.abs(hd - f.rad) < 20) hb.hp -= f.dmg * 0.3; }
+                    ctx.save(); ctx.strokeStyle = hexA(f.col, Math.max(0.15, 1 - f.rad / f.max)); ctx.lineWidth = 22; ctx.beginPath(); ctx.arc(fx, fy, f.rad, 0, Math.PI * 2); ctx.stroke(); ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 4; ctx.stroke(); ctx.restore();
+                    continue;
+                }
+                if (f.type === 'proj') {
+                    f.x += f.vx; f.y += f.vy; f.life--;
+                    const hitP = (world.dragonX - f.x) ** 2 + (world.dragonY - f.y) ** 2 < (f.r + 16 * playerGrowth()) ** 2;
+                    if (hitP) { if (royalHurt(f.dmg, 10) && f.slow) slowPlayer(LP, f.slow); if (f.pool) poisonPools.push({ x: f.x, y: f.y, life: 240, radius: 90 }); royalFx.splice(i, 1); continue; }
+                    if (f.life <= 0) { if (f.pool) poisonPools.push({ x: f.x, y: f.y, life: 200, radius: 80 }); royalFx.splice(i, 1); continue; }
+                    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = f.col; ctx.shadowBlur = 14; ctx.shadowColor = f.col; ctx.beginPath();
+                    if (f.kind === 'shard') { ctx.translate(fx, fy); ctx.rotate(Math.atan2(f.vy, f.vx)); ctx.moveTo(22, 0); ctx.lineTo(-10, -8); ctx.lineTo(-10, 8); ctx.closePath(); } else ctx.arc(fx, fy, f.r, 0, Math.PI * 2);
+                    ctx.fill(); ctx.restore(); continue;
+                }
+                if (f.type === 'tornado') {
+                    f.t++; if (f.t > f.dur) { royalFx.splice(i, 1); continue; }
+                    moveTowardFree(f, world.dragonX, world.dragonY, f.sp);
+                    const d = Math.hypot(world.dragonX - f.x, world.dragonY - f.y);
+                    if (d < f.r) { knockPlayer(LP, (f.x - world.dragonX) * 0.06, (f.y - world.dragonY) * 0.06); if (f.t % 20 === 0) royalHurt(45, 8); }
+                    ctx.save(); ctx.translate(fx, fy); const fade = Math.min(1, (f.dur - f.t) / 40);
+                    for (let k = 0; k < 7; k++) { const rr = f.r * (0.3 + k * 0.11); ctx.strokeStyle = `rgba(215,170,100,${(0.55 - k * 0.05) * fade})`; ctx.lineWidth = 6; ctx.beginPath(); ctx.ellipse(Math.sin(tick * 3 + k) * 10, -k * 22, rr, rr * 0.35, 0, tick * 4 + k, tick * 4 + k + 4.4); ctx.stroke(); }
+                    ctx.restore(); continue;
+                }
+                if (f.type === 'whirl') {
+                    f.t++; if (f.t > f.dur) { royalFx.splice(i, 1); continue; }
+                    const d = Math.hypot(world.dragonX - f.x, world.dragonY - f.y) || 1;
+                    if (d < f.r && !spacePressed) { world.dragonX += (f.x - world.dragonX) / d * f.pull; world.dragonY += (f.y - world.dragonY) / d * f.pull; if (d < 95 && f.t % 20 === 0) royalHurt(38, 8); }
+                    ctx.save(); ctx.translate(fx, fy); const fade = Math.min(1, f.t / 30, (f.dur - f.t) / 30);
+                    for (let k = 0; k < 6; k++) { ctx.strokeStyle = `rgba(80,190,255,${0.5 * fade})`; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0, 0, f.r * (1 - k * 0.15), -tick * (3 + k) , -tick * (3 + k) + 3.6); ctx.stroke(); }
+                    ctx.fillStyle = `rgba(0,20,60,${0.5 * fade})`; ctx.beginPath(); ctx.arc(0, 0, 95, 0, Math.PI * 2); ctx.fill();
+                    ctx.restore(); continue;
+                }
+                if (f.type === 'line') {
+                    f.t++; if (f.t > f.dur) { royalFx.splice(i, 1); continue; }
+                    ctx.save(); ctx.translate(fx, fy); ctx.rotate(f.a); ctx.fillStyle = hexA(f.col, 0.12 + f.t / f.dur * 0.25); ctx.fillRect(0, -f.w / 2, f.len, f.w); ctx.strokeStyle = hexA('#ff3344', 0.7); ctx.lineWidth = 2; ctx.setLineDash([20, 12]); ctx.strokeRect(0, -f.w / 2, f.len, f.w); ctx.restore(); continue;
+                }
+                if (f.type === 'scream') {
+                    f.t++; const k = f.t / f.dur; if (k >= 1) { royalFx.splice(i, 1); continue; }
+                    ctx.save(); for (let s = 0; s < 3; s++) { const rr = (k * 2400 + s * 260) % 2400; ctx.strokeStyle = hexA(f.col, (1 - k) * 0.8); ctx.lineWidth = 16 - s * 4; ctx.beginPath(); ctx.arc(fx, fy, rr, 0, Math.PI * 2); ctx.stroke(); } ctx.restore(); continue;
+                }
+            }
+        }
+
+        // ---------------------------------------------------------------------
+        // KRAL ÇİZİMLERİ
+        // ---------------------------------------------------------------------
+        function drawRoyal(b, r) {
+            const hit = b.hitFlash > 0; const T = tick;
+            if (r.id === 'buz') { drawRoyalKiragi(b, r, hit); return; }
+            const bx = b.x - camX, by = b.y - camY; const rise = b.state === 'intro' ? Math.min(1, b.stT / 80) : 1;
+            ctx.save(); ctx.translate(bx, by); ctx.scale(rise, rise);
+            ctx.fillStyle = 'rgba(0,0,0,0.45)'; ctx.beginPath(); ctx.ellipse(0, b.size * 0.55, b.size * 1.25, b.size * 0.45, 0, 0, Math.PI * 2); ctx.fill();
+            if (r.id === 'kar') {
+                const S = b.size; ctx.rotate(b.shA - Math.PI / 2);
+                // Kollar (yer sarsıntısında havaya kalkar)
+                for (const sd of [-1, 1]) { const ax = sd * S * 0.95, ay = -S * 0.1 - b.arm * S * 0.6; ctx.fillStyle = hit ? '#fff' : '#5c6678'; ctx.strokeStyle = '#cfe0ff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(ax, ay, S * 0.36, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
+                // Kaya gövde
+                ctx.fillStyle = hit ? '#ffffff' : '#6a7488'; ctx.strokeStyle = '#2a3242'; ctx.lineWidth = 4; ctx.beginPath();
+                for (let k = 0; k < 11; k++) { const a = k / 11 * Math.PI * 2; const rr = S * (0.88 + ((k * 37) % 7) / 40); ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr * 0.9); } ctx.closePath(); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#eef5ff'; ctx.beginPath(); ctx.ellipse(0, -S * 0.1, S * 0.7, S * 0.42, 0, Math.PI, 0); ctx.fill();
+                // Kafa, gözler ve buz tacı
+                ctx.fillStyle = '#48526a'; ctx.beginPath(); ctx.arc(0, S * 0.45, S * 0.34, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = r.glow; ctx.shadowBlur = 16; ctx.shadowColor = r.glow; for (const sd of [-1, 1]) { ctx.beginPath(); ctx.ellipse(sd * S * 0.13, S * 0.55, S * 0.07, S * 0.04, 0, 0, Math.PI * 2); ctx.fill(); } ctx.shadowBlur = 0;
+                ctx.fillStyle = '#dff4ff'; for (let k = -2; k <= 2; k++) { ctx.beginPath(); ctx.moveTo(k * S * 0.12 - S * 0.05, S * 0.72); ctx.lineTo(k * S * 0.12, S * (0.95 + (k % 2 ? 0 : 0.12))); ctx.lineTo(k * S * 0.12 + S * 0.05, S * 0.72); ctx.closePath(); ctx.fill(); }
+                // Taş kalkan (kalkanın yönü ejderhaya dönük)
+                const arc = b.enraged ? 1.25 : 1.05;
+                ctx.strokeStyle = '#3a4252'; ctx.lineWidth = S * 0.32; ctx.beginPath(); ctx.arc(0, 0, S * 1.32, Math.PI / 2 - arc, Math.PI / 2 + arc); ctx.stroke();
+                ctx.strokeStyle = hexA(r.glow, 0.7 + Math.sin(T * 4) * 0.2); ctx.lineWidth = 4; ctx.beginPath(); ctx.arc(0, 0, S * 1.48, Math.PI / 2 - arc, Math.PI / 2 + arc); ctx.stroke();
+                ctx.font = `${Math.round(S * 0.22)}px serif`; ctx.fillStyle = hexA(r.glow, 0.9); ctx.textAlign = 'center'; for (let k = -2; k <= 2; k++) { const a = Math.PI / 2 + k * arc * 0.38; ctx.fillText('ᛟ', Math.cos(a) * S * 1.32, Math.sin(a) * S * 1.32 + 8); }
+            } else if (r.id === 'col') {
+                if (b.submerged) { ctx.restore(); drawSandMound(b); return; }
+                const S = b.size; ctx.rotate(b.angle);
+                // Kuyruk (sırttan yukarı kıvrılır)
+                const tl = b.tail; let px = -S * 0.8, py = 0; const sw = Math.sin(T * 2) * 0.3;
+                for (let k = 0; k < tl.length; k++) { const a = Math.PI + (k / tl.length) * (Math.PI * 1.15) + sw * (k / tl.length); px += Math.cos(a) * S * 0.24; py += Math.sin(a) * S * 0.16; tl[k].x = px; tl[k].y = py;
+                    ctx.fillStyle = hit ? '#fff' : (k % 2 ? '#c08a2a' : '#a06a18'); ctx.strokeStyle = '#4a2a08'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(px, py, S * (0.2 - k * 0.012), S * (0.16 - k * 0.01), a, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); }
+                ctx.fillStyle = '#9dff3a'; ctx.shadowBlur = 18; ctx.shadowColor = '#9dff3a'; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + S * 0.28, py - S * 0.05); ctx.lineTo(px + S * 0.05, py + S * 0.12); ctx.closePath(); ctx.fill(); ctx.shadowBlur = 0;
+                // Bacaklar
+                ctx.strokeStyle = '#6a4210'; ctx.lineWidth = 6; for (let k = 0; k < 4; k++) for (const sd of [-1, 1]) { const lx = -S * 0.5 + k * S * 0.3, st = Math.sin(T * 6 + k + (sd > 0 ? 1 : 0)) * 10; ctx.beginPath(); ctx.moveTo(lx, sd * S * 0.3); ctx.lineTo(lx + st, sd * S * 0.75); ctx.lineTo(lx - 10 + st, sd * S * 0.95); ctx.stroke(); }
+                // Gövde
+                let g = ctx.createRadialGradient(0, 0, 10, 0, 0, S); g.addColorStop(0, hit ? '#fff' : '#f0c060'); g.addColorStop(1, '#6a4010');
+                ctx.fillStyle = g; ctx.strokeStyle = '#3a2004'; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(0, 0, S * 0.85, S * 0.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                // Kıskaçlar
+                for (const sd of [-1, 1]) { const cx0 = S * 0.8, cy0 = sd * S * 0.45, op = 0.3 + Math.sin(T * 3) * 0.15; ctx.fillStyle = hit ? '#fff' : '#d8a040'; ctx.strokeStyle = '#3a2004'; ctx.lineWidth = 3;
+                    ctx.beginPath(); ctx.ellipse(cx0, cy0, S * 0.35, S * 0.18, sd * 0.4, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(cx0 + S * 0.25, cy0); ctx.lineTo(cx0 + S * 0.6, cy0 - sd * S * (0.1 + op * 0.3)); ctx.lineTo(cx0 + S * 0.4, cy0 + sd * S * 0.04); ctx.lineTo(cx0 + S * 0.6, cy0 + sd * S * (0.1 + op * 0.2)); ctx.closePath(); ctx.fill(); ctx.stroke(); }
+                // Sarık-taç
+                ctx.fillStyle = '#f4f0e4'; ctx.beginPath(); ctx.ellipse(S * 0.35, 0, S * 0.24, S * 0.2, 0, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = '#ff2244'; ctx.shadowBlur = 12; ctx.shadowColor = '#ff2244'; ctx.beginPath(); ctx.arc(S * 0.48, 0, S * 0.06, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+                ctx.fillStyle = '#ffd700'; for (let k = -1; k <= 1; k++) { ctx.beginPath(); ctx.moveTo(S * 0.2, k * S * 0.12 - 5); ctx.lineTo(S * 0.06, k * S * 0.14); ctx.lineTo(S * 0.2, k * S * 0.12 + 5); ctx.fill(); }
+            } else {
+                const S = b.size;
+                // Dokunaçlar
+                for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4 + Math.sin(T + k) * 0.15; const L = S * 1.9;
+                    ctx.strokeStyle = hit ? '#fff' : '#12407a'; ctx.lineWidth = S * 0.2; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(Math.cos(a) * S * 0.5, Math.sin(a) * S * 0.5);
+                    ctx.quadraticCurveTo(Math.cos(a + 0.4 * Math.sin(T * 2 + k)) * L * 0.7, Math.sin(a + 0.4 * Math.sin(T * 2 + k)) * L * 0.7, Math.cos(a + 0.6 * Math.sin(T * 1.5 + k)) * L, Math.sin(a + 0.6 * Math.sin(T * 1.5 + k)) * L); ctx.stroke();
+                    ctx.strokeStyle = '#4ae0ff'; ctx.lineWidth = 3; ctx.stroke(); }
+                let g = ctx.createRadialGradient(-S * 0.2, -S * 0.2, 10, 0, 0, S); g.addColorStop(0, hit ? '#fff' : '#2a6ac0'); g.addColorStop(1, '#040e2a');
+                ctx.fillStyle = g; ctx.strokeStyle = '#4ae0ff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, S * 0.75, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = 'rgba(120,255,240,0.8)'; for (let k = 0; k < 9; k++) { ctx.beginPath(); ctx.arc(Math.cos(k * 2.4) * S * 0.5, Math.sin(k * 2.4) * S * 0.5, 4, 0, Math.PI * 2); ctx.fill(); }
+                const ea = b.angle; for (const sd of [-1, 1]) { const ex = Math.cos(ea + sd * 0.45) * S * 0.38, ey = Math.sin(ea + sd * 0.45) * S * 0.38; ctx.fillStyle = '#fff6a0'; ctx.shadowBlur = 14; ctx.shadowColor = '#ffee88'; ctx.beginPath(); ctx.arc(ex, ey, S * 0.12, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(ex, ey, S * 0.03, S * 0.1, ea, 0, Math.PI * 2); ctx.fill(); }
+                // Mercan taç
+                ctx.strokeStyle = '#ff6aa8'; ctx.lineWidth = 5; for (let k = -2; k <= 2; k++) { const a = -Math.PI / 2 + k * 0.3; ctx.beginPath(); ctx.moveTo(Math.cos(a) * S * 0.7, Math.sin(a) * S * 0.7); ctx.lineTo(Math.cos(a) * S * 1.05, Math.sin(a) * S * 1.05); ctx.stroke(); }
+                // Su kalkanı
+                if (b.bubble) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; let bg = ctx.createRadialGradient(0, 0, S, 0, 0, S * 1.9); bg.addColorStop(0, 'rgba(60,180,255,0)'); bg.addColorStop(0.8, 'rgba(60,200,255,0.22)'); bg.addColorStop(1, 'rgba(180,250,255,0.55)');
+                    ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(0, 0, S * 1.9 + Math.sin(T * 3) * 6, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = 'rgba(200,250,255,0.7)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(-S * 0.6, -S * 0.7, S * 0.5, 3.6, 4.6); ctx.stroke(); ctx.restore(); }
+            }
+            ctx.restore();
+        }
+        function drawSandMound(b) {
+            const x = b.x - camX, y = b.y - camY; ctx.save(); ctx.translate(x, y);
+            ctx.fillStyle = 'rgba(150,100,40,0.8)'; ctx.beginPath(); ctx.ellipse(0, 0, b.size * 1.1, b.size * 0.5, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = 'rgba(240,200,130,0.7)'; ctx.lineWidth = 3; for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.ellipse(0, 0, b.size * (0.4 + k * 0.3), b.size * (0.18 + k * 0.12), 0, tick * 3 + k, tick * 3 + k + 3); ctx.stroke(); }
+            ctx.fillStyle = '#ffd700'; ctx.font = 'bold 13px Segoe UI'; ctx.textAlign = 'center'; ctx.fillText('⏳ KUMUN ALTINDA', 0, -b.size * 0.7);
+            ctx.restore();
+        }
+        function drawRoyalKiragi(b, r, hit) {
+            const J = b.joints; const rise = b.state === 'intro' ? Math.min(1, b.stT / 80) : 1;
+            ctx.save(); ctx.globalCompositeOperation = 'lighter';
+            for (let k = J.length - 1; k >= 1; k--) { const j = J[k], s = (b.size * 0.8) * (1 - k / J.length * 0.75) * rise;
+                ctx.fillStyle = hit ? 'rgba(255,255,255,0.9)' : `rgba(${80 + k * 4},${200 + k},255,0.45)`; ctx.beginPath(); ctx.ellipse(j.x - camX, j.y - camY, s * 1.15, s * 0.8, j.angle, 0, Math.PI * 2); ctx.fill();
+                if (k % 3 === 0) { ctx.fillStyle = 'rgba(230,255,255,0.8)'; ctx.beginPath(); ctx.moveTo(j.x - camX + Math.cos(j.angle + Math.PI / 2) * s, j.y - camY + Math.sin(j.angle + Math.PI / 2) * s); ctx.lineTo(j.x - camX + Math.cos(j.angle + Math.PI / 2) * s * 2, j.y - camY + Math.sin(j.angle + Math.PI / 2) * s * 2); ctx.lineTo(j.x - camX + Math.cos(j.angle) * -s * 0.6, j.y - camY + Math.sin(j.angle) * -s * 0.6); ctx.fill(); } }
+            ctx.restore();
+            // Kafa
+            ctx.save(); ctx.translate(b.x - camX, b.y - camY); ctx.rotate(b.angle); ctx.scale(rise, rise); const S = b.size;
+            let g = ctx.createRadialGradient(0, 0, 5, 0, 0, S * 1.2); g.addColorStop(0, hit ? '#fff' : '#e8ffff'); g.addColorStop(1, '#1a7aa8');
+            ctx.fillStyle = g; ctx.strokeStyle = '#bff8ff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(S * 1.3, 0); ctx.lineTo(S * 0.4, -S * 0.7); ctx.lineTo(-S * 0.6, -S * 0.6); ctx.lineTo(-S * 0.8, 0); ctx.lineTo(-S * 0.6, S * 0.6); ctx.lineTo(S * 0.4, S * 0.7); ctx.closePath(); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#fff'; ctx.shadowBlur = 16; ctx.shadowColor = '#00e5ff'; for (const sd of [-1, 1]) { ctx.beginPath(); ctx.ellipse(S * 0.35, sd * S * 0.3, S * 0.14, S * 0.07, sd * 0.3, 0, Math.PI * 2); ctx.fill(); } ctx.shadowBlur = 0;
+            ctx.fillStyle = 'rgba(210,255,255,0.95)'; for (let k = -3; k <= 3; k++) { ctx.beginPath(); ctx.moveTo(-S * 0.3, k * S * 0.14 - 6); ctx.lineTo(-S * (0.9 + (3 - Math.abs(k)) * 0.18), k * S * 0.2); ctx.lineTo(-S * 0.3, k * S * 0.14 + 6); ctx.closePath(); ctx.fill(); }
+            ctx.restore();
+            // Ayaz ışını
+            if (b.state === 'beam') { const on = b.stT >= 45; ctx.save(); ctx.translate(b.x - camX, b.y - camY); ctx.rotate(b.beamA);
+                if (!on) { ctx.strokeStyle = 'rgba(255,60,80,0.6)'; ctx.lineWidth = 2; ctx.setLineDash([24, 14]); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(1350, 0); ctx.stroke(); ctx.setLineDash([]); }
+                else { ctx.globalCompositeOperation = 'lighter'; let lg = ctx.createLinearGradient(0, -40, 0, 40); lg.addColorStop(0, 'rgba(0,200,255,0)'); lg.addColorStop(0.5, 'rgba(210,255,255,0.95)'); lg.addColorStop(1, 'rgba(0,200,255,0)'); ctx.fillStyle = lg; ctx.fillRect(0, -40, 1350, 80); }
+                ctx.restore(); }
+            // Aynalar
+            for (const m of b.mirrors) { if (m.dead || m.x === undefined) continue; ctx.save(); ctx.translate(m.x - camX, m.y - camY); ctx.rotate(m.a * 2);
+                ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = m.flash ? '#ffffff' : 'rgba(160,240,255,0.55)'; ctx.strokeStyle = '#e8ffff'; ctx.lineWidth = 3; ctx.shadowBlur = 20; ctx.shadowColor = '#00e5ff';
+                ctx.beginPath(); ctx.moveTo(0, -46); ctx.lineTo(28, 0); ctx.lineTo(0, 46); ctx.lineTo(-28, 0); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0; ctx.restore();
+                ctx.fillStyle = '#022'; ctx.fillRect(m.x - camX - 26, m.y - camY - 62, 52, 5); ctx.fillStyle = '#9ff4ff'; ctx.fillRect(m.x - camX - 26, m.y - camY - 62, 52 * Math.max(0, m.hp / m.maxHp), 5);
+                ctx.strokeStyle = 'rgba(160,240,255,0.25)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(m.x - camX, m.y - camY); ctx.lineTo(b.x - camX, b.y - camY); ctx.stroke(); }
+        }
+
+        // ---------------------------------------------------------------------
+        // KRALIN DÜŞÜŞÜ: ödül, kalıcı güç, krallığın dağılması
+        // ---------------------------------------------------------------------
+        function collapseKingdom(r) {
+            let joined = 0; const moved = {};
+            const note = (to) => { moved[to] = (moved[to] || 0) + 1; };
+            for (const h of hives) {
+                if (h.status !== 'enemy' || (h.kingdom !== undefined ? h.kingdom : kingdomFor(h)) !== r.id) continue;
+                const f = fallenKingdomFate(h.id, r.id);
+                if (f.joins) { h.status = 'friendly'; h.hp = h.maxHp; h.commanderName = 'Biat Eden'; h.kingDefeated = true; h.underSiege = false; h.governor = { wobble: Math.random() * 6 }; h.kingdom = null; h.soldierTimer = 0; joined++; for (let k = 0; k < 2; k++) spawnHiveSoldier(h); }
+                else { h.kingdom = f.to; h.maxHp *= 1.25; h.hp = h.maxHp; note(f.to); }
+            }
+            for (const id in hiveStates) {
+                const st = hiveStates[id]; if (!st || st.status !== 'enemy' || hives.some(h => h.id === id)) continue;
+                const pos = hivePosFromId(id); if (!pos) continue;
+                if ((st.kingdom !== undefined ? st.kingdom : kingdomFor(pos)) !== r.id) continue;
+                const f = fallenKingdomFate(id, r.id);
+                if (f.joins) { Object.assign(st, { status: 'friendly', commanderName: 'Biat Eden', kingDefeated: true, governor: true, kingdom: null }); joined++; }
+                else { st.kingdom = f.to; note(f.to); }
+            }
+            if (joined) { totalHivesCapturedLifetime += joined; store.setItem('boruHivesCapturedLifetime', totalHivesCapturedLifetime); }
+            saveHives(); refreshBlackHolePortal(); renderTerritoryPanel();
+            return { joined, moved };
+        }
+        function onRoyalDefeated(b, bi, r) {
+            activeBosses.splice(bi, 1); royalFx = royalFx.filter(f => f.rid !== r.id);
+            royalState[r.id] = { dead: true, t: Date.now() }; saveRoyals();
+            playDeathSound(true, b.x, b.y, 'mega'); applyShake(110); score += 300; document.getElementById('killCount').innerText = score;
+            for (let k = 0; k < 140; k++) xpGems.push({ x: b.x + (Math.random() - 0.5) * 500, y: b.y + (Math.random() - 0.5) * 500, size: 22 });
+            royalFx.push({ type: 'scream', rid: 'x', x: b.x, y: b.y, t: 0, dur: 80, col: r.color });
+            coins += r.coins; document.getElementById('coinCount').innerText = coins;
+            for (const p of potionsDB) potionInventory[p.id] = (potionInventory[p.id] || 0) + r.potions; store.setItem('boruPotions', JSON.stringify(potionInventory)); renderPotionBar();
+            const rep = collapseKingdom(r);
+            applyBlackMarketBuffs(); updateQuestProgress('boss', 1);
+            if (biomeEvt.royal === r.id) biomeEvt = { type: null, t: 0, cd: 60 * 40, biome: null };
+            showWaveText('👑 ' + r.name + ' DÜŞTÜ!', true, r.color);
+            const tryShow = () => { if (gameActive && !isPaused && !isArenaTransitioning) showRoyalReward(r, rep); else setTimeout(tryShow, 500); };
+            setTimeout(tryShow, 2200);
+        }
+        function showRoyalReward(r, rep) {
+            isPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0;
+            const box = document.getElementById('bhReward'); box.style.setProperty('--bhc', r.color);
+            const left = livingRoyals();
+            document.getElementById('bhrTag').innerText = '👑 KRAL DÜŞTÜ · ' + r.title.toUpperCase();
+            document.getElementById('bhrTitle').innerText = r.name + ' YENİLDİ'; document.getElementById('bhrSub').innerText = '👑 KRAL GANİMETİ';
+            document.getElementById('bhrLore').innerText = '"' + r.win + '"';
+            const cards = [
+                ['💰', '+' + r.coins.toLocaleString('tr-TR') + ' · +' + r.xp.toLocaleString('tr-TR') + ' XP', 'GANİMET', '#ffd700'],
+                [r.perk.icon, r.perk.name, 'KALICI GÜÇ · ' + r.perk.desc, r.color],
+                ['⭐', '+2', 'YETENEK PUANI', '#ffd24a'],
+                ['🧪', '+' + r.potions + ' her iksirden', 'İKSİR', '#00ffcc']
+            ];
+            document.getElementById('bhrGrid').innerHTML = cards.map(([ic, v, l, col], k) => `<div class="bhr-card" style="--cc:${col}; animation-delay:${0.25 + k * 0.18}s"><div class="bhr-ic">${ic}</div><div class="bhr-v">${escapeHtml(v)}</div><div class="bhr-l">${escapeHtml(l)}</div></div>`).join('');
+            const movedTxt = Object.keys(rep.moved).map(k => `${rep.moved[k]} kovan <b style="color:${royalById(k).color}">${royalById(k).short}</b> krallığına kaçtı`).join(' · ');
+            document.getElementById('bhrNext').innerHTML = `<div class="bhr-next-h">🏴 KRALLIĞIN DAĞILDI</div>
+                <div class="bhr-next-t">${rep.joined ? `<b>${rep.joined} kovan</b> sana biat etti ve hükmüne geçti.` : 'Keşfettiğin kovanlardan hiçbiri bu krallığa ait değildi.'} ${movedTxt ? movedTxt + '.' : ''} Bu krallıkta yeni bulacağın kovanların bir kısmı da sana biat etmiş olacak.</div>
+                <div class="bhr-next-t">${r.hive} artık senin: yanında iyileşirsin ve bu biyomun fırtınaları dindi.</div>
+                <div class="bhr-req">👑 ${left.length ? 'Kalan krallar: ' + left.map(x => x.short).join(', ') : 'DÖRT KRAL DA DİZ ÇÖKTÜ — bu dünyanın tek hükümdarı sensin!'}</div>`;
+            const eq = document.getElementById('bhrEquip'); eq.style.display = 'none';
+            document.getElementById('bhrContinue').onclick = () => {
+                box.style.display = 'none'; isPaused = false; world.lastX = world.dragonX; world.lastY = world.dragonY;
+                gainXp(r.xp); grantSkillPoints(2, 'Kral düştü'); saveGame(); renderTerritoryPanel(); sayVoice(r.win);
+            };
+            box.style.display = 'flex'; SND.play('victory');
+        }
+
         function hashChunk(a, b) { let n = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return n - Math.floor(n); }
         function chunkPOI(cx, cy) {
             let exists = hashChunk(cx, cy);
@@ -3750,6 +4439,7 @@
             let oy = (hashChunk(cx * 9.1 - 3, cy * 2.1 + 17) - 0.5) * HIVE_CHUNK * 0.7;
             let px = cx * HIVE_CHUNK + HIVE_CHUNK / 2 + ox; let py = cy * HIVE_CHUNK + HIVE_CHUNK / 2 + oy;
             if (Math.hypot(px, py) < 1300) return null; // merkez sığınağın hemen çevresi POI'suz kalsın
+            if (nearThrone(px, py, 1400)) return null; // krallık tahtlarının çevresi
             let typeRoll = hashChunk(cx * 13.3 + 29, cy * 17.7 - 5);
             let poiType = 'hive'; // Askeri üsler ve toplanma yerleri kaldırıldı: haritada artık sadece kovanlar var
             const archetypes = ['bat', 'scorpion', 'beetle', 'elite', 'wasp', 'mixed', 'kobra'];
@@ -3760,7 +4450,7 @@
         const FIRST_POI = { x: 950, y: -650, poiType: 'hive', archetype: 'bat' };
         function saveHives() {
             // Aktif kovanların/üslerin/toplanma yerlerinin durumunu kalıcı depoya yazar.
-            for (let h of hives) { hiveStates[h.id] = { status: h.status, commanderName: h.commanderName, kingDefeated: h.kingDefeated, governor: !!h.governor, poiType: h.poiType, archetype: h.archetype, garrison: hiveSoldiers.filter(so => so.hiveId === h.id && !so.escort && !so.called && !so.assault).length }; }
+            for (let h of hives) { hiveStates[h.id] = { status: h.status, kingdom: h.kingdom === undefined ? null : h.kingdom, commanderName: h.commanderName, kingDefeated: h.kingDefeated, governor: !!h.governor, poiType: h.poiType, archetype: h.archetype, garrison: hiveSoldiers.filter(so => so.hiveId === h.id && !so.escort && !so.called && !so.assault).length }; }
             saveHiveStatesToStorage();
         }
         function ensureHivesNearPlayer() {
@@ -3773,7 +4463,7 @@
                 if (h.status === 'kingFight') continue; // kral/kraliçe savaşı sürerken kovanı asla kaldırma
                 let d = Math.min(...PTS.map(q => Math.hypot(h.x - q.x, h.y - q.y)));
                 if (d > HIVE_UNLOAD_RADIUS) {
-                    hiveStates[h.id] = { status: h.status, commanderName: h.commanderName, kingDefeated: h.kingDefeated, governor: !!h.governor, poiType: h.poiType, archetype: h.archetype, garrison: hiveSoldiers.filter(so => so.hiveId === h.id && !so.escort && !so.called && !so.assault).length };
+                    hiveStates[h.id] = { status: h.status, kingdom: h.kingdom === undefined ? null : h.kingdom, commanderName: h.commanderName, kingDefeated: h.kingDefeated, governor: !!h.governor, poiType: h.poiType, archetype: h.archetype, garrison: hiveSoldiers.filter(so => so.hiveId === h.id && !so.escort && !so.called && !so.assault).length };
                     for (let ssi = hiveSoldiers.length - 1; ssi >= 0; ssi--) { if (hiveSoldiers[ssi].hiveId === h.id && !hiveSoldiers[ssi].escort && !hiveSoldiers[ssi].called && !hiveSoldiers[ssi].assault) hiveSoldiers.splice(ssi, 1); }
                     hives.splice(i, 1);
                 }
@@ -3807,6 +4497,12 @@
                         // Kral savaşı sırasında kaydedilip çıkılmışsa kral kaybolmuş olur: kovan yeniden fethedilebilsin
                         if (hive.status === 'kingFight') { hive.status = 'enemy'; hive.hp = hive.maxHp * 0.2; }
                     }
+                    // KRALLIK: her kovan bulunduğu biyomun kralına bağlıdır. Kralı düşmüş krallıkta ilk kez bulunan
+                    // kovanların bir kısmı zaten bize biat etmiştir, kalanlar hayattaki başka bir krala geçmiştir.
+                    if (saved && saved.kingdom !== undefined) hive.kingdom = saved.kingdom;
+                    else { hive.kingdom = kingdomFor(hive);
+                        if (hive.kingdom && royalDead(hive.kingdom) && hive.status === 'enemy') { const f = fallenKingdomFate(id, hive.kingdom); if (f.joins) { hive.status = 'friendly'; hive.commanderName = 'Biat Eden'; hive.kingDefeated = true; hive.governor = { wobble: Math.random() * 6 }; hive.kingdom = null; } else hive.kingdom = f.to; } }
+                    if (hive.status === 'enemy' && hive.kingdom && hive.kingdom !== kingdomFor(hive)) { hive.maxHp *= 1.25; hive.hp = hive.maxHp; }
                     hives.push(hive);
                 }
             }
@@ -3824,6 +4520,7 @@
             if (label) label.innerText = '👑 ' + totalHivesCapturedLifetime + ' · 🐍 Köle ' + hiredBosses.length + '/6 · ⚔️ Asker ' + hiveSoldiers.length;
         }
         let hiveSoldiers = []; // Dost kovanların ürettiği küçük askerler
+        let assaultHive = null, gFrame = 0; // birliklerin kuşattığı kovan / kare sayacı
         let hiveTrophies = []; // Yenilen kral kovanlarının bıraktığı "ölü deri" görsel efekti
 
         // ÇEVRESEL HİKAYE PARÇALARI: haritaya dağılmış kalıntılar - "bu dünya bize ait değil ama artık
@@ -3908,7 +4605,7 @@
             activeBosses.push({ id: Math.random(), type: 'hiveQueen', hiveId: h.id, x: h.x, y: h.y, maxHp: qHp, hp: qHp, size: 65, speed: stats.baseMaxSpeed * 0.4 * diffConfig.speedMult, wobble: 0, attackCooldown: 0, summonTimer: 260, poisonTimer: 400, angle: 0, wingPhase: 0 });
         }
         function spawnHiveSoldier(h) {
-            hiveSoldiers.push({ hiveId: h.id, x: h.x + (Math.random() * 80 - 40), y: h.y + (Math.random() * 80 - 40), size: 24, speed: stats.baseMaxSpeed * 0.9 * (1 + AB('soldier', 'spd')), hp: soldierMaxHp(), maxHp: soldierMaxHp(), wobble: Math.random() * Math.PI * 2, angle: 0, attackCooldown: 0, strike: 0 });
+            hiveSoldiers.push({ hiveId: h.id, x: h.x + (Math.random() * 80 - 40), y: h.y + (Math.random() * 80 - 40), size: 24 * armyScale(), speed: stats.baseMaxSpeed * 0.9 * (1 + AB('soldier', 'spd')), hp: soldierMaxHp(), maxHp: soldierMaxHp(), wobble: Math.random() * Math.PI * 2, angle: 0, attackCooldown: 0, strike: 0 });
         }
         let camX = 0, camY = 0; let mouseScreenX = canvas.width / 2, mouseScreenY = canvas.height / 2;
         let isBreathingFire = false; let spacePressed = false;
@@ -3937,12 +4634,12 @@
         let shieldDmgMult = 1; // Kalkan İksiri aktifken gelen hasarı yarıya indirir (her frame animate() içinde güncellenir)
 
         // UZAKLIK BAZLI TEHLİKE BONUSU: Sığınağın kendi ayarları (yarıçap, iyileşme hızı vb.) DEĞİŞMİYOR;
-        // sadece sığınaktan ne kadar uzakta savaşırsan koin ödülün o kadar artıyor. Bu, oyuncuyu
+        // sadece sığınaktan ne kadar uzakta savaşırsan coin ödülün o kadar artıyor. Bu, oyuncuyu
         // sığınakta beklemek yerine dışarı çıkmaya teşvik etmek için eklendi.
         function dangerBonusMult(x, y) {
             let d = Math.hypot(x - safeZone.x, y - safeZone.y);
             let beyond = Math.max(0, d - safeZone.radius);
-            return 1 + Math.min(2.5, beyond / 1200);
+            return 1 + Math.min(1.0, beyond / 2400); // en fazla 2 kat (eskiden 3.5 kat: uzak kovanlar orantısız coin veriyordu)
         }
 
         let joints = []; let segmentLength = 16;
@@ -3996,7 +4693,7 @@
             coins += q.coinReward; gainXp(q.xpReward);
             document.getElementById('coinCount').innerText = coins;
             questsCompletedLifetime++; store.setItem('boruQuestsCompleted', questsCompletedLifetime);
-            showWaveText("GÖREV TAMAMLANDI! +" + q.coinReward + " Koin", false, "#ffd700");
+            hintToast('📜 Yan görev tamamlandı: +' + q.coinReward + ' coin · ' + q.xpReward + ' XP (Market › Görevler)', '#ffd700', 3800);
             SND.play('quest');
             if (questsCompletedLifetime >= 5 && !unlockedSkins.includes('questmaster')) {
                 unlockedSkins.push('questmaster'); store.setItem('boruSkins', JSON.stringify(unlockedSkins));
@@ -4103,7 +4800,7 @@
             let saved = null; try { saved = JSON.parse(store.getItem('boruSaveState')); } catch (e) {}
             const items = [
                 ['👑', maxLevelReached, 'EN YÜKSEK SEVİYE'],
-                ['💰', coins, 'KOİN'],
+                ['💰', coins, 'COIN'],
                 ['🐉', unlockedSkins.length + ' / ' + skinsDB.length, 'KOSTÜM'],
                 ['🏴', totalHivesCapturedLifetime, 'FETHEDİLEN KOVAN'],
                 ['📜', loreFound.length + ' / ' + loreFragmentPoints.length, 'KADİM PARÇA']
@@ -4204,7 +4901,7 @@
         const menuTips = [
             '💡 Kovanı yık, çıkan Kral\'ı ya da Kraliçe\'yi yen: kovan kalıcı olarak senin olur.',
             '💡 E ile kükre: önündeki düşmanları geri savurur ve kısa süre yavaşlatır.',
-            '💡 Sığınaktan uzaklaştıkça düşmanlar daha fazla koin bırakır.',
+            '💡 Sığınaktan uzaklaştıkça düşmanlar daha fazla coin bırakır.',
             '💡 Q + S ile bağlı kovanlarından asker çağırabilirsin.',
             '💡 100 kovan fethedildiğinde haritada gizemli bir kara delik belirir...',
             '💡 Karaborsa eşyalarını marketten istediğin an kuşanıp çıkarabilirsin.',
@@ -4267,7 +4964,7 @@
             const state = {
                 level, coins, currentWave, score, killsInCurrentWave, maxXp, currentXp,
                 maxHp, dragonHp, activeSkinId, dragonName, buffLevels, diffMode, jointsLength: joints.length,
-                slaves: hiredBosses.length, plasma: plasmaCharge, rage: isRageActive ? 0 : rage, ghost: ghostEnergy,
+                skillPoints, slaves: hiredBosses.length, plasma: plasmaCharge, rage: isRageActive ? 0 : rage, ghost: ghostEnergy,
                 safeZoneRadius: safeZone.radius
             };
             store.setItem('boruSaveState', JSON.stringify(state));
@@ -4283,9 +4980,12 @@
             try {
                 let data = JSON.parse(saved);
                 level = data.level; coins = data.coins; currentWave = data.currentWave || 1; score = data.score;
+                if (level > MAX_LEVEL) { level = MAX_LEVEL; data.currentXp = 0; }
                 killsInCurrentWave = data.killsInCurrentWave || 0; maxXp = data.maxXp; currentXp = data.currentXp;
                 dragonHp = data.dragonHp; dragonName = data.dragonName || 'İsimsiz Börü';
-                buffLevels = data.buffLevels || { fire: 0, hp: 0, speed: 0, lifesteal: 0, rage: 0, size: 0, crit: 0 };
+                buffLevels = Object.assign({ fire: 0, hp: 0, speed: 0, lifesteal: 0, rage: 0, size: 0, crit: 0, hiveFavor: 0, swiftClaw: 0, roarPower: 0 }, data.buffLevels || {});
+                // Eski kayıtlar: kutsama kartı başına 1 seçim yapılmıştı; yeni düzende seviye başına 2 puan var -> farkı puan olarak ver
+                skillPoints = typeof data.skillPoints === 'number' ? data.skillPoints : Math.max(0, (level - 1) * SKILL_PER_LEVEL - skillSpentTotal());
                 safeZone.radius = data.safeZoneRadius || 450;
                 
                 if (data.activeSkinId) equipSkin(data.activeSkinId);
@@ -4299,7 +4999,7 @@
                 stats.fireSizeMult = Math.pow(1.15, buffLevels.size);
                 stats.critChance = buffLevels.crit * 10 * (1 + buffLevels.crit * 0.2);
 
-                let targetLength = data.jointsLength || (20 + Math.floor(level/5));
+                let targetLength = Math.min(20 + Math.floor(MAX_LEVEL / 5), data.jointsLength || (20 + Math.floor(level/5)));
                 joints = [];
                 for (let i = 0; i < targetLength; i++) joints.push({ x: 0, y: 0, angle: 0 });
                 
@@ -4317,7 +5017,7 @@
                 
                 document.getElementById('coinCount').innerText = coins;
                 document.getElementById('killCount').innerText = score;
-                updateXpUI();
+                updateXpUI(); renderSkillBtn();
                 
                 return true;
             } catch(e) { console.error("Kayıt yüklenemedi", e); return false; }
@@ -4591,10 +5291,11 @@
             store.removeItem('boruSaveState'); startingNewGame = true; waveBossPending = false; scorches.length = 0;
             level = 1; currentWave = 1; score = 0; currentXp = 0; maxXp = 18; killsInCurrentWave = 0;
             maxHp = 2400; dragonHp = 2400; activeBosses = []; enemies.length = 0; powerCores = []; safeZone.radius = 450; phoenixEmberUsed = false;
-            buffLevels = { fire: 0, hp: 0, speed: 0, lifesteal: 0, rage: 0, size: 0, crit: 0, hiveFavor: 0, swiftClaw: 0, roarPower: 0 };
+            buffLevels = { fire: 0, hp: 0, speed: 0, lifesteal: 0, rage: 0, size: 0, crit: 0, hiveFavor: 0, swiftClaw: 0, roarPower: 0 }; skillPoints = 0; renderSkillBtn();
             joints = []; for (let i = 0; i < 20; i++) joints.push({ x: 0, y: 0, angle: 0 });
             stats.fireVolume = 4; stats.rageEfficiency = 1; stats.fireSizeMult = 1; stats.critChance = 0;
             hiredBosses = []; hiveSoldiers = []; hiveTrophies = []; hives = []; hiveStates = {}; store.removeItem('boruHiveStates'); renderTerritoryPanel();
+            royalState = {}; ROYALS.forEach(r => { royalState[r.id] = { dead: false }; }); store.removeItem('boruRoyals'); royalFx = [];
             generateQuests();
             // Bu dünyada hikâye henüz izlenmediyse önce açılış animasyonu oynar
             if (!store.getItem('boruStorySeen')) { store.setItem('boruStorySeen', '1'); playStory(() => prepGameStart()); }
@@ -4677,16 +5378,16 @@
         let escortTick = 0, escortMsgCd = 0;
         function slaveMaxHp(isMain) { return 1600 * (1 + AB('slave', 'hp')) * (isMain ? 2.2 : 1) * armyPowerMult(); }
         // ORDU ÖLÇEKLENMESİ: köleler ve askerler ejderhayla birlikte güçlenir (her seviye +%3)
-        function armyPowerMult() { return 1 + (level - 1) * 0.03; }
+        function armyPowerMult() { return 1 + (powLvl() - 1) * 0.03; }
         function soldierMaxHp() { return 560 * (1 + AB('soldier', 'hp')) * armyPowerMult(); }
         function refreshArmyStats() {
-            for (const hb of hiredBosses) { const r = hb.hp / hb.maxHp; hb.maxHp = slaveMaxHp(hb.main); hb.hp = hb.maxHp * r; }
-            for (const so of hiveSoldiers) { const r = so.hp / so.maxHp; so.maxHp = soldierMaxHp(); so.hp = so.maxHp * r; }
+            for (const hb of hiredBosses) { const r = hb.hp / hb.maxHp; hb.maxHp = slaveMaxHp(hb.main); hb.hp = hb.maxHp * r; hb.size = (hb.main ? 54 : 42) * armyScale(); }
+            for (const so of hiveSoldiers) { const r = so.hp / so.maxHp; so.maxHp = soldierMaxHp(); so.hp = so.maxHp * r; so.size = 24 * armyScale(); }
         }
         function ensureSlaveRank(hb, isMain) {
             if (hb.main === isMain) return;
             const r = hb.maxHp ? Math.max(0, hb.hp / hb.maxHp) : 1; const was = hb.main;
-            hb.main = isMain; hb.maxHp = slaveMaxHp(isMain); hb.hp = hb.maxHp * r; hb.size = isMain ? 54 : 42;
+            hb.main = isMain; hb.maxHp = slaveMaxHp(isMain); hb.hp = hb.maxHp * r; hb.size = (isMain ? 54 : 42) * armyScale();
             if (isMain) { const used = hiredBosses.map(x => x.name); hb.name = ESCORT_NAMES.find(n => !used.includes(n)) || 'Muhafız'; if (was === false && gameActive) showWaveText('⚜️ ' + hb.name.toUpperCase() + ' ANA ESKORT OLDU', false, '#ffd700'); }
             else hb.name = null;
         }
@@ -4707,9 +5408,15 @@
             if (sd > s.size + (target.size || 20)) { s.x += sdx / sd * s.speed * spdMul; s.y += sdy / sd * s.speed * spdMul; }
             else { s.attackCooldown--; if (s.attackCooldown <= 0) { target.hp -= 22 * armyPowerMult() * (1 + (stats.swiftClaw || 0) * 0.25) * (1 + AB('soldier', 'dmg')) * (s.escort ? 1.25 : 1); if (AB('soldier', 'slow') && target.slowTimer !== undefined) target.slowTimer = 60; s.attackCooldown = 25; s.strike = 1; } }
         }
+        // Kovan kuşatması: asker kovanın dibine uçar ve kovanın canını oyar (kuşatmada 3 kat etkili)
+        function soldierHitHive(s, h) {
+            const dx = h.x - s.x, dy = h.y - s.y, d = Math.hypot(dx, dy) || 1; s.angle = Math.atan2(dy, dx);
+            if (d > 70 + s.size) { s.x += dx / d * s.speed * 1.3; s.y += dy / d * s.speed * 1.3; }
+            else { s.attackCooldown--; if (s.attackCooldown <= 0) { h.hp -= 66 * armyPowerMult() * (1 + (stats.swiftClaw || 0) * 0.25) * (1 + AB('soldier', 'dmg')); s.attackCooldown = 25; s.strike = 1; } }
+        }
         function nearestBossTo(x, y, maxD) { let best = null, bd = maxD; for (const b of activeBosses) { const d = Math.hypot(b.x - x, b.y - y); if (d < bd) { bd = d; best = b; } } return best; }
         function spawnSlaveAt(x, y) {
-            hiredBosses.push({ x, y, size: 42, speed: stats.baseMaxSpeed * 1.15 * (1 + AB('slave', 'spd')), hp: 1600 * (1 + AB('slave', 'hp')), maxHp: 1600 * (1 + AB('slave', 'hp')), wobble: 0, joints: Array.from({length: 9}, () => ({x, y, angle: 0})), state: 'escort', name: null });
+            hiredBosses.push({ x, y, size: 42 * armyScale(), speed: stats.baseMaxSpeed * 1.15 * (1 + AB('slave', 'spd')), hp: 1600 * (1 + AB('slave', 'hp')), maxHp: 1600 * (1 + AB('slave', 'hp')), wobble: 0, joints: Array.from({length: 9}, () => ({x, y, angle: 0})), state: 'escort', name: null });
         }
         window.hireSlaveBoss = function() {
             if (MP.active) return;
@@ -4721,7 +5428,7 @@
                 playTone(400, 'square', 0.5, 0.3); applyShake(10);
                 tutEvent('slave'); mono('firstSlave');
             } else if (gameActive && hiredBosses.length >= 6) showWaveTextLocal('🐍 EN FAZLA 6 KÖLE', false, '#88aaff');
-            else if (gameActive) { showWaveTextLocal('💰 KÖLE İÇİN 120 KOİN GEREKLİ', false, '#ffaa66'); SND.play('deny'); }
+            else if (gameActive) { showWaveTextLocal('💰 KÖLE İÇİN 120 COIN GEREKLİ', false, '#ffaa66'); SND.play('deny'); }
         };
 
         // KOVAN FETHİ: yakınımızdaki nötr (yıkılmış) bir kovana, elimizdeki bir köleyi komutan
@@ -4791,11 +5498,68 @@
             { id: 'roarPower', icon: '📢', title: 'Kükreme Yankısı', desc: 'Kükremenin itme gücünü ve hasarını artırır, bekleme süresini kısaltır.' }
         ];
 
+
+        // =====================================================================
+        // YETENEK AĞACI: seviye atlayınca oyun durup kart seçtirmiyor. Her seviye 2 puan verir,
+        // oyuncu puanlarını istediği an (T / 🌳) üç daldan birine harcar. Eski kutsamalarla aynı
+        // buffLevels anahtarlarını kullanır, bu yüzden eski kayıtlardaki güçler korunur.
+        // =====================================================================
+        const SKILL_PER_LEVEL = 2;
+        const SKILL_TIER_REQ = [0, 3, 6];
+        const SKILL_TREE = [
+            { id: 'alev', name: 'ALEV', icon: '🔥', color: '#ff6a1a', nodes: [ { id: 'fire', tier: 0, max: 5 }, { id: 'size', tier: 0, max: 4 }, { id: 'crit', tier: 1, max: 4 }, { id: 'rage', tier: 2, max: 3 } ] },
+            { id: 'beden', name: 'BEDEN', icon: '🛡️', color: '#3fe0a8', nodes: [ { id: 'hp', tier: 0, max: 5 }, { id: 'speed', tier: 0, max: 4 }, { id: 'lifesteal', tier: 1, max: 4 }, { id: 'roarPower', tier: 2, max: 3 } ] },
+            { id: 'hukum', name: 'HÜKÜMDARLIK', icon: '👑', color: '#ffd24a', nodes: [ { id: 'swiftClaw', tier: 0, max: 5 }, { id: 'hiveFavor', tier: 1, max: 4 } ] }
+        ];
+        let skillPoints = 0;
+        function branchSpent(br) { return br.nodes.reduce((a, n) => a + Math.min(n.max, buffLevels[n.id] || 0), 0); }
+        function skillSpentTotal() { return Object.values(buffLevels).reduce((a, v) => a + (v || 0), 0); }
+        function renderSkillBtn() {
+            const b = document.getElementById('skillBtn'); if (!b) return;
+            b.classList.toggle('has', skillPoints > 0); document.getElementById('skillBtnN').innerText = skillPoints;
+        }
+        function renderSkillTree() {
+            document.getElementById('skPts').innerText = '⭐ ' + skillPoints + ' puan';
+            document.getElementById('skBranches').innerHTML = SKILL_TREE.map(br => {
+                const sp = branchSpent(br); let lastTier = -1;
+                const nodes = br.nodes.map(n => {
+                    const u = allUpgrades.find(x => x.id === n.id); const lv = buffLevels[n.id] || 0; const locked = sp < SKILL_TIER_REQ[n.tier]; const isMax = lv >= n.max;
+                    let head = ''; if (n.tier !== lastTier) { lastTier = n.tier; head = `<div class="sk-tier">${n.tier === 0 ? 'I · TEMEL' : (n.tier === 1 ? 'II · USTA' : 'III · EFSANE')}${SKILL_TIER_REQ[n.tier] ? ' (' + SKILL_TIER_REQ[n.tier] + ' puan)' : ''}</div>`; }
+                    const cls = locked ? 'lock' : (isMax ? 'max' : (skillPoints > 0 ? 'can' : 'nopt'));
+                    return head + `<div class="sk-node ${cls}" onclick="buySkill('${n.id}')"><div class="ic">${u.icon}</div><div><div class="nm">${u.title}</div><div class="ds">${u.desc}</div><div class="pips">${Array.from({ length: n.max }, (_, k) => `<i class="${k < lv ? 'on' : ''}"></i>`).join('')}</div></div><div class="plus">${locked ? '🔒' : (isMax ? 'MAX' : '+')}</div></div>`;
+                }).join('');
+                return `<div class="sk-br" style="--bc:${br.color}"><h3>${br.icon} ${br.name}</h3><div class="sk-sp">Bu dala harcanan: ${sp}</div>${nodes}</div>`;
+            }).join('');
+        }
+        window.buySkill = function (id) {
+            const br = SKILL_TREE.find(b => b.nodes.some(n => n.id === id)); const n = br.nodes.find(x => x.id === id);
+            if (skillPoints <= 0 || (buffLevels[id] || 0) >= n.max || branchSpent(br) < SKILL_TIER_REQ[n.tier]) { SND.play('deny'); return; }
+            buffLevels[id] = (buffLevels[id] || 0) + 1; skillPoints--;
+            applyBlackMarketBuffs(); refreshArmyStats(); SND.play('buy'); renderSkillTree(); renderSkillBtn(); saveGameForce();
+        };
+        let skillPaused = false;
+        window.openSkillTree = function () {
+            if (!gameActive || document.getElementById('bhReward').style.display === 'flex') return;
+            renderSkillTree(); document.getElementById('skillModal').classList.add('open');
+            if (!isPaused) { isPaused = true; skillPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
+        };
+        window.closeSkillTree = function () {
+            document.getElementById('skillModal').classList.remove('open');
+            if (skillPaused) { isPaused = false; skillPaused = false; world.lastX = world.dragonX; world.lastY = world.dragonY; }
+        };
+        function toggleSkillTree() { if (document.getElementById('skillModal').classList.contains('open')) closeSkillTree(); else openSkillTree(); }
+        // Duraklatılmışken de kaydı zorla yaz (saveGame oyun duraklıyken yazmaz)
+        function saveGameForce() { const p = isPaused; isPaused = false; saveGame(); isPaused = p; }
+        function grantSkillPoints(n, why) { skillPoints += n; renderSkillBtn(); if (why) setTimeout(() => hintToast('⭐ +' + n + ' yetenek puanı · ' + why, '#ffd700'), 1800); }
+
+        let hintTimer = null;
+        function hintToast(text, color, ms) { const el = document.getElementById('hintToast'); if (!el) return; el.innerText = text; el.style.setProperty('--hc', color || '#ffd24a'); el.style.color = '#fff'; el.classList.add('show'); clearTimeout(hintTimer); hintTimer = setTimeout(() => el.classList.remove('show'), ms || 4800); }
         let keyStates = {};
         window.addEventListener('keydown', (e) => { 
             // Yazı kutusundayken (isim / hediye kodu) oyun kısayolları çalışmasın
             if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
             keyStates[e.code] = true;
+            if (document.getElementById('skillModal').classList.contains('open')) { if (e.code === 'Escape' || e.code === 'KeyT') closeSkillTree(); return; }
             if (MP.active && MP.localDead && ['Space', 'KeyE', 'KeyR', 'Digit1', 'Digit2', 'Digit3', 'Digit4'].includes(e.code)) return;
             if (e.code === 'Escape' && document.getElementById('bigMap').classList.contains('open')) { closeBigMap(); return; }
             if (e.code === 'Escape' && document.getElementById('settingsModal').style.display === 'flex') { closeSettingsModal(); return; }
@@ -4811,6 +5575,7 @@
             if (e.code === 'Digit3' && gameActive && !isPaused) usePotion('furyPotion');
             if (e.code === 'Digit4' && gameActive && !isPaused) usePotion('novaPotion');
             if (e.code === 'KeyJ') toggleJournal();
+            if (e.code === 'KeyT' && gameActive && !isPaused) openSkillTree();
             if (e.code === 'KeyM' && gameActive) { if (document.getElementById('bigMap').classList.contains('open')) closeBigMap(); else openBigMap(); }
             if (e.code === 'KeyB' && gameActive) { if (document.getElementById('sanctuaryModal').style.display === 'flex') closeSanctuary(); else if (!isPaused) openSanctuary(); }
         });
@@ -4828,25 +5593,16 @@
         window.addEventListener('touchcancel', () => { if(!isMobile) isBreathingFire = false; });
 
         function levelUp() {
-            if (level >= 100) return; 
-            level++; maxXp = Math.floor(maxXp * 1.38) + 10; // Seviye atlama kolaylaştırıldı (eski: x1.62 + 15)
-            
-            if (level % 5 === 0) {
-                joints.push({x: joints[joints.length-1].x, y: joints[joints.length-1].y, angle: joints[joints.length-1].angle});
-                document.getElementById('levelUpDesc').innerText = "Vücudun devasa bir boyuta ulaştı! Yeni kutsamanı seç.";
-                document.getElementById('levelUpDesc').style.color = "#00ffcc";
-            } else {
-                document.getElementById('levelUpDesc').innerText = "Börü'nün gücünü artırmak için bir kutsama seçin.";
-                document.getElementById('levelUpDesc').style.color = "white";
-            }
-            
-            updateXpUI(); document.getElementById('levelUpTitle').style.color = activeTheme.mainColor;
+            if (level >= MAX_LEVEL) return;
+            level++; maxXp = Math.floor(maxXp * 1.38) + 10;
+            if (level % 5 === 0) joints.push({x: joints[joints.length-1].x, y: joints[joints.length-1].y, angle: joints[joints.length-1].angle});
+            // Oyun DURMAZ: kart ekranı yok, sadece yetenek puanı gelir
+            skillPoints += SKILL_PER_LEVEL; renderSkillBtn();
+            updateXpUI();
             const xbc = document.getElementById('xpBarContainer'); xbc.classList.add('lvlup'); setTimeout(() => xbc.classList.remove('lvlup'), 1600);
-            applyBlackMarketBuffs(); // İstatistikleri güncelle
-            refreshArmyStats();
-
-            showUpgradeCards();
-            gameActive = false;
+            applyBlackMarketBuffs(); refreshArmyStats();
+            showWaveText('⭐ SEVİYE ' + level + (level >= MAX_LEVEL ? ' · SON!' : ''), false, '#ffd700');
+            hintToast('🌳 +' + SKILL_PER_LEVEL + ' yetenek puanı · harcamak için ' + (isTouchUI ? 'üstteki 🌳 butonuna dokun' : 'T tuşuna bas'), '#ffd700', 4200);
             SND.play('levelUp'); applyShake(15);
             saveGame();
         }
@@ -4898,7 +5654,7 @@
                 const a = joints[0].angle + (Math.random() - 0.5) * 1.6; const sp = 6 + Math.random() * 14;
                 roarDebris.push({ x: hx, y: hy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 1, size: 2 + Math.random() * 4 });
             }
-            roarFlash = 1;
+            roarFlash = 1; royalOnRoar();
             playRoarSound(); applyShake(28);
             tutEvent('roar');
         }
@@ -5696,8 +6452,8 @@
                 // keskin hatlı, öfkeli kaş çıkıntılı, sivri dişli yırtıcı kafatası.
                 if (equippedBlackMarket.demonHorns && isMain) {
                     ctx.beginPath();
-                    ctx.moveTo(-10*gFact, -15*gFact); ctx.quadraticCurveTo(20*gFact, -70*gFact, 40*gFact * (1 + level*0.015), -30*gFact);
-                    ctx.moveTo(-10*gFact, 15*gFact); ctx.quadraticCurveTo(20*gFact, 70*gFact, 40*gFact * (1 + level*0.015), 30*gFact);
+                    ctx.moveTo(-10*gFact, -15*gFact); ctx.quadraticCurveTo(20*gFact, -70*gFact, 40*gFact * (1 + powLvl()*0.015), -30*gFact);
+                    ctx.moveTo(-10*gFact, 15*gFact); ctx.quadraticCurveTo(20*gFact, 70*gFact, 40*gFact * (1 + powLvl()*0.015), 30*gFact);
                     ctx.strokeStyle = '#ff0000'; ctx.lineWidth = 5 * gFact; ctx.stroke();
                     ctx.strokeStyle = glowColor; ctx.lineWidth = 2.5 * gFact;
                 }
@@ -5982,7 +6738,7 @@
         // KÖLE/KOMUTAN TASARIMI: eski dev boss şablonu yerine küçük, çevik bir yardımcı yaratık.
         function drawMinionCreature(hb) {
             const P = armyPal('slave');
-            let sc = (hb.main ? 30 : 23) / 16; // çizim ölçeği (dövüş boyutu hb.size ayrı)
+            let sc = (hb.main ? 30 : 23) / 16 * (hb.size / (hb.main ? 54 : 42)); // çizim ölçeği ejderhayla birlikte büyür
             if (hb.main) {
                 // ANA ESKORT: altın koruma halesi
                 ctx.save(); ctx.translate(hb.x - camX, hb.y - camY); ctx.globalCompositeOperation = 'lighter';
@@ -6073,6 +6829,7 @@
             let enemyLabel = h.poiType === 'outpost' ? '⚔️ ASKERİ ÜS' : (h.poiType === 'rally' ? '🚩 TOPLANMA YERİ' : '🏴 DÜŞMAN KOVANI');
             let label = h.status === 'enemy' ? enemyLabel : (h.status === 'neutral' ? '⚪ TERK EDİLMİŞ KOVAN' : (h.status === 'kingFight' ? '🔥 KRAL SAVAŞI!' : '🛡️ ' + h.commanderName.toUpperCase() + ' KOVANI'));
             ctx.fillText(label, 0, -75); ctx.shadowBlur = 0;
+            if (h.status === 'enemy' && h.kingdom) { const rk = royalById(h.kingdom); if (rk && !royalDead(rk.id)) { ctx.font = 'bold 11px Arial'; ctx.fillStyle = rk.color; ctx.shadowBlur = 4; ctx.shadowColor = '#000'; ctx.fillText('👑 ' + rk.short.toUpperCase() + ' KRALLIĞI', 0, -92); ctx.shadowBlur = 0; } }
             if (h.status === 'friendly') {
                 ctx.font = 'bold 11px Arial'; ctx.fillStyle = '#9fd8ff'; ctx.shadowBlur = 4; ctx.shadowColor = '#000';
                 ctx.fillText('⚔️ ' + (h.garrisonCount || 0) + '/' + (h.garrisonCap || 4) + ' asker  ·  💚 şifa  ·  🏹 kule', 0, -92); ctx.shadowBlur = 0;
@@ -6209,6 +6966,9 @@
                 mctx.beginPath(); mctx.arc(p.x, p.y, p.clipped ? 3 : 4, 0, Math.PI*2); mctx.fill();
             }
 
+            // Krallık tahtları (her zaman görünür, kenara yapışır)
+            if (!inMirrorArena) for (const r of ROYALS) { const p = plot(r.throne.x, r.throne.y); const dead = royalDead(r.id); mctx.fillStyle = dead ? '#3aa0ff' : r.color; mctx.strokeStyle = '#000'; mctx.lineWidth = 1;
+                mctx.beginPath(); mctx.moveTo(p.x - 5, p.y + 3); mctx.lineTo(p.x - 5, p.y - 3); mctx.lineTo(p.x - 2.5, p.y); mctx.lineTo(p.x, p.y - 4); mctx.lineTo(p.x + 2.5, p.y); mctx.lineTo(p.x + 5, p.y - 3); mctx.lineTo(p.x + 5, p.y + 3); mctx.closePath(); mctx.fill(); mctx.stroke(); }
             // Aktif bosslar
             for (let b of activeBosses) {
                 let p = plot(b.x, b.y);
@@ -6304,7 +7064,7 @@
             return null;
         }
         function spawnSahmeran() {
-            let count = 1; if(level >= 30) count = 3; else if (level >= 15) count = 2;
+            let count = 1; if(powLvl() >= 30) count = 3; else if (powLvl() >= 15) count = 2;
             for(let i=0; i<count; i++) {
                 const angle = Math.random() * Math.PI * 2; const dist = Math.max(canvas.width, canvas.height) + 500 + (i*150);
                 activeBosses.push({
@@ -6320,7 +7080,7 @@
         }
 
         function spawnMegaBoss() {
-            let count = level >= 25 ? 2 : 1;
+            let count = powLvl() >= 25 ? 2 : 1;
             for(let c=0; c<count; c++) {
                 const angle = Math.random() * Math.PI * 2; const dist = Math.max(canvas.width, canvas.height) + 500 + (c*300);
                 let bx = SPA().x + Math.cos(angle) * dist; let by = SPA().y + Math.sin(angle) * dist; let waveMult = currentWave / 10;
@@ -6341,7 +7101,7 @@
             // bağımsız bir dünya canavarı olarak çıkar (kovan sistemine bağlı değil).
             paletteColor = paletteColor || '#ff0055';
             bossNameSingle = bossNameSingle || "HİÇLİK BEHEMOTU"; bossNamePlural = bossNamePlural || "HİÇLİK BEHEMOTLARI";
-            let count = level >= 25 ? 2 : 1;
+            let count = powLvl() >= 25 ? 2 : 1;
             for(let c=0; c<count; c++) {
                 const angle = Math.random() * Math.PI * 2; const dist = Math.max(canvas.width, canvas.height) + 300 + (c*200);
                 activeBosses.push({ id: Math.random(), type: 'regular', chargeState: 'walk', attackTimer: 0, chargeDir: 0, x: SPA().x + Math.cos(angle) * dist, y: SPA().y + Math.sin(angle) * dist, maxHp: (25000 * currentWave) * diffConfig.mult, hp: (25000 * currentWave) * diffConfig.mult, size: 85, speed: stats.baseMaxSpeed * 0.7 * diffConfig.speedMult, wobble: 0, attackCooldown: 0, color1: paletteColor, joints: Array.from({length: 15}, () => ({x: 0, y: 0, angle: 0})) });
@@ -6397,7 +7157,7 @@
                 enemySpawnTimer = 0;
                 playSpawnSound();
                 if (enemies.length > 70 + (MP.active ? 22 * (mpN() - 1) : 0)) return;
-                const angle = Math.random() * Math.PI * 2; const dist = Math.max(canvas.width, canvas.height) + 150;
+                const angle = Math.random() * Math.PI * 2; const dist = spawnRing();
                 const SA = spawnAnchor(); const spawnX = SA.x + Math.cos(angle) * dist;
                 const spawnY = SA.y + Math.sin(angle) * dist;
 
@@ -6418,22 +7178,25 @@
             }
         }
 
+        // Düşmanlar ekranın hemen dışında doğar; kamera uzaklaştıkça doğma halkası da genişler
+        function spawnRing() { return Math.hypot(canvas.width, canvas.height) / 2 / viewScale + 180; }
+        function despawnR2() { const r = Math.max(3000, spawnRing() + 900); return r * r; }
         function spawnPassiveUnit() {
             if (!gameActive || isPaused || passives.length > 10 || MP.active || TUT.active) return;
-            const angle = Math.random() * Math.PI * 2; const dist = Math.max(canvas.width, canvas.height) + 120;
+            const angle = Math.random() * Math.PI * 2; const dist = spawnRing();
             passives.push({ x: SPA().x + Math.cos(angle) * dist, y: SPA().y + Math.sin(angle) * dist, hp: 15, maxHp: 15, size: 14, speed: 3, wobble: Math.random() * Math.PI * 2, isHit: false });
         }
         setInterval(spawnPassiveUnit, 2500);
 
-        function gainXp(amount) { amount = Math.ceil(amount * 1.25 * (1 + sanct.training * 0.1)); currentXp += amount; showXpGain(amount); while (currentXp >= maxXp && level < 100) { currentXp -= maxXp; levelUp(); } updateXpUI(); }
+        function gainXp(amount) { amount = Math.ceil(amount * 1.25 * (1 + sanct.training * 0.1)); currentXp += amount; showXpGain(amount); while (currentXp >= maxXp && level < MAX_LEVEL) { currentXp -= maxXp; levelUp(); } if (level >= MAX_LEVEL) currentXp = 0; updateXpUI(); }
         // KALAN XP GÖSTERGESİ: sağ altta seviye + sonraki seviyeye kalan XP, XP barının üstünde anlık ilerleme
         function updateXpUI() {
             const left = Math.max(0, Math.ceil(maxXp - currentXp));
             const li = document.getElementById('levelIndicator');
-            li.innerHTML = 'SEVİYE ' + level + (level >= 100 ? '<span class="xp-left">MAKSİMUM SEVİYE</span>' : '<span class="xp-left">Sonraki seviyeye: ' + left + ' XP</span>');
-            document.getElementById('xpBar').style.width = (level >= 100 ? 100 : (currentXp / maxXp * 100)) + '%';
+            li.innerHTML = 'SEVİYE ' + level + (level >= MAX_LEVEL ? '<span class="xp-left">MAKSİMUM SEVİYE</span>' : '<span class="xp-left">Sonraki seviyeye: ' + left + ' XP</span>');
+            document.getElementById('xpBar').style.width = (level >= MAX_LEVEL ? 100 : (currentXp / maxXp * 100)) + '%';
             document.getElementById('xpLvlBadge').innerText = level;
-            document.getElementById('xpBarText').innerText = level >= 100 ? 'MAKSİMUM SEVİYE' : (Math.floor(currentXp) + ' / ' + maxXp + ' XP  ·  %' + Math.floor(currentXp / maxXp * 100));
+            document.getElementById('xpBarText').innerText = level >= MAX_LEVEL ? 'SON SEVİYE · ' + MAX_LEVEL : (Math.floor(currentXp) + ' / ' + maxXp + ' XP  ·  %' + Math.floor(currentXp / maxXp * 100));
         }
         // XP kazanıldıkça barın üstünde "+N" yazısı süzülür (küçük kazanımlar birleştirilir)
         let xpPopAcc = 0, xpPopTimer = null;
@@ -6890,7 +7653,7 @@
                     for(let e of entities) {
                         let distSq = distToSegmentSquared(e, {x:startX, y:startY}, {x:endX, y:endY});
                         if (distSq < (beamWidth/2 + e.size)**2) {
-                            e.hp -= 200 * (1 + level*0.2); 
+                            e.hp -= 200 * (1 + powLvl()*0.2); 
                             if(tick % 2 < 1) { fireParticles.push({ x: e.x + (Math.random()-0.5)*50, y: e.y + (Math.random()-0.5)*50, vx: Math.cos(angle)*15, vy: Math.sin(angle)*15, life: 1.0, decay: 0.05, size: 20, growth: 2, isBlue: true }); }
                         }
                     }
@@ -7263,9 +8026,12 @@
             if (inMirrorArena || TUT.active) { biomeEvt.type = null; return; }
             if (biomeEvt.type) {
                 biomeEvt.t--;
-                if (biomeEvt.t <= 0 || biome.name !== biomeEvt.biome) { biomeEvt.type = null; biomeEvt.cd = 60 * (45 + Math.random() * 40); }
+                if (biomeEvt.royal && !activeBosses.some(b => b.type === 'royal' && b.rid === biomeEvt.royal)) biomeEvt.t = Math.min(biomeEvt.t, 60); // kral savaşı bitti: fırtına diner
+                if (biomeEvt.t <= 0 || (!biomeEvt.royal && biome.name !== biomeEvt.biome)) { biomeEvt.type = null; biomeEvt.royal = null; biomeEvt.cd = 60 * (45 + Math.random() * 40); }
                 return;
             }
+            // Kralı yaşayan biyomlarda fırtınalar iki kat sık gelir; kralı düşen biyomun göğü durulur
+            { const rk = royalForBiome(biome.name); if (rk && royalDead(rk.id)) { biomeEvt.cd = Math.max(biomeEvt.cd, 60 * 20); return; } if (rk) biomeEvt.cd--; }
             if (--biomeEvt.cd > 0) return;
             const ty = { kar: 'tipi', col: 'kum', deniz: 'basinc', buz: 'ayaz' }[biome.name];
             if (!ty) { biomeEvt.cd = 60 * 20; return; }
@@ -7273,7 +8039,7 @@
             showWaveText({ tipi: '❄️ TİPİ: uçuşun yavaşladı', kum: '🌪️ KUM FIRTINASI: görüş daraldı', basinc: '🌊 DERİNLİĞİN BASKISI', ayaz: '🥶 KARA AYAZ: hayalet enerjisi yavaş doluyor' }[ty], false, '#ccccdd');
             mono('weather');
         }
-        function biomeSpeedMult() { return biomeEvt.type === 'tipi' ? 0.8 : biomeEvt.type === 'kum' ? 0.9 : 1; }
+        function biomeSpeedMult() { return biomeEvt.type === 'tipi' ? (biomeEvt.royal ? 0.72 : 0.8) : biomeEvt.type === 'kum' ? (biomeEvt.royal ? 0.85 : 0.9) : 1; }
         function drawBiomeEvent() {
             if (!biomeEvt.type) return;
             const W = canvas.width / viewScale, H = canvas.height / viewScale;
@@ -7293,6 +8059,15 @@
                 ctx.fillStyle = `rgba(150,200,255,${0.16 * a})`; ctx.fillRect(0, 0, W, H);
                 ctx.strokeStyle = `rgba(220,240,255,${0.35 * a})`; ctx.lineWidth = 18; ctx.strokeRect(0, 0, W, H);
             }
+            // KRAL FIRTINALARI: normal biyom olayından çok daha sert
+            if (biomeEvt.royal) {
+                if (biomeEvt.type === 'ayaz') { ctx.fillStyle = `rgba(0,6,24,${0.42 * a})`; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'lighter';
+                    for (let k = 0; k < 3; k++) { const g = ctx.createLinearGradient(0, 0, W, 0); g.addColorStop(0, 'rgba(0,255,180,0)'); g.addColorStop(0.5, `rgba(${k ? 120 : 0},255,${200 - k * 40},${0.16 * a})`); g.addColorStop(1, 'rgba(0,255,180,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(0, H * 0.08 + k * 40); for (let x = 0; x <= W; x += W / 12) ctx.lineTo(x, H * 0.08 + k * 40 + Math.sin(x * 0.004 + tick * 0.8 + k) * 40); ctx.lineTo(W, 0); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill(); }
+                    ctx.globalCompositeOperation = 'source-over'; }
+                else if (biomeEvt.type === 'basinc') { ctx.strokeStyle = `rgba(150,200,255,${0.35 * a})`; ctx.lineWidth = 1.5; ctx.beginPath(); for (let i = 0; i < 120; i++) { const x = ((i * 97.3 + tick * 90) % (W + 200)) - 100, y = ((i * 53.1 + tick * 900) % (H + 100)) - 50; ctx.moveTo(x, y); ctx.lineTo(x - 8, y + 30); } ctx.stroke(); if (Math.random() < 0.012) { ctx.fillStyle = 'rgba(230,240,255,0.35)'; ctx.fillRect(0, 0, W, H); } }
+                else if (biomeEvt.type === 'kum') { const g = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.22, W / 2, H / 2, Math.max(W, H) * 0.55); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(90,50,10,${0.3 * a})`); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H); }
+                else if (biomeEvt.type === 'tipi') { ctx.fillStyle = `rgba(255,255,255,${0.7 * a})`; for (let i = 0; i < 70; i++) { const x = ((i * 211.7 + tick * 420) % (W + 200)) - 100, y = ((i * 131.3 + tick * 160) % (H + 100)) - 50; ctx.fillRect(x, y, 4, 4); } }
+            }
             ctx.restore();
         }
 
@@ -7301,15 +8076,15 @@
             if (inMirrorArena) return;
             const W = canvas.width / viewScale, H = canvas.height / viewScale, pad = 80;
             for (const b of activeBosses) {
-                if (!b.waveBoss && b.type !== 'hiveKing' && b.type !== 'hiveQueen') continue;
+                if (!b.waveBoss && b.type !== 'hiveKing' && b.type !== 'hiveQueen' && b.type !== 'royal') continue;
                 const dx = b.x - world.dragonX, dy = b.y - world.dragonY, d = Math.hypot(dx, dy); if (d < Math.min(W, H) * 0.45) continue;
                 const a = Math.atan2(dy, dx);
                 const x = Math.max(pad, Math.min(W - pad, W / 2 + Math.cos(a) * (W / 2 - pad))), y = Math.max(pad, Math.min(H - pad, H / 2 + Math.sin(a) * (H / 2 - pad)));
-                const col = b.waveBoss ? '#ff3366' : '#ffaa00';
+                const col = b.type === 'royal' ? royalById(b.rid).color : (b.waveBoss ? '#ff3366' : '#ffaa00');
                 ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.fillStyle = col; ctx.shadowBlur = 15; ctx.shadowColor = col;
                 ctx.beginPath(); ctx.moveTo(18, 0); ctx.lineTo(-12, -12); ctx.lineTo(-4, 0); ctx.lineTo(-12, 12); ctx.closePath(); ctx.fill();
                 ctx.rotate(-a); ctx.shadowBlur = 0; ctx.fillStyle = '#fff'; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign = 'center';
-                ctx.fillText((b.waveBoss ? '💀 BOSS' : '👑 Hükümdar') + ' (' + Math.floor(d / 10) + 'm)', 0, -20); ctx.restore();
+                ctx.fillText((b.type === 'royal' ? '👑 KRAL' : (b.waveBoss ? '💀 BOSS' : '👑 Hükümdar')) + ' (' + Math.floor(d / 10) + 'm)', 0, -20); ctx.restore();
             }
         }
 
@@ -7328,7 +8103,24 @@
             const req = nextBHReq();
             return { t: '🏴 Kovan fethet: ' + Math.min(totalHivesCapturedLifetime, req) + ' / ' + req, w: 'Sonra Kara Delik ' + bhLabel(blackHoleTier) + ' açılacak — ' + bhWhy() };
         }
+        // AMAÇ PANELİ: yeni başlayan oyuncu tek bakışta ne yapacağını görsün - önce 100 kovan, sonra kara delik bossu
+        function renderGoal() {
+            const el = document.getElementById('goalHud'); if (!el) return; let h;
+            const bt = nextBHTier();
+            if (inMirrorArena) { const t = arenaTier(); h = `<div class="g1">🕳️ AMAÇ: bossu yen · <b>${t.bossName}</b></div><div class="g2">Kara delikten ancak onu yenerek çıkabilirsin.</div>`; }
+            else if (!bt) h = `<div class="g1">👑 Tüm kara delikler kapandı</div><div class="g2">Gökyüzü artık senin.</div>`;
+            else {
+                const req = nextBHReq(), n = Math.min(totalHivesCapturedLifetime, req);
+                if (blackHolePortal) h = `<div class="g1">✔ ${req} kovan ele geçirildi <span class="gm"> · 🕳️ kara deliğe gir, bossu yen</span></div><div class="g2">🕳️ Şimdi kara deliğe gir ve bossu yen: <b>${bt.bossName}</b> — pusulayı izle.</div>`;
+                else h = `<div class="g1">🎯 AMAÇ: <b>${req} kovan</b> ele geçir · ${n}/${req}<span class="gm"> → 🕳️ kara delik bossunu yen</span></div><div class="gbar"><i style="width:${Math.min(100, n / req * 100)}%"></i></div><div class="g2">🕳️ Sonra kara delikteki bossu yen: <b>${bt.bossName}</b></div>`;
+            }
+            // Mobil: tek satırlık kısa amaç
+            let m; if (inMirrorArena) m = '🕳️ Bossu yen: ' + arenaTier().bossName; else if (!bt) m = '👑 Sefer tamam'; else if (blackHolePortal) m = '🕳️ Kara deliğe gir → bossu yen'; else m = '🎯 ' + nextBHReq() + ' kovan ele geçir · ' + Math.min(totalHivesCapturedLifetime, nextBHReq()) + '/' + nextBHReq() + ' → 🕳️ boss';
+            h += '<span class="gmob">' + m + '</span>';
+            if (el._h !== h) { el._h = h; el.innerHTML = h; el.classList.toggle('ok', !!blackHolePortal); }
+        }
         function renderObjective() {
+            renderGoal();
             const el = document.getElementById('objectivePanel'); if (!el) return;
             const o = objectiveInfo();
             const bt = bossTypeForWave(currentWave);
@@ -7394,7 +8186,7 @@
                     <div class="gl-step"><div class="gl-n">3</div><div><b>200 kovan → Kara Delik II · Yıkılmış Ateşyurt.</b> Yurdumun küllerine dönüş. Onu yutan sürünün anası orada yuvalanmış.</div></div>
                     <div class="gl-step"><div class="gl-n">4</div><div><b>300 kovan → Kara Delik III · Yıldızların Mezarlığı.</b> Sürüyü gönderen, her şeyin arkasındaki üç başlı kıyamet.</div></div>
                 </div>
-                <div class="gl-how"><b>Yol boyunca:</b> Dalgalar büyüdükçe devler gelir; 25 ruh yaktıktan sonra dalganın bossu çıkar. Sığınakta yaralarını sar ve onu büyüt (${kk('B', 'SIĞINAK butonu')}). Köle topla (${kk('Q+W', '☰ → Köle')}), fethettiğin kovanlardan takviye çağır (${kk('Q+S', '☰ → Takviye')}). Ne kadar uzağa gidersen düşmanların o kadar çok koin bırakır.<br><br>Amacını unutursan: <b>📖 Günlüğe (${kk('J', '☰ → Günlük')})</b> bak.</div>
+                <div class="gl-how"><b>Yol boyunca:</b> Dalgalar büyüdükçe devler gelir; 25 ruh yaktıktan sonra dalganın bossu çıkar. Sığınakta yaralarını sar ve onu büyüt (${kk('B', 'SIĞINAK butonu')}). Köle topla (${kk('Q+W', '☰ → Köle')}), fethettiğin kovanlardan takviye çağır (${kk('Q+S', '☰ → Takviye')}). Ne kadar uzağa gidersen düşmanların o kadar çok coin bırakır.<br><br>Amacını unutursan: <b>📖 Günlüğe (${kk('J', '☰ → Günlük')})</b> bak.</div>
                 <button class="action-btn menu-btn-primary" onclick="closeGoal()">🔥 YEMİNİMİ HATIRLIYORUM</button>`;
             goalPausedByMe = gameActive && !isPaused && !MP.active;
             if (goalPausedByMe || (gameActive && journalPausedByMe)) { isPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; goalPausedByMe = true; journalPausedByMe = false; }
@@ -7451,8 +8243,8 @@
               done: ['Diz çöktüler. Hükümdar artık benim valim.', 'Kovanın hazinesi de benim.'] },
             { id: 'slave', title: '🐍 ZİNCİR',
               why: 'Kaçanları zincire vurdum. Köleler yanımda uçar, beni korur, düşmanlarıma saldırır. Ama unutma: korkuyla bağlanan sadakat ölümle çözülür — ölen köle zincirini kırıp düşmana döner.',
-              pc: { k: ['Q', '+', 'W'], t: 'İkisine aynı anda bas (120 koin). En fazla 6 köle.' },
-              mob: { k: ['☰', '→', '🐍 KÖLE'], t: 'Sağ üstteki menüyü aç ve köle çağır (120 koin). En fazla 6 köle.' },
+              pc: { k: ['Q', '+', 'W'], t: 'İkisine aynı anda bas (120 coin). En fazla 6 köle.' },
+              mob: { k: ['☰', '→', '🐍 KÖLE'], t: 'Sağ üstteki menüyü aç ve köle çağır (120 coin). En fazla 6 köle.' },
               voice: ['Bir zamanlar zinciri onlar vururdu.'],
               done: ['Şimdi zincir benim pençemde.'] },
             { id: 'plasma', title: '⚛️ ATEŞYURT\'UN SON IŞIĞI',
@@ -7462,7 +8254,7 @@
               voice: ['Büyük bir sürü toplanıyor. İyi. Hepsi tek nefeste…'],
               done: ['Sessizlik. Yıkımdan sonraki o sessizlik… tek huzurum.'] },
             { id: 'sanct', title: '🏰 SIĞINAK',
-              why: 'Annemin hayatı pahasına beni ittiği yer artık benim kalem. İçinde kimse bana dokunamaz, yaralarım kapanır. Kazandığım koinle surlarını, kulelerini ve şifa pınarını büyütürüm.',
+              why: 'Annemin hayatı pahasına beni ittiği yer artık benim kalem. İçinde kimse bana dokunamaz, yaralarım kapanır. Kazandığım coinle surlarını, kulelerini ve şifa pınarını büyütürüm.',
               pc: { k: ['B'], t: 'Sığınağın (turkuaz halka) içine uç ve yönetimi aç.' },
               mob: { k: ['🏰 SIĞINAK'], t: 'Sığınağın içine uç ve üstte beliren butona bas.' },
               voice: ['Yaralarımı saracağım. Sonra av başlar.'],
@@ -7626,6 +8418,11 @@
             if (!gameActive) return;
             if (isPaused) return;
             
+            gFrame++;
+            // KUŞATMA HEDEFİ: son 4 saniyede ateşimizle vurduğumuz en yakın düşman kovanı - birlikler ona yüklenir
+            { const prev = assaultHive; assaultHive = null; let bd = 1800;
+              if (!inMirrorArena) for (const h of hives) { if (h.status !== 'enemy' || gFrame - (h.playerHitF || -99999) > 240) continue; const d = Math.hypot(h.x - world.dragonX, h.y - world.dragonY); if (d < bd) { bd = d; assaultHive = h; } }
+              if (assaultHive && assaultHive !== prev && (hiredBosses.length || hiveSoldiers.some(s => s.escort))) showWaveText('⚔️ BİRLİKLERİN KOVANA SALDIRIYOR!', false, '#66ccff'); }
             tick += 0.06; if (!inMirrorArena) updateEnemySpawn(); if ((++mbTick & 3) === 0) updateMobileButtons();
             if (TUT.active) tutUpdate();
             if (tick % 3 < 0.06 && !inMirrorArena) ensureHivesNearPlayer();
@@ -7659,7 +8456,7 @@
                 if (ghostEnergy <= 0) { ghostEnergy = 0; endGhost(); }
                 else { document.getElementById('ghostIndicator').innerText = '>> HAYALET MODU (' + Math.ceil(ghostEnergy) + '%) <<'; }
             } else if (ghostEnergy < GHOST_MAX) {
-                ghostEnergy = Math.min(GHOST_MAX, ghostEnergy + 0.45 * (biomeEvt.type === 'ayaz' ? 0.5 : 1));
+                ghostEnergy = Math.min(GHOST_MAX, ghostEnergy + 0.45 * (biomeEvt.type === 'ayaz' ? 0.5 : 1) * (royalDead('buz') ? 1.3 : 1));
             }
 
             if (!isSuperBeamCharging && !isSuperBeamFiring && plasmaCharge < PLASMA_MAX) {
@@ -7673,7 +8470,7 @@
             }
             if (isSuperBeamFiring) { superBeamFireTimer++; applyShake(15); if (superBeamFireTimer >= 150) { isSuperBeamFiring = false; superBeamFireTimer = 0; } }
 
-            let growthFactor = 1 + (Math.floor((level - 1) / 5) * 0.20); 
+            let growthFactor = playerGrowth(); 
 
             let currentBiome = getBiomeAt(world.dragonX, world.dragonY);
             updateBiomeEvent(currentBiome); updateMemorialMemory();
@@ -7687,6 +8484,7 @@
                     // Biyom hızlıca değişince yakın çevredeki kovan/üs/toplanma yerlerini hemen kontrol et
                     ensureHivesNearPlayer();
                     showWaveText("🌍 " + currentBiome.displayName.toUpperCase(), false, currentBiome.gridColor); mono('biome_' + currentBiome.name);
+                    { const rk = royalForBiome(currentBiome.name); if (rk) setTimeout(() => { if (!inMirrorArena && getBiomeAt(world.dragonX, world.dragonY).name === rk.biome) hintToast(royalDead(rk.id) ? '🏳️ Bu topraklar artık senin: ' + rk.hive : '👑 Krallık toprağındasın: ' + rk.name + ' · tahtı haritada 👑 ile işaretli', rk.color); }, 3200); }
                 }
             }
 
@@ -7782,6 +8580,10 @@
             // merkezinden (yani farenin referans aldığı noktadan) geride kalmasına, fare ile ejderha
             // arasında "mesafe" varmış gibi görünmesine sebep oluyordu. Artık kamera ejderhanın
             // TAM üzerinde kilitli; fare her zaman ejderhanın kendisine göre ölçülüyor.
+            // OTOMATİK KAMERA: gövde uzunluğu arttıkça görüş alanı genişler; kral ve kara delik savaşlarında biraz daha geri çekilir
+            { const L0 = 20 * 16, L = joints.length * segmentLength * growthFactor; let az = Math.max(0.42, Math.min(1, Math.pow(L0 / L, 0.6)));
+              if (inMirrorArena) az *= 0.88; else if (royalNearby()) az *= 0.82;
+              viewScale += (userZoom * az - viewScale) * 0.04; if (Math.abs(userZoom * az - viewScale) < 0.0005) viewScale = userZoom * az; }
             camX = (world.dragonX - (canvas.width / viewScale) / 2) + currentShakeX; camY = (world.dragonY - (canvas.height / viewScale) / 2) + currentShakeY;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height); ctx.save(); ctx.scale(viewScale, viewScale); 
@@ -7797,7 +8599,7 @@
                 if (Math.hypot(p.x - safeZone.x, p.y - safeZone.y) < safeZone.radius) { projectiles.splice(i, 1); continue; }
                 const hitPl = livingPlayers().find(pl => (pl.x - p.x)**2 + (pl.y - p.y)**2 < 625 && !pl.ghost && !pl.safe);
                 if (hitPl) { hurtPlayer(hitPl, (p.isDragonFire ? 22 : 10) * diffConfig.dmgMult * mpEnemyDmg(), p.isDragonFire ? 12 : 5); projectiles.splice(i, 1); continue; }
-                { const fp = nearestPlayer(p.x, p.y); if (Math.abs(p.x - fp.x) > 1100 || Math.abs(p.y - fp.y) > 1100) { projectiles.splice(i,1); continue; } }
+                { const fp = nearestPlayer(p.x, p.y); const pcull = Math.max(1100, 760 / viewScale); if (Math.abs(p.x - fp.x) > pcull || Math.abs(p.y - fp.y) > pcull) { projectiles.splice(i,1); continue; } }
                 if (p.isDragonFire) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.shadowBlur = 14; ctx.shadowColor = '#ff8800'; ctx.fillStyle = '#ff5500'; ctx.beginPath(); ctx.arc(p.x - camX, p.y - camY, p.size, 0, Math.PI*2); ctx.fill(); ctx.restore(); }
                 else { ctx.fillStyle = '#33ff00'; ctx.beginPath(); ctx.arc(p.x - camX, p.y - camY, p.size, 0, Math.PI*2); ctx.fill(); }
             }
@@ -7839,7 +8641,7 @@
                 pas.isHit = false;
                 for (let p of fireParticles) { if (p.life > 0.3 && (pas.x - p.x)**2 + (pas.y - p.y)**2 < (pas.size + p.size * 0.4)**2) { pas.hp -= stats.fireDamage; p.life -= 0.15; pas.isHit = true; } }
                 for (let tp of trailParticles) { if (tp.life > 0 && (pas.x - tp.x)**2 + (pas.y - tp.y)**2 < (pas.size + tp.size)**2) { pas.hp -= stats.fireDamage * 0.5; pas.isHit = true; } }
-                if (pas.hp <= 0) { coins += earn(1); document.getElementById('coinCount').innerText = coins; for(let k = 0; k < 4; k++) healParticles.push({ x: pas.x + (Math.random()-0.5)*15, y: pas.y + (Math.random()-0.5)*15, size: 7 + Math.random()*3 }); passives.splice(i, 1); continue; }
+                if (pas.hp <= 0) { coins += earn(2); document.getElementById('coinCount').innerText = coins; for(let k = 0; k < 4; k++) healParticles.push({ x: pas.x + (Math.random()-0.5)*15, y: pas.y + (Math.random()-0.5)*15, size: 7 + Math.random()*3 }); passives.splice(i, 1); continue; }
                 let px = pas.x - camX; let py = pas.y - camY;
                 ctx.save(); ctx.translate(px, py); ctx.fillStyle = pas.isHit ? "#ffffff" : "rgba(0, 255, 190, 0.25)"; ctx.strokeStyle = "#00ffcc"; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(0, 0, pas.size, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); let ox = Math.cos(tick * 2.5) * (pas.size + 6); let oy = Math.sin(tick * 2.5) * (pas.size + 6); ctx.fillStyle = "#ffffff"; ctx.beginPath(); ctx.arc(ox, oy, 3, 0, Math.PI * 2); ctx.fill(); ctx.restore();
             }
@@ -7913,25 +8715,30 @@
                 let hb = hiredBosses[i];
                 const isMain = i < ESC_MAIN;
                 // Ana eskortlar yalnızca sana yaklaşan tehditlere karşı çıkar (koruma), adamları ise saldırıya geçer.
-                const guardR = isMain ? 300 : 700, bossR = isMain ? 520 : 1000;
-                let target = null; let isBossTarget = false; let minDist = Infinity;
-                for (let b of activeBosses) { const dPlayer = Math.hypot(b.x - world.dragonX, b.y - world.dragonY); const d = Math.hypot(b.x - hb.x, b.y - hb.y); if (dPlayer < bossR && d < minDist) { minDist = d; target = b; isBossTarget = true; } }
-                if (!target) for (let e of enemies) { if (isMain && e.role === 'fleeing') continue; const dPlayer = Math.hypot(e.x - world.dragonX, e.y - world.dragonY); const d = isMain ? dPlayer : Math.hypot(e.x - hb.x, e.y - hb.y); if (dPlayer < guardR && d < minDist) { minDist = d; target = e; } }
+                // GENİŞ SAVAŞ ALANI: birlikler ejderhanın gerisinden gelir, tehdit görünce geniş bir alanda
+                // bizden ayrılıp saldırır. Biz bir kovana saldırıyorsak onlar da o kovana yüklenir.
+                const guardR = isMain ? 760 : 1150, bossR = isMain ? 1000 : 1500, leash = isMain ? 1150 : 1550;
+                let target = null; let isBossTarget = false; let isHiveTarget = false; let minDist = Infinity;
+                for (let b of activeBosses) { if (b.submerged) continue; const dPlayer = Math.hypot(b.x - world.dragonX, b.y - world.dragonY); const d = Math.hypot(b.x - hb.x, b.y - hb.y); if (dPlayer < bossR && d < minDist) { minDist = d; target = b; isBossTarget = true; } }
+                if (!target) for (let e of enemies) { if (isMain && e.role === 'fleeing') continue; const dPlayer = Math.hypot(e.x - world.dragonX, e.y - world.dragonY); const d = Math.hypot(e.x - hb.x, e.y - hb.y); if (dPlayer < guardR && d < minDist && (!isMain || !assaultHive || d < 380)) { minDist = d; target = e; } }
+                if (!target && assaultHive) { target = assaultHive; isHiveTarget = true; }
                 let distToPlayer = Math.hypot(hb.x - world.dragonX, hb.y - world.dragonY);
 
-                if (target && distToPlayer < (isMain ? 420 : 650)) {
+                if (target && distToPlayer < leash + (isHiveTarget ? 500 : 0)) {
                     hb.state = 'attack'; let dx = target.x - hb.x; let dy = target.y - hb.y; let dist = Math.hypot(dx, dy);
-                    if(dist > 0) { hb.x += (dx/dist) * hb.speed; hb.y += (dy/dist) * hb.speed; } hb.joints[0].angle = Math.atan2(dy, dx);
-                    if(dist < hb.size + (target.size||16) + 16) { if(tick % 2 < 0.2) { let hbDmgMult = (1 + (stats.swiftClaw || 0) * 0.25) * (1 + AB('slave', 'dmg')); target.hp -= (isBossTarget ? 40 : 25) * hbDmgMult * armyPowerMult(); if (AB('slave', 'slow') && target.slowTimer !== undefined) target.slowTimer = 70; hb.hp -= isBossTarget ? 2 : 0.5; playHitSound(false); ctx.fillStyle = hexA(armyPal('slave').main, 0.5); ctx.beginPath(); ctx.arc(hb.x - camX, hb.y - camY, hb.size*1.8, 0, Math.PI*2); ctx.fill(); } }
+                    const reach = isHiveTarget ? 70 + hb.size : hb.size + (target.size||16) + 16;
+                    if(dist > reach * 0.7) { hb.x += (dx/dist) * hb.speed; hb.y += (dy/dist) * hb.speed; } hb.joints[0].angle = Math.atan2(dy, dx);
+                    if(dist < reach) { if(tick % 2 < 0.2) { let hbDmgMult = (1 + (stats.swiftClaw || 0) * 0.25) * (1 + AB('slave', 'dmg')); target.hp -= (isBossTarget ? 40 : (isHiveTarget ? 75 : 25)) * hbDmgMult * armyPowerMult() * (target.dmgTaken || 1); if (AB('slave', 'slow') && target.slowTimer !== undefined) target.slowTimer = 70; hb.hp -= isBossTarget ? 2 : 0.5; playHitSound(false); ctx.fillStyle = hexA(armyPal('slave').main, 0.5); ctx.beginPath(); ctx.arc(hb.x - camX, hb.y - camY, hb.size*1.8, 0, Math.PI*2); ctx.fill(); } }
                 } else {
                     // ESKORT DİZİLİŞİ: iki ana eskort boynun iki yanında hafif önde; her birinin iki adamı
                     // aynı tarafta, arkasında sıra tutar (2 + 2-2). Konum gövdeye göre hesaplanır, hareket yumuşaktır.
-                    let side, frac, offset, fwd = 0;
-                    if (isMain) { side = i === 0 ? 1 : -1; frac = 0.12; offset = 92; fwd = 24; }
-                    else { const r = i - ESC_MAIN; side = (r % 2 === 0) ? 1 : -1; frac = [0.42, 0.72][Math.floor(r / 2)] || 0.9; offset = 78; }
-                    const jIdx = Math.max(1, Math.min(joints.length - 1, Math.round(frac * (joints.length - 1))));
-                    const bodyJ = joints[jIdx]; const perp = bodyJ.angle + Math.PI / 2;
-                    const fx = bodyJ.x + Math.cos(perp) * offset * side + Math.cos(bodyJ.angle) * fwd; const fy = bodyJ.y + Math.sin(perp) * offset * side + Math.sin(bodyJ.angle) * fwd;
+                    // ARKA DİZİLİŞ: ana eskortlar kuyruğun hemen gerisinde iki yanda, adamları onların
+                    // arkasında genişleyen bir V düzeninde uçar (ejderha büyüdükçe diziliş de açılır).
+                    const tailJ = joints[joints.length - 1]; const GF = playerGrowth(); let back, lat;
+                    if (isMain) { back = 120 * GF; lat = (i === 0 ? 1 : -1) * 125 * GF; }
+                    else { const r = i - ESC_MAIN, row = Math.floor(r / 2); back = (215 + row * 100) * GF; lat = ((r % 2 === 0) ? 1 : -1) * (175 + row * 45) * GF; }
+                    const ta = tailJ.angle, perp = ta + Math.PI / 2;
+                    const fx = tailJ.x - Math.cos(ta) * back + Math.cos(perp) * lat; const fy = tailJ.y - Math.sin(ta) * back + Math.sin(perp) * lat;
                     const dx = fx - hb.x, dy = fy - hb.y, dist = Math.hypot(dx, dy);
                     const sp = Math.min(dist * 0.22, hb.speed * 2.4);
                     if (dist > 1.5) { hb.x += dx / dist * sp; hb.y += dy / dist * sp; }
@@ -7954,7 +8761,7 @@
                     hiredBosses.splice(i, 1); continue;
                 }
                 hb.joints[0].x = hb.x; hb.joints[0].y = hb.y;
-                for (let k = 1; k < hb.joints.length; k++) { const prev = hb.joints[k-1]; const curr = hb.joints[k]; curr.angle = Math.atan2(prev.y - curr.y, prev.x - curr.x); curr.x = prev.x - Math.cos(curr.angle) * 9; curr.y = prev.y - Math.sin(curr.angle) * 9; }
+                for (let k = 1; k < hb.joints.length; k++) { const prev = hb.joints[k-1]; const curr = hb.joints[k]; curr.angle = Math.atan2(prev.y - curr.y, prev.x - curr.x); const hsp = 9 * hb.size / (hb.main ? 54 : 42); curr.x = prev.x - Math.cos(curr.angle) * hsp; curr.y = prev.y - Math.sin(curr.angle) * hsp; }
                 drawMinionCreature(hb);
 
                 let hbHpPercent = hb.hp / hb.maxHp;
@@ -8010,6 +8817,7 @@
                     }
                     let hIsHit = false;
                     for (let p of fireParticles) { if (p.life > 0.3 && (h.x-p.x)**2 + (h.y-p.y)**2 < (85 + p.size)**2) { h.hp -= fdmg(p); p.life -= 0.15; hIsHit = true; } }
+                    if (hIsHit) h.playerHitF = gFrame;
                     if (hIsHit && h.alarmCooldown <= 0 && enemies.length < 130 && !TUT.active) {
                         // ARI KOVANI SAVUNMASI: kovan ateşle vurulduğunda aniden onlarca düşman fışkırır
                         h.alarmCooldown = 480;
@@ -8070,8 +8878,8 @@
                         if (best) { const dmg = (35 + currentWave * 6) * (1 + (stats.hiveFavor || 0) * 0.3) * (1 + AB('hive', 'auraMult')); towerBolts.push({ x: h.x, y: h.y - 40, t: best, dmg: best.maxHp ? dmg * 0.6 : dmg, life: 90 }); h.turretCd = 40; }
                         else h.turretCd = 15;
                     }
-                    // VERGİ: her dost kovan dakikada 6 koin getirir
-                    h.taxTimer = (h.taxTimer || 0) + 1; if (h.taxTimer >= 3600) { h.taxTimer = 0; coins += earn(6); document.getElementById('coinCount').innerText = coins; }
+                    // VERGİ: her dost kovan dakikada ~5 coin getirir
+                    h.taxTimer = (h.taxTimer || 0) + 1; if (h.taxTimer >= 3600) { h.taxTimer = 0; coins += earn(10); document.getElementById('coinCount').innerText = coins; }
                     // KUŞATMA: normal düşmanlar bu kovanı geri almaya çalışabilir. Kuşatma altında
                     // değilse yavaşça iyileşir; hp'si tükenirse kovan yeniden düşman eline geçer.
                     if (h.hp === undefined) h.hp = h.maxHp;
@@ -8087,6 +8895,7 @@
                 }
                 if (h.status !== 'destroyed') drawHive(h);
             }
+            updateThrones();
 
             // ÖLÜ DERİ: yenilen kovan krallarının bıraktığı, yavaşça sönen bir zafer efekti
             for (let ti = hiveTrophies.length - 1; ti >= 0; ti--) {
@@ -8108,14 +8917,16 @@
                 if (s.hp !== undefined && s.hp <= 0) { for (let k = 0; k < 5; k++) trailParticles.push({ x: s.x, y: s.y, life: 1.0, size: 8 + Math.random()*6, color: '#2288ff' }); hiveSoldiers.splice(si, 1); continue; }
                 if (s.escort) {
                     // ANA ESKORTUN EMRİNDE: komutanının arkasında 2'li sıra tutar, komutanının yakınındaki düşmanla savaşır
-                    const cmd = escMains[s.cmdIdx] || escMains[0] || null;
-                    const ax = cmd ? cmd.x : world.dragonX, ay = cmd ? cmd.y : world.dragonY, aAng = cmd ? cmd.joints[0].angle : joints[0].angle;
-                    let target = nearestBossTo(ax, ay, 700);
-                    if (!target) { let bd = 420; for (const e of enemies) { if (e.role === 'fleeing') continue; const d = Math.hypot(e.x - ax, e.y - ay); if (d < bd) { bd = d; target = e; } } }
+                    const cmd = escMains[s.cmdIdx] || escMains[0] || null; const tJ = joints[joints.length - 1]; const GF = playerGrowth();
+                    const ax = cmd ? cmd.x : tJ.x, ay = cmd ? cmd.y : tJ.y, aAng = cmd ? cmd.joints[0].angle : tJ.angle;
+                    let target = nearestBossTo(ax, ay, 1250);
+                    if (target && target.submerged) target = null;
+                    if (!target) { let bd = 850; for (const e of enemies) { if (e.role === 'fleeing') continue; const d = Math.hypot(e.x - ax, e.y - ay); if (d < bd && (!assaultHive || Math.hypot(e.x - s.x, e.y - s.y) < 360)) { bd = d; target = e; } } }
                     if (target) soldierEngage(s, target, 1.3);
+                    else if (assaultHive && Math.hypot(assaultHive.x - world.dragonX, assaultHive.y - world.dragonY) < 2000) soldierHitHive(s, assaultHive);
                     else {
                         const slot = escSlots[s.cmdIdx === 1 ? 1 : 0]++;
-                        const back = (cmd ? 58 : 150) + Math.floor(slot / 2) * 36, lat = (slot % 2 ? 1 : -1) * (cmd ? 26 : 90);
+                        const back = ((cmd ? 95 : 190) + Math.floor(slot / 2) * 55) * GF, lat = (slot % 2 ? 1 : -1) * ((cmd ? 55 : 120) + Math.floor(slot / 2) * 12) * GF;
                         const tx = ax - Math.cos(aAng) * back + Math.cos(aAng + Math.PI / 2) * lat, ty = ay - Math.sin(aAng) * back + Math.sin(aAng + Math.PI / 2) * lat;
                         const dx = tx - s.x, dy = ty - s.y, dd = Math.hypot(dx, dy); const sp = Math.min(dd * 0.2, s.speed * 2.4);
                         if (dd > 1.5) { s.x += dx / dd * sp; s.y += dy / dd * sp; }
@@ -8146,17 +8957,19 @@
                 if (!homeHive || homeHive.status !== 'friendly') { hiveSoldiers.splice(si, 1); continue; }
                 const gp = nearestPlayer(homeHive.x, homeHive.y); let distPlayerToHive = Math.hypot(homeHive.x - gp.x, homeHive.y - gp.y);
                 let guardMode = distPlayerToHive < 900;
-                let searchX = guardMode ? gp.x : s.x; let searchY = guardMode ? gp.y : s.y; let searchR = guardMode ? 700 : 450;
+                let searchX = guardMode ? gp.x : s.x; let searchY = guardMode ? gp.y : s.y; let searchR = guardMode ? 1000 : 450;
                 {
                     let target = null; let minD = searchR;
                     for (let e of enemies) { let d = Math.hypot(e.x - searchX, e.y - searchY); if (d < minD) { minD = d; target = e; } }
                     if (target) { soldierEngage(s, target, guardMode ? 1.3 : 1);
+                    } else if (guardMode && assaultHive) { soldierHitHive(s, assaultHive);
                     } else if (guardMode) {
-                        // Yakında düşman yok ama sahibimiz (oyuncu) kovanın yakınında - onu koruyarak eşlik et
-                        let pdx = gp.x - s.x; let pdy = gp.y - s.y; let pd = Math.hypot(pdx, pdy);
-                        s.wobble += 0.05;
-                        if (pd > 130) { s.angle = Math.atan2(pdy, pdx); s.x += (pdx / pd) * s.speed * 0.85; s.y += (pdy / pd) * s.speed * 0.85; }
-                        else { s.angle += 0.03; s.x = gp.x + Math.cos(s.wobble) * 100; s.y = gp.y + Math.sin(s.wobble) * 100; }
+                        // Yakında düşman yok ama sahibimiz kovanın yakınında: yanına yapışmak yerine gerisinden, geniş bir yay çizerek eşlik eder
+                        const tJ = joints[joints.length - 1], GF = playerGrowth(); s.wobble += 0.02;
+                        const gx = tJ.x - Math.cos(tJ.angle) * 170 * GF + Math.cos(tJ.angle + Math.PI / 2) * Math.sin(s.wobble) * 150 * GF, gy = tJ.y - Math.sin(tJ.angle) * 170 * GF + Math.sin(tJ.angle + Math.PI / 2) * Math.sin(s.wobble) * 150 * GF;
+                        let pdx = gx - s.x; let pdy = gy - s.y; let pd = Math.hypot(pdx, pdy) || 1; const sp = Math.min(pd * 0.15, s.speed * 1.6);
+                        if (pd > 4) { s.x += (pdx / pd) * sp; s.y += (pdy / pd) * sp; }
+                        s.angle += normAng((pd > 60 ? Math.atan2(pdy, pdx) : tJ.angle) - s.angle) * 0.15;
                     } else {
                         let hdx = homeHive.x - s.x; let hdy = homeHive.y - s.y; let hd = Math.hypot(hdx, hdy);
                         s.wobble += 0.05;
@@ -8174,7 +8987,7 @@
                     let bx1 = activeBosses[ba], bx2 = activeBosses[bb];
                     let hiveType1 = (bx1.type === 'hiveKing' || bx1.type === 'hiveQueen');
                     let hiveType2 = (bx2.type === 'hiveKing' || bx2.type === 'hiveQueen');
-                    if (hiveType1 === hiveType2) continue;
+                    if (hiveType1 === hiveType2 || bx1.type === 'royal' || bx2.type === 'royal' || bx1.royalAlly || bx2.royalAlly) continue;
                     let ddx = bx1.x - bx2.x; let ddy = bx1.y - bx2.y; let dd = Math.hypot(ddx, ddy);
                     if (dd < (bx1.size || 50) + (bx2.size || 50) + 15) {
                         if (tick % 3 < 0.3) { bx1.hp -= 200; bx2.hp -= 200; applyShake(5); }
@@ -8187,6 +9000,7 @@
                 if (boss.type === 'abyssDragon') { updateAbyssDragon(boss, bi); continue; }
                 if (boss.type === 'swarmMother') { updateSwarmMother(boss, bi); continue; }
                 if (boss.type === 'kiyamet') { updateKiyamet(boss, bi); continue; }
+                if (boss.type === 'royal') { updateRoyal(boss, bi); continue; }
 
                 let bDistSafe = Math.hypot(boss.x - safeZone.x, boss.y - safeZone.y);
                 if (bDistSafe < safeZone.radius + boss.size + 10) {
@@ -8218,7 +9032,7 @@
                     if(isHit && tick % 2 < 0.2) playHitSound(true, boss.x, boss.y);
 
                     if (boss.hp <= 0) {
-                        playDeathSound(true, boss.x, boss.y, boss.type); score += 30; applyShake(60); document.getElementById('killCount').innerText = score; coins += earn(150 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<60; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*200, y: boss.y + (Math.random()-0.5)*200, size: 18 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1);
+                        playDeathSound(true, boss.x, boss.y, boss.type); score += 30; applyShake(60); document.getElementById('killCount').innerText = score; coins += earn(300 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<60; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*200, y: boss.y + (Math.random()-0.5)*200, size: 18 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1);
                     } else {
                         const bx = boss.x - camX; const by = boss.y - camY;
                         ctx.save(); ctx.translate(bx, by);
@@ -8256,7 +9070,7 @@
                     for (let p of fireParticles) { if (p.life > 0.3 && (boss.x-p.x)**2 + (boss.y-p.y)**2 < (boss.size + p.size)**2) { let dmg = fdmg(p); if(Math.random()*100 < stats.critChance) dmg *= 3; boss.hp -= dmg; p.life -= 0.2; isHit = true; addRageP(p, 0.5); } }
                     if(isHit && tick % 2 < 0.2) playHitSound(true, boss.x, boss.y); 
                     
-                    if (boss.hp <= 0) { playDeathSound(true, boss.x, boss.y, boss.type); score += 20; applyShake(60); document.getElementById('killCount').innerText = score; coins += earn(100 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<50; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*250, y: boss.y + (Math.random()-0.5)*250, size: 18 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1); }
+                    if (boss.hp <= 0) { playDeathSound(true, boss.x, boss.y, boss.type); score += 20; applyShake(60); document.getElementById('killCount').innerText = score; coins += earn(320 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<50; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*250, y: boss.y + (Math.random()-0.5)*250, size: 18 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1); }
                     else { drawSahmeranBoss(boss, isHit, angleToTarget); }
 
                 } else if (boss.type === 'regular') {
@@ -8293,7 +9107,7 @@
                     if(isHit && tick % 2 < 0.2) playHitSound(true, boss.x, boss.y); 
 
                     if (boss.hp <= 0) {
-                        playDeathSound(true, boss.x, boss.y, boss.type); score += 10; applyShake(50); document.getElementById('killCount').innerText = score; coins += earn(50 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<30; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*200, y: boss.y + (Math.random()-0.5)*200, size: 15 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1);
+                        playDeathSound(true, boss.x, boss.y, boss.type); score += 10; applyShake(50); document.getElementById('killCount').innerText = score; coins += earn(240 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<30; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*200, y: boss.y + (Math.random()-0.5)*200, size: 15 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1);
                     }
                     else { drawSerpentBoss(boss, boss.color1 || '#ff0055', boss.color1 || '#ff0055', isHit, boss.joints[0].angle); }
 
@@ -8336,7 +9150,7 @@
                         let hive = hives.find(hh => hh.id === boss.hiveId);
                         playDeathSound(true, boss.x, boss.y, boss.type); score += 25; applyShake(70); document.getElementById('killCount').innerText = score;
                         let kBonus = dangerBonusMult(boss.x, boss.y);
-                        coins += earn(600 * kBonus); gainXp(300); document.getElementById('coinCount').innerText = coins;
+                        coins += earn(360 * kBonus); gainXp(300); document.getElementById('coinCount').innerText = coins;
                         for(let i=0; i<70; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*250, y: boss.y + (Math.random()-0.5)*250, size: 18 });
                         hiveTrophies.push({ x: boss.x, y: boss.y, life: 1.0 });
                         if (hive) {
@@ -8392,7 +9206,7 @@
                         let hive = hives.find(hh => hh.id === boss.hiveId);
                         playDeathSound(true, boss.x, boss.y, boss.type); score += 35; applyShake(75); document.getElementById('killCount').innerText = score;
                         let qBonus = dangerBonusMult(boss.x, boss.y);
-                        coins += earn(850 * qBonus); gainXp(420); document.getElementById('coinCount').innerText = coins;
+                        coins += earn(480 * qBonus); gainXp(420); document.getElementById('coinCount').innerText = coins;
                         for(let i=0; i<90; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*280, y: boss.y + (Math.random()-0.5)*280, size: 20 });
                         hiveTrophies.push({ x: boss.x, y: boss.y, life: 1.0 });
                         if (hive) {
@@ -8458,7 +9272,7 @@
                     
                     if(isHit && tick % 2 < 0.2) playHitSound(true, boss.x, boss.y); 
 
-                    if (boss.hp <= 0) { playDeathSound(true, boss.x, boss.y, boss.type); score += 50; applyShake(80); document.getElementById('killCount').innerText = score; coins += earn(250 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<80; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*300, y: boss.y + (Math.random()-0.5)*300, size: 20 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1); }
+                    if (boss.hp <= 0) { playDeathSound(true, boss.x, boss.y, boss.type); score += 50; applyShake(80); document.getElementById('killCount').innerText = score; coins += earn(600 * dangerBonusMult(boss.x, boss.y)); document.getElementById('coinCount').innerText = coins; for(let i=0; i<80; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*300, y: boss.y + (Math.random()-0.5)*300, size: 20 }); updateQuestProgress('boss', 1); activeBosses.splice(bi, 1); }
                     else {
                         const bx = boss.x - camX; const by = boss.y - camY; ctx.save(); ctx.translate(bx, by); ctx.fillStyle = isHit ? '#ffffff' : '#0a0011'; ctx.strokeStyle = '#cc00ff'; ctx.save(); ctx.rotate(tick); ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0, 0, boss.size, 0, Math.PI*2); ctx.stroke(); for(let i=0; i<4; i++) { ctx.rotate(Math.PI/2); ctx.beginPath(); ctx.moveTo(boss.size, 0); ctx.lineTo(boss.size+40, 0); ctx.stroke(); } ctx.restore(); ctx.save(); ctx.rotate(-tick*0.5); ctx.lineWidth = 8; ctx.beginPath(); ctx.arc(0, 0, boss.size*0.7, 0, Math.PI*2); ctx.stroke(); ctx.restore(); const pulse = Math.sin(tick*3)*15; ctx.fillStyle = '#cc00ff'; ctx.beginPath(); ctx.arc(0, 0, 40 + pulse, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#000000'; ctx.beginPath(); ctx.ellipse(0, 0, 10, 25 + pulse*0.5, 0, 0, Math.PI*2); ctx.fill(); ctx.restore();
                     }
@@ -8506,7 +9320,7 @@
                     if (boss.hp <= 0) {
                         playDeathSound(true, boss.x, boss.y, boss.type); let dBonus = dangerBonusMult(boss.x, boss.y);
                         score += 100; applyShake(100); document.getElementById('killCount').innerText = score;
-                        coins += earn(600 * dBonus); document.getElementById('coinCount').innerText = coins;
+                        coins += earn(900 * dBonus); document.getElementById('coinCount').innerText = coins;
                         for (let i = 0; i < 120; i++) xpGems.push({ x: boss.x + (Math.random()-0.5)*350, y: boss.y + (Math.random()-0.5)*350, size: 22 });
                         if (!unlockedSkins.includes('kingsbane')) { unlockedSkins.push('kingsbane'); store.setItem('boruSkins', JSON.stringify(unlockedSkins)); setTimeout(() => showWaveText("YENİ KOSTÜM: KRAL AVCISI", true, "#ffaa00"), 1600); }
                         updateQuestProgress('boss', 1);
@@ -8517,7 +9331,9 @@
                 }
             }
 
-            const uiBosses = inMirrorArena ? activeBosses : activeBosses.filter(b => b.waveBoss);
+            updateRoyalFx();
+            const royalUi = activeBosses.filter(b => b.type === 'royal');
+            const uiBosses = inMirrorArena ? activeBosses : (royalUi.length ? royalUi : activeBosses.filter(b => b.waveBoss));
             if (uiBosses.length > 0) {
                 let hpSum = 0, maxSum = 0; for (const b of uiBosses) { hpSum += Math.max(0, b.hp); maxSum += b.maxHp; }
                 document.getElementById('bossHpBar').style.width = Math.max(0, (hpSum / (maxSum || 1)) * 100) + '%';
@@ -8566,15 +9382,15 @@
 
                 const np = nearestPlayer(e.x, e.y); const edx = np.x - e.x; const edy = np.y - e.y; const edistSq = edx * edx + edy * edy; const angleToDragon = Math.atan2(edy, edx);
                 // Çok uzakta kalan düşmanlar silinir (yeni düşmanların doğmasını engellemesin)
-                if (edistSq > 9000000 && !e.tut) { enemies.splice(i, 1); continue; }
+                if (edistSq > despawnR2() && !e.tut) { enemies.splice(i, 1); continue; }
                 // DEHŞET: kudretimin karşısında bazıları savaşmak yerine kaçar
                 if (!e.tut && !e.terrorRolled && edistSq < 90000 && !np.ghost) {
                     e.terrorRolled = true;
-                    const tc = isRageActive ? 0.35 : Math.min(0.22, 0.03 + level * 0.005);
+                    const tc = isRageActive ? 0.35 : Math.min(0.22, 0.03 + powLvl() * 0.005);
                     if (Math.random() < tc) { e.role = 'fleeing'; e.fleeTimer = 0; if (Math.random() < 0.35) addWhisper(e.x, e.y, FLEE_WHISPERS); continue; }
                 }
 
-                // MUHAFIZLIK: erkek (fighter) düşmanler, tehlikedeki kaçan yavru/dişi bir müttefikleri varsa
+                // MUHAFIZLIK: erkek (fighter) düşmanlar, tehlikedeki kaçan yavru/dişi bir müttefikleri varsa
                 // doğrudan bize saldırmak yerine önce onunla dragon arasına girip onu korumaya çalışır.
                 let mdx = edx, mdy = edy; let siegeHive = null; let hasWard = false;
                 if (e.role === 'fighter' && e.homeHiveId) {
@@ -8585,7 +9401,7 @@
                         if (wd < 650) { mdx = (ward.x + (wdx / wd) * 55) - e.x; mdy = (ward.y + (wdy / wd) * 55) - e.y; hasWard = true; }
                     }
                 }
-                // KOVAN GERİ ALIMI: koruyacak bir müttefiği olmayan düşmanler, yakınlarında dost bir kovan
+                // KOVAN GERİ ALIMI: koruyacak bir müttefiği olmayan düşmanlar, yakınlarında dost bir kovan
                 // varsa ve o kovan bize olan mesafemizden daha yakınsa, bize saldırmak yerine kovanı geri
                 // almaya çalışır. "Otoritemiz" saldırı altındayken savunmasız kalmasın diye bunu ekliyoruz.
                 if (!hasWard && e.role !== 'fleeing' && !e.harmless) {
@@ -8655,20 +9471,21 @@
                 let isHit = false;
                 for (let p of fireNear(e.x, e.y, e.size)) { 
                     if (p.life > 0.3 && (e.x-p.x)**2 + (e.y-p.y)**2 < (e.size + p.size*0.4)**2) { 
-                        let dmg = fdmg(p) * (1 + level*0.1); 
+                        let dmg = fdmg(p) * (1 + powLvl()*0.1); 
                         if(Math.random()*100 < stats.critChance) dmg *= 3; 
                         e.hp -= dmg; p.life -= 0.15; isHit = true; addRageP(p, 1); 
                         if (activeTheme.id === 'toxicWaste') e.slowTimer = 60;
+                        if (royalDead('buz') && e.slowTimer < 30) e.slowTimer = 30;
                     } 
                 }
-                for (let tp of trailParticles) { if (tp.life > 0 && (e.x - tp.x) ** 2 + (e.y - tp.y) ** 2 < (e.size + tp.size) ** 2) { e.hp -= stats.fireDamage * 0.5 * (1 + level*0.1); isHit = true; addRage(0.2); } }
+                for (let tp of trailParticles) { if (tp.life > 0 && (e.x - tp.x) ** 2 + (e.y - tp.y) ** 2 < (e.size + tp.size) ** 2) { e.hp -= stats.fireDamage * 0.5 * (1 + powLvl()*0.1); isHit = true; addRage(0.2); } }
                 if(isHit && tick % 2 < 0.3) playHitSound(false, e.x, e.y);
 
                 if (e.hp <= 0) {
                     playDeathSound(false, e.x, e.y); score++; document.getElementById('killCount').innerText = score; if (!e.tut) killsInCurrentWave++; onEnemyKilled(e);
 
                     let eBiomeMultiplier = getBiomeAt(e.x, e.y).multiplier || 1;
-                    coins += earn(2 * eBiomeMultiplier * dangerBonusMult(e.x, e.y)); document.getElementById('coinCount').innerText = coins;
+                    coins += earn(3 * eBiomeMultiplier * dangerBonusMult(e.x, e.y)); document.getElementById('coinCount').innerText = coins;
 
                     xpGems.push({ x: e.x, y: e.y, size: 10 + Math.random()*10 });
                     if(Math.random()*100 < stats.lifeStealChance && dragonHp < maxHp) { dragonHp = Math.min(maxHp, dragonHp + 5); updateUI(); }
@@ -8729,10 +9546,10 @@
         // =====================================================================
         let mbTick = 0; let roarCdMax = 150;
         // =====================================================================
-        // v3: KOİN EKONOMİSİ — oyunda kazanılan koinler yarıya indirildi (fiyatlar aynı kaldı).
-        // Küçük ödüller olasılıklı yuvarlanır: 1.5 koin = yarı yarıya 1 ya da 2.
+        // v3: COIN EKONOMİSİ — oyunda kazanılan coinler yarıya indirildi (fiyatlar aynı kaldı).
+        // Küçük ödüller olasılıklı yuvarlanır: 1.5 coin = yarı yarıya 1 ya da 2.
         // =====================================================================
-        function earn(n) { const v = Math.max(0, n) * COIN_RATE; const f = Math.floor(v); return f + (Math.random() < v - f ? 1 : 0); }
+        function earn(n) { const v = Math.max(0, n) * COIN_RATE * (royalDead('col') ? 1.25 : 1); const f = Math.floor(v); return f + (Math.random() < v - f ? 1 : 0); }
 
         // =====================================================================
         // v3: BÜYÜK HARİTA — sürükle/kaydır, tekerlek veya iki parmakla yakınlaştır.
@@ -8791,6 +9608,11 @@
                 if (h.status === 'friendly' && size > 7) { c.fillStyle = '#fff'; c.font = `bold ${Math.round(size)}px sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('⚑', 0, 1); }
                 c.restore();
             }
+            // Krallık tahtları
+            for (const r of ROYALS) { const [sx, sy] = bmW2S(r.throne.x, r.throne.y); const dead = royalDead(r.id);
+                c.save(); c.strokeStyle = hexA(dead ? '#3aa0ff' : r.color, 0.5); c.lineWidth = 1.5; c.setLineDash([6, 5]); c.beginPath(); c.arc(sx, sy, Math.max(10, 1650 * BM.scale), 0, Math.PI * 2); c.stroke(); c.setLineDash([]);
+                c.font = '22px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.shadowBlur = 12; c.shadowColor = dead ? '#3aa0ff' : r.color; c.fillText(dead ? '🏳️' : '👑', sx, sy); c.shadowBlur = 0;
+                c.font = 'bold 11px sans-serif'; c.fillStyle = dead ? '#9fd0ff' : r.color; c.fillText(dead ? r.hive + ' · senin' : r.name, sx, sy + 20); c.restore(); }
             // Bosslar
             for (const b of activeBosses) { const [sx, sy] = bmW2S(b.x, b.y); c.font = '16px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('💀', sx, sy); }
             // Köleler ve ejderha
@@ -8923,10 +9745,10 @@
             if (!isTouchUI) return;
             document.body.classList.add('m');
             const put = (slotId, elId) => { const slot = document.getElementById(slotId), el = document.getElementById(elId); if (slot && el) slot.replaceWith(el); };
-            put('mhSlotPause', 'pauseBtnFixed'); put('mhSlotXp', 'xpBarContainer'); put('mhSlotCoin', 'coinCount');
+            put('mhSlotPause', 'pauseBtnFixed'); put('mhSlotXp', 'xpBarContainer'); put('mhSlotCoin', 'coinCount'); put('mhSlotSkill', 'skillBtn');
             put('mhSlotHp', 'hpBarContainer'); put('mhSlotRage', 'rageBarContainer'); put('mhSlotPl', 'plasmaBarContainer');
             const chips = document.getElementById('mhChips');
-            chips.appendChild(document.getElementById('ghostIndicator')); chips.appendChild(document.getElementById('safeZoneIndicator'));
+            chips.appendChild(document.getElementById('goalHud')); chips.appendChild(document.getElementById('ghostIndicator')); chips.appendChild(document.getElementById('safeZoneIndicator'));
             document.getElementById('sanctuaryBtn').textContent = '🏰 SIĞINAK';
             document.getElementById('ghostIndicator').textContent = '👻 HAYALET';
             document.getElementById('safeZoneIndicator').textContent = '🛡️ SIĞINAKTASIN';
@@ -8947,6 +9769,7 @@
                 ['call', '📡', 'Takviye', rc, false],
                 ['slave', '🐍', 'Köle Çağır', hiredBosses.length + '/6 · 120💰', hiredBosses.length >= 6],
                 ['sanct', '🏰', 'Sığınak', playerInSanctuary ? 'yönet' : 'sığınakta açılır', !playerInSanctuary],
+                ['skills', '🌳', 'Yetenekler', skillPoints > 0 ? skillPoints + ' puan hazır' : 'yetenek ağacı', false],
                 ['journal', '📖', 'Günlük', 'hikâye · amaç', false],
                 ['market', '🛒', 'Market', 'kostüm · iksir', false],
                 ['settings', '⚙️', 'Ayarlar', 'ses · görüntü', false],
@@ -8970,6 +9793,7 @@
             else if (a === 'slave') hireSlaveBoss();
             else if (a === 'sanct') openSanctuary();
             else if (a === 'journal') openJournal();
+            else if (a === 'skills') { closeMMenu(); openSkillTree(); return; }
             else if (a === 'market') openMarket();
             else if (a === 'settings') openSettingsModal();
             else if (a === 'map') openBigMap();
