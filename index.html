@@ -4837,7 +4837,7 @@
             let fill = document.getElementById('territoryBarFill'); let label = document.getElementById('territoryLabel'); let h4 = document.querySelector('#territoryPanel h4');
             if (fill) fill.style.width = portalPct + '%';
             if (h4) h4.innerText = bhT ? '🕳️ KARA DELİK ' + bhLabel(blackHoleTier) + ': ' + Math.min(totalHivesCapturedLifetime, bhReq) + '/' + bhReq : '🌌 TÜM KARA DELİKLER KAPANDI';
-            if (label) label.innerText = '👑 ' + totalHivesCapturedLifetime + ' · 🐍 Komutan ' + armySlotsUsed() + '/' + slaveCap() + ' · ⚔️ Asker ' + hiveSoldiers.length;
+            if (label) { let rv = ''; try { if (typeof activeRival === 'function' && !MP.active) { rivalInit(); rv = activeRival() ? ' · 🐉 RAKİP UYANIK' : (rivalsSlain ? ' · 🐉 ?' : ' · 🐉 ' + Math.max(0, rivalNextAt - totalHivesCapturedLifetime)); } } catch (e) {} label.innerText = '👑 ' + totalHivesCapturedLifetime + ' · 🐍 Komutan ' + armySlotsUsed() + '/' + slaveCap() + ' · ⚔️ Asker ' + hiveSoldiers.length + rv; }
         }
         let hiveSoldiers = []; // Dost kovanların ürettiği küçük askerler
         let assaultHive = null, gFrame = 0; // birliklerin kuşattığı kovan / kare sayacı
@@ -4901,7 +4901,7 @@
             if (h.archetype && h.archetype !== 'mixed' && h.archetype !== 'elite' && Math.random() < 0.75) { type = h.archetype; }
             else { type = types[Math.floor(Math.random() * types.length)]; }
             let sAngle = Math.random() * Math.PI * 2; let sDist = 100 + Math.random() * 100;
-            let eliteMult = (h.archetype === 'elite' ? 1.6 : 1) * (1 + 0.35 * (fortressOf(h.id) || 0));
+            let eliteMult = (h.archetype === 'elite' ? 1.6 : 1) * (1 + 0.75 * (fortressOf(h.id) || 0));
             let eSize = 20, eSpeed = 3, eHp = 55;
             if (type === 'bat') { eSize = 18; eSpeed = 4; } else if (type === 'scorpion') { eSize = 25; eSpeed = 2.5; eHp = 85; } else if (type === 'kobra') { eSize = 20; eSpeed = 3; } else if (type === 'beetle') { eSize = 22; eSpeed = 1.5; eHp = 70; } else if (type === 'wasp') { eSize = 13; eSpeed = 6; eHp = 30; }
             eHp *= eliteMult; eSize *= (eliteMult > 1 ? 1.15 : 1);
@@ -4932,7 +4932,7 @@
         function fortressOf(id) { const h = hives.find(q => q.id === id); if (h) return h.fortress || 0; const st = hiveStates[id]; return (st && st.fortress) || 0; }
         function applyFortress(h, lvl, by) {
             const was = h.fortress || 0; h.fortress = Math.max(was, Math.min(3, lvl)); h.fortressBy = by || h.fortressBy || null;
-            const k = (1 + 0.8 * h.fortress) / (1 + 0.8 * was); h.maxHp *= k; h.hp = h.status === 'enemy' ? h.maxHp : h.hp;
+            const k = (1 + 1.7 * h.fortress) / (1 + 1.7 * was); h.maxHp *= k; h.hp = h.status === 'enemy' ? h.maxHp : h.hp;
             if (h.bossCd === undefined) h.bossCd = 60 * 20;
         }
         function fortifyHive(id, names) {
@@ -4943,22 +4943,321 @@
             if (h) saveHives(); else saveHiveStatesToStorage();
             return lvl;
         }
+        function spawnFortressGuard(h, alarm) {
+            const L = h.fortress, cols = ['#ff3355', '#ff2a00', '#c0003a'], col = alarm ? '#ff0040' : (cols[L - 1] || '#ff3355');
+            const hp = 25000 * Math.max(1, currentWave) * diffConfig.mult * (0.7 + 0.45 * L) * (alarm ? 1.6 : 1);
+            const a = Math.random() * Math.PI * 2, sz = 66 + L * 10 + (alarm ? 12 : 0);
+            activeBosses.push({ id: Math.random(), type: 'regular', fortHive: h.id, fortAlarm: !!alarm, dmgMul: 1.4 + 0.35 * L + (alarm ? 0.5 : 0), chargeState: 'walk', attackTimer: 0, chargeDir: 0, x: h.x + Math.cos(a) * 150, y: h.y + Math.sin(a) * 150, maxHp: hp, hp, size: sz, speed: stats.baseMaxSpeed * (alarm ? 0.78 : 0.7) * diffConfig.speedMult, wobble: 0, attackCooldown: 0, color1: col, joints: Array.from({ length: 15 }, () => ({ x: h.x, y: h.y, angle: 0 })) });
+        }
         function updateFortressHive(h, dPlayer) {
             // Kale Muhafızı: oyuncu yaklaşınca kaleden bir boss çıkar (aynı anda kale başına bir tane)
             if (h.bossCd === undefined) h.bossCd = 60 * 20;
+            if (h.fortAlarmCd > 0) h.fortAlarmCd--;
             if (dPlayer < 2000 && !TUT.active) h.bossCd--;
             if (h.bossCd <= 0 && dPlayer < 2000 && !activeBosses.some(b => b.fortHive === h.id)) {
-                h.bossCd = 60 * (80 - h.fortress * 12);
-                const cols = ['#ff3355', '#ff2a00', '#c0003a'], col = cols[h.fortress - 1] || '#ff3355';
-                const hp = 25000 * Math.max(1, currentWave) * diffConfig.mult * (0.35 + 0.2 * h.fortress);
-                const a = Math.random() * Math.PI * 2;
-                activeBosses.push({ id: Math.random(), type: 'regular', fortHive: h.id, chargeState: 'walk', attackTimer: 0, chargeDir: 0, x: h.x + Math.cos(a) * 140, y: h.y + Math.sin(a) * 140, maxHp: hp, hp, size: 62 + h.fortress * 8, speed: stats.baseMaxSpeed * 0.62 * diffConfig.speedMult, wobble: 0, attackCooldown: 0, color1: col, joints: Array.from({ length: 15 }, () => ({ x: h.x, y: h.y, angle: 0 })) });
+                h.bossCd = 60 * (70 - h.fortress * 12);
+                spawnFortressGuard(h, false); const col = ['#ff3355', '#ff2a00', '#c0003a'][h.fortress - 1] || '#ff3355';
                 setBossUi('KALE MUHAFIZI' + (h.fortress > 1 ? ' ' + ['', 'II', 'III'][h.fortress - 1] : ''), col);
                 showWaveText('🏰 KALE KOVANDAN BİR MUHAFIZ ÇIKTI!', true, col); applyShake(30); playRoarSound('b_regular', { x: h.x, y: h.y });
             }
         }
+        // KALE SAVUNMASI: kale kovan saldırı alınca normal muhafızdan çok daha güçlü savunucular fırlatır
+        // (kale kademesi kadar, aynı anda en fazla kademe+1 tane).
+        function fortressAlarm(h) {
+            if (!h.fortress || TUT.active || (h.fortAlarmCd || 0) > 0) return;
+            const alive = activeBosses.filter(b => b.fortHive === h.id).length, room = h.fortress + 1 - alive;
+            if (room <= 0) return;
+            h.fortAlarmCd = 60 * (30 - h.fortress * 4);
+            for (let k = 0; k < Math.min(room, h.fortress); k++) spawnFortressGuard(h, true);
+            setBossUi('KALE SAVUNUCUSU' + (h.fortress > 1 ? ' ' + ['', 'II', 'III'][h.fortress - 1] : ''), '#ff0040');
+            showWaveText('🏰 KALE SALDIRIYA UĞRADI · SAVUNUCULAR ÇIKTI!', true, '#ff0040'); applyShake(34); playRoarSound('b_regular', { x: h.x, y: h.y });
+        }
         function spawnHiveSoldier(h) {
             hiveSoldiers.push({ hiveId: h.id, x: h.x + (Math.random() * 80 - 40), y: h.y + (Math.random() * 80 - 40), size: 24 * armyScale(), speed: stats.baseMaxSpeed * 0.9 * (1 + AB('soldier', 'spd')), hp: soldierMaxHp(), maxHp: soldierMaxHp(), wobble: Math.random() * Math.PI * 2, angle: 0, attackCooldown: 0, strike: 0 });
+        }
+        // =====================================================================
+        // RAKİP EJDERHA (yalnızca solo): her 12 kovanda bir, kostümler arasından rastgele seçilen bir ejderha
+        // uyanır. Bize bağlı kovanlara saldırıp onları ele geçirir; her fetihte canı ve boyu büyür. Ele
+        // geçirdiği kovanlar onun için asker üretir, askerler arkasında birikip onu takip eder ve girdiği
+        // her savaşta onunla birlikte savaşır. Yenildiğinde sonraki 12 kovandan birinde yeni bir rakip uyanır.
+        // =====================================================================
+        var RIVAL_EVERY = 12;
+        var rivalNextAt = parseInt(store.getItem('boruRivalNextAt')) || 0;
+        var rivalsSlain = parseInt(store.getItem('boruRivalsSlain')) || 0;
+        var rivalFlames = [], rivalSprCache = {}, rivalPending = false, rivalBurnCd = 0, rivalFrame = 0;
+        function rivalSoloOk() { return !(window.BORU && BORU.matchActive) && !MP.active && !TUT.active && !inMirrorArena && !isArenaTransitioning && gameActive; }
+        function activeRival() { for (const b of activeBosses) if (b.type === 'rivalDragon') return b; return null; }
+        function rivalInit() {
+            if (!rivalNextAt) { rivalNextAt = (Math.floor(totalHivesCapturedLifetime / RIVAL_EVERY) + 1) * RIVAL_EVERY; store.setItem('boruRivalNextAt', rivalNextAt); }
+        }
+        function rivalCheckSpawn() {
+            rivalInit();
+            if (activeRival() || totalHivesCapturedLifetime < rivalNextAt) return;
+            if (!rivalSoloOk()) { rivalPending = true; return; }
+            rivalPending = false; setTimeout(() => { if (!activeRival() && rivalSoloOk()) spawnRivalDragon(); else rivalPending = true; }, 2600);
+        }
+        function rivalSprite(theme) {
+            let s = rivalSprCache[theme.id];
+            if (!s) { try { s = createParticleSprite(theme, false); } catch (e) { ensureBossFireSprites(); s = bossFireSprite; } rivalSprCache[theme.id] = s; }
+            return s;
+        }
+        function spawnRivalDragon() {
+            const pool = skinsDB.filter(s => s.id !== activeTheme.id);
+            const theme = pool[Math.floor(Math.random() * pool.length)] || skinsDB[0];
+            const G0 = playerGrowth() * 1.25;
+            const base = Math.round(Math.max(maxHp * 12, 70000 + currentWave * 4500) * (1 + 0.5 * rivalsSlain) * Math.max(1, diffConfig.mult));
+            let a = Math.random() * Math.PI * 2, x = world.dragonX + Math.cos(a) * 1900, y = world.dragonY + Math.sin(a) * 1900;
+            if (Math.hypot(x - safeZone.x, y - safeZone.y) < safeZone.radius + 400) { x = world.dragonX - Math.cos(a) * 1900; y = world.dragonY - Math.sin(a) * 1900; }
+            const n = jointsFor(level) + 4, ang = Math.atan2(world.dragonY - y, world.dragonX - x);
+            const b = { id: Math.random(), type: 'rivalDragon', _pw: 1, theme, name: theme.name || 'Rakip', color: theme.mainColor || '#ff3355',
+                x, y, angle: ang, G: G0, G0, n, maxHp: base, hp: base, lastHp: base, cap: base / (60 * 25), size: 40 * G0,
+                state: 'hunt', fs: 'stalk', fsT: 0, orbitDir: 1, conquered: 0, hiveIds: [], guardT: 0, biteCd: 0, hitFlash: 0, aggroT: 0,
+                jaw: 0, near: false, enraged: false, tHive: null, warned: {}, chargeDir: 0,
+                joints: Array.from({ length: n }, (_, i) => ({ x: x - Math.cos(ang) * i * 14, y: y - Math.sin(ang) * i * 14, angle: ang })) };
+            activeBosses.push(b);
+            showWaveText('🐉 RAKİP EJDERHA UYANDI: ' + b.name.toUpperCase(), true, b.color);
+            hintToast('🐉 ' + b.name + ' uyandı! Bize bağlı kovanları tek tek ele geçirecek — her fetihte büyüyüp güçlenir.', b.color, 6000);
+            try { playBossIncomingSting(); } catch (e) {}
+            playRoarSound('b_abyssDragon', { x, y }); applyShake(35);
+            for (let i = 0; i < 4; i++) spawnRivalGuard(b, x + (Math.random() - 0.5) * 200, y + (Math.random() - 0.5) * 200);
+        }
+        function rivalGuards() { let c = 0; for (const e of enemies) if (e.rivalGuard) c++; return c; }
+        function spawnRivalGuard(b, x, y) {
+            if (enemies.length > 150) return;
+            spawnHiveGrunt({ x, y, id: null }, 'fighter');
+            const e = enemies[enemies.length - 1]; if (!e) return;
+            const k = 1 + 0.15 * b.conquered;
+            e.rivalGuard = true; e.homeHiveId = null; e.terrorRolled = true; e.rivalColor = b.color; e.slot = Math.floor(Math.random() * 40);
+            e.hp *= 1.6 * k; e.size *= 1.12; e.baseSpeed = e.speed = Math.max(e.baseSpeed, stats.baseMaxSpeed * 0.55);
+        }
+        // Takipçinin hedefi: savaşta oyuncu (null döner), kuşatmada hedef kovan, aksi halde ejderhanın arkası
+        function rivalGuardGoal(e, np) {
+            const R = activeRival(); if (!R) { e.rivalGuard = false; return null; }
+            if (Math.hypot(np.x - e.x, np.y - e.y) < 520 || (R.state === 'fight' && Math.hypot(np.x - e.x, np.y - e.y) < 1300)) return null;
+            if (R.state === 'siege' && R.tHive) return { x: R.tHive.x, y: R.tHive.y, hive: R.tHive };
+            const T = R.joints[R.joints.length - 1], g = e.slot || 0, ring = 1 + Math.floor(g / 8), a = R.angle + Math.PI + ((g % 8) - 3.5) * 0.33;
+            return { x: T.x + Math.cos(a) * ring * 55 * R.G, y: T.y + Math.sin(a) * ring * 55 * R.G };
+        }
+        function rivalTryClaim(h) { const R = activeRival(); if (R && R.tHive === h) { rivalCaptureHive(R, h); return true; } return false; }
+        function rivalCaptureHive(b, h) {
+            h.status = 'enemy'; h.rivalOwned = true; h.hp = h.maxHp; h.commanderName = null; h.kingDefeated = false; h.governor = null;
+            h.spawnCooldown = 120; h.alarmCooldown = 0; h.underSiege = false;
+            for (let i = hiveSoldiers.length - 1; i >= 0; i--) { const s = hiveSoldiers[i]; if (s.hiveId === h.id && !s.escort && !s.called && !s.assault) hiveSoldiers.splice(i, 1); }
+            b.conquered++; if (!b.hiveIds.includes(h.id)) b.hiveIds.push(h.id);
+            b.maxHp *= 1.14; b.hp = Math.min(b.maxHp, b.hp * 1.14 + b.maxHp * 0.08); b.lastHp = b.hp; b.cap = b.maxHp / (60 * 25);
+            b.G = Math.min(b.G0 * 2.3, b.G0 * (1 + 0.13 * b.conquered)); b.size = 40 * b.G; b.n = Math.min(70, b.n + 2);
+            for (let i = 0; i < 3; i++) spawnRivalGuard(b, h.x + (Math.random() - 0.5) * 160, h.y + (Math.random() - 0.5) * 160);
+            b.tHive = null; b.state = 'hunt';
+            const near = Math.hypot(h.x - world.dragonX, h.y - world.dragonY) < 2600;
+            showWaveText('🐉 ' + b.name.toUpperCase() + ' BİR KOVANINI ELE GEÇİRDİ! (' + b.conquered + ')', near, b.color);
+            if (!near) hintToast('🐉 ' + b.name + ' bir kovanını ele geçirdi ve büyüdü (' + b.conquered + ' kovan). O kovan artık onun için asker üretiyor.', b.color, 5000);
+            playRoarSound('b_abyssDragon', { x: b.x, y: b.y }); applyShake(near ? 30 : 6);
+            saveHives(); renderTerritoryPanel();
+        }
+        function rivalEmit(b, ang) {
+            if (rivalFlames.length > (isMobile ? 180 : 300)) return;
+            const G = b.G, mx = b.x + Math.cos(b.angle) * 35 * G, my = b.y + Math.sin(b.angle) * 35 * G, spr = rivalSprite(b.theme);
+            for (let q = 0; q < 3; q++) {
+                const a = ang + (Math.random() - 0.5) * 0.42, sp = (12 + Math.random() * 6) * (1 + (G - 1) * 0.25);
+                rivalFlames.push({ x: mx, y: my, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 1, decay: 0.024, size: (14 + Math.random() * 10) * G, grow: 2.2 + Math.random() * 1.5, spr });
+            }
+        }
+        function pickRivalAttack(b, dist) {
+            b.fsT = 0; const r = Math.random();
+            if (dist > 750) { b.fs = 'dashPrep'; return; }
+            if (b.hiveIds.length && rivalGuards() < 6 && r < 0.2) { b.fs = 'call'; return; }
+            b.fs = r < 0.62 ? 'breath' : 'dashPrep';
+        }
+        function updateRivalDragon(b, bi) {
+            const P = LP, G = b.G, base = stats.baseMaxSpeed, enr = b.enraged ? 1.25 : 1;
+            if (b.hitFlash > 0) b.hitFlash--; if (b.biteCd > 0) b.biteCd--; if (b.aggroT > 0) b.aggroT--;
+            const dP = Math.hypot(P.x - b.x, P.y - b.y), toP = Math.atan2(P.y - b.y, P.x - b.x);
+            // Ele geçirdiği kovan listesi: geri aldığımız kovanlar listeden çıkar
+            for (let i = b.hiveIds.length - 1; i >= 0; i--) { const h = hives.find(q => q.id === b.hiveIds[i]); if (h && (h.status !== 'enemy' && h.status !== 'kingFight')) { h.rivalOwned = false; b.hiveIds.splice(i, 1); } }
+            if (!b.enraged && b.hp < b.maxHp * 0.4) { b.enraged = true; showWaveText('🔥 ' + b.name.toUpperCase() + ' ÖFKELENDİ!', true, b.color); playRoarSound('b_abyssDragon', { x: b.x, y: b.y }); applyShake(40); }
+            const fighting = !P.dead && (dP < 900 || b.aggroT > 0);
+            if (fighting && b.state !== 'fight') { b.state = 'fight'; b.fs = 'stalk'; b.fsT = 0; b.tHive = null; }
+            if (!fighting && b.state === 'fight') b.state = 'hunt';
+            let face = toP, turn = 0.07, jawT = 0.12;
+            if (b.state === 'fight') {
+                b.fsT++;
+                if (b.fs === 'stalk') {
+                    const oa = Math.atan2(b.y - P.y, b.x - P.x) + 0.016 * b.orbitDir;
+                    moveTowardFree(b, P.x + Math.cos(oa) * 360, P.y + Math.sin(oa) * 360, base * 0.72 * enr);
+                    if (b.fsT > (b.enraged ? 65 : 105)) { pickRivalAttack(b, dP); b.orbitDir = Math.random() < 0.5 ? 1 : -1; }
+                } else if (b.fs === 'breath') {
+                    if (dP > 480) moveTowardFree(b, P.x, P.y, base * 0.4); turn = 0.035; jawT = b.fsT > 12 ? 1 : 0.5;
+                    if (b.fsT > 14 && b.fsT < (b.enraged ? 130 : 105)) { rivalEmit(b, b.angle); if (b.fsT % 6 === 0) applyShake(2); }
+                    if (b.fsT >= (b.enraged ? 140 : 115)) { b.fs = 'stalk'; b.fsT = 0; }
+                } else if (b.fs === 'dashPrep') {
+                    if (b.fsT === 1) { b.chargeDir = Math.atan2(P.y + (P.vy || 0) * 20 - b.y, P.x + (P.vx || 0) * 20 - b.x); SND.net('bossCharge', { x: b.x, y: b.y }, 'abyssDragon'); }
+                    face = b.chargeDir; turn = 0.22; jawT = 0.6; b.x += (Math.random() - 0.5) * 6; b.y += (Math.random() - 0.5) * 6;
+                    if (b.fsT >= 42) { b.fs = 'dash'; b.fsT = 0; }
+                } else if (b.fs === 'dash') {
+                    face = b.chargeDir; turn = 0.3; jawT = 0.85;
+                    b.x += Math.cos(b.chargeDir) * base * 3.2 * enr; b.y += Math.sin(b.chargeDir) * base * 3.2 * enr;
+                    if (b.fsT % 4 === 0) shockwaves.push({ x: b.x, y: b.y, radius: b.size * 0.6, life: 1.0 });
+                    if (b.fsT >= 30) { b.fs = 'stalk'; b.fsT = 0; }
+                } else if (b.fs === 'call') {
+                    jawT = 1; turn = 0.1;
+                    if (b.fsT === 10) { const T = b.joints[b.joints.length - 1]; for (let i = 0; i < 3 + b.hiveIds.length; i++) spawnRivalGuard(b, T.x + (Math.random() - 0.5) * 220, T.y + (Math.random() - 0.5) * 220); showWaveText('🐉 ' + b.name.toUpperCase() + ' ASKERLERİNİ ÇAĞIRDI!', false, b.color); playRoarSound('b_abyssDragon', { x: b.x, y: b.y }); applyShake(20); }
+                    if (b.fsT >= 45) { b.fs = 'stalk'; b.fsT = 0; }
+                }
+            } else {
+                // AV: en yakın dost kovana yönel, yoksa oyuncuyu ara
+                if (b.tHive && (!hives.includes(b.tHive) || b.tHive.status !== 'friendly')) { b.tHive = null; b.state = 'hunt'; }
+                if (!b.tHive && rivalFrame % 30 === 0) { let bd = 7000; for (const h of hives) { if (h.status !== 'friendly') continue; const d = Math.hypot(h.x - b.x, h.y - b.y); if (d < bd) { bd = d; b.tHive = h; } } }
+                const H = b.tHive;
+                if (H) {
+                    const dH = Math.hypot(H.x - b.x, H.y - b.y);
+                    if (b.state !== 'siege' && dH < 320) { b.state = 'siege'; b.fsT = 0; if (!b.warned[H.id]) { b.warned[H.id] = 1; hintToast('🐉 ' + b.name + ' ' + (H.commanderName ? H.commanderName + ' kovanına' : 'bir kovanına') + ' saldırıyor! Yetişmezsen kovan onun olacak.', b.color, 5000); } }
+                    if (b.state === 'siege') {
+                        b.fsT++; const oa = Math.atan2(b.y - H.y, b.x - H.x) + 0.012;
+                        moveTowardFree(b, H.x + Math.cos(oa) * 240, H.y + Math.sin(oa) * 240, base * 0.5);
+                        face = Math.atan2(H.y - b.y, H.x - b.x); turn = 0.06;
+                        const breathing = b.fsT % 150 > 40; jawT = breathing ? 1 : 0.3;
+                        if (breathing && b.fsT % 2 === 0) rivalEmit(b, b.angle);
+                        H.underSiege = true; H.hp = (H.hp === undefined ? H.maxHp : H.hp) - H.maxHp / (60 * 16) * (1 + 0.1 * b.conquered) * (b.enraged ? 1.3 : 1);
+                        if (H.hp <= 0) rivalCaptureHive(b, H);
+                    } else { moveTowardFree(b, H.x, H.y, base * 0.6 * enr); face = Math.atan2(H.y - b.y, H.x - b.x); }
+                } else {
+                    b.state = 'hunt';
+                    if (dP > 700) moveTowardFree(b, P.x, P.y, base * 0.5 * enr);
+                }
+            }
+            // Sığınağa giremez
+            const dS = Math.hypot(b.x - safeZone.x, b.y - safeZone.y);
+            if (dS < safeZone.radius + b.size + 20) { const pa = Math.atan2(b.y - safeZone.y, b.x - safeZone.x); b.x = safeZone.x + Math.cos(pa) * (safeZone.radius + b.size + 30); b.y = safeZone.y + Math.sin(pa) * (safeZone.radius + b.size + 30); }
+            b.angle += normAng(face - b.angle) * turn; b.jaw += (jawT - b.jaw) * 0.2;
+            // Gövde zinciri (oyuncu ejderhasıyla aynı aralık)
+            const J = b.joints; while (J.length < b.n) { const l = J[J.length - 1]; J.push({ x: l.x, y: l.y, angle: l.angle }); }
+            J[0].x = b.x; J[0].y = b.y; J[0].angle = b.angle;
+            const seg = segmentLength * spacingG(G);
+            for (let i = 1; i < J.length; i++) { const pv = J[i - 1], cu = J[i]; cu.angle = Math.atan2(pv.y - cu.y, pv.x - cu.x); cu.x = pv.x - Math.cos(cu.angle) * seg; cu.y = pv.y - Math.sin(cu.angle) * seg; }
+            // Isırık / çarpma
+            const hx = b.x + Math.cos(b.angle) * 24 * G, hy = b.y + Math.sin(b.angle) * 24 * G, hr = 30 * G;
+            if (b.biteCd <= 0 && !P.dead && !P.ghost && !P.safe && Math.hypot(P.x - hx, P.y - hy) < hr + 25) {
+                const dm = maxHp * (b.fs === 'dash' ? 0.09 : 0.06) * (1 + 0.08 * b.conquered) * diffConfig.dmgMult;
+                if (hurtPlayer(P, dm, 40)) { knockPlayer(P, Math.cos(toP) * 160, Math.sin(toP) * 160); b.jaw = 1; SND.net('bite', { x: b.x, y: b.y }); }
+                b.biteCd = 50;
+            }
+            for (const hb of hiredBosses) { if ((hb.rvCd || 0) > 0) { hb.rvCd--; continue; } if (Math.hypot(hb.x - hx, hb.y - hy) < hr + hb.size) { hb.hp -= 220 * (1 + 0.1 * b.conquered); hb.rvCd = 45; } }
+            // Hasar: ateşimiz tüm gövdeye işler; ışın/asker/kule gibi dış hasarlar da tavanla sınırlanır
+            let dmg = fireDamageOn(hx, hy, 34 * G);
+            for (let i = 2; i < J.length; i += 2) dmg += fireDamageOn(J[i].x, J[i].y, Math.max(6, 20 * (1 - i / J.length)) * G);
+            dmg *= bossSlayerMult();
+            const ext = b.lastHp - b.hp;
+            if (dmg > 0 || ext > 0.5) { b.hitFlash = 4; if ((dmg > 0 && dP < 2600) || (ext > 0.5 && dP < 1100)) b.aggroT = Math.max(b.aggroT, 300); if (dmg > 0 && tick % 2 < 0.2) playHitSound(true, b.x, b.y); }
+            applyCappedDamage(b, dmg, 1);
+            b.near = dP < 2400;
+            if (b.hp <= 0) { onRivalDefeated(b, bi); return; }
+            drawRivalDragon(b);
+        }
+        function drawRivalDragon(b) {
+            const G = b.G, J = b.joints, vw = canvas.width / viewScale, vh = canvas.height / viewScale;
+            if (b.x < camX - 1200 || b.x > camX + vw + 1200 || b.y < camY - 1200 || b.y > camY + vh + 1200) return;
+            if (b.state === 'fight' && b.fs === 'dashPrep') {
+                const k = Math.min(1, b.fsT / 42); ctx.save(); ctx.translate(b.x - camX, b.y - camY); ctx.rotate(b.chargeDir);
+                ctx.fillStyle = hexA(b.color.length === 7 ? b.color : '#ff3355', 0.06 + k * 0.18); ctx.fillRect(0, -24 * G, 1500, 48 * G);
+                ctx.strokeStyle = `rgba(255,90,90,${0.4 + k * 0.5})`; ctx.lineWidth = 3; ctx.setLineDash([30, 20]); ctx.lineDashOffset = -tick * 60;
+                ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(1500, 0); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+            }
+            // Karanlık aura: rakibin kendi renginde, öfkelenince nabız gibi atar
+            { const hx = b.x - camX, hy = b.y - camY, R = (110 + Math.sin(tick * (b.enraged ? 6 : 3)) * 12) * G;
+              ctx.save(); ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(hx, hy, 0, hx, hy, R);
+              const c = b.color.length === 7 ? b.color : '#ff3355'; g.addColorStop(0, hexA(c, b.hitFlash > 0 ? 0.45 : 0.28)); g.addColorStop(1, hexA(c, 0));
+              ctx.fillStyle = g; ctx.beginPath(); ctx.arc(hx, hy, R, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+            const sv = [joints, activeTheme, spacePressed, isRageActive, isBreathingFire, isSuperBeamCharging, isSuperBeamFiring];
+            try {
+                joints = J; activeTheme = b.theme; spacePressed = false; isRageActive = b.enraged; isBreathingFire = b.jaw > 0.7; isSuperBeamCharging = false; isSuperBeamFiring = false;
+                drawDragonBody(1, G, 1);
+            } catch (e) { if (!b._warn) { b._warn = true; console.warn('Rakip ejderha çizilemedi', e); } }
+            finally { [joints, activeTheme, spacePressed, isRageActive, isBreathingFire, isSuperBeamCharging, isSuperBeamFiring] = sv; }
+            // İsim + can barı + fetih sayısı
+            const sx = b.x - camX, sy = b.y - camY - 62 * G - 14;
+            ctx.save(); ctx.textAlign = 'center'; ctx.font = 'bold 16px Georgia, serif'; ctx.shadowBlur = 6; ctx.shadowColor = '#000';
+            ctx.fillStyle = b.color; ctx.fillText('🐉 ' + b.name + (b.conquered ? '  👑' + b.conquered : ''), sx, sy); ctx.shadowBlur = 0;
+            const w = 120, k = Math.max(0, Math.min(1, b.hp / b.maxHp));
+            ctx.fillStyle = 'rgba(0,0,0,0.65)'; ctx.fillRect(sx - w / 2, sy + 6, w, 7); ctx.fillStyle = b.color; ctx.fillRect(sx - w / 2, sy + 6, w * k, 7);
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 1; ctx.strokeRect(sx - w / 2, sy + 6, w, 7); ctx.restore();
+        }
+        function onRivalDefeated(b, bi) {
+            playDeathSound(true, b.x, b.y, 'abyssDragon'); applyShake(90);
+            score += 150; document.getElementById('killCount').innerText = score;
+            coins += earn(1500 * (1 + 0.5 * rivalsSlain) * (1 + 0.1 * b.conquered)); document.getElementById('coinCount').innerText = coins; gainXp(900 + 120 * b.conquered);
+            for (let i = 0; i < 140; i++) xpGems.push({ x: b.x + (Math.random() - 0.5) * 380, y: b.y + (Math.random() - 0.5) * 380, size: 22 });
+            for (const j of b.joints) for (let k = 0; k < 3; k++) trailParticles.push({ x: j.x + (Math.random() - 0.5) * 40, y: j.y + (Math.random() - 0.5) * 40, life: 1, size: 14 + Math.random() * 18, color: b.color });
+            // Ele geçirdiği kovanlar efendisiz kalır ve bize geri döner
+            let freed = 0;
+            for (const id of b.hiveIds) {
+                const h = hives.find(q => q.id === id);
+                if (h) { if (h.status !== 'enemy') continue; h.status = 'friendly'; h.rivalOwned = false; h.hp = h.maxHp; h.commanderName = 'Kurtarılan'; h.kingDefeated = true; h.governor = { wobble: Math.random() * 6 }; h.soldierTimer = 0; spawnHiveSoldier(h); spawnHiveSoldier(h); freed++; }
+                else if (hiveStates[id] && hiveStates[id].status === 'enemy') { Object.assign(hiveStates[id], { status: 'friendly', commanderName: 'Kurtarılan', kingDefeated: true, governor: true }); freed++; }
+            }
+            // Askerleri efendisini kaybedince dağılır
+            for (const e of enemies) if (e.rivalGuard) { e.rivalGuard = false; e.role = 'fleeing'; e.fleeTimer = 0; }
+            rivalsSlain++; store.setItem('boruRivalsSlain', rivalsSlain);
+            rivalNextAt = totalHivesCapturedLifetime + 1 + Math.floor(Math.random() * RIVAL_EVERY); store.setItem('boruRivalNextAt', rivalNextAt);
+            updateQuestProgress('boss', 1);
+            activeBosses.splice(bi, 1);
+            saveHives(); renderTerritoryPanel(); saveGame();
+            showWaveText('🐉 ' + b.name.toUpperCase() + ' YENİLDİ!', true, b.color);
+            setTimeout(() => showWaveText(freed ? '🏴 ' + freed + ' KOVAN SANA GERİ DÖNDÜ' : '🌑 SONRAKİ 12 KOVANDAN BİRİNDE YENİ BİR RAKİP UYANACAK', false, '#ffd27a'), 1800);
+            if (freed) setTimeout(() => hintToast('🌑 Sonraki 12 kovandan birinde yeni bir rakip ejderha uyanacak...', '#ffd27a', 5000), 4200);
+        }
+        // Her karede boss döngüsünden sonra: rakip alevleri, kovan üretimi, rakip kovan işaretleri
+        function rivalWorldStep() {
+            rivalFrame++;
+            if (rivalPending && rivalFrame % 120 === 0) rivalCheckSpawn();
+            const R = activeRival();
+            if (R) {
+                // Ele geçirdiği kovanlar onun için asker üretir, askerler onun arkasında birikir
+                const cap = Math.min(40, 8 + 4 * R.hiveIds.length);
+                if (R.hiveIds.length && !TUT.active) {
+                    R.guardT += R.hiveIds.length;
+                    if (R.guardT >= 480) {
+                        R.guardT = 0;
+                        if (rivalGuards() < cap) {
+                            const id = R.hiveIds[Math.floor(Math.random() * R.hiveIds.length)], h = hives.find(q => q.id === id);
+                            if (h && Math.hypot(h.x - R.x, h.y - R.y) < 3000) spawnRivalGuard(R, h.x + (Math.random() - 0.5) * 120, h.y + (Math.random() - 0.5) * 120);
+                            else { const T = R.joints[R.joints.length - 1]; spawnRivalGuard(R, T.x + (Math.random() - 0.5) * 150, T.y + (Math.random() - 0.5) * 150); }
+                        }
+                    }
+                }
+                // Rakibin kovanları ve askerleri onun rengiyle işaretlenir
+                const c = R.color.length === 7 ? R.color : '#ff3355';
+                ctx.save(); ctx.lineWidth = 3;
+                for (const h of hives) {
+                    if (!h.rivalOwned || h.status === 'friendly') continue;
+                    const x = h.x - camX, y = h.y - camY; ctx.strokeStyle = hexA(c, 0.55 + Math.sin(tick * 3) * 0.2);
+                    ctx.setLineDash([18, 12]); ctx.lineDashOffset = tick * 20; ctx.beginPath(); ctx.ellipse(x, y, 135, 92, 0, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+                    ctx.font = 'bold 13px Georgia, serif'; ctx.textAlign = 'center'; ctx.fillStyle = c; ctx.shadowBlur = 5; ctx.shadowColor = '#000'; ctx.fillText('🐉 ' + R.name + ' kovanı', x, y + 120); ctx.shadowBlur = 0;
+                }
+                if (R.tHive && R.state === 'siege') { const x = R.tHive.x - camX, y = R.tHive.y - camY; ctx.font = 'bold 14px Georgia, serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#ff5a5a'; ctx.shadowBlur = 5; ctx.shadowColor = '#000'; ctx.fillText('⚠ KUŞATILIYOR ' + Math.max(0, Math.round(100 * R.tHive.hp / R.tHive.maxHp)) + '%', x, y + 120); ctx.shadowBlur = 0; }
+                ctx.lineWidth = 2; ctx.strokeStyle = hexA(c, 0.7);
+                for (const e of enemies) { if (!e.rivalGuard) continue; ctx.beginPath(); ctx.arc(e.x - camX, e.y - camY, e.size + 6, 0, Math.PI * 2); ctx.stroke(); }
+                ctx.restore();
+            }
+            if (!rivalFlames.length) return;
+            if (rivalBurnCd > 0) rivalBurnCd--;
+            const P = LP, fd = maxHp * 0.011 * (R ? 1 + 0.08 * R.conquered : 1) * diffConfig.dmgMult;
+            ctx.save(); ctx.globalCompositeOperation = 'lighter';
+            for (let i = rivalFlames.length - 1; i >= 0; i--) {
+                const f = rivalFlames[i]; f.x += f.vx; f.y += f.vy; f.vx *= 0.975; f.vy *= 0.975; f.life -= f.decay; f.size += f.grow;
+                if (f.life <= 0) { rivalFlames.splice(i, 1); continue; }
+                if (f.life > 0.3) {
+                    const r2 = (f.size * 0.42) ** 2;
+                    if (rivalBurnCd <= 0 && !P.dead && !P.safe && (P.x - f.x) ** 2 + (P.y - f.y) ** 2 < r2) { if (hurtPlayer(P, fd, 5)) rivalBurnCd = 8; }
+                    if ((rivalFrame + i) % 4 === 0) {
+                        for (const s of hiveSoldiers) if ((s.x - f.x) ** 2 + (s.y - f.y) ** 2 < r2) s.hp -= 12;
+                        for (const hb of hiredBosses) if ((hb.x - f.x) ** 2 + (hb.y - f.y) ** 2 < r2) hb.hp -= 8;
+                    }
+                }
+                if (!f.spr) continue;
+                ctx.globalAlpha = Math.min(1, f.life * 1.3);
+                ctx.drawImage(f.spr, f.x - camX - f.size / 2, f.y - camY - f.size / 2, f.size, f.size);
+            }
+            ctx.restore();
         }
         let camX = 0, camY = 0; let mouseScreenX = canvas.width / 2, mouseScreenY = canvas.height / 2;
         let isBreathingFire = false; let spacePressed = false;
@@ -10293,6 +10592,7 @@
             mono('firstCapture');
             const n = totalHivesCapturedLifetime; for (const m of [10, 25, 50, 75, 99]) if (n >= m) mono('hives' + m);
             if (TUT.active && h.id === TUT.hiveId) tutEvent('captured', h.id);
+            try { rivalCheckSpawn(); } catch (e) { console.warn('Rakip kontrolü', e); }
         }
         function drawWorldFx() {
             for (let i = kneelers.length - 1; i >= 0; i--) {
@@ -10407,15 +10707,15 @@
             if (inMirrorArena) return;
             const W = canvas.width / viewScale, H = canvas.height / viewScale, pad = 80;
             for (const b of activeBosses) {
-                if (!b.waveBoss && b.type !== 'hiveKing' && b.type !== 'hiveQueen' && b.type !== 'royal') continue;
+                if (!b.waveBoss && b.type !== 'hiveKing' && b.type !== 'hiveQueen' && b.type !== 'royal' && b.type !== 'rivalDragon') continue;
                 const dx = b.x - world.dragonX, dy = b.y - world.dragonY, d = Math.hypot(dx, dy); if (d < Math.min(W, H) * 0.45) continue;
                 const a = Math.atan2(dy, dx);
                 const x = Math.max(pad, Math.min(W - pad, W / 2 + Math.cos(a) * (W / 2 - pad))), y = Math.max(pad, Math.min(H - pad, H / 2 + Math.sin(a) * (H / 2 - pad)));
-                const col = b.type === 'royal' ? royalById(b.rid).color : (b.waveBoss ? '#ff3366' : '#ffaa00');
+                const col = b.type === 'royal' ? royalById(b.rid).color : (b.type === 'rivalDragon' ? b.color : (b.waveBoss ? '#ff3366' : '#ffaa00'));
                 ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.fillStyle = col; ctx.shadowBlur = 15; ctx.shadowColor = col;
                 ctx.beginPath(); ctx.moveTo(18, 0); ctx.lineTo(-12, -12); ctx.lineTo(-4, 0); ctx.lineTo(-12, 12); ctx.closePath(); ctx.fill();
                 ctx.rotate(-a); ctx.shadowBlur = 0; ctx.fillStyle = '#fff'; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign = 'center';
-                ctx.fillText((b.type === 'royal' ? '👑 ' : '💀 ') + Math.floor(d / 10) + 'm', 0, -20); ctx.restore();
+                ctx.fillText((b.type === 'royal' ? '👑 ' : (b.type === 'rivalDragon' ? '🐉 ' : '💀 ')) + Math.floor(d / 10) + 'm', 0, -20); ctx.restore();
             }
         }
 
@@ -11170,7 +11470,7 @@
                     }
                     let hIsHit = false;
                     for (let p of fireParticles) { if (p.life > 0.3 && (h.x-p.x)**2 + (h.y-p.y)**2 < (85 + p.size)**2) { h.hp -= fdmg(p); p.life -= 0.15; hIsHit = true; } }
-                    if (hIsHit) h.playerHitF = gFrame;
+                    if (hIsHit) { h.playerHitF = gFrame; if (h.fortress) fortressAlarm(h); }
                     if (hIsHit && h.alarmCooldown <= 0 && enemies.length < 130 && !TUT.active) {
                         // ARI KOVANI SAVUNMASI: kovan ateşle vurulduğunda aniden onlarca düşman fışkırır
                         h.alarmCooldown = 480;
@@ -11237,7 +11537,7 @@
                     // değilse yavaşça iyileşir; hp'si tükenirse kovan yeniden düşman eline geçer.
                     if (h.hp === undefined) h.hp = h.maxHp;
                     const hiveCap = h.maxHp * (1 + AB('hive', 'hpMult'));
-                    if (!h.underSiege) { h.hp = Math.min(hiveCap, h.hp + 2 * (1 + AB('hive', 'regen'))); } else if (h.hp <= 0) {
+                    if (!h.underSiege) { h.hp = Math.min(hiveCap, h.hp + 2 * (1 + AB('hive', 'regen'))); } else if (h.hp <= 0 && rivalTryClaim(h)) { } else if (h.hp <= 0) {
                         h.status = 'enemy'; h.hp = h.maxHp * 0.35; h.commanderName = null; h.kingDefeated = false; h.governor = null;
                         h.spawnCooldown = 120; h.alarmCooldown = 0;
                         for (let ssi = hiveSoldiers.length - 1; ssi >= 0; ssi--) { if (hiveSoldiers[ssi].hiveId === h.id && !hiveSoldiers[ssi].escort && !hiveSoldiers[ssi].called && !hiveSoldiers[ssi].assault) hiveSoldiers.splice(ssi, 1); }
@@ -11340,7 +11640,7 @@
                     let bx1 = activeBosses[ba], bx2 = activeBosses[bb];
                     let hiveType1 = (bx1.type === 'hiveKing' || bx1.type === 'hiveQueen');
                     let hiveType2 = (bx2.type === 'hiveKing' || bx2.type === 'hiveQueen');
-                    if (hiveType1 === hiveType2 || bx1.type === 'royal' || bx2.type === 'royal' || bx1.royalAlly || bx2.royalAlly) continue;
+                    if (hiveType1 === hiveType2 || bx1.type === 'royal' || bx2.type === 'royal' || bx1.royalAlly || bx2.royalAlly || bx1.type === 'rivalDragon' || bx2.type === 'rivalDragon') continue;
                     let ddx = bx1.x - bx2.x; let ddy = bx1.y - bx2.y; let dd = Math.hypot(ddx, ddy);
                     if (dd < (bx1.size || 50) + (bx2.size || 50) + 15) {
                         if (tick % 3 < 0.3) { bx1.hp -= 200; bx2.hp -= 200; applyShake(5); }
@@ -11355,6 +11655,7 @@
                 if (boss.type === 'swarmMother') { updateSwarmMother(boss, bi); continue; }
                 if (boss.type === 'kiyamet') { updateKiyamet(boss, bi); continue; }
                 if (boss.type === 'royal') { updateRoyal(boss, bi); continue; }
+                if (boss.type === 'rivalDragon') { updateRivalDragon(boss, bi); continue; }
 
                 let bDistSafe = Math.hypot(boss.x - safeZone.x, boss.y - safeZone.y);
                 if (bDistSafe < safeZone.radius + boss.size + 10) {
@@ -11451,7 +11752,7 @@
 
                     if (bDist < boss.size + (actualTarget ? actualTarget.size : 20) && !TP.ghost && !TP.safe) { 
                         if ((boss.attackCooldown || 0) <= 0) { 
-                            if(actualTarget) { actualTarget.hp -= 150 * (diffConfig.dmgMult * shieldDmgMult); } else { hurtPlayer(TP, 15 * diffConfig.dmgMult * mpDmgMult(), 40); knockPlayer(TP, bdx > 0 ? -50 : 50, bdy > 0 ? -50 : 50); }
+                            if(actualTarget) { actualTarget.hp -= 150 * (boss.dmgMul || 1) * (diffConfig.dmgMult * shieldDmgMult); } else { hurtPlayer(TP, 15 * (boss.dmgMul || 1) * diffConfig.dmgMult * mpDmgMult(), 40); knockPlayer(TP, bdx > 0 ? -50 : 50, bdy > 0 ? -50 : 50); }
                             boss.attackCooldown = 30;  
                         } 
                     }
@@ -11684,10 +11985,14 @@
                     }
                 }
             } BOSS_CTX = false;
+            rivalWorldStep();
 
             updateRoyalFx();
             const royalUi = activeBosses.filter(b => b.type === 'royal');
-            const uiBosses = inMirrorArena ? activeBosses : (royalUi.length ? royalUi : activeBosses.filter(b => b.waveBoss));
+            const rivalUi = activeBosses.filter(b => b.type === 'rivalDragon' && b.near);
+            if (rivalUi.length && !royalUi.length && !inMirrorArena && !rivalUi[0].uiOn) { rivalUi[0].uiOn = true; setBossUi('🐉 ' + rivalUi[0].name.toUpperCase() + ' · RAKİP EJDERHA', rivalUi[0].color); }
+            for (const b of activeBosses) if (b.type === 'rivalDragon' && !b.near) b.uiOn = false;
+            const uiBosses = inMirrorArena ? activeBosses : (royalUi.length ? royalUi : (rivalUi.length ? rivalUi : activeBosses.filter(b => b.waveBoss)));
             if (uiBosses.length > 0) {
                 let hpSum = 0, maxSum = 0; for (const b of uiBosses) { hpSum += Math.max(0, b.hp); maxSum += b.maxHp; }
                 document.getElementById('bossHpBar').style.width = Math.max(0, (hpSum / (maxSum || 1)) * 100) + '%';
@@ -11736,7 +12041,7 @@
 
                 const np = nearestPlayer(e.x, e.y); const edx = np.x - e.x; const edy = np.y - e.y; const edistSq = edx * edx + edy * edy; const angleToDragon = Math.atan2(edy, edx);
                 // Çok uzakta kalan düşmanlar silinir (yeni düşmanların doğmasını engellemesin)
-                if (edistSq > despawnR2() && !e.tut) { enemies.splice(i, 1); continue; }
+                if (edistSq > despawnR2() && !e.tut && !e.rivalGuard) { enemies.splice(i, 1); continue; }
                 // DEHŞET: kudretimin karşısında bazıları savaşmak yerine kaçar
                 if (!e.tut && !e.terrorRolled && edistSq < 90000 && !np.ghost) {
                     e.terrorRolled = true;
@@ -11766,6 +12071,8 @@
                         if (fhD < dDragon * 0.85) { siegeHive = fh; mdx = fh.x - e.x; mdy = fh.y - e.y; }
                     }
                 }
+                // RAKİP ASKERİ: savaş yoksa efendisinin arkasında toplanır, kuşatmada onun kovanına saldırır
+                if (e.rivalGuard) { const gt = rivalGuardGoal(e, np); if (gt) { siegeHive = gt.hive || null; mdx = gt.x - e.x; mdy = gt.y - e.y; } }
 
                 if (edistSq > 0) {
                     let edist = Math.sqrt(edistSq);
