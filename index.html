@@ -66,9 +66,9 @@
 
         #loreCorner { position: absolute; bottom: 15px; left: 20px; font-style: italic; color: rgba(255,255,255,0.4); font-size: 13px; max-width: 400px; pointer-events: none; z-index: 10; border-left: 2px solid rgba(255,255,255,0.3); padding-left: 10px;}
         #loreCounter { position: absolute; bottom: 42px; left: 20px; color: rgba(255,215,0,0.6); font-size: 11px; letter-spacing: 0.5px; pointer-events: none; z-index: 10; }
-        #loreBanner { position: absolute; top: 32%; left: 50%; transform: translate(-50%, -50%); width: 520px; max-width: 80vw; text-align: center; background: rgba(5,5,10,0.88); border: 1px solid rgba(255,215,0,0.5); border-radius: 8px; padding: 22px 28px; color: #ffe9b0; font-style: italic; font-size: 16px; line-height: 1.5; z-index: 40; opacity: 0; pointer-events: none; transition: opacity 1s; box-shadow: 0 0 40px rgba(0,0,0,0.6); }
+        #loreBanner { position: absolute; top: 32%; left: 50%; transform: translate(-50%, -50%); width: 520px; max-width: 80vw; text-align: center; background: rgba(5,5,10,0.88); border: 1px solid rgba(255,215,0,0.5); border-radius: 8px; padding: 10px 18px; color: #ffe9b0; font-style: italic; font-size: 14px; line-height: 1.4; z-index: 40; opacity: 0; pointer-events: none; transition: opacity 1s; box-shadow: 0 0 40px rgba(0,0,0,0.6); }
         #loreBanner.show { opacity: 1; }
-        #loreBanner .tag { display:block; font-style: normal; color: #ffd700; font-size: 10px; letter-spacing: 3px; margin-bottom: 10px; }
+        #loreBanner .tag { display:none; font-style: normal; color: #ffd700; font-size: 10px; letter-spacing: 3px; margin-bottom: 10px; }
         #arenaTransitionOverlay { position: absolute; top:0; left:0; width:100%; height:100%; background:#000; z-index: 95; display:flex; align-items:center; justify-content:center; overflow:hidden; }
         #vortexCanvas { position:absolute; top:0; left:0; width:100%; height:100%; }
         #vortexText { position:relative; color:#aeefff; font-size:26px; letter-spacing:6px; font-weight:bold; text-shadow: 0 0 25px #00e5ff; opacity:0; transition: opacity 1s; text-align:center; }
@@ -77,7 +77,7 @@
         #bossName { color: #ff0055; font-size: 24px; font-weight: bold; letter-spacing: 5px; text-shadow: 0 0 15px currentColor; margin-bottom: 5px; text-transform: uppercase; }
         #bossHpContainer { width: 100%; height: 20px; background: #110000; border: 2px solid #ff0055; border-radius: 10px; overflow: hidden; }
         #bossHpBar { width: 100%; height: 100%; background: #ff0055; transition: width 0.1s; }
-        #waveAnnouncer { position: absolute; top: 30%; left: 50%; transform: translate(-50%, -50%); font-size: 60px; color: white; opacity: 0; pointer-events: none; transition: opacity 0.5s; text-shadow: 0 0 40px currentColor; font-weight: bold; letter-spacing: 10px; z-index: 10; text-align: center;}
+        #waveAnnouncer { position: absolute; top: 21%; left: 50%; transform: translate(-50%, -50%); font-size: 26px; max-width: 80vw; color: white; opacity: 0; pointer-events: none; transition: opacity 0.5s; text-shadow: 0 0 18px currentColor, 0 2px 4px #000; font-weight: bold; letter-spacing: 4px; z-index: 10; text-align: center;}
         
         .damage-vignette { position: absolute; top: 0; left: 0; width: 100%; height: 100%; box-shadow: inset 0 0 200px rgba(0, 0, 0, 0); pointer-events: none; z-index: 5; transition: box-shadow 0.3s; }
         .low-hp { animation: pulseBlood 1s infinite alternate; }
@@ -387,8 +387,8 @@
         #questPanel .quest-item { font-size: 11px; }
         #questPanel h4 { font-size: 10px; letter-spacing: 2px; }
 
-        #innerVoice { position: absolute; left: 50%; bottom: 200px; transform: translateX(-50%); width: min(760px, 90vw); text-align: center; color: #f1dcc8; font-style: italic; font-size: 19px; line-height: 1.45; font-family: Georgia, 'Times New Roman', serif; text-shadow: 0 0 8px #000, 0 0 20px #000, 0 2px 3px #000; opacity: 0; transition: opacity 0.7s; pointer-events: none; z-index: 45; }
-        .iv-who { display: block; font-style: normal; font-family: 'Segoe UI', sans-serif; font-size: 10px; letter-spacing: 5px; color: #c08070; margin-bottom: 4px; }
+        #innerVoice { position: absolute; left: 50%; bottom: 200px; transform: translateX(-50%); width: min(760px, 90vw); text-align: center; color: #f1dcc8; font-style: italic; font-size: 15px; line-height: 1.4; font-family: Georgia, 'Times New Roman', serif; text-shadow: 0 0 8px #000, 0 0 20px #000, 0 2px 3px #000; opacity: 0; transition: opacity 0.7s; pointer-events: none; z-index: 45; }
+        .iv-who { display: none; font-style: normal; font-family: 'Segoe UI', sans-serif; font-size: 10px; letter-spacing: 5px; color: #c08070; margin-bottom: 4px; }
         .iv-who.mother { color: #ffcc88; }
 
         #tutPanel { position: absolute; top: 78px; left: 50%; transform: translateX(-50%); width: min(580px, 94vw); background: linear-gradient(160deg, rgba(28,7,4,0.94), rgba(6,4,10,0.94)); border: 1px solid rgba(255,90,40,0.6); border-radius: 10px; padding: 12px 16px; color: #fff; z-index: 42; display: none; box-shadow: 0 0 34px rgba(255,60,0,0.22); pointer-events: auto; }
@@ -445,7 +445,7 @@
             #sanctuaryBtn { bottom: 206px; padding: 9px 16px; font-size: 12px; }
             #potionBar { right: auto; left: 10px; bottom: 150px; gap: 6px; }
             .potion-slot { width: 42px; height: 42px; font-size: 17px; }
-            #innerVoice { bottom: 256px; font-size: 14.5px; }
+            #innerVoice { bottom: 150px; font-size: 12px; width: min(520px, 70vw); }
             #tutPanel { top: 104px; padding: 9px 12px; }
             .tp-title { font-size: 15px; } .tp-why { font-size: 11.5px; } .tp-how { font-size: 12px; }
             #leftHud { top: 104px; left: 8px; width: min(60vw, 250px); }
@@ -467,7 +467,7 @@
             #tutPanel { top: 70px !important; }
             #leftHud { top: 72px !important; }
             #potionBar { display: grid !important; grid-template-columns: repeat(2, 42px); bottom: 146px !important; }
-            #waveAnnouncer { font-size: 28px !important; letter-spacing: 3px !important; width: 92vw; }
+            #waveAnnouncer { font-size: 15px !important; letter-spacing: 1.5px !important; width: auto; max-width: 70vw; top: 36%; }
             #bossUi { top: 70px !important; }
             #pauseBtnFixed { top: 12px; left: 12px; width: 46px; height: 46px; }
         }
@@ -604,8 +604,8 @@
         body.m .tp-bar { margin-top: 6px; height: 5px; } body.m .tp-cnt { font-size: 10px; } body.m .tp-ok { margin-top: 4px; font-size: 11px; }
         body.m #innerVoice { bottom: calc(var(--sab) + 214px); font-size: 13.5px !important; width: 86vw; }
         body.m .iv-who { font-size: 9px; letter-spacing: 4px; }
-        body.m #waveAnnouncer { font-size: 26px !important; letter-spacing: 4px !important; top: 34%; width: 90vw; }
-        body.m #loreBanner { font-size: 13px; padding: 14px 16px; width: 88vw; }
+        body.m #waveAnnouncer { font-size: 15px !important; letter-spacing: 1.5px !important; top: 36%; width: auto; max-width: 72vw; white-space: normal; }
+        body.m #loreBanner { font-size: 11.5px; padding: 7px 12px; width: auto; max-width: 62vw; top: 30%; }
 
         /* Hızlı menü (☰) */
         #mMenu { display: none; position: fixed; inset: 0; z-index: 150; background: rgba(0,0,0,0.55); align-items: flex-end; justify-content: center; }
@@ -685,7 +685,7 @@
             body.m #joystickZone { width: 104px !important; height: 104px !important; bottom: calc(var(--sab) + 16px); left: calc(var(--sal) + 30px); }
             body.m #mobRight { transform: scale(0.8); transform-origin: bottom right; bottom: calc(var(--sab) + 10px); right: calc(var(--sar) + 22px); }
             body.m #innerVoice { bottom: calc(var(--sab) + 12px); width: 40vw; font-size: 12.5px !important; }
-            body.m #waveAnnouncer { top: 30%; }
+            body.m #waveAnnouncer { top: 36%; }
             .mm-grid { grid-template-columns: repeat(6, 1fr); }
             body.m .upgrade-card { width: 30vw; display: block; text-align: center; }
             body.m .upgrade-card > div:first-child { margin-bottom: 4px !important; }
@@ -745,13 +745,13 @@
     <button id="pauseBtnFixed" onclick="togglePause()" title="Durdur">⏸️</button>
 
     <div id="topControls" style="display:none;">
-        <button class="action-btn" onclick="togglePause()">⏸️ DURDUR / AYARLAR</button>
-        <button class="action-btn" onclick="openMarket()" style="border-color:#ffd700; color:#ffd700;">🛒 MARKET</button>
-        <button class="action-btn" onclick="toggleJournal()" style="border-color:#ff9955; color:#ff9955;">📖 GÜNLÜK</button>
+        <button class="action-btn" onclick="togglePause()" title="Durdur / Ayarlar (P)">⏸️</button>
+        <button class="action-btn" onclick="openMarket()" title="Market" style="border-color:#ffd700; color:#ffd700;">🛒</button>
+        <button class="action-btn" onclick="toggleJournal()" title="Günlük (J)" style="border-color:#ff9955; color:#ff9955;">📖</button>
     </div>
 
-    <button id="hireBossBtn" onclick="hireSlaveBoss()">🛡️ KÖLE ÇAĞIR (120 COIN) - Q+W (Max: 6)</button>
-    <button id="sanctuaryBtn" onclick="openSanctuary()">🏰 SIĞINAK YÖNETİMİ (B)</button>
+    <button id="hireBossBtn" onclick="hireSlaveBoss()" title="Köle çağır: 120 coin (Q+W)">🐍 KÖLE · 120</button>
+    <button id="sanctuaryBtn" onclick="openSanctuary()" title="Sığınak (B)">🏰 SIĞINAK</button>
 
     <div id="storyOverlay">
         <canvas id="storyCanvas"></canvas>
@@ -1067,13 +1067,13 @@
     </div>
 
     <div id="stats">
-        <div style="margin-bottom: 5px;">Coin: <span id="coinCount" style="color:#ffd700; font-weight:bold; font-size:22px;">0</span></div>
+        <div style="margin-bottom: 5px;">💰 <span id="coinCount" style="color:#ffd700; font-weight:bold; font-size:22px;">0</span></div>
         <div id="killRow">Yakılan Ruh: <span id="killCount" style="font-weight:bold;">0</span></div>
         
-        <div class="plasma-wrapper">SÜPER PLAZMA (R)</div>
+        <div class="plasma-wrapper">⚛️</div>
         <div id="plasmaBarContainer" class="bar-container"><div id="plasmaBar"></div></div>
 
-        <div style="font-size: 11px; margin-top:10px; color:#bbb; letter-spacing:1px; margin-bottom: 3px; clear: both; float: right;">ÖFKE (RAGE)</div>
+        <div style="font-size: 11px; margin-top:10px; color:#bbb; letter-spacing:1px; margin-bottom: 3px; clear: both; float: right;">💢</div>
         <div id="rageBarContainer" class="bar-container"><div id="rageBar"></div></div>
         
         <div class="heart-wrapper">
@@ -1081,11 +1081,10 @@
                 <div class="heart-bg">🤍</div>
                 <div id="hpHeartFill" class="heart-fill">❤️</div>
             </div>
-            YAŞAM GÜCÜ
         </div>
         <div id="hpBarContainer" class="bar-container"><div id="hpBar"></div></div>
-        <div id="ghostIndicator">>> HAYALET MODU AKTİF <<</div>
-        <div id="safeZoneIndicator">>> SIĞINAKTAYIZ <<</div>
+        <div id="ghostIndicator">👻 HAYALET</div>
+        <div id="safeZoneIndicator">🛡️ SIĞINAK</div>
     </div>
 
     <div id="leftHud"><div id="objectivePanel"></div><div id="questPanel"></div></div>
@@ -1240,7 +1239,7 @@
         // --- GELİŞMİŞ AYARLAR ---
         let gfxQuality = store.getItem('boruGfx') || (isMobile ? 'mid' : 'high');
         const gfxMultMap = { low: 0.45, mid: 0.75, high: 1.0 };
-        let uiSettings = Object.assign({ minimap: true, showName: true, showLore: true }, (function(){ try { return JSON.parse(store.getItem('boruUiSettings')) || {}; } catch(e) { return {}; } })());
+        let uiSettings = Object.assign({ minimap: true, showName: false, showLore: true }, (function(){ try { return JSON.parse(store.getItem('boruUiSettings')) || {}; } catch(e) { return {}; } })());
         function applyUiSettings() {
             document.getElementById('minimapCanvas').style.display = uiSettings.minimap ? 'block' : 'none';
             document.getElementById('loreCorner').style.display = uiSettings.showLore ? 'block' : 'none';
@@ -2448,6 +2447,7 @@
 
         function applyThemeColors() {
             fireSprite = createParticleSprite(activeTheme, false); rageFireSprite = createParticleSprite(activeTheme, true);
+            buildFireFxSprites();
             document.getElementById('hpBarContainer').style.borderColor = activeTheme.mainColor;
             document.getElementById('hpBar').style.background = activeTheme.mainColor;
             document.getElementById('hpHeartFill').style.color = activeTheme.mainColor;
@@ -3843,30 +3843,33 @@
         // yardıma koşar. Bir kral düşünce krallığındaki kovanların bir kısmı bize biat eder, kalanlar
         // hâlâ ayakta olan diğer kralların krallıklarına kaçar.
         // =====================================================================
+        // SINIRLI DÜNYA: harita artık sonsuz değil, merkezden WORLD_R yarıçaplı dev bir daire. Krallar, en uzak
+        // görünümde her biyomun kapladığı alanın tam ortasında (biyom ağırlık merkezi) oturur.
+        const WORLD_R = 30000;
         const ROYALS = [
             { id: 'kar', biome: 'kar', name: 'DAĞ KAĞANI BUZTEPE', short: 'Buztepe', title: 'Ebedi Kar Dağlarının Kağanı', hive: 'Buztepe Tahtı',
-              throne: { x: 5600, y: -5600 }, color: '#dfeaff', glow: '#7fb0ff', rgb: '200,222,255', size: 118, weather: 'tipi', roar: 'b_mega', touch: 70,
+              throne: { x: 12800, y: -12800 }, color: '#dfeaff', glow: '#7fb0ff', rgb: '200,222,255', size: 118, weather: 'tipi', roar: 'b_mega', touch: 70,
               weatherText: '❄️ BUZTEPE KIYAMET TİPİSİNİ ÇAĞIRDI: kanatların ağırlaşıyor',
               protText: '🛡️ TAŞ KALKAN: önünden gelen ateşi durduruyor — etrafından dolaş, arkasından vur!',
               intro: 'Dağlar titredi. Karların altından bir taç yükseldi: bu toprakların kağanı, kalkanını bana çevirdi.',
               win: 'Dağ Kağanı diz çöktü. Karlı zirveler ilk kez bir ejderhanın gölgesine boyun eğiyor.',
               perk: { icon: '🏔️', name: 'Dağ Yüreği', desc: 'Max can kalıcı olarak +%20' }, coins: 4000, xp: 3000, potions: 2 },
             { id: 'buz', biome: 'buz', name: 'AYAZ ANA KIRAĞI', short: 'Kırağı', title: 'Kutup Buzulunun Kraliçesi', hive: 'Kırağı Sarayı',
-              throne: { x: -5600, y: -5600 }, color: '#8af4ff', glow: '#00d4ff', rgb: '130,240,255', size: 64, weather: 'ayaz', roar: 'b_kiyamet', touch: 55,
+              throne: { x: -12800, y: -12800 }, color: '#8af4ff', glow: '#00d4ff', rgb: '130,240,255', size: 64, weather: 'ayaz', roar: 'b_kiyamet', touch: 55,
               weatherText: '🌌 KIRAĞI KUTUP GECESİNİ İNDİRDİ: gökyüzü karardı, hayalet enerjin donuyor',
               protText: '💎 KRİSTAL AYNALAR: aynalar ayaktayken kraliçe neredeyse hasar almaz — önce aynaları kır!',
               intro: 'Buzun içinden bir şarkı yükseldi. Ayaz Ana dört aynasını çevresine dizdi; her birinde benim yansımam titriyor.',
               win: 'Aynalar paramparça, şarkı sustu. Buzulun kraliçesi artık benim adıma kış getirecek.',
               perk: { icon: '❄️', name: 'Ayaz Nefesi', desc: 'Alevin düşmanları yavaşlatır, hayalet enerjisi %30 hızlı dolar' }, coins: 4500, xp: 3200, potions: 2 },
             { id: 'col', biome: 'col', name: 'KUM SULTANI ZEHRİMAR', short: 'Zehrimar', title: 'Kavurucu Çölün Sultanı', hive: 'Zehrimar Piramidi',
-              throne: { x: 5600, y: 5600 }, color: '#ffc24a', glow: '#ff8a00', rgb: '255,194,74', size: 96, weather: 'kum', roar: 'b_sahmeran', touch: 65,
+              throne: { x: 12800, y: 12800 }, color: '#ffc24a', glow: '#ff8a00', rgb: '255,194,74', size: 96, weather: 'kum', roar: 'b_sahmeran', touch: 65,
               weatherText: '🌪️ ZEHRİMAR BÜYÜK KUM FIRTINASINI KOPARDI: görüşün daraldı',
               protText: '⏳ KUMA GÖMÜLME: sultan kumun altındayken dokunulmazdır — yere çıkacağı yeri izle ve kaç!',
               intro: 'Kum dalgalandı, bir piramidin gölgesinden altın taçlı bir akrep çıktı. Kuyruğundaki zehir güneşte parlıyor.',
               win: 'Sultanın zehri kurudu. Çölün hazinesi artık benim hazinemdir.',
               perk: { icon: '💰', name: 'Sultan Hazinesi', desc: 'Kazandığın tüm coinler kalıcı olarak +%25' }, coins: 5000, xp: 3200, potions: 2 },
             { id: 'deniz', biome: 'deniz', name: 'ABİS HAKANI DERİNAY', short: 'Derinay', title: 'Derin Deniz Abisinin Hakanı', hive: 'Derinay Mercan Sarayı',
-              throne: { x: -5600, y: 5600 }, color: '#4aa0ff', glow: '#00e5ff', rgb: '74,160,255', size: 110, weather: 'basinc', roar: 'b_swarmMother', touch: 70,
+              throne: { x: -12800, y: 12800 }, color: '#4aa0ff', glow: '#00e5ff', rgb: '74,160,255', size: 110, weather: 'basinc', roar: 'b_swarmMother', touch: 70,
               weatherText: '⛈️ DERİNAY ABİS FIRTINASINI UYANDIRDI: yıldırımlara dikkat!',
               protText: '💧 SU KALKANI: hiçbir hasar geçmez — KÜKRE (E) ya da SÜPER PLAZMA (R) ile patlat!',
               intro: 'Karanlık sular kabardı. Mercan tacını takmış bir hakan dokunaçlarını açtı; etrafında bir su kalkanı parlıyor.',
@@ -3996,8 +3999,8 @@
         // KRALIN DOĞUŞU
         // ---------------------------------------------------------------------
         function spawnRoyal(r) {
-            const hp = Math.round(Math.max(maxHp * 8, 30000 + currentWave * 9000) * diffConfig.mult);
-            const b = { id: Math.random(), type: 'royal', rid: r.id, x: r.throne.x, y: r.throne.y - 60, size: r.size, maxHp: hp, hp, lastHp: hp, cap: hp / (60 * 80),
+            const hp = Math.round(Math.max(maxHp * 5, 18000 + currentWave * 5500) * diffConfig.mult);
+            const b = { id: Math.random(), type: 'royal', rid: r.id, x: r.throne.x, y: r.throne.y - 60, size: r.size, maxHp: hp, hp, lastHp: hp, cap: hp / (60 * 45),
                 angle: Math.PI / 2, t: 0, state: 'intro', stT: 0, atkCd: 140, hitFlash: 0, wob: 0, screamed: false, enraged: false, prot: 0, speed: stats.baseMaxSpeed, waveT: 0, lightT: 120, protHint: false };
             if (r.id === 'kar') { b.shA = Math.PI / 2; b.arm = 0; }
             if (r.id === 'buz') { b.joints = Array.from({ length: 22 }, (_, i) => ({ x: b.x, y: b.y + i * 26, angle: -Math.PI / 2 })); b.orb = 0; b.mirrors = royalMirrors(b); b.mirrorRegrown = false; }
@@ -4160,7 +4163,7 @@
             b.screamed = true; applyShake(90); playRoarSound(r.roar, { x: b.x, y: b.y }); SND.net('alarm');
             royalFx.push({ type: 'scream', rid: 'x', x: b.x, y: b.y, t: 0, dur: 90, col: r.color });
             showWaveText('👑 KRAL ÇIĞLIK ATTI!', true, r.color);
-            hintToast('📯 ' + r.name + ' bütün krallığını çağırdı: her türden düşman, harita bossları ve kovan bossları yardıma koşuyor!', r.color, 6500);
+            hintToast('📯 ' + r.short + ' krallığını yardıma çağırdı!', r.color, 4000);
             const hid = 'royal_' + r.id;
             for (const ty of ['bat', 'scorpion', 'kobra', 'beetle', 'wasp', 'skeleton']) for (let k = 0; k < 4; k++) { const a = Math.random() * Math.PI * 2, d = 480 + Math.random() * 520; spawnHiveGrunt({ x: b.x + Math.cos(a) * d, y: b.y + Math.sin(a) * d, id: hid, archetype: ty }, 'fighter'); }
             const W = Math.max(1, currentWave), dm = diffConfig.mult, sm = diffConfig.speedMult;
@@ -4439,6 +4442,7 @@
             let oy = (hashChunk(cx * 9.1 - 3, cy * 2.1 + 17) - 0.5) * HIVE_CHUNK * 0.7;
             let px = cx * HIVE_CHUNK + HIVE_CHUNK / 2 + ox; let py = cy * HIVE_CHUNK + HIVE_CHUNK / 2 + oy;
             if (Math.hypot(px, py) < 1300) return null; // merkez sığınağın hemen çevresi POI'suz kalsın
+            if (Math.hypot(px, py) > WORLD_R - 700) return null; // dünyanın sınırının ötesinde kovan yok
             if (nearThrone(px, py, 1400)) return null; // krallık tahtlarının çevresi
             let typeRoll = hashChunk(cx * 13.3 + 29, cy * 17.7 - 5);
             let poiType = 'hive'; // Askeri üsler ve toplanma yerleri kaldırıldı: haritada artık sadece kovanlar var
@@ -4548,7 +4552,7 @@
             t.innerText = '"' + text + '"';
             b.classList.add('show');
             if (loreBannerTimeout) clearTimeout(loreBannerTimeout);
-            loreBannerTimeout = setTimeout(() => { b.classList.remove('show'); }, 6000);
+            loreBannerTimeout = setTimeout(() => { b.classList.remove('show'); }, 4500);
         }
         function updateLoreFragments() {
             for (let i = 0; i < loreFragmentPoints.length; i++) {
@@ -4693,7 +4697,7 @@
             coins += q.coinReward; gainXp(q.xpReward);
             document.getElementById('coinCount').innerText = coins;
             questsCompletedLifetime++; store.setItem('boruQuestsCompleted', questsCompletedLifetime);
-            hintToast('📜 Yan görev tamamlandı: +' + q.coinReward + ' coin · ' + q.xpReward + ' XP (Market › Görevler)', '#ffd700', 3800);
+            hintToast('📜 Görev tamam · +' + q.coinReward + ' coin', '#ffd700', 2600);
             SND.play('quest');
             if (questsCompletedLifetime >= 5 && !unlockedSkins.includes('questmaster')) {
                 unlockedSkins.push('questmaster'); store.setItem('boruSkins', JSON.stringify(unlockedSkins));
@@ -5581,7 +5585,7 @@
         });
         window.addEventListener('keyup', (e) => { keyStates[e.code] = false; if (e.code === 'Space') { spacePressed = false; document.getElementById('ghostIndicator').style.display = 'none'; } });
         // Dokunmatik cihazda tarayıcı her dokunuştan sahte bir fare olayı üretir; ejderha ekrana dokununca oraya uçmasın diye yok sayıyoruz.
-        window.addEventListener('mousemove', (e) => { if (document.body.classList.contains('m')) return; if(!isJoyActive && !isPaused){ mouseScreenX = e.clientX; mouseScreenY = e.clientY; }});
+        window.addEventListener('mousemove', (e) => { if (document.body.classList.contains('m') && !(e.sourceCapabilities && e.sourceCapabilities.firesTouchEvents === false)) return; if(!isJoyActive && !isPaused){ mouseScreenX = e.clientX; mouseScreenY = e.clientY; }});
         window.addEventListener('mousedown', (e) => { if (document.body.classList.contains('m')) return; if (e.target && e.target.id === 'minimapCanvas') return; if(gameActive && !isPaused) isBreathingFire = true; });
         window.addEventListener('mouseup', () => { isBreathingFire = false; });
         // NOT: Bu genel dinleyici sadece dokunmatik EKRANLI PC/masaüstü içindir.
@@ -5602,7 +5606,7 @@
             const xbc = document.getElementById('xpBarContainer'); xbc.classList.add('lvlup'); setTimeout(() => xbc.classList.remove('lvlup'), 1600);
             applyBlackMarketBuffs(); refreshArmyStats();
             showWaveText('⭐ SEVİYE ' + level + (level >= MAX_LEVEL ? ' · SON!' : ''), false, '#ffd700');
-            hintToast('🌳 +' + SKILL_PER_LEVEL + ' yetenek puanı · harcamak için ' + (isTouchUI ? 'üstteki 🌳 butonuna dokun' : 'T tuşuna bas'), '#ffd700', 4200);
+            hintToast('🌳 +' + SKILL_PER_LEVEL + ' yetenek puanı', '#ffd700', 2400);
             SND.play('levelUp'); applyShake(15);
             saveGame();
         }
@@ -5685,7 +5689,7 @@
             const w = document.getElementById('waveAnnouncer');
             w.innerText = text; w.style.opacity = '1'; w.style.color = color ? color : (isBoss ? '#ff0055' : 'white');
             if (typeof mMenuOpen === 'function' && mMenuOpen()) { const mm = document.getElementById('mmMsg'); if (mm) { mm.textContent = text; mm.style.color = color || '#ffd27a'; } }
-            setTimeout(() => { w.style.opacity = '0'; }, 3000);
+            clearTimeout(w._t); w._t = setTimeout(() => { w.style.opacity = '0'; }, 1900);
         }
 
         window.selectUpgrade = function(id) {
@@ -6955,6 +6959,7 @@
                 mctx.strokeStyle = arenaTier().color; mctx.lineWidth = 1.5; mctx.beginPath(); mctx.arc(ap.x, ap.y, ARENA_R * scale, 0, Math.PI*2); mctx.stroke();
                 for (const h of arenaHearts) { const q = plot(h.x, h.y); mctx.fillStyle = '#c8ff3a'; mctx.beginPath(); mctx.arc(q.x, q.y, 4, 0, Math.PI*2); mctx.fill(); }
             }
+            if (!inMirrorArena && Math.hypot(world.dragonX, world.dragonY) > WORLD_R - cx / scale - 50) { mctx.strokeStyle = 'rgba(185,160,255,0.8)'; mctx.lineWidth = 2; mctx.beginPath(); mctx.arc(cx - world.dragonX * scale, cy - world.dragonY * scale, WORLD_R * scale, 0, Math.PI * 2); mctx.stroke(); }
             // Sığınak
             let sz = plot(safeZone.x, safeZone.y);
             if (!inMirrorArena) { mctx.strokeStyle = '#00ffcc'; mctx.lineWidth = 1.5; mctx.beginPath(); mctx.arc(sz.x, sz.y, 5, 0, Math.PI*2); mctx.stroke(); }
@@ -7002,9 +7007,9 @@
             ctx.rotate(-angle); ctx.fillStyle = '#fff'; ctx.font = 'bold 12px Segoe UI'; ctx.textAlign = 'center'; ctx.shadowBlur = 0;
             
             if (distToSafe > safeZone.radius) {
-                ctx.fillText(`🛡️ Sığınak (${Math.floor(distToSafe/10)}m)`, 0, -25); 
+                ctx.fillText(`🏰 ${Math.floor(distToSafe/10)}m`, 0, -25); 
             } else {
-                ctx.fillText(`SIĞINAKTAYIZ`, 0, -25); 
+                
             }
             ctx.restore();
 
@@ -7022,7 +7027,7 @@
                     ctx.fillStyle = '#ffaa00'; ctx.shadowBlur = 15; ctx.shadowColor = '#ffaa00';
                     ctx.beginPath(); ctx.moveTo(15, 0); ctx.lineTo(-10, -10); ctx.lineTo(-3, 0); ctx.lineTo(-10, 10); ctx.closePath(); ctx.fill();
                     ctx.rotate(-pAngle); ctx.fillStyle = '#fff'; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign = 'center'; ctx.shadowBlur = 0;
-                    ctx.fillText(`🌟 Çekirdek (${Math.floor(pdist/10)}m)`, 0, -20); ctx.restore();
+                    ctx.fillText(`🌟 ${Math.floor(pdist/10)}m`, 0, -20); ctx.restore();
                 }
             }
 
@@ -7040,7 +7045,7 @@
                     ctx.fillStyle = bhc; ctx.shadowBlur = 18; ctx.shadowColor = bhc;
                     ctx.beginPath(); ctx.moveTo(16, 0); ctx.lineTo(-11, -11); ctx.lineTo(-4, 0); ctx.lineTo(-11, 11); ctx.closePath(); ctx.fill();
                     ctx.rotate(-hAngle); ctx.fillStyle = '#fff'; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign = 'center'; ctx.shadowBlur = 0;
-                    ctx.fillText(`🕳️ Kara Delik ${(BH_TIERS[blackHolePortal.tier] || BH_TIERS[0]).roman} (${Math.floor(hdist/10)}m)`, 0, -20); ctx.restore();
+                    ctx.fillText(`🕳️ ${Math.floor(hdist/10)}m`, 0, -20); ctx.restore();
                 }
             }
         }
@@ -7157,8 +7162,10 @@
                 enemySpawnTimer = 0;
                 playSpawnSound();
                 if (enemies.length > 70 + (MP.active ? 22 * (mpN() - 1) : 0)) return;
-                const angle = Math.random() * Math.PI * 2; const dist = spawnRing();
-                const SA = spawnAnchor(); const spawnX = SA.x + Math.cos(angle) * dist;
+                let angle = Math.random() * Math.PI * 2; const dist = spawnRing();
+                const SA = spawnAnchor();
+                if (!inMirrorArena) for (let t = 0; t < 8; t++) { const tx = SA.x + Math.cos(angle) * dist, ty = SA.y + Math.sin(angle) * dist; if (tx * tx + ty * ty < WORLD_R * WORLD_R) break; angle = Math.random() * Math.PI * 2; }
+                const spawnX = SA.x + Math.cos(angle) * dist;
                 const spawnY = SA.y + Math.sin(angle) * dist;
 
                 const hpMultiplier = (1 + (currentWave * 0.2)) * diffConfig.mult * mpEnemyHp(); const speedMultiplier = (1 + (currentWave * 0.1)) * diffConfig.speedMult;
@@ -7196,7 +7203,7 @@
             li.innerHTML = 'SEVİYE ' + level + (level >= MAX_LEVEL ? '<span class="xp-left">MAKSİMUM SEVİYE</span>' : '<span class="xp-left">Sonraki seviyeye: ' + left + ' XP</span>');
             document.getElementById('xpBar').style.width = (level >= MAX_LEVEL ? 100 : (currentXp / maxXp * 100)) + '%';
             document.getElementById('xpLvlBadge').innerText = level;
-            document.getElementById('xpBarText').innerText = level >= MAX_LEVEL ? 'SON SEVİYE · ' + MAX_LEVEL : (Math.floor(currentXp) + ' / ' + maxXp + ' XP  ·  %' + Math.floor(currentXp / maxXp * 100));
+            document.getElementById('xpBarText').innerText = level >= MAX_LEVEL ? 'MAKS' : ('%' + Math.floor(currentXp / maxXp * 100));
         }
         // XP kazanıldıkça barın üstünde "+N" yazısı süzülür (küçük kazanımlar birleştirilir)
         let xpPopAcc = 0, xpPopTimer = null;
@@ -7688,6 +7695,92 @@
                 for (let sd of [-1, 1]) { ctx.beginPath(); ctx.moveTo(Math.cos(ROAR_ARC * sd) * r.radius * 0.35, Math.sin(ROAR_ARC * sd) * r.radius * 0.35); ctx.lineTo(Math.cos(ROAR_ARC * sd) * r.radius, Math.sin(ROAR_ARC * sd) * r.radius); ctx.stroke(); }
                 ctx.shadowBlur = 0; ctx.restore();
         }
+
+        // =====================================================================
+        // GERÇEKÇİ ALEV: her parçacık ömrü boyunca beyaz-sarı sıcak çekirdekten turuncuya, sonra koyu kırmızıya
+        // döner ve 'lighter' karışımıyla üst üste bindikçe parlar. Sönen alev dumana dönüşür (alttan çizilir),
+        // ağızda titreyen bir parıltı ve etrafa savrulan kıvılcımlar var. Yavaş cihazda kendini hafifletir (FX.q).
+        // =====================================================================
+        var FX = { q: 1, smoke: [], sparks: [], breath: false, mx: 0, my: 0, ang: 0, g: 1, ema: 16.7, slowT: 0, spr: null };
+        function fxRgba(c, a) { const m = shiftRgb(c || '#ff6600', 0).match(/\d+/g) || [255, 100, 0]; return `rgba(${m[0]},${m[1]},${m[2]},${a})`; }
+        function fxRadial(size, stops) {
+            const cv = document.createElement('canvas'); cv.width = cv.height = size; const c = cv.getContext('2d');
+            const g = c.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+            for (const [o, col] of stops) g.addColorStop(o, col);
+            c.fillStyle = g; c.fillRect(0, 0, size, size); return cv;
+        }
+        function buildFireFxSprites() {
+            if (!FX) return;
+            const c1 = activeTheme.fireColor1 || '#ffcc00', c2 = activeTheme.fireColor2 || '#ff3300';
+            FX.spr = {
+                core: fxRadial(64, [[0, 'rgba(255,255,255,1)'], [0.22, 'rgba(255,250,215,0.95)'], [0.5, fxRgba(c1, 0.55)], [1, fxRgba(c1, 0)]]),
+                tail: fxRadial(64, [[0, fxRgba(c2, 0.75)], [0.45, 'rgba(150,30,5,0.35)'], [1, 'rgba(60,5,0,0)']]),
+                coreB: fxRadial(64, [[0, 'rgba(255,255,255,1)'], [0.25, 'rgba(210,255,255,0.95)'], [0.55, 'rgba(0,220,255,0.5)'], [1, 'rgba(0,120,255,0)']]),
+                tailB: fxRadial(64, [[0, 'rgba(0,170,255,0.7)'], [0.5, 'rgba(20,40,160,0.3)'], [1, 'rgba(0,0,60,0)']]),
+                glow: fxRadial(128, [[0, 'rgba(255,255,240,0.95)'], [0.18, fxRgba(c1, 0.7)], [0.5, fxRgba(c2, 0.22)], [1, fxRgba(c2, 0)]]),
+                glowB: fxRadial(128, [[0, 'rgba(255,255,255,0.95)'], [0.2, 'rgba(120,240,255,0.65)'], [0.55, 'rgba(0,120,255,0.2)'], [1, 'rgba(0,60,255,0)']]),
+                smoke: fxRadial(64, [[0, 'rgba(58,52,50,0.62)'], [0.45, 'rgba(38,34,34,0.38)'], [1, 'rgba(20,18,18,0)']])
+            };
+        }
+        function drawFireFx() {
+            if (!FX.spr) buildFireFxSprites(); if (!FX.spr) return;
+            const S = FX.spr, q = gfxMultMap[gfxQuality] * FX.q;
+            // 1) DUMAN (alevin altında, normal karışım)
+            for (let i = FX.smoke.length - 1; i >= 0; i--) {
+                const m = FX.smoke[i]; m.x += m.vx; m.y += m.vy; m.vx *= 0.97; m.vy = m.vy * 0.97 - 0.05; m.size += m.grow; m.life -= m.decay;
+                if (m.life <= 0) { FX.smoke.splice(i, 1); continue; }
+                ctx.globalAlpha = Math.min(1, m.life * 1.3) * 0.55; ctx.drawImage(S.smoke, m.x - camX - m.size / 2, m.y - camY - m.size / 2, m.size, m.size);
+            }
+            // 2) ALEV (ışık karışımı: üst üste bindikçe beyazlaşan parlak çekirdek)
+            ctx.globalCompositeOperation = 'lighter';
+            const smokeCap = 36 * q;
+            for (let i = fireParticles.length - 1; i >= 0; i--) {
+                const p = fireParticles[i]; p.x += p.vx; p.y += p.vy; p.life -= p.decay; p.size += p.growth;
+                if (p.life <= 0) { fireParticles.splice(i, 1); continue; }
+                const L = p.life, sz = p.size, x = p.x - camX, y = p.y - camY;
+                if (p.spr) { ctx.globalAlpha = Math.max(0, L); ctx.drawImage(p.spr, x - sz / 2, y - sz / 2, sz, sz); continue; }
+                const blue = p.isBlue;
+                if (L > 0.38) {
+                    ctx.globalAlpha = Math.min(1, (L - 0.3) * 1.15); ctx.drawImage(blue ? rageFireSprite : fireSprite, x - sz / 2, y - sz / 2, sz, sz);
+                    if (L > 0.62 && FX.q > 0.6) { const cs = sz * (0.35 + (L - 0.62) * 0.9); ctx.globalAlpha = Math.min(1, (L - 0.55) * 1.6); ctx.drawImage(blue ? S.coreB : S.core, x - cs / 2, y - cs / 2, cs, cs); }
+                } else {
+                    const ts = sz * 1.08; ctx.globalAlpha = L * 1.9; ctx.drawImage(blue ? S.tailB : S.tail, x - ts / 2, y - ts / 2, ts, ts);
+                    if (!p.sm && L < 0.3) { p.sm = true; if (FX.smoke.length < smokeCap && Math.random() < 0.4) FX.smoke.push({ x: p.x, y: p.y, vx: p.vx * 0.3 + (Math.random() - 0.5) * 1.2, vy: p.vy * 0.3 - 0.4, size: Math.min(sz * 0.7, 120), grow: 0.7 + Math.random() * 0.6, life: 1, decay: 0.02 + Math.random() * 0.012 }); }
+                }
+            }
+            // 3) KIVILCIMLAR
+            for (let i = FX.sparks.length - 1; i >= 0; i--) {
+                const k = FX.sparks[i]; k.x += k.vx; k.y += k.vy; k.vx *= 0.95; k.vy = k.vy * 0.95 - 0.08; k.life -= k.decay;
+                if (k.life <= 0) { FX.sparks.splice(i, 1); continue; }
+                ctx.globalAlpha = Math.min(1, k.life * 1.4); ctx.strokeStyle = k.blue ? '#bff8ff' : (k.life > 0.6 ? '#fff4c0' : '#ffb040'); ctx.lineWidth = 1.6;
+                ctx.beginPath(); ctx.moveTo(k.x - camX, k.y - camY); ctx.lineTo(k.x - camX - k.vx * 1.6, k.y - camY - k.vy * 1.6); ctx.stroke();
+            }
+            // 4) AĞIZ PARILTISI
+            if (FX.breath) {
+                const blue = isRageActive, gs = (95 + Math.random() * 25) * FX.g;
+                ctx.globalAlpha = 0.62 + Math.random() * 0.2; ctx.drawImage(blue ? S.glowB : S.glow, FX.mx - camX - gs / 2, FX.my - camY - gs / 2, gs, gs);
+            }
+            ctx.globalCompositeOperation = 'source-over'; ctx.globalAlpha = 1;
+        }
+        // KASMA ÖNLEYİCİ: kareler uzun süre yavaş gelirse efekt yükü ve gölge bulanıklığı otomatik azalır
+        function fxPerfSample(dt) {
+            FX.ema = FX.ema * 0.95 + Math.min(dt, 100) * 0.05;
+            if (FX.ema > 24) FX.slowT++; else if (FX.slowT > 0) FX.slowT--;
+            if (FX.slowT > 150 && FX.q > 0.55) { FX.q = 0.55; ctx._sbMax = Math.min(ctx._sbMax, 4); FX.slowT = 0; }
+        }
+        let worldEdgeHintCd = 0;
+        function drawWorldEdge() {
+            const vw = canvas.width / viewScale, vh = canvas.height / viewScale;
+            const dC = Math.hypot(camX + vw / 2, camY + vh / 2);
+            if (dC < WORLD_R - Math.hypot(vw, vh)) return;
+            ctx.save();
+            ctx.beginPath(); ctx.rect(0, 0, vw, vh); ctx.arc(-camX, -camY, WORLD_R, 0, Math.PI * 2, true);
+            ctx.fillStyle = 'rgba(2,0,8,0.78)'; ctx.fill();
+            const pul = 0.5 + Math.sin(tick * 2) * 0.2;
+            ctx.beginPath(); ctx.arc(-camX, -camY, WORLD_R + 18, 0, Math.PI * 2); ctx.strokeStyle = `rgba(150,110,255,${0.1 * pul})`; ctx.lineWidth = 60; ctx.stroke();
+            ctx.beginPath(); ctx.arc(-camX, -camY, WORLD_R, 0, Math.PI * 2); ctx.strokeStyle = `rgba(190,160,255,${0.55 * pul + 0.2})`; ctx.lineWidth = 4; ctx.stroke();
+            ctx.restore();
+        }
         function drawWorldBackground(currentBiome) {
             let blendedBg = inMirrorArena ? arenaTier().bg : getBlendedBiomeColor(world.dragonX, world.dragonY);
             let bgGrad = ctx.createLinearGradient(0, 0, 0, canvas.height / viewScale);
@@ -7712,6 +7805,7 @@
                 else if (currentBiome.name === 'deniz') { ctx.fillStyle = `rgba(30,80,160,${0.05 + weatherPulse*0.05})`; ctx.fillRect(0, 0, canvas.width/viewScale, canvas.height/viewScale); }
 
                 drawScorches();
+                drawWorldEdge();
                 if (blackHolePortal) { drawBlackHolePortal(blackHolePortal, camX, camY); }
             }
 
@@ -7751,6 +7845,8 @@
         // (gerektiğinde bir karede en fazla 3 adım yetişir). Büyük darbelerde kısa bir "an donması" (hitStop) var.
         // =====================================================================
         const STEP_MS = 1000 / 60;
+        const CTX_DRAW_OPS = ['fill', 'stroke', 'fillRect', 'strokeRect', 'clearRect', 'drawImage', 'fillText', 'strokeText', 'putImageData'];
+        function ctxMute(on) { const nop = () => {}; for (const k of CTX_DRAW_OPS) { if (on) ctx[k] = nop; else delete ctx[k]; } }
         let loopRunning = false, loopLast = 0, loopAcc = 0, hitStop = 0;
         function animate() {
             if (loopRunning) return;
@@ -7759,11 +7855,19 @@
         }
         function gameLoop(now) {
             if (!gameActive) { loopRunning = false; return; }
-            let dt = now - loopLast; loopLast = now; if (dt > 250) dt = 250;
+            let dt = now - loopLast; loopLast = now; if (dt > 250) dt = 250; fxPerfSample(dt);
             if (hitStop > 0) { hitStop -= dt; requestAnimationFrame(gameLoop); return; }
             loopAcc += dt;
             let n = 0;
-            while (loopAcc >= STEP_MS - 2 && n < 3) { gameStep(); loopAcc -= STEP_MS; n++; if (!gameActive) break; }
+            // KASMA DÜZELTMESİ: yavaş bir karede birden fazla adım yetiştirilirken eskiden HER adım ekranı baştan
+            // çiziyordu (yavaş telefonda iki-üç kat çizim = daha da yavaşlama). Artık ara adımlar sadece oyun
+            // mantığını çalıştırır, ekran o karede yalnızca son adımda bir kez çizilir.
+            while (loopAcc >= STEP_MS - 2 && n < 3) {
+                const more = (loopAcc - STEP_MS) >= STEP_MS - 2 && n + 1 < 3;
+                if (more) ctxMute(true);
+                try { gameStep(); } finally { if (more) ctxMute(false); }
+                loopAcc -= STEP_MS; n++; if (!gameActive) break;
+            }
             if (loopAcc > STEP_MS * 3) loopAcc = 0;
             if (loopAcc < -STEP_MS) loopAcc = -STEP_MS;
             if (!gameActive) { loopRunning = false; return; }
@@ -7851,7 +7955,7 @@
             el.innerHTML = '<span class="iv-who' + (v.who !== 'BÖRÜ' ? ' mother' : '') + '">' + escapeHtml(v.who) + '</span>' + escapeHtml(v.t);
             el.style.opacity = 1;
             clearTimeout(voiceTimer);
-            voiceTimer = setTimeout(() => { el.style.opacity = 0; voiceTimer = setTimeout(nextVoice, 700); }, Math.max(2800, v.t.length * 65));
+            voiceTimer = setTimeout(() => { el.style.opacity = 0; voiceTimer = setTimeout(nextVoice, 700); }, Math.max(2200, v.t.length * 48));
         }
         function clearVoice() { voiceQ.length = 0; clearTimeout(voiceTimer); voiceBusy = false; const el = document.getElementById('innerVoice'); if (el) el.style.opacity = 0; }
 
@@ -8084,7 +8188,7 @@
                 ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.fillStyle = col; ctx.shadowBlur = 15; ctx.shadowColor = col;
                 ctx.beginPath(); ctx.moveTo(18, 0); ctx.lineTo(-12, -12); ctx.lineTo(-4, 0); ctx.lineTo(-12, 12); ctx.closePath(); ctx.fill();
                 ctx.rotate(-a); ctx.shadowBlur = 0; ctx.fillStyle = '#fff'; ctx.font = 'bold 10px Segoe UI'; ctx.textAlign = 'center';
-                ctx.fillText((b.type === 'royal' ? '👑 KRAL' : (b.waveBoss ? '💀 BOSS' : '👑 Hükümdar')) + ' (' + Math.floor(d / 10) + 'm)', 0, -20); ctx.restore();
+                ctx.fillText((b.type === 'royal' ? '👑 ' : '💀 ') + Math.floor(d / 10) + 'm', 0, -20); ctx.restore();
             }
         }
 
@@ -8111,11 +8215,11 @@
             else if (!bt) h = `<div class="g1">👑 Tüm kara delikler kapandı</div><div class="g2">Gökyüzü artık senin.</div>`;
             else {
                 const req = nextBHReq(), n = Math.min(totalHivesCapturedLifetime, req);
-                if (blackHolePortal) h = `<div class="g1">✔ ${req} kovan ele geçirildi <span class="gm"> · 🕳️ kara deliğe gir, bossu yen</span></div><div class="g2">🕳️ Şimdi kara deliğe gir ve bossu yen: <b>${bt.bossName}</b> — pusulayı izle.</div>`;
-                else h = `<div class="g1">🎯 AMAÇ: <b>${req} kovan</b> ele geçir · ${n}/${req}<span class="gm"> → 🕳️ kara delik bossunu yen</span></div><div class="gbar"><i style="width:${Math.min(100, n / req * 100)}%"></i></div><div class="g2">🕳️ Sonra kara delikteki bossu yen: <b>${bt.bossName}</b></div>`;
+                if (blackHolePortal) h = `<div class="g1">🕳️ Kara deliğe gir</div><div class="g2">bossu yen: <b>${bt.bossName}</b></div>`;
+                else h = `<div class="g1">🎯 <b>${n}/${req}</b> kovan</div><div class="gbar"><i style="width:${Math.min(100, n / req * 100)}%"></i></div><div class="g2">sonra 🕳️ kara delik bossu</div>`;
             }
             // Mobil: tek satırlık kısa amaç
-            let m; if (inMirrorArena) m = '🕳️ Bossu yen: ' + arenaTier().bossName; else if (!bt) m = '👑 Sefer tamam'; else if (blackHolePortal) m = '🕳️ Kara deliğe gir → bossu yen'; else m = '🎯 ' + nextBHReq() + ' kovan ele geçir · ' + Math.min(totalHivesCapturedLifetime, nextBHReq()) + '/' + nextBHReq() + ' → 🕳️ boss';
+            let m; if (inMirrorArena) m = '🕳️ Bossu yen: ' + arenaTier().bossName; else if (!bt) m = '👑 Sefer tamam'; else if (blackHolePortal) m = '🕳️ Kara deliğe gir'; else m = '🎯 ' + Math.min(totalHivesCapturedLifetime, nextBHReq()) + '/' + nextBHReq() + ' kovan';
             h += '<span class="gmob">' + m + '</span>';
             if (el._h !== h) { el._h = h; el.innerHTML = h; el.classList.toggle('ok', !!blackHolePortal); }
         }
@@ -8484,7 +8588,7 @@
                     // Biyom hızlıca değişince yakın çevredeki kovan/üs/toplanma yerlerini hemen kontrol et
                     ensureHivesNearPlayer();
                     showWaveText("🌍 " + currentBiome.displayName.toUpperCase(), false, currentBiome.gridColor); mono('biome_' + currentBiome.name);
-                    { const rk = royalForBiome(currentBiome.name); if (rk) setTimeout(() => { if (!inMirrorArena && getBiomeAt(world.dragonX, world.dragonY).name === rk.biome) hintToast(royalDead(rk.id) ? '🏳️ Bu topraklar artık senin: ' + rk.hive : '👑 Krallık toprağındasın: ' + rk.name + ' · tahtı haritada 👑 ile işaretli', rk.color); }, 3200); }
+                    { const rk = royalForBiome(currentBiome.name); if (rk) setTimeout(() => { if (!inMirrorArena && getBiomeAt(world.dragonX, world.dragonY).name === rk.biome) hintToast(royalDead(rk.id) ? '🏳️ Senin toprağın' : '👑 ' + rk.short + ' krallığı', rk.color, 2400); }, 3200); }
                 }
             }
 
@@ -8502,7 +8606,10 @@
             // ekran merkezine (ejderhanın kendisine) olan uzaklığına bağlıdır: yakınsa yavaşlar/durur,
             // uzaklaştıkça kademeli hızlanır ve comfortZone'dan sonra sabit maksimum hıza ulaşır.
             let slowMultiplier = playerSlowed > 0 ? 0.5 : 1.0;
-            const currentMaxSpeed = stats.baseMaxSpeed * (spacePressed ? 1.5 : 1.0) * (isRageActive ? 1.2 : 1.0) * slowMultiplier * (activePotions.speedPotion > 0 ? 1.4 : 1.0) * biomeSpeedMult();
+            // Otomatik kamera uzaklaştığında ejderha ekranda yavaşlamış gibi görünüyordu: hız kameraya göre dengelenir,
+            // böylece imleci takip hissi eski sabit kameralı sürümle aynı kalır.
+            const camComp = Math.max(1, Math.min(1.5, userZoom / Math.max(0.05, viewScale)));
+            const currentMaxSpeed = stats.baseMaxSpeed * camComp * (spacePressed ? 1.5 : 1.0) * (isRageActive ? 1.2 : 1.0) * slowMultiplier * (activePotions.speedPotion > 0 ? 1.4 : 1.0) * biomeSpeedMult();
             const screenDx = mouseScreenX - canvas.width / 2; const screenDy = mouseScreenY - canvas.height / 2; const distFromCenter = Math.hypot(screenDx, screenDy);
 
             if (distFromCenter > world.deadZone && !isSuperBeamCharging && !isSuperBeamFiring) {
@@ -8511,6 +8618,9 @@
                 world.dragonX += (screenDx / distFromCenter) * cSpeed; world.dragonY += (screenDy / distFromCenter) * cSpeed; world.speed = cSpeed;
             } else { world.speed = 0; }
 
+            // DÜNYANIN SINIRI: ötesine geçilemez
+            if (!inMirrorArena && !isArenaTransitioning) { const wd = Math.hypot(world.dragonX, world.dragonY); if (wd > WORLD_R) { world.dragonX *= WORLD_R / wd; world.dragonY *= WORLD_R / wd; if (!(worldEdgeHintCd > 0)) { hintToast('🌑 Dünyanın sınırı: ötesi boşluk', '#b9a8ff', 2200); worldEdgeHintCd = 900; } } }
+            if (worldEdgeHintCd > 0) worldEdgeHintCd--;
             // GÜVENLİ BÖLGE MANTIĞI
             if (inMirrorArena && !isArenaTransitioning) { const po = { x: world.dragonX, y: world.dragonY }; clampToArena(po, 30); world.dragonX = po.x; world.dragonY = po.y; }
             let distToSafe = Math.hypot(world.dragonX - safeZone.x, world.dragonY - safeZone.y);
@@ -8561,12 +8671,28 @@
             // ALEV MENZİLİ: Alev artık daha kısa mesafede sönüyor (daha kontrollü/gerçekçi görünüm)
             let currentDecay = equippedBlackMarket.toxicBreath ? 0.0145 : 0.029; // alev menzili hafifçe artırıldı
 
-            if (isBreathingFire && !spacePressed && !(MP.active && MP.localDead) && !isSuperBeamCharging && !isSuperBeamFiring && fireParticles.length < (isRageActive ? 300 : 150) * gfxMultMap[gfxQuality] + (MP.active ? 250 : 0)) {
-                let activeVolume = stats.fireVolume * (isRageActive ? 2 : 1);
-                for (let i = 0; i < activeVolume; i++) {
-                    const spread = (Math.random() - 0.5) * 0.40; 
-                    const fSpeed = Math.random() * 6 + 6.8; // Kısaltılmış menzil için fırlama hızı düşürüldü
-                    fireParticles.push({ x: head.x + Math.cos(head.angle) * (35 * sizeMultiplier * growthFactor), y: head.y + Math.sin(head.angle) * (35 * sizeMultiplier * growthFactor), vx: Math.cos(head.angle + spread) * fSpeed + dragonVx * 0.7, vy: Math.sin(head.angle + spread) * fSpeed + dragonVy * 0.7, life: 1.0, decay: currentDecay, size: (Math.random() * 16 + 14) * stats.fireSizeMult * growthFactor, growth: Math.random() * 2.5 + 1.5, isBlue: isRageActive });
+            FX.breath = false;
+            if (isBreathingFire && !spacePressed && !(MP.active && MP.localDead) && !isSuperBeamCharging && !isSuperBeamFiring) {
+                // SÜREKLİ ALEV: eskiden parçacık sınırı dolunca ağız birkaç kare tamamen susuyordu (kesik kesik alev).
+                // Artık sınır aşılacaksa daha az ama daha büyük/güçlü parçacık çıkar: akış hiç kesilmez, hasar aynı kalır.
+                const want = Math.max(1, Math.ceil(stats.fireVolume * (isRageActive ? 2 : 1)));
+                const cap = Math.max(50, (isRageActive ? 300 : 150) * gfxMultMap[gfxQuality] * FX.q) + (MP.active ? 250 : 0);
+                const n = Math.max(2, Math.min(want, Math.floor(cap / (1 / currentDecay))));
+                const k = want / n, sK = Math.min(1.7, Math.sqrt(k));
+                const pw = k > 1.01 ? stats.fireDamage * (isRageActive ? 3 : 1) * k : undefined;
+                const mouth = 35 * sizeMultiplier * growthFactor, mx = head.x + Math.cos(head.angle) * mouth, my = head.y + Math.sin(head.angle) * mouth;
+                for (let i = 0; i < n; i++) {
+                    const spread = (Math.random() - 0.5) * 0.40;
+                    const fSpeed = Math.random() * 6 + 6.8;
+                    const f0 = Math.random();
+                    fireParticles.push({ x: mx + Math.cos(head.angle) * fSpeed * f0, y: my + Math.sin(head.angle) * fSpeed * f0, vx: Math.cos(head.angle + spread) * fSpeed + dragonVx * 0.7, vy: Math.sin(head.angle + spread) * fSpeed + dragonVy * 0.7, life: 1.0, decay: currentDecay, size: (Math.random() * 16 + 14) * stats.fireSizeMult * growthFactor * sK, growth: Math.random() * 2.5 + 1.5, isBlue: isRageActive, pw, rot: Math.random() * 6.28 });
+                }
+                if (fireParticles.length > cap * 1.25) fireParticles.splice(0, fireParticles.length - Math.floor(cap * 1.25));
+                FX.breath = true; FX.mx = mx; FX.my = my; FX.ang = head.angle; FX.g = growthFactor * sizeMultiplier * Math.sqrt(stats.fireSizeMult);
+                // kıvılcımlar
+                if (FX.sparks.length < 70 * FX.q && Math.random() < 0.8 * gfxMultMap[gfxQuality]) {
+                    const a = head.angle + (Math.random() - 0.5) * 0.9, sp = 9 + Math.random() * 9;
+                    FX.sparks.push({ x: mx, y: my, vx: Math.cos(a) * sp + dragonVx * 0.7, vy: Math.sin(a) * sp + dragonVy * 0.7, life: 1, decay: 0.03 + Math.random() * 0.03, blue: isRageActive });
                 }
             }
             if (stats.trailDamage && world.speed > 5 && tick % 2 < 0.2) { 
@@ -8689,12 +8815,8 @@
                 ctx.beginPath(); ctx.arc(tp.x - camX, tp.y - camY, tp.size * tp.life, 0, Math.PI*2); ctx.fill();
             }
 
-            ctx.shadowBlur = 0; 
-            for (let i = fireParticles.length - 1; i >= 0; i--) {
-                let p = fireParticles[i]; p.x += p.vx; p.y += p.vy; p.life -= p.decay; p.size += p.growth;
-                if (p.life <= 0) { fireParticles.splice(i, 1); continue; }
-                ctx.globalAlpha = Math.max(0, p.life); let sprite = p.spr || (p.isBlue ? rageFireSprite : fireSprite); ctx.drawImage(sprite, p.x - camX - p.size / 2, p.y - camY - p.size / 2, p.size, p.size);
-            }
+            ctx.shadowBlur = 0;
+            drawFireFx();
             ctx.globalAlpha = 1.0; 
             buildFireGrid();
 
@@ -9578,6 +9700,7 @@
             const cell = 26;
             for (let sy = 0; sy < H; sy += cell) for (let sx = 0; sx < W; sx += cell) {
                 const wx = BM.cx + (sx + cell / 2 - W / 2) / BM.scale, wy = BM.cy + (sy + cell / 2 - H / 2) / BM.scale;
+                if (wx * wx + wy * wy > WORLD_R * WORLD_R) continue;
                 c.fillStyle = hexA(getBiomeAt(wx, wy).gridColor, 0.13); c.fillRect(sx, sy, cell, cell);
             }
             // Izgara (her kare 2 km)
@@ -9585,6 +9708,8 @@
             const x0 = Math.floor((BM.cx - W / 2 / BM.scale) / step) * step, y0 = Math.floor((BM.cy - H / 2 / BM.scale) / step) * step;
             for (let x = x0; x < BM.cx + W / 2 / BM.scale; x += step) { const [sx] = bmW2S(x, 0); c.beginPath(); c.moveTo(sx, 0); c.lineTo(sx, H); c.stroke(); }
             for (let y = y0; y < BM.cy + H / 2 / BM.scale; y += step) { const [, sy] = bmW2S(0, y); c.beginPath(); c.moveTo(0, sy); c.lineTo(W, sy); c.stroke(); }
+            // Dünyanın sınırı
+            { const [ox, oy] = bmW2S(0, 0); c.strokeStyle = 'rgba(185,160,255,0.7)'; c.lineWidth = 2; c.beginPath(); c.arc(ox, oy, WORLD_R * BM.scale, 0, Math.PI * 2); c.stroke(); }
             // Sığınak
             { const [sx, sy] = bmW2S(safeZone.x, safeZone.y); const r = Math.max(8, safeZone.radius * BM.scale);
               c.fillStyle = 'rgba(0,255,204,0.12)'; c.strokeStyle = '#00ffcc'; c.lineWidth = 2; c.beginPath(); c.arc(sx, sy, r, 0, Math.PI * 2); c.fill(); c.stroke();
@@ -9751,7 +9876,7 @@
             chips.appendChild(document.getElementById('goalHud')); chips.appendChild(document.getElementById('ghostIndicator')); chips.appendChild(document.getElementById('safeZoneIndicator'));
             document.getElementById('sanctuaryBtn').textContent = '🏰 SIĞINAK';
             document.getElementById('ghostIndicator').textContent = '👻 HAYALET';
-            document.getElementById('safeZoneIndicator').textContent = '🛡️ SIĞINAKTASIN';
+            document.getElementById('safeZoneIndicator').textContent = '🛡️';
             // Butonlara basınca hafif küçülme hissi
             document.querySelectorAll('.mobBtn').forEach(b => {
                 b.addEventListener('touchstart', () => b.classList.add('pressed'), { passive: true });
