@@ -253,6 +253,8 @@
         .pips { display: flex; gap: 4px; }
         .pips i { flex: 1; height: 6px; border-radius: 3px; background: #123; border: 1px solid #1f4a44; }
         .pips i.on { background: #00ffcc; box-shadow: 0 0 6px #00ffcc; }
+        .pips i.g { border-color: #5a4a1c; }
+        .pips i.on.g { background: #ffd24a; box-shadow: 0 0 6px #ffd24a; }
         .sanct-card button { margin-top: 4px; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; border: 1px solid #00ffcc; background: rgba(0,255,204,0.12); color: #00ffcc; }
         .sanct-card button:disabled { opacity: 0.45; cursor: not-allowed; border-color: #555; color: #888; }
         .sanct-card button.maxed { border-color: #ffd700; color: #ffd700; background: rgba(255,215,0,0.1); }
@@ -715,6 +717,19 @@
         .bm-info { position: absolute; left: 12px; right: 76px; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); background: rgba(0,0,0,0.7); border: 1px solid rgba(138,180,255,0.35); border-radius: 12px; padding: 9px 12px; color: #e8ecff; font-size: 13px; line-height: 1.45; }
         .bm-info b { color: #fff; }
         @media (max-width: 600px) { .bm-legend { display: none; } }
+        /* ---- Büyük harita: komutan durumu (can + asker) ---- */
+        .bm-cmds { position: absolute; left: 12px; top: calc(env(safe-area-inset-top, 0px) + 64px); width: min(262px, 62vw); max-height: 46vh; overflow-y: auto; background: rgba(8,10,16,0.82); border: 1px solid rgba(255,210,74,0.45); border-radius: 12px; color: #eef; font-size: 12px; touch-action: pan-y; z-index: 1; }
+        .bm-cmds .bc-h { display: flex; align-items: center; gap: 6px; padding: 7px 10px; cursor: pointer; position: sticky; top: 0; background: rgba(20,16,6,0.96); border-radius: 12px 12px 0 0; }
+        .bm-cmds .bc-h b { flex: 1; color: #ffd24a; letter-spacing: 1.5px; font-size: 11.5px; } .bm-cmds .bc-h span { color: #d8c8a0; font-size: 11px; }
+        .bm-cmds.closed .bc-list { display: none; } .bm-cmds.closed .bc-h { border-radius: 12px; }
+        .bc-row { padding: 6px 10px; border-top: 1px solid rgba(255,255,255,0.07); cursor: pointer; }
+        .bc-row:active { background: rgba(255,210,74,0.1); }
+        .bc-top { display: flex; align-items: center; gap: 6px; } .bc-top i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 6px var(--c); flex: 0 0 10px; }
+        .bc-top b { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #fff; } .bc-top em { font-style: normal; font-size: 10.5px; color: #cbb98a; white-space: nowrap; }
+        .bc-hp { position: relative; height: 9px; margin: 4px 0 3px; border-radius: 5px; background: #2a0a10; border: 1px solid rgba(255,255,255,0.15); overflow: hidden; }
+        .bc-hp > div { position: absolute; inset: 0 auto 0 0; border-radius: 5px; }
+        .bc-sub { display: flex; justify-content: space-between; font-size: 10.5px; color: #c8d0e8; }
+        .bc-none { padding: 8px 10px; color: #9aa; font-size: 11.5px; }
 
         .mm-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
         .mm-head .mm-h { margin: 0; flex: 1; }
@@ -955,6 +970,7 @@
             <div class="bm-legend"><span><i style="background:#2f8cff"></i>Senin kovanın</span><span><i style="background:#ff3355"></i>Düşman kovanı</span><span><i style="background:#ffaa00"></i>Hükümdar savaşı</span><span><i style="background:#00ffcc"></i>Sığınak</span><span><i style="background:#b77bff"></i>Kara delik</span><span><i style="background:#ffd700"></i>Kalıntı</span></div>
             <button class="bm-x" onclick="closeBigMap()" aria-label="Kapat">✕</button></div>
         <div class="bm-zoom"><button onclick="bmZoom(1.5)" aria-label="Yakınlaştır">＋</button><button onclick="bmZoom(1/1.5)" aria-label="Uzaklaştır">－</button><button onclick="bmCenter()" aria-label="Ejderhaya dön">◎</button><button onclick="bmShowAll()" aria-label="Tüm kovanlar">🏴</button><button id="bmSeferBtn" onclick="bmSeferToggle()" aria-label="Sefer" title="Sefer: kovan seç, komutan gönder">⚔️</button></div>
+        <div class="bm-cmds" id="bmCmds"></div>
         <div class="bm-sefer" id="bmSefer"></div>
         <div class="bm-sheet" id="bmSheet"></div>
         <div class="bm-info" id="bmInfo"></div>
@@ -1252,7 +1268,7 @@
         // ayrı anahtarlarla saklanır. Ayarlar (ses, hassasiyet vb.) tüm dünyalarda ortaktır.
         // İlk (Ana) dünya eski anahtarları olduğu gibi kullanır - yani mevcut ilerleme hiç kaybolmaz.
         // =====================================================================
-        const GLOBAL_KEYS = new Set(['boruSens', 'boruSfxEnabled', 'boruShakeIntensity', 'boruVolume', 'boruZoom', 'boruGfx', 'boruUiSettings', 'boruTutorialSeen', 'boruWorlds', 'boruMusic']);
+        const GLOBAL_KEYS = new Set(['boruSens', 'boruSfxEnabled', 'boruShakeIntensity', 'boruVolume', 'boruZoom', 'boruGfx', 'boruUiSettings', 'boruTutorialSeen', 'boruWorlds', 'boruMusic', 'boruResetEpochs']);
         let worldsMeta = (() => { try { return JSON.parse(localStorage.getItem('boruWorlds')); } catch (e) { return null; } })();
         if (!worldsMeta || !Array.isArray(worldsMeta.list) || worldsMeta.list.length === 0) {
             worldsMeta = { list: [{ id: 'main', name: 'Ana Dünya', icon: '🌍', diff: 'normal', created: Date.now(), lastPlayed: Date.now() }], active: 'main' };
@@ -1263,11 +1279,24 @@
         function worldPrefix(id) { return id === 'main' ? '' : 'boruW_' + id + '__'; }
         function currentWorld() { return worldsMeta.list.find(w => w.id === worldsMeta.active); }
         const WORLD_PREFIX = worldPrefix(worldsMeta.active);
+        // SIFIRLAMA KİLİDİ: bir dünya sıfırlandığında "sıfırlama damgası" değişir. Aynı dünyayı açık tutan başka
+        // bir pencere/sekme (ör. ana ekran uygulaması + tarayıcı) ya da yenilenmeden önce çalışan bir zamanlayıcı
+        // eski ilerlemeyi (coin, market, kostüm...) geri yazamaz: damga değiştiyse yazma engellenir ve sayfa yenilenir.
+        function readResetEpochs() { try { return JSON.parse(localStorage.getItem('boruResetEpochs')) || {}; } catch (e) { return {}; } }
+        const MY_RESET_EPOCH = readResetEpochs()[worldsMeta.active] || 0;
+        let worldWriteLocked = false;
+        function worldResetElsewhere() {
+            if (worldWriteLocked) return true;
+            if ((readResetEpochs()[worldsMeta.active] || 0) !== MY_RESET_EPOCH) { worldWriteLocked = true; setTimeout(() => location.reload(), 50); return true; }
+            return false;
+        }
+        window.addEventListener('storage', (e) => { if (e.key === 'boruResetEpochs') worldResetElsewhere(); });
+        window.addEventListener('pageshow', () => { worldResetElsewhere(); });
         const store = {
             mem: null,
             k(key) { return GLOBAL_KEYS.has(key) ? key : WORLD_PREFIX + key; },
             getItem(key) { if (this.mem && !GLOBAL_KEYS.has(key)) return this.mem.has(key) ? this.mem.get(key) : null; return localStorage.getItem(this.k(key)); },
-            setItem(key, v) { if (this.mem && !GLOBAL_KEYS.has(key)) { this.mem.set(key, String(v)); return; } try { localStorage.setItem(this.k(key), v); } catch (e) { console.warn('Kayıt yazılamadı', e); } },
+            setItem(key, v) { if (this.mem && !GLOBAL_KEYS.has(key)) { this.mem.set(key, String(v)); return; } if (!GLOBAL_KEYS.has(key) && worldResetElsewhere()) return; try { localStorage.setItem(this.k(key), v); } catch (e) { console.warn('Kayıt yazılamadı', e); } },
             removeItem(key) { if (this.mem && !GLOBAL_KEYS.has(key)) { this.mem.delete(key); return; } localStorage.removeItem(this.k(key)); }
         };
         function worldKeys(id) {
@@ -1383,10 +1412,14 @@
         window.setGfxQuality = function(q) { gfxQuality = q; store.setItem('boruGfx', q); applyUiSettings(); };
         window.resetTutorial = function() { store.removeItem('boruTutorialSeen'); alert('Oynanarak öğretilen eğitim, bir sonraki SIFIRDAN BAŞLA\'da tekrar oynatılacak.'); };
         window.resetAllProgress = function() {
-            if (!confirm('Bu dünyadaki (' + currentWorld().name + ') tüm ilerleme (coin, kostümler, kovanlar, sığınak, kayıt) kalıcı olarak silinecek. Diğer dünyaların etkilenmez. Emin misin?')) return;
+            if (!confirm('Bu dünyadaki (' + currentWorld().name + ') TÜM ilerleme kalıcı olarak silinecek: coin, marketten alınan her şey (kostümler, karaborsa eşyaları, ordu, iksirler), komutanlar, kovanlar, sığınak, görevler ve kayıt. Diğer dünyaların etkilenmez. Emin misin?')) return;
             if (!confirm('Bu işlem geri alınamaz. Son kez soruyorum: SİLİNSİN Mİ?')) return;
-            worldKeys(worldsMeta.active).forEach(k => localStorage.removeItem(k));
-            location.reload();
+            // Önce kilitle: bu andan sonra hiçbir kayıt (zamanlayıcılar, açık başka pencereler) eski veriyi geri yazamaz
+            worldWriteLocked = true; gameActive = false; isPaused = true;
+            const ep = readResetEpochs(); ep[worldsMeta.active] = Date.now(); localStorage.setItem('boruResetEpochs', JSON.stringify(ep));
+            const wipe = () => worldKeys(worldsMeta.active).forEach(k => localStorage.removeItem(k));
+            wipe(); setTimeout(wipe, 30);
+            setTimeout(() => location.reload(), 80);
         };
         document.getElementById('zoomSlider').value = userZoom;
         document.getElementById('zoomValueText').innerText = userZoom.toFixed(2) + 'x';
@@ -1515,10 +1548,11 @@
             { id: 'phoenixLord', name: 'Anka Ejderi', icon: '🦅', desc: 'Küllerinden doğan alev tüylü kanatlar ve yanan bir ibik.', reqLvl: 70, reqCoin: 10500, mainColor: '#ff7a1a', uiColor: '#ff7a1a', fireColor1: '#fff6a0', fireColor2: '#ff2a00', body: ['#ffb060', '#b83000', '#2a0600'], eyeColor: '#fff2a0' },
             { id: 'crystalDrake', name: 'Kristal Drake', icon: '💎', desc: 'Işığı gökkuşağına bölen prizma kanatlar ve kristal boynuzlar.', reqLvl: 80, reqCoin: 14000, mainColor: '#7fe8ff', uiColor: '#7fe8ff', fireColor1: '#ffffff', fireColor2: '#b070ff', body: ['#e8fbff', '#5aa8c8', '#0a2030'], eyeColor: '#ffffff' },
             { id: 'eclipse', name: 'Tutulma Ejderi', icon: '🌘', desc: 'Güneşi yutan kara gövde, kanatlarında altın taç ışığı.', reqLvl: 90, reqCoin: 20000, mainColor: '#ffcc44', uiColor: '#ffcc44', fireColor1: '#fff8d0', fireColor2: '#1a0a00', body: ['#2a2418', '#0a0806', '#000000'], eyeColor: '#ffe680' },
+            { id: 'kazuma', name: 'Kazuma', icon: '🐉', desc: 'Tek parça dolu gövde, bronz pullar, hilal boynuzlar ve orak kuyruk. Kanatları gövdesinden bir organ gibi büyür.', reqLvl: 95, reqCoin: 24000, mainColor: '#2fd3b0', uiColor: '#2fd3b0', fireColor1: '#ffe9a8', fireColor2: '#ff3b1f', body: ['#46e3c0', '#157060', '#03201a'], eyeColor: '#ffe45a' },
             { id: 'worldEater', name: 'Dünya Yiyen', icon: '🌍', desc: 'Son kademe. Kanatlarında ve gövdesinde gözler, başının çevresinde dönen dünyalar.', reqLvl: 100, reqCoin: 30000, mainColor: '#ff2a6a', uiColor: '#ff2a6a', fireColor1: '#ffffff', fireColor2: '#6a00ff', body: ['#5a1a3a', '#1a0414', '#000000'], eyeColor: '#ff9ad0' }
         ].forEach(sk => skinsDB.push(sk));
         // KADEME SIRASI: her kostüm bir öncekinden daha güçlü. Özel ödül kostümleri de kendi güç sırasına yerleşir.
-        const SKIN_ORDER = ['magma', 'ice', 'poison', 'void', 'terracotta', 'questmaster', 'ragingMagma', 'blood', 'nebula', 'shadow', 'kingsbane', 'toxicWaste', 'abyss', 'ascended', 'mirrorbane', 'bone', 'stormwyrm', 'coral', 'auroraWyrm', 'infernoLord', 'emberheir', 'phoenixLord', 'celestialSerpent', 'crystalDrake', 'obsidianTitan', 'eclipse', 'kiyametavcisi', 'worldEater'];
+        const SKIN_ORDER = ['magma', 'ice', 'poison', 'void', 'terracotta', 'questmaster', 'ragingMagma', 'blood', 'nebula', 'shadow', 'kingsbane', 'toxicWaste', 'abyss', 'ascended', 'mirrorbane', 'bone', 'stormwyrm', 'coral', 'auroraWyrm', 'infernoLord', 'emberheir', 'phoenixLord', 'celestialSerpent', 'crystalDrake', 'obsidianTitan', 'eclipse', 'kazuma', 'kiyametavcisi', 'worldEater'];
         skinsDB.forEach(sk => { const i = SKIN_ORDER.indexOf(sk.id); sk.tier = i < 3 ? 0 : i - 2; });
         skinsDB.sort((a, b) => SKIN_ORDER.indexOf(a.id) - SKIN_ORDER.indexOf(b.id));
         // Seviye şartları 100'lük ölçekten 15'lik ölçeğe, coin fiyatları yeni ekonomiye çekildi
@@ -2612,14 +2646,17 @@
             { id: 'spring', icon: '⛲', name: 'Şifa Pınarı', base: 200, desc: 'Sığınakta çok daha hızlı iyileşirsin; köle ve askerlerin de iyileşir, plazma ve hayalet enerjisi hızlı dolar.' },
             { id: 'towers', icon: '🗼', name: 'Nöbetçi Kuleleri', base: 300, desc: 'Surların çevresine yaklaşan düşmanları vuran kristal kuleler. Her seviye +2 kule ve daha fazla hasar.' },
             { id: 'altar', icon: '🎁', name: 'Hazine Sunağı', base: 220, desc: 'Belli aralıklarla sığınakta hazine sandığı belirir (coin + iksir şansı). Seviye ödülü büyütür, süreyi kısaltır.' },
-            { id: 'training', icon: '📖', name: 'Bilgelik Kütüphanesi', base: 350, desc: 'Kazandığın tüm XP her seviyede kalıcı olarak +%10 artar.' }
+            { id: 'training', icon: '📖', name: 'Bilgelik Kütüphanesi', base: 350, desc: 'Kazandığın tüm XP her seviyede kalıcı olarak +%10 artar.' },
+            { id: 'hq', icon: '⚜️', name: 'Komutan Karargâhı', base: 320, desc: 'Komutanlarının canı her seviyede +%10, askerlerinin canı +%5 artar. Sığınakta daha hızlı iyileşirler.' }
         ];
-        const SANCT_MAX = 5;
-        let sanct = Object.assign({ walls: 0, spring: 0, towers: 0, altar: 0, training: 0, coreBonus: 0, nextAltar: 0 }, safeParseJSON('boruSanctuary', {}));
+        // Sığınak artık 10 seviyeye kadar gelişir (eski kayıtlardaki 1-5 seviyeler aynen korunur)
+        const SANCT_MAX = 10;
+        let sanct = Object.assign({ walls: 0, spring: 0, towers: 0, altar: 0, training: 0, hq: 0, coreBonus: 0, nextAltar: 0 }, safeParseJSON('boruSanctuary', {}));
+        function sanctTotal(sd) { sd = sd || sanct; return (sd.walls || 0) + (sd.spring || 0) + (sd.towers || 0) + (sd.altar || 0) + (sd.training || 0) + (sd.hq || 0); }
         function saveSanct() { store.setItem('boruSanctuary', JSON.stringify(sanct)); }
         function computeSanctRadius() { return 450 + sanct.walls * 70 + (sanct.coreBonus || 0); }
         function sanctCost(item) { return Math.round(item.base * Math.pow(sanct[item.id] + 1, 1.7)); }
-        function altarInterval() { return (150 - sanct.altar * 18) * 1000; }
+        function altarInterval() { const l = sanct.altar; return Math.max(30, l <= 5 ? 150 - l * 18 : 60 - (l - 5) * 5) * 1000; }
         if (!sanct.nextAltar) { sanct.nextAltar = Date.now() + altarInterval(); saveSanct(); }
         let towerCooldowns = []; let towerBolts = []; let playerInSanctuary = false;
 
@@ -2629,13 +2666,14 @@
                 `<div>💰 Coin: <b style="color:#ffd700">${coins}</b></div>` +
                 `<div>📏 Yarıçap: <b>${computeSanctRadius()}</b></div>` +
                 `<div>🗼 Kule: <b>${sanct.towers * 2}</b></div>` +
+                `<div>⚜️ Komutan canı: <b>+%${sanct.hq * 10}</b></div>` +
                 `<div>🌟 Çekirdek bonusu: <b>+${sanct.coreBonus || 0}</b></div>` +
                 `<div>🎁 Sandık: <b>${left <= 0 ? 'HAZIR!' : Math.ceil(left / 1000) + ' sn'}</b></div>`;
             document.getElementById('sanctGrid').innerHTML = sanctDB.map(it => {
                 const lv = sanct[it.id]; const cost = sanctCost(it); const maxed = lv >= SANCT_MAX;
                 return `<div class="sanct-card"><div class="sc-top"><span>${it.icon}</span><span>${it.name}</span></div>
                     <div class="sc-d">${it.desc}</div>
-                    <div class="pips">${Array.from({ length: SANCT_MAX }, (_, k) => `<i class="${k < lv ? 'on' : ''}"></i>`).join('')}</div>
+                    <div class="pips">${Array.from({ length: SANCT_MAX }, (_, k) => `<i class="${k < lv ? 'on' : ''}${k >= 5 ? ' g' : ''}"></i>`).join('')}</div><div style="font-size:11px;color:#8cb">Seviye ${lv} / ${SANCT_MAX}${lv >= 5 && lv < SANCT_MAX ? ' · ✨ usta kademe' : ''}</div>
                     ${maxed ? '<button class="maxed" disabled>✔ MAKSİMUM</button>' : `<button ${coins < cost ? 'disabled' : ''} onclick="upgradeSanct('${it.id}')">YÜKSELT · ${cost} 💰</button>`}
                 </div>`;
             }).join('');
@@ -2652,6 +2690,7 @@
             const cost = sanctCost(it); if (coins < cost) return;
             coins -= cost; sanct[id]++; saveSanct();
             if (id === 'walls') safeZone.radius = computeSanctRadius();
+            if (id === 'hq' && typeof refreshArmyStats === 'function') refreshArmyStats();
             document.getElementById('coinCount').innerText = coins; saveGame();
             SND.play('buy');
             renderSanctuary();
@@ -2708,7 +2747,7 @@
               ctx.fillStyle = 'rgba(255,220,190,0.75)'; ctx.font = 'italic 11px Segoe UI'; ctx.textAlign = 'center'; ctx.fillText('Annemin düştüğü yer', mx, my + 26); ctx.restore(); }
             // Nöbetçi kuleleri
             const n = sanct.towers * 2; if (towerCooldowns.length !== n) towerCooldowns = new Array(n).fill(0);
-            const dmg = (40 + 35 * sanct.towers) * (1 + currentWave * 0.08); const cd = 50 - sanct.towers * 5;
+            const dmg = (40 + 35 * sanct.towers) * (1 + currentWave * 0.08); const cd = sanct.towers <= 5 ? 50 - sanct.towers * 5 : Math.max(14, 25 - (sanct.towers - 5) * 2);
             for (let k = 0; k < n; k++) {
                 const a = (k / n) * Math.PI * 2 + 0.4; const tx = safeZone.x + Math.cos(a) * R, ty = safeZone.y + Math.sin(a) * R;
                 if (towerCooldowns[k] > 0) towerCooldowns[k]--;
@@ -5036,7 +5075,7 @@
                 ['🏴', totalHivesCapturedLifetime, 'FETHEDİLEN KOVAN'],
                 ['📜', loreFound.length + ' / ' + loreFragmentPoints.length, 'KADİM PARÇA']
             ];
-            items.push(['🏰', (sanct.walls + sanct.spring + sanct.towers + sanct.altar + sanct.training) + ' / 25', 'SIĞINAK']);
+            items.push(['🏰', sanctTotal() + ' / ' + sanctDB.length * SANCT_MAX, 'SIĞINAK']);
             if (saved) items.unshift(['🌊', 'Dalga ' + (saved.currentWave || 1), 'KAYITLI OYUN · SV ' + (saved.level || 1)]);
             document.getElementById('menuStats').innerHTML = items.map(([ic, v, l]) => `<div class="menu-stat"><div class="ms-v">${ic} ${v}</div><div class="ms-l">${l}</div></div>`).join('');
         }
@@ -5050,7 +5089,7 @@
         function worldSummary(id) {
             let save = null; try { save = JSON.parse(readWorld(id, 'boruSaveState')); } catch (e) {}
             let skinsN = 3; try { skinsN = (JSON.parse(readWorld(id, 'boruSkins')) || []).length || 3; } catch (e) {}
-            let sanctL = 0; try { const sd = JSON.parse(readWorld(id, 'boruSanctuary')) || {}; sanctL = (sd.walls || 0) + (sd.spring || 0) + (sd.towers || 0) + (sd.altar || 0) + (sd.training || 0); } catch (e) {}
+            let sanctL = 0; try { const sd = JSON.parse(readWorld(id, 'boruSanctuary')) || {}; sanctL = sanctTotal(sd); } catch (e) {}
             return {
                 maxLvl: parseInt(readWorld(id, 'boruMaxLevel')) || 1,
                 coins: save ? (save.coins || 0) : (parseInt(readWorld(id, 'boruBackupCoins')) || 0),
@@ -5732,10 +5771,10 @@
         }
 
         let escortTick = 0, escortMsgCd = 0;
-        function slaveMaxHp(isMain) { return 1600 * (1 + AB('slave', 'hp')) * (isMain ? 2.2 : 1) * armyPowerMult(); }
+        function slaveMaxHp(isMain) { return 1600 * (1 + AB('slave', 'hp')) * (isMain ? 2.2 : 1) * armyPowerMult() * (1 + (sanct.hq || 0) * 0.10); }
         // ORDU ÖLÇEKLENMESİ: köleler ve askerler ejderhayla birlikte güçlenir (her seviye +%3)
         function armyPowerMult() { return 1 + (powLvl() - 1) * 0.03; }
-        function soldierMaxHp() { return 560 * (1 + AB('soldier', 'hp')) * armyPowerMult(); }
+        function soldierMaxHp() { return 560 * (1 + AB('soldier', 'hp')) * armyPowerMult() * (1 + (sanct.hq || 0) * 0.05); }
         function refreshArmyStats() {
             for (const hb of hiredBosses) { const r = hb.hp / hb.maxHp; hb.maxHp = slaveMaxHp(hb.main); hb.hp = hb.maxHp * r; hb.size = (hb.main ? 54 : 42) * armyScale(); }
             for (const so of hiveSoldiers) { const r = so.hp / so.maxHp; so.maxHp = soldierMaxHp(); so.hp = so.maxHp * r; so.size = 24 * armyScale(); }
@@ -7775,7 +7814,216 @@
         }
 
         // Dünya zemini, biyom havası, sığınak ve portal: oda sahibi ve katılımcılar aynı çizimi kullanır
+        // =====================================================================
+        // KAZUMA: diğer ejderhaların parça parça / yarı saydam gövdesi yerine TEK PARÇA, pürüzsüz ve dolu bir
+        // gövde. Gövdenin üstü sıra sıra bronz kenarlı pullarla kaplı, sırtında kemik dikenler var. Kanatlar
+        // gövdeye yapıştırılmamış; kas kökleri, kirişleri ve kor damarlarıyla gövdenin içinden bir organ gibi
+        // büyüyor. Hilal boynuzlar, ateş bıyıkları ve orak kuyruk ona özgü.
+        // =====================================================================
+        const KZ = {
+            body: ['#46e3c0', '#157060', '#03201a'], ridge: '#9ff5dd', scale: '#1d8b76', scaleEdge: '#d9a84e',
+            membrane: ['#a8242e', '#5a0c16', '#1a0306'], vein: '#ff9a3a', horn: ['#fff3d2', '#d6aa62', '#4e3208'], bone: '#f1e3bf', eye: '#ffe45a'
+        };
+        function kzSmooth(c, pts, move) {
+            if (move) c.moveTo(pts[0].x, pts[0].y); else c.lineTo(pts[0].x, pts[0].y);
+            for (let k = 1; k < pts.length - 1; k++) c.quadraticCurveTo(pts[k].x, pts[k].y, (pts[k].x + pts[k + 1].x) / 2, (pts[k].y + pts[k + 1].y) / 2);
+            const L = pts[pts.length - 1]; c.lineTo(L.x, L.y);
+        }
+        function kzBodyPath(c, pts, f, tip) {
+            const L = [], R = [];
+            for (const p of pts) { L.push({ x: p.x - p.sa * p.r * f, y: p.y + p.ca * p.r * f }); R.push({ x: p.x + p.sa * p.r * f, y: p.y - p.ca * p.r * f }); }
+            c.beginPath(); kzSmooth(c, L, true); c.lineTo(tip.x, tip.y); kzSmooth(c, R.reverse(), false); c.closePath();
+        }
+        function kzLerp(a, b, t) { return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t }; }
+        function kzRot(p, o, ang) { const c = Math.cos(ang), s = Math.sin(ang), dx = p.x - o.x, dy = p.y - o.y; return { x: o.x + dx * c - dy * s, y: o.y + dx * s + dy * c }; }
+        // Kanat geometrisi (eklemin yerel ekseninde: +x ileri, +y yan). Kanat kökü gövdenin İÇİNDEN başlar.
+        function kzWingGeo(side, r, U, flap) {
+            const Sh = { x: 4 * U, y: side * r * 0.45 };
+            const raw = {
+                E: { x: 12 * U, y: side * (r + 34 * U) }, W: { x: -4 * U, y: side * (r + 70 * U) },
+                F1: { x: 32 * U, y: side * (r + 96 * U) }, F2: { x: -14 * U, y: side * (r + 118 * U) },
+                F3: { x: -52 * U, y: side * (r + 100 * U) }, F4: { x: -78 * U, y: side * (r + 56 * U) }
+            };
+            const g = { Sh, B: { x: -44 * U, y: side * r * 0.55 } };
+            for (const k in raw) g[k] = kzRot(raw[k], Sh, side * flap);
+            return g;
+        }
+        function kzScallop(c, a, b, toward, k) { const m = kzLerp(a, b, 0.5); const q = kzLerp(m, toward, k); c.quadraticCurveTo(q.x, q.y, b.x, b.y); }
+        function kzWingMembrane(c, g, U, memb, vein, hiQ) {
+            // Zar: opak, kıvrık kenarlı, parmak kemikleri arasında gerilmiş deri
+            const grad = c.createRadialGradient(g.W.x, g.W.y, 4 * U, g.W.x, g.W.y, 125 * U);
+            grad.addColorStop(0, memb[0]); grad.addColorStop(0.55, memb[1]); grad.addColorStop(1, memb[2]);
+            c.fillStyle = grad; c.strokeStyle = '#140204'; c.lineWidth = 1.6 * U;
+            c.beginPath(); c.moveTo(g.Sh.x, g.Sh.y); c.lineTo(g.E.x, g.E.y); c.lineTo(g.W.x, g.W.y); c.lineTo(g.F1.x, g.F1.y);
+            kzScallop(c, g.F1, g.F2, g.W, 0.3); kzScallop(c, g.F2, g.F3, g.W, 0.3); kzScallop(c, g.F3, g.F4, g.W, 0.32); kzScallop(c, g.F4, g.B, g.W, 0.18);
+            c.closePath(); c.fill(); c.stroke();
+            // Kor damarlar: bileğe yakın kalın, uçlara doğru dallanan
+            c.save(); c.strokeStyle = vein; c.lineCap = 'round'; if (hiQ) { c.shadowBlur = 7; c.shadowColor = vein; }
+            const tips = [g.F1, g.F2, g.F3, g.F4];
+            for (let k = 0; k < 3; k++) {
+                const a = tips[k], b = tips[k + 1]; const mid = kzLerp(kzLerp(a, b, 0.5), g.W, 0.22);
+                c.lineWidth = 1.3 * U; c.beginPath(); c.moveTo(g.W.x, g.W.y); c.quadraticCurveTo(kzLerp(g.W, mid, 0.5).x + 6 * U, kzLerp(g.W, mid, 0.5).y, mid.x, mid.y); c.stroke();
+                c.lineWidth = 0.7 * U; const br1 = kzLerp(mid, a, 0.45), br2 = kzLerp(mid, b, 0.45);
+                c.beginPath(); c.moveTo(mid.x, mid.y); c.lineTo(br1.x, br1.y); c.moveTo(mid.x, mid.y); c.lineTo(br2.x, br2.y); c.stroke();
+            }
+            { const m = kzLerp(kzLerp(g.F4, g.B, 0.5), g.W, 0.2); c.lineWidth = 1.1 * U; c.beginPath(); c.moveTo(g.E.x, g.E.y); c.quadraticCurveTo(g.W.x - 20 * U, g.W.y * 0.9, m.x, m.y); c.stroke(); }
+            c.restore();
+            // Kemikler: kol, önkol ve dört parmak; eklem yumruları ve baş parmakta pençe
+            c.save(); c.lineCap = 'round';
+            const bone = (a, b, w) => { c.strokeStyle = '#1a0e04'; c.lineWidth = w + 1.6 * U; c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke(); c.strokeStyle = KZ.bone; c.lineWidth = w; c.beginPath(); c.moveTo(a.x, a.y); c.lineTo(b.x, b.y); c.stroke(); };
+            bone(g.E, g.W, 4.6 * U); for (const t of tips) bone(g.W, t, 2.2 * U);
+            c.fillStyle = KZ.horn[1]; c.strokeStyle = '#1a0e04'; c.lineWidth = 1 * U;
+            for (const p of [g.E, g.W]) { c.beginPath(); c.arc(p.x, p.y, 4 * U, 0, Math.PI * 2); c.fill(); c.stroke(); }
+            { const d = Math.atan2(g.F1.y - g.W.y, g.F1.x - g.W.x); c.save(); c.translate(g.F1.x, g.F1.y); c.rotate(d); c.fillStyle = KZ.horn[0];
+              c.beginPath(); c.moveTo(-2 * U, -3 * U); c.quadraticCurveTo(9 * U, -3 * U, 12 * U, 5 * U); c.quadraticCurveTo(6 * U, 0, -2 * U, 3 * U); c.closePath(); c.fill(); c.stroke(); c.restore(); }
+            c.restore();
+        }
+        function kzWingRoot(c, g, r, U, body, vein, side, hiQ) {
+            // Kas kökü: gövdenin kendi rengiyle gövdeden çıkıp kola dönüşen şişkin et + kirişler
+            const E = g.E, mid = kzLerp(g.Sh, E, 0.55); const d = Math.atan2(E.y - g.Sh.y, E.x - g.Sh.x); const nx = -Math.sin(d), ny = Math.cos(d);
+            const A1 = { x: 22 * U, y: side * r * 0.15 }, A2 = { x: -26 * U, y: side * r * 0.2 };
+            const bw = 9 * U;
+            const grad = c.createLinearGradient(0, 0, E.x, E.y); grad.addColorStop(0, body[1]); grad.addColorStop(0.7, body[1]); grad.addColorStop(1, body[2]);
+            c.fillStyle = grad; c.strokeStyle = body[2]; c.lineWidth = 1.4 * U;
+            c.beginPath(); c.moveTo(A1.x, A1.y);
+            c.quadraticCurveTo(mid.x + nx * bw * 1.6, mid.y + ny * bw * 1.6, E.x + nx * 4 * U, E.y + ny * 4 * U);
+            c.lineTo(E.x - nx * 4 * U, E.y - ny * 4 * U);
+            c.quadraticCurveTo(mid.x - nx * bw * 1.8, mid.y - ny * bw * 1.8, A2.x, A2.y);
+            c.quadraticCurveTo(-2 * U, side * r * 0.05, A1.x, A1.y); c.closePath(); c.fill(); c.stroke();
+            // Kirişler (açık renk tendonlar)
+            c.save(); c.strokeStyle = body[0]; c.lineCap = 'round'; c.lineWidth = 1.2 * U;
+            for (const o of [-0.5, 0.1, 0.6]) { const s0 = kzLerp(A1, A2, 0.5 + o * 0.35), s1 = { x: kzLerp(mid, E, 0.5).x + nx * bw * o, y: kzLerp(mid, E, 0.5).y + ny * bw * o };
+                c.beginPath(); c.moveTo(s0.x, s0.y); c.quadraticCurveTo(mid.x + nx * bw * o * 1.4, mid.y + ny * bw * o * 1.4, s1.x, s1.y); c.stroke(); }
+            // Gövdeden kanada akan kor damar
+            c.strokeStyle = vein; c.lineWidth = 1.5 * U; if (hiQ) { c.shadowBlur = 8; c.shadowColor = vein; }
+            c.beginPath(); c.moveTo(-8 * U, side * r * 0.1); c.quadraticCurveTo(mid.x - nx * 3 * U, mid.y - ny * 3 * U, E.x, E.y); c.stroke();
+            c.restore();
+        }
+        function drawKazuma(S, G) {
+            const n = joints.length; if (n < 4) return;
+            const hiQ = gfxQuality !== 'low'; const fullQ = gfxQuality === 'high';
+            const body = isRageActive ? ['#c8ecff', '#1f5c96', '#03101f'] : KZ.body;
+            const memb = isRageActive ? ['#3a5cc0', '#121e5a', '#030618'] : KZ.membrane;
+            const vein = isRageActive ? (activeTheme.rageBlueMode ? '#66ccff' : '#ffffff') : KZ.vein;
+            const pts = [];
+            for (let i = 0; i < n; i++) {
+                const j = joints[i]; const t = i / (n - 1);
+                const w = t < 0.1 ? 0.6 + 0.4 * (t / 0.1) : Math.pow(Math.max(0, 1 - (t - 0.1) / 0.9), 0.85);
+                pts.push({ x: j.x - camX, y: j.y - camY, r: (3 + 19 * w) * G * S, ca: Math.cos(j.angle), sa: Math.sin(j.angle), a: j.angle });
+            }
+            const last = pts[n - 1]; const tip = { x: last.x - last.ca * (last.r * 2 + 12 * G * S), y: last.y - last.sa * (last.r * 2 + 12 * G * S) };
+            const flapSpeed = isBreathingFire ? tick * 2.5 : tick; const flapAmp = isBreathingFire ? 0.5 : 0.32;
+            const wingBig = equippedBlackMarket.bigWings ? 1.35 : 1;
+            const wings = [
+                { k: Math.max(2, Math.round(n * 0.16)), ws: 1.0 * wingBig, ph: 0 },
+                { k: Math.max(4, Math.round(n * 0.36)), ws: 0.6 * wingBig, ph: Math.PI / 3 }
+            ].filter(wg => wg.k < n - 2);
+            ctx.save();
+            // 1) Kanat zarları (gövdenin altında kalır)
+            for (const wg of wings) { const p = pts[wg.k]; const U = G * S * wg.ws; const flap = Math.sin(flapSpeed + wg.ph) * flapAmp;
+                ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a);
+                for (const side of [1, -1]) kzWingMembrane(ctx, kzWingGeo(side, p.r, U, flap), U, memb, vein, hiQ);
+                ctx.restore(); }
+            // 2) TEK PARÇA GÖVDE: katmanlı, dolu (saydam değil) silüet
+            if (isSuperBeamCharging) { ctx.shadowBlur = 24; ctx.shadowColor = '#00ffff'; }
+            ctx.fillStyle = body[2]; ctx.strokeStyle = '#010a08'; ctx.lineWidth = 2.2 * G * S; ctx.lineJoin = 'round';
+            kzBodyPath(ctx, pts, 1, tip); ctx.fill(); ctx.stroke(); ctx.shadowBlur = 0;
+            ctx.fillStyle = body[1]; kzBodyPath(ctx, pts, 0.78, kzLerp(tip, last, 0.25)); ctx.fill();
+            // 3) Pullar: sırtı kaplayan, arkaya bakan, bronz kenarlı sıralar (şaşırtmalı dizilim)
+            const subs = fullQ ? 2 : 1; const lanes = hiQ ? [-0.6, -0.2, 0.2, 0.6] : [-0.45, 0, 0.45];
+            ctx.lineWidth = 1 * G * S;
+            for (let i = 1; i < n - 1; i++) for (let sb = 0; sb < subs; sb++) {
+                const u = sb / subs; const a = pts[i], b = pts[i + 1];
+                const x = a.x + (b.x - a.x) * u, y = a.y + (b.y - a.y) * u, r = a.r + (b.r - a.r) * u; if (r < 4 * G * S) continue;
+                const ang = a.a; const ca = Math.cos(ang), sa = Math.sin(ang); const sz = r * (hiQ ? 0.25 : 0.32);
+                const off = ((i * subs + sb) % 2) ? 0.2 : 0;
+                for (const ln0 of lanes) { const ln = ln0 + (ln0 > 0 ? -off : off) * 0.5; if (Math.abs(ln) > 0.72) continue;
+                    ctx.save(); ctx.translate(x - sa * r * ln, y + ca * r * ln); ctx.rotate(ang);
+                    ctx.fillStyle = Math.abs(ln) < 0.3 ? KZ.scale : body[1]; ctx.strokeStyle = isRageActive ? '#bfe6ff' : KZ.scaleEdge;
+                    ctx.beginPath(); ctx.moveTo(sz * 0.7, -sz * 0.75); ctx.quadraticCurveTo(-sz * 0.4, -sz * 0.95, -sz * 1.05, 0); ctx.quadraticCurveTo(-sz * 0.4, sz * 0.95, sz * 0.7, sz * 0.75); ctx.closePath(); ctx.fill();
+                    ctx.beginPath(); ctx.moveTo(-sz * 0.2, -sz * 0.82); ctx.quadraticCurveTo(-sz * 0.95, -sz * 0.4, -sz * 1.05, 0); ctx.quadraticCurveTo(-sz * 0.95, sz * 0.4, -sz * 0.2, sz * 0.82); ctx.stroke();
+                    ctx.restore(); }
+            }
+            // 4) Gövde boyunca akan iki kor damar (organ hissi)
+            ctx.save(); ctx.strokeStyle = vein; ctx.lineCap = 'round'; ctx.lineWidth = 1.3 * G * S; if (hiQ) { ctx.shadowBlur = 8; ctx.shadowColor = vein; }
+            for (const side of [1, -1]) { const vp = []; const k0 = wings.length ? wings[0].k : 2;
+                for (let i = k0; i < n - 1; i++) { const p = pts[i]; const ln = side * (0.82 + Math.sin(i * 1.3 + tick * 2) * 0.05); vp.push({ x: p.x - p.sa * p.r * ln, y: p.y + p.ca * p.r * ln }); }
+                if (vp.length > 2) { ctx.beginPath(); kzSmooth(ctx, vp, true); ctx.stroke(); } }
+            ctx.restore();
+            // 5) Sırt dikenleri: omurga boyunca arkaya yatık kemik bıçaklar
+            for (let i = 1; i < n - 2; i++) { const p = pts[i]; if (p.r < 5 * G * S) continue; const h = p.r * 0.95, w = p.r * 0.2;
+                ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a);
+                const sg = ctx.createLinearGradient(w, 0, -h, 0); sg.addColorStop(0, KZ.horn[2]); sg.addColorStop(1, isRageActive ? '#ffffff' : KZ.ridge);
+                ctx.fillStyle = sg; ctx.strokeStyle = '#010a08'; ctx.lineWidth = 0.9 * G * S;
+                ctx.beginPath(); ctx.moveTo(w * 1.4, -w); ctx.quadraticCurveTo(-h * 0.3, -w * 0.6, -h, 0); ctx.quadraticCurveTo(-h * 0.3, w * 0.6, w * 1.4, w); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }
+            // 6) Kanat kökleri: gövdenin üstüne binen kaslar -> kanat gövdeden çıkıyormuş gibi
+            for (const wg of wings) { const p = pts[wg.k]; const U = G * S * wg.ws; const flap = Math.sin(flapSpeed + wg.ph) * flapAmp;
+                ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a);
+                for (const side of [1, -1]) kzWingRoot(ctx, kzWingGeo(side, p.r, U, flap), p.r, U, body, vein, side, hiQ);
+                ctx.restore(); }
+            // 7) Orak kuyruk: hilal biçimli bronz bıçak + iki yan diken
+            { const U = G * S; ctx.save(); ctx.translate(tip.x, tip.y); ctx.rotate(last.a);
+              const tg = ctx.createLinearGradient(0, -34 * U, 0, 34 * U); tg.addColorStop(0, KZ.horn[0]); tg.addColorStop(0.5, KZ.horn[1]); tg.addColorStop(1, KZ.horn[0]);
+              if (hiQ) { ctx.shadowBlur = 10; ctx.shadowColor = vein; }
+              ctx.fillStyle = tg; ctx.strokeStyle = '#1a0e04'; ctx.lineWidth = 1.4 * U;
+              ctx.beginPath(); ctx.moveTo(8 * U, -4 * U); ctx.quadraticCurveTo(-4 * U, -30 * U, 10 * U, -38 * U); ctx.quadraticCurveTo(-26 * U, -30 * U, -30 * U, 0);
+              ctx.quadraticCurveTo(-26 * U, 30 * U, 10 * U, 38 * U); ctx.quadraticCurveTo(-4 * U, 30 * U, 8 * U, 4 * U); ctx.quadraticCurveTo(-8 * U, 0, 8 * U, -4 * U); ctx.closePath(); ctx.fill(); ctx.stroke();
+              ctx.shadowBlur = 0; ctx.strokeStyle = vein; ctx.lineWidth = 1.2 * U; ctx.beginPath(); ctx.moveTo(4 * U, -33 * U); ctx.quadraticCurveTo(-22 * U, -24 * U, -25 * U, 0); ctx.quadraticCurveTo(-22 * U, 24 * U, 4 * U, 33 * U); ctx.stroke();
+              ctx.fillStyle = KZ.bone; ctx.strokeStyle = '#1a0e04'; ctx.lineWidth = 1 * U;
+              for (const side of [1, -1]) { ctx.beginPath(); ctx.moveTo(14 * U, side * 3 * U); ctx.lineTo(4 * U, side * 16 * U); ctx.lineTo(20 * U, side * 6 * U); ctx.closePath(); ctx.fill(); ctx.stroke(); }
+              ctx.restore(); }
+            // 8) Baş
+            { const p = pts[0]; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); ctx.scale(S, S); drawKazumaHead(ctx, G, body, vein, hiQ); 
+              if (isBreathingFire) { ctx.beginPath(); ctx.arc(50 * G, 0, 10 + Math.random() * 8, 0, Math.PI * 2); ctx.fillStyle = isRageActive ? '#ffffff' : KZ.vein; ctx.fill(); }
+              if (isSuperBeamCharging) { ctx.beginPath(); ctx.arc(50 * G, 0, superBeamChargeTimer / 4, 0, Math.PI * 2); ctx.fillStyle = '#00ffff'; ctx.fill(); }
+              ctx.restore(); }
+            ctx.restore();
+        }
+        function drawKazumaHead(c, G, body, vein, hiQ) {
+            // Ateş bıyıkları: burundan arkaya dalgalanan iki uzun sakal-bıyık
+            c.save(); c.strokeStyle = vein; c.lineCap = 'round'; if (hiQ) { c.shadowBlur = 6; c.shadowColor = vein; }
+            for (const s of [1, -1]) { c.lineWidth = 2.2 * G; c.beginPath(); c.moveTo(34 * G, s * 7 * G);
+                for (let k = 1; k <= 6; k++) { const x = 34 * G - k * 11 * G, y = s * (7 * G + k * 5.5 * G) + Math.sin(tick * 3 + k * 0.9 + (s > 0 ? 0 : 1.6)) * 4 * G; c.lineTo(x, y); c.lineWidth = Math.max(0.8, 2.2 - k * 0.25) * G; }
+                c.stroke(); }
+            c.restore();
+            // Yan boynuz çifti (küçük, arkaya yatık)
+            c.fillStyle = KZ.horn[1]; c.strokeStyle = '#1a0e04'; c.lineWidth = 1.2 * G;
+            for (const s of [1, -1]) { c.beginPath(); c.moveTo(-4 * G, s * 11 * G); c.lineTo(-30 * G, s * 19 * G); c.lineTo(-10 * G, s * 6 * G); c.closePath(); c.fill(); c.stroke(); }
+            // Kafatası: uzun, kama biçimli, dolu
+            const hg = c.createLinearGradient(-12 * G, 0, 48 * G, 0); hg.addColorStop(0, body[2]); hg.addColorStop(0.45, body[1]); hg.addColorStop(1, body[0]);
+            c.fillStyle = hg; c.strokeStyle = '#010a08'; c.lineWidth = 2 * G; c.lineJoin = 'round';
+            c.beginPath(); c.moveTo(48 * G, 0); c.quadraticCurveTo(44 * G, -6 * G, 32 * G, -9 * G); c.lineTo(14 * G, -16 * G); c.quadraticCurveTo(-4 * G, -17 * G, -12 * G, -8 * G); c.lineTo(-15 * G, 0);
+            c.lineTo(-12 * G, 8 * G); c.quadraticCurveTo(-4 * G, 17 * G, 14 * G, 16 * G); c.lineTo(32 * G, 9 * G); c.quadraticCurveTo(44 * G, 6 * G, 48 * G, 0); c.closePath(); c.fill(); c.stroke();
+            // Burun sırtı ve alın pulları
+            c.fillStyle = KZ.scale; c.strokeStyle = KZ.scaleEdge; c.lineWidth = 1 * G;
+            for (let k = 0; k < 4; k++) { const x = 34 * G - k * 10 * G, w = (3.5 + k * 1.6) * G; c.beginPath(); c.moveTo(x + 4 * G, 0); c.lineTo(x - 4 * G, -w); c.lineTo(x - 7 * G, 0); c.lineTo(x - 4 * G, w); c.closePath(); c.fill(); c.stroke(); }
+            // Dişler
+            c.fillStyle = '#fffaf0'; c.strokeStyle = '#2a1a0a'; c.lineWidth = 0.8 * G;
+            for (const s of [1, -1]) for (const x of [40, 30]) { c.beginPath(); c.moveTo(x * G, s * (x === 40 ? 5 : 9) * G); c.lineTo((x + 3) * G, s * (x === 40 ? 10 : 14) * G); c.lineTo((x - 3) * G, s * (x === 40 ? 6 : 10) * G); c.closePath(); c.fill(); c.stroke(); }
+            // Burun delikleri (ateş solurken kor)
+            c.fillStyle = isBreathingFire ? vein : '#010504';
+            for (const s of [1, -1]) { c.beginPath(); c.ellipse(41 * G, s * 3.2 * G, 2.6 * G, 1.3 * G, s * 0.3, 0, Math.PI * 2); c.fill(); }
+            // Gözler: çekik, parlayan
+            for (const s of [1, -1]) { c.save(); c.translate(17 * G, s * 10 * G); c.rotate(s * 0.35);
+                c.fillStyle = '#000'; c.beginPath(); c.ellipse(0, 0, 6.5 * G, 3 * G, 0, 0, Math.PI * 2); c.fill();
+                if (hiQ) { c.shadowBlur = 12; c.shadowColor = isRageActive ? '#00ffff' : KZ.eye; }
+                c.fillStyle = isRageActive ? '#aaffff' : KZ.eye; c.beginPath(); c.ellipse(0.5 * G, 0, 5 * G, 2.1 * G, 0, 0, Math.PI * 2); c.fill();
+                c.shadowBlur = 0; c.fillStyle = '#1a0800'; c.beginPath(); c.ellipse(1.5 * G, 0, 1 * G, 1.9 * G, 0, 0, Math.PI * 2); c.fill(); c.restore(); }
+            // ANA HİLAL BOYNUZLAR: geriye ve dışa açılıp uçları öne kıvrılan, halkalı, kalın boynuzlar
+            for (const s of [1, -1]) {
+                const g = c.createLinearGradient(0, s * 8 * G, -10 * G, s * 46 * G); g.addColorStop(0, KZ.horn[2]); g.addColorStop(0.45, KZ.horn[1]); g.addColorStop(1, KZ.horn[0]);
+                c.fillStyle = g; c.strokeStyle = '#1a0e04'; c.lineWidth = 1.4 * G;
+                c.beginPath(); c.moveTo(4 * G, s * 9 * G); c.bezierCurveTo(-22 * G, s * 22 * G, -34 * G, s * 42 * G, 8 * G, s * 48 * G);
+                c.bezierCurveTo(-18 * G, s * 36 * G, -16 * G, s * 20 * G, -8 * G, s * 6 * G); c.closePath(); c.fill(); c.stroke();
+                c.strokeStyle = 'rgba(40,20,4,0.9)'; c.lineWidth = 1 * G;
+                for (const t of [0.25, 0.42, 0.58, 0.72]) { const x = -8 * G + Math.sin(t * Math.PI) * -18 * G, y = s * (8 + t * 34) * G; c.beginPath(); c.moveTo(x - 5 * G, y - s * 3 * G); c.lineTo(x + 5 * G, y + s * 1 * G); c.stroke(); }
+            }
+            // Ense tacı: orta hatta üç küçük diken
+            c.fillStyle = KZ.bone; c.strokeStyle = '#1a0e04'; c.lineWidth = 1 * G;
+            for (let k = 0; k < 3; k++) { const x = -10 * G - k * 7 * G; c.beginPath(); c.moveTo(x + 4 * G, -2.5 * G); c.lineTo(x - 7 * G, 0); c.lineTo(x + 4 * G, 2.5 * G); c.closePath(); c.fill(); c.stroke(); }
+        }
         function drawDragonBody(sizeMultiplier, growthFactor, currentStretcht) {
+            if (activeTheme.id === 'kazuma' && !spacePressed) { drawKazuma(sizeMultiplier, growthFactor); return; }
             ctx.save();
             if (spacePressed) { ctx.globalAlpha = 0.35; }
             drawWings(ctx, 4, 1.0 * sizeMultiplier, 0, growthFactor); 
@@ -9151,8 +9399,8 @@
             if (inSafeZone) {
                 // Şifa Pınarı seviyesi iyileşmeyi hızlandırır
                 if (tick % 1 < 0.5 && dragonHp < maxHp && !(MP.active && MP.localDead)) { dragonHp = Math.min(maxHp, dragonHp + 2 + sanct.spring * 3 + maxHp * 0.0004 * sanct.spring); updateUI(); }
-                for (const hb of hiredBosses) { if (Math.hypot(hb.x - safeZone.x, hb.y - safeZone.y) < safeZone.radius) hb.hp = Math.min(hb.maxHp, hb.hp + 1 + sanct.spring * 2); }
-                for (const so of hiveSoldiers) { if (Math.hypot(so.x - safeZone.x, so.y - safeZone.y) < safeZone.radius) so.hp = Math.min(so.maxHp, so.hp + 1 + sanct.spring * 2); }
+                for (const hb of hiredBosses) { if (Math.hypot(hb.x - safeZone.x, hb.y - safeZone.y) < safeZone.radius) hb.hp = Math.min(hb.maxHp, hb.hp + 1 + sanct.spring * 2 + (sanct.hq || 0) * 3); }
+                for (const so of hiveSoldiers) { if (Math.hypot(so.x - safeZone.x, so.y - safeZone.y) < safeZone.radius) so.hp = Math.min(so.maxHp, so.hp + 1 + sanct.spring * 2 + (sanct.hq || 0) * 2); }
                 if (sanct.spring > 0) { ghostEnergy = Math.min(GHOST_MAX, ghostEnergy + 0.15 * sanct.spring); if (!isSuperBeamCharging && !isSuperBeamFiring) plasmaCharge = Math.min(PLASMA_MAX, plasmaCharge + sanct.spring * 2); }
                 if (altarReady && !inMirrorArena && !MP.active) claimAltarChest();
                 document.getElementById('safeZoneIndicator').style.display = 'block';
@@ -10645,6 +10893,8 @@
                 if (e.phase === 'return' || retreat) { const [tx, ty] = bmW2S(world.dragonX, world.dragonY); c.lineTo(tx, ty); }
                 c.stroke(); c.setLineDash([]);
                 c.fillStyle = '#ffd24a'; c.strokeStyle = '#000'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(px, py - 8); c.lineTo(px + 8, py); c.lineTo(px, py + 8); c.lineTo(px - 8, py); c.closePath(); c.fill(); c.stroke();
+                bmHpBar(c, px, py + 12, 40, Math.max(0, Math.min(1, e.hp === undefined ? 1 : e.hp)));
+                c.font = 'bold 10px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'top'; c.fillStyle = '#ffe9a0'; c.fillText('👥 ' + e.soldiers + '/' + (e.sent || e.soldiers), px, py + 19);
                 c.font = 'bold 11px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.fillStyle = '#ffe9a0'; c.fillText(retreat ? '📜 ' + (e.courier || 'Ulak') + ' · ' + e.soldiers + ' sağ kalan' + (e.phase === 'laststand' ? ' · son direniş' : '') : '⚔️ ' + expNames(expPids(e)) + ' · ' + e.soldiers + (e.phase === 'siege' ? ' · kuşatma' : e.phase === 'return' ? ' · dönüş' : ''), px, py - 10);
                 c.restore();
             }
@@ -10724,7 +10974,12 @@
             // Bosslar
             for (const b of activeBosses) { const [sx, sy] = bmW2S(b.x, b.y); c.font = '16px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('💀', sx, sy); }
             // Köleler ve ejderha
-            for (const hb of hiredBosses) { const [sx, sy] = bmW2S(hb.x, hb.y); c.fillStyle = '#66aaff'; c.beginPath(); c.arc(sx, sy, 3, 0, Math.PI * 2); c.fill(); }
+            { const esc = escortCounts();
+              hiredBosses.forEach((hb, k) => { const [sx, sy] = bmW2S(hb.x, hb.y); const col = cmdPal(cmdOf(hb)).main; const f = Math.max(0, Math.min(1, hb.hp / (hb.maxHp || 1)));
+                c.save(); c.fillStyle = col; c.strokeStyle = '#000'; c.lineWidth = 1.5; c.beginPath(); c.arc(sx, sy, hb.main ? 6 : 4.5, 0, Math.PI * 2); c.fill(); c.stroke();
+                bmHpBar(c, sx, sy + 9, 34, f);
+                if (BM.scale >= 0.09) { c.font = 'bold 10px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.fillStyle = '#fff'; c.shadowBlur = 4; c.shadowColor = '#000';
+                c.fillText(cmdOf(hb).name + (k < ESC_MAIN ? ' · ' + (esc[k] || 0) + ' asker' : ''), sx, sy - 8); } c.restore(); }); }
             { const [sx, sy] = bmW2S(world.dragonX, world.dragonY); c.save(); c.translate(sx, sy); c.rotate(joints[0].angle);
               c.shadowBlur = 14; c.shadowColor = activeTheme.mainColor; c.fillStyle = '#fff'; c.strokeStyle = activeTheme.mainColor; c.lineWidth = 2;
               c.beginPath(); c.moveTo(14, 0); c.lineTo(-9, -9); c.lineTo(-4, 0); c.lineTo(-9, 9); c.closePath(); c.fill(); c.stroke(); c.restore(); }
@@ -10732,8 +10987,46 @@
             { const len = 1000 * BM.scale; c.strokeStyle = '#cfe0ff'; c.lineWidth = 2; const bx = 16, by = H - (document.body.classList.contains('m') ? 96 : 84);
               c.beginPath(); c.moveTo(bx, by); c.lineTo(bx + len, by); c.moveTo(bx, by - 5); c.lineTo(bx, by + 5); c.moveTo(bx + len, by - 5); c.lineTo(bx + len, by + 5); c.stroke();
               c.fillStyle = '#cfe0ff'; c.font = '11px sans-serif'; c.textAlign = 'left'; c.textBaseline = 'bottom'; c.fillText('100 m', bx, by - 7); }
-            bmInfo(hs);
+            bmInfo(hs); bmRenderCmds(false);
         }
+        function bmHpCol(f) { return f > 0.6 ? '#3ddc6a' : f > 0.3 ? '#ffb020' : '#ff3344'; }
+        function bmHpBar(c, x, y, w, f) {
+            c.save(); c.fillStyle = 'rgba(0,0,0,0.75)'; c.fillRect(x - w / 2 - 1, y - 1, w + 2, 6);
+            c.fillStyle = '#3a0a12'; c.fillRect(x - w / 2, y, w, 4); c.fillStyle = bmHpCol(f); c.fillRect(x - w / 2, y, w * f, 4); c.restore();
+        }
+        // KOMUTAN DURUMU: haritada her komutanın canı ve kalan asker sayısı (yanındakiler + seferdekiler)
+        function bmCmdEntries() {
+            const out = []; const esc = escortCounts();
+            hiredBosses.forEach((hb, k) => {
+                const C = cmdOf(hb); const f = Math.max(0, Math.min(1, hb.hp / (hb.maxHp || 1)));
+                out.push({ name: C.name, col: cmdPal(C).main, icon: cmdWeapon(C).icon, state: k < ESC_MAIN ? '🛡️ Ana eskort' : '🛡️ Yanında', f,
+                    hpTxt: Math.ceil(Math.max(0, hb.hp)) + ' / ' + Math.ceil(hb.maxHp), soldiers: k < ESC_MAIN ? (esc[k] || 0) + ' asker eskortta' : 'eskortsuz', x: hb.x, y: hb.y });
+            });
+            for (const e of expeditions) {
+                const f = Math.max(0, Math.min(1, e.hp === undefined ? 1 : e.hp));
+                const st = e.phase === 'siege' ? '🏹 Kuşatmada' : e.phase === 'return' ? '↩️ Dönüyor' : (e.phase === 'messenger' || e.phase === 'laststand') ? '📜 Geri çekiliyor' : '⚔️ Seferde';
+                for (const pid of expPids(e)) { const C = cmdProfiles[pid] || cmdProfiles[0];
+                    out.push({ name: C.name, col: cmdPal(C).main, icon: cmdWeapon(C).icon, state: st, f, hpTxt: '%' + Math.round(f * 100),
+                        soldiers: e.soldiers + ' / ' + (e.sent || e.soldiers) + ' asker kaldı' + (e.lostTotal ? ' · ' + e.lostTotal + ' kayıp' : ''), x: e.x, y: e.y }); }
+            }
+            return out;
+        }
+        function bmRenderCmds(force) {
+            const el = document.getElementById('bmCmds'); if (!el) return;
+            if (!force && (BM._cmdT = (BM._cmdT || 0) + 1) % 12) return;
+            const rows = bmCmdEntries(); BM._cmdRows = rows;
+            let expS = 0; for (const e of expeditions) expS += e.soldiers || 0;
+            const total = availableSoldiers() + expS;
+            el.classList.toggle('closed', BM.cmdClosed === true);
+            el.innerHTML = `<div class="bc-h" onclick="bmToggleCmds()"><b>⚔️ KOMUTANLAR ${rows.length}/${slaveCap()}</b><span>👥 ${total} asker</span><span>${BM.cmdClosed ? '▸' : '▾'}</span></div>` +
+                `<div class="bc-list">` + (rows.length ? rows.map((r, k) => `<div class="bc-row" onclick="bmFocusCmd(${k})">
+                    <div class="bc-top"><i style="--c:${r.col}"></i><b>${r.icon} ${escapeHtml(r.name)}</b><em>${r.state}</em></div>
+                    <div class="bc-hp"><div style="width:${(r.f * 100).toFixed(1)}%;background:${bmHpCol(r.f)}"></div></div>
+                    <div class="bc-sub"><span>❤️ ${r.hpTxt}</span><span>👥 ${r.soldiers}</span></div></div>`).join('')
+                    : `<div class="bc-none">Henüz komutanın yok. Hükümdar bossları yenerek komutan kazanırsın.</div>`) + `</div>`;
+        }
+        window.bmToggleCmds = function () { BM.cmdClosed = !BM.cmdClosed; bmRenderCmds(true); };
+        window.bmFocusCmd = function (k) { const r = BM._cmdRows && BM._cmdRows[k]; if (!r) return; BM.cx = r.x; BM.cy = r.y; BM.scale = Math.max(BM.scale, 0.05); };
         function bmInfo(hs) {
             const el = document.getElementById('bmInfo');
             el.style.display = BM.mode === 'sefer' ? 'none' : '';
@@ -10756,7 +11049,7 @@
             if (inMirrorArena) { showWaveText('🕳️ KARA DELİKTE HARİTA ÇALIŞMAZ', false, '#b77bff'); return; }
             BM.open = true; BM.sel = null; BM.cx = world.dragonX; BM.cy = world.dragonY; bmSeferReset();
             BM.scale = Math.min(innerWidth, innerHeight) / 9000;
-            bmResize(); document.getElementById('bigMap').classList.add('open');
+            bmResize(); document.getElementById('bigMap').classList.add('open'); bmRenderCmds(true);
             if (!isPaused && !MP.active) { isPaused = true; BM.paused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
             if (typeof endJoystick === 'function') try { endJoystick(); } catch (e) {}
             bmLoop();
