@@ -4704,7 +4704,7 @@
             setTimeout(tryShow, 2200);
         }
         function showRoyalReward(r, rep) {
-            isPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0;
+            if (!MP.active) isPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0;
             const box = document.getElementById('bhReward'); box.style.setProperty('--bhc', r.color);
             const left = livingRoyals();
             document.getElementById('bhrTag').innerText = '👑 KRAL DÜŞTÜ · ' + r.title.toUpperCase();
@@ -5897,7 +5897,7 @@
             if (!gameActive) return;
             if (typeof closeMMenu === 'function' && mMenuOpen()) closeMMenu();
             document.getElementById('cmdModal').classList.add('open'); renderCmd();
-            if (!isPaused) { isPaused = true; cmdPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
+            if (!isPaused && !MP.active) { isPaused = true; cmdPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
             cancelAnimationFrame(cmdRaf); const loop = () => { const cv = document.getElementById('cmPrev'); if (cv && document.getElementById('cmdModal').classList.contains('open')) { drawCmdPreview(cv, cmdProfiles[cmdSel], performance.now() / 1000); cmdRaf = requestAnimationFrame(loop); } }; cmdRaf = requestAnimationFrame(loop);
         };
         window.closeCmd = function () {
@@ -6147,7 +6147,7 @@
         window.openSkillTree = function () {
             if (!gameActive || document.getElementById('bhReward').style.display === 'flex') return;
             renderSkillTree(); document.getElementById('skillModal').classList.add('open');
-            if (!isPaused) { isPaused = true; skillPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
+            if (!isPaused && !MP.active) { isPaused = true; skillPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
         };
         window.closeSkillTree = function () {
             document.getElementById('skillModal').classList.remove('open');
@@ -10469,7 +10469,7 @@
             html += `<div class="jr-btns"><button class="action-btn" onclick="showGoalModal(false)" style="border-color:#ff9955;color:#ff9955;">🔥 YEMİNİMİ HATIRLA</button><button class="action-btn" onclick="closeJournal(); playStory(null);" style="border-color:#ff7a2a;color:#ffcc99;">📜 HİKÂYEYİ İZLE</button><button class="action-btn" onclick="closeJournal()">↩ KAPAT</button></div>`;
             box.innerHTML = html;
             journalPausedByMe = gameActive && !isPaused && !MP.active;
-            if (journalPausedByMe) { isPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
+            if (!MP.active && (journalPausedByMe)) { isPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
             document.getElementById('journalModal').style.display = 'flex';
         };
         window.closeJournal = function () {
@@ -10495,7 +10495,7 @@
                 <div class="gl-how"><b>Yol boyunca:</b> Dalgalar büyüdükçe devler gelir; 25 ruh yaktıktan sonra dalganın bossu çıkar. Sığınakta yaralarını sar ve onu büyüt (${kk('B', 'SIĞINAK butonu')}). Köle topla (${kk('Q+W', '☰ → Köle')}), fethettiğin kovanlardan takviye çağır (${kk('Q+S', '☰ → Takviye')}). Ne kadar uzağa gidersen düşmanların o kadar çok coin bırakır.<br><br>Amacını unutursan: <b>📖 Günlüğe (${kk('J', '☰ → Günlük')})</b> bak.</div>
                 <button class="action-btn menu-btn-primary" onclick="closeGoal()">🔥 YEMİNİMİ HATIRLIYORUM</button>`;
             goalPausedByMe = gameActive && !isPaused && !MP.active;
-            if (goalPausedByMe || (gameActive && journalPausedByMe)) { isPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; goalPausedByMe = true; journalPausedByMe = false; }
+            if (!MP.active && (goalPausedByMe || (gameActive && journalPausedByMe))) { isPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; goalPausedByMe = true; journalPausedByMe = false; }
             document.getElementById('goalModal').style.display = 'flex';
         };
         window.closeGoal = function () {
@@ -12223,7 +12223,7 @@
             if (!r) { hintToast('📜 Henüz bir ulak gelmedi.', '#d8c8a0', 2200); return; }
             if (typeof closeMMenu === 'function' && mMenuOpen()) closeMMenu();
             rpCur = r; rpDone = false; rpSkip = false;
-            if (!isPaused) { isPaused = true; rpPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
+            if (!isPaused && !MP.active) { isPaused = true; rpPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
             const m = document.getElementById('rpModal'), paper = document.getElementById('rpPaper'), txt = document.getElementById('rpText');
             txt.innerHTML = ''; document.getElementById('rpClose').classList.remove('show');
             // yırtık kenarlar: her mektup farklı yıpranır
@@ -12703,7 +12703,7 @@
         window.openMMenu = function () {
             if (!gameActive) return;
             renderMMenu(); document.getElementById('mmMsg').textContent = ''; document.getElementById('mMenu').classList.add('open');
-            if (!isPaused) { isPaused = true; mMenuPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
+            if (!isPaused && !MP.active) { isPaused = true; mMenuPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
         };
         window.closeMMenu = function () {
             document.getElementById('mMenu').classList.remove('open');
@@ -12742,7 +12742,7 @@
         // Uzak oyuncular her karede kendi ejderha çizim kodumuzla çizilir (joints/kostüm geçici olarak değiştirilir).
         // =====================================================================
         (function () {
-            const R = new Map();
+            const R = new Map(), RF = [], SPR = new Map();
             let baseFire = 1.5, lastHitter = null, hitAcc = new Map(), lastHitFlush = 0;
             const cnt = { hives: 0, bosses: 0, dealt: 0 };
             const B = window.BORU = {
@@ -12781,7 +12781,7 @@
                     camX = x - (canvas.width / viewScale) / 2; camY = y - (canvas.height / viewScale) / 2;
                 },
                 endMatch() {
-                    B.matchActive = false; gameActive = false; isBreathingFire = false; spacePressed = false;
+                    B.matchActive = false; gameActive = false; MP.players.clear(); RF.length = 0; isBreathingFire = false; spacePressed = false;
                     try { if (fireGain) fireGain.gain.value = 0; } catch (e) {}
                     document.getElementById('pauseMenu').style.display = 'none';
                 },
@@ -12790,7 +12790,8 @@
                         x: Math.round(world.dragonX), y: Math.round(world.dragonY), a: +joints[0].angle.toFixed(3),
                         vx: +(LP.vx || 0).toFixed(2), vy: +(LP.vy || 0).toFixed(2), n: joints.length, sm: +(LP.sm || 1).toFixed(3), gf: +playerGrowth().toFixed(3),
                         g: spacePressed ? 1 : 0, r: isRageActive ? 1 : 0, f: (isBreathingFire && !spacePressed && !MP.localDead) ? 1 : 0,
-                        hp: Math.max(0, Math.round(dragonHp)), mh: Math.round(maxHp), d: MP.localDead ? 1 : 0, sk: activeTheme.id, lv: level
+                        hp: Math.max(0, Math.round(dragonHp)), mh: Math.round(maxHp), d: MP.localDead ? 1 : 0, sk: activeTheme.id, lv: level,
+                        bc: isSuperBeamCharging ? +Math.min(1, superBeamChargeTimer / 120).toFixed(2) : 0, bf: isSuperBeamFiring ? 1 : 0, ro: MP.ro
                     };
                 },
                 stats() { return { k: score, hv: cnt.hives, bs: cnt.bosses, dl: Math.round(cnt.dealt), lv: level }; },
@@ -12845,10 +12846,11 @@
                     while (b.length > 2 && b[1].t < t) b.shift();
                     // Hedefe çok hafif yumuşatma (kare hızından bağımsız)
                     const f = r.lastF ? Math.min(1, (now - r.lastF) / 40) : 1; r.lastF = now;
+                    r.pvx = (x - r.x) * f; r.pvy = (y - r.y) * f;
                     r.x += (x - r.x) * f; r.y += (y - r.y) * f;
                     let da = a - (r.a || 0); while (da > Math.PI) da -= Math.PI * 2; while (da < -Math.PI) da += Math.PI * 2; r.a = (r.a || 0) + da * f;
                 },
-                removeRemote(id) { R.delete(id); },
+                removeRemote(id) { R.delete(id); MP.players.delete(id); },
                 // Her oyun karesinde (kendi ejderhamız çizilmeden hemen önce) çağrılır
                 stepRemotes() {
                     if (!B.matchActive || R.size === 0) return;
@@ -12862,10 +12864,18 @@
                         const seg = segmentLength * (r.sm || 1) * spacingG(r.gf || 1);
                         for (let i = 1; i < n; i++) { const p = J[i - 1], c = J[i]; c.angle = Math.atan2(p.y - c.y, p.x - c.x); c.x = p.x - Math.cos(c.angle) * seg; c.y = p.y - Math.sin(c.angle) * seg; }
                         if (r.d) continue;
-                        const onScreen = r.x > camX - 600 && r.x < camX + vw + 600 && r.y > camY - 600 && r.y < camY + vh + 600;
-                        if (onScreen) B.drawRemote(r); else B.drawArrow(r, vw, vh);
-                        B.pvpFire(r);
+                        MP.players.set(r.id, r); // kükreme dalgası sahibinin ağzını takip etsin
+                        // Kükreme: karşı taraftaki sayaç arttıysa dalgayı burada da oynat
+                        if (r.ro != null) { if (r.roSeen == null) r.roSeen = r.ro; else if (r.ro > r.roSeen) { r.roSeen = r.ro; roars.push({ owner: r.id, x: r.x, y: r.y, angle: r.a, radius: 20, life: 1.0, seed: Math.random() * 100, vis: 1 }); } }
+                        const onScreen = r.x > camX - 900 && r.x < camX + vw + 900 && r.y > camY - 900 && r.y < camY + vh + 900;
+                        if (r.f && !r.g && !r.bc && !r.bf) B.spawnRemoteFire(r);
+                        // Işın ekrana uzaktan da girebilir (3200 birim): çizimi ekrana göre değil ışına göre yap
+                        if (r.bf && !r.g) B.drawRemoteBeam(r);
+                        if (onScreen) { if (r.bc > 0 && !r.g) B.drawRemoteCharge(r); B.drawRemote(r); }
+                        else if (!B.hostile(r.id)) B.drawArrow(r, vw, vh); // düşmanın yeri gösterilmez
+                        B.pvpFire(r); B.pvpBeam(r);
                     }
+                    B.drawRemoteFire();
                     const tNow = performance.now();
                     if (hitAcc.size && tNow - lastHitFlush > 120) { lastHitFlush = tNow; for (const [id, d] of hitAcc) { if (B.onHit) B.onHit(id, Math.round(d * 10) / 10); } hitAcc.clear(); }
                 },
@@ -12874,7 +12884,6 @@
                     const sv = [joints, activeTheme, spacePressed, isRageActive, isBreathingFire, isSuperBeamCharging, isSuperBeamFiring];
                     try {
                         joints = r.joints; activeTheme = theme; spacePressed = !!r.g; isRageActive = !!r.r; isBreathingFire = !!r.f; isSuperBeamCharging = false; isSuperBeamFiring = false;
-                        if (r.f && !r.g) B.drawRemoteFlame(r, theme);
                         drawDragonBody(r.sm || 1, r.gf || 1, 1);
                     } catch (e) { if (!B._warned) { B._warned = true; console.warn('Uzak ejderha çizilemedi', e); } }
                     finally { [joints, activeTheme, spacePressed, isRageActive, isBreathingFire, isSuperBeamCharging, isSuperBeamFiring] = sv; }
@@ -12888,17 +12897,69 @@
                     ctx.fillStyle = B.hostile(r.id) ? '#ff3355' : '#33ff88'; ctx.fillRect(sx - w / 2, sy + 5, w * k, 6);
                     ctx.restore();
                 },
-                drawRemoteFlame(r, theme) {
-                    const G = (r.gf || 1) * (r.sm || 1), a = r.a, m = 35 * G, mx = r.x + Math.cos(a) * m - camX, my = r.y + Math.sin(a) * m - camY;
-                    const c1 = r.r ? '#aaddff' : (theme.fireColor1 || '#ffff00'), c2 = r.r ? '#0066ff' : (theme.fireColor2 || '#ff3300');
+                // ---- Uzak oyuncuların ALEVİ: kendi alevimizle aynı sprite'larla (kalite aynı), ama hasar vermez
+                spriteFor(id, rage) {
+                    const k = id + (rage ? ':r' : ''); let sp = SPR.get(k);
+                    if (!sp) { const th = skinsDB.find(q => q.id === id) || skinsDB[0]; try { sp = createParticleSprite(th, !!rage); } catch (e) { sp = rage ? rageFireSprite : fireSprite; } SPR.set(k, sp); }
+                    return sp;
+                },
+                spawnRemoteFire(r) {
+                    if (RF.length > 500) return;
+                    const G = (r.gf || 1) * (r.sm || 1), a = r.a, m = 35 * G, mx = r.x + Math.cos(a) * m, my = r.y + Math.sin(a) * m;
+                    const vx = r.pvx || 0, vy = r.pvy || 0, spr = B.spriteFor(r.sk, r.r), q = (typeof FX !== 'undefined' && FX.q) || 1;
+                    const n = Math.max(2, Math.round((r.r ? 6 : 4) * q));
+                    for (let i = 0; i < n; i++) {
+                        const sp = (Math.random() - 0.5) * 0.4, v = (Math.random() * 6 + 6.8) * (1 + Math.max(0, G - 1.7) * 0.6), f0 = Math.random();
+                        RF.push({ x: mx + Math.cos(a) * v * f0, y: my + Math.sin(a) * v * f0, vx: Math.cos(a + sp) * v + vx * 0.7, vy: Math.sin(a + sp) * v + vy * 0.7, life: 1, decay: 0.029, size: (Math.random() * 16 + 14) * G, growth: Math.random() * 2.5 + 1.5, spr });
+                    }
+                },
+                drawRemoteFire() {
+                    if (!RF.length) return;
                     ctx.save(); ctx.globalCompositeOperation = 'lighter';
-                    for (let i = 0; i < 9; i++) {
-                        const d = (i + Math.random()) * 26 * G, rad = (10 + i * 5) * G * (0.8 + Math.random() * 0.4), sp = (Math.random() - 0.5) * 0.3 * i / 9;
-                        const x = mx + Math.cos(a + sp) * d, y = my + Math.sin(a + sp) * d;
-                        const g = ctx.createRadialGradient(x, y, 0, x, y, rad); g.addColorStop(0, c1); g.addColorStop(0.45, c2); g.addColorStop(1, 'rgba(0,0,0,0)');
-                        ctx.globalAlpha = 0.55 * (1 - i / 10); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, rad, 0, Math.PI * 2); ctx.fill();
+                    for (let i = RF.length - 1; i >= 0; i--) {
+                        const p = RF[i]; p.x += p.vx; p.y += p.vy; p.life -= p.decay; p.size += p.growth;
+                        if (p.life <= 0) { RF.splice(i, 1); continue; }
+                        const sz = p.size * (p.life > 0.38 ? 1 : 1.08);
+                        ctx.globalAlpha = p.life > 0.38 ? Math.min(1, (p.life - 0.3) * 1.15) : p.life * 1.9;
+                        ctx.drawImage(p.spr, p.x - camX - sz / 2, p.y - camY - sz / 2, sz, sz);
                     }
                     ctx.restore();
+                },
+                // ---- Süper ışın şarjı: gövde boyunca kuyruktan başa yürüyen ışık + ağızda büyüyen enerji küresi
+                drawRemoteCharge(r) {
+                    const th = skinsDB.find(q => q.id === r.sk) || skinsDB[0], col = th.fireColor1 || th.mainColor || '#8ff', c2 = th.mainColor || col;
+                    const J = r.joints, n = J.length, k = r.bc, G = (r.gf || 1) * (r.sm || 1), front = Math.floor((1 - k) * n), spr = B.spriteFor(r.sk, false);
+                    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+                    for (let i = n - 1; i >= front; i -= 2) {
+                        const j = J[i], w = (1 - i / n) * 0.6 + 0.4, pul = 0.75 + Math.sin(tick * 0.3 + i * 0.5) * 0.25, sz = 55 * G * w * pul;
+                        ctx.globalAlpha = 0.55 * k + 0.2; ctx.drawImage(spr, j.x - camX - sz / 2, j.y - camY - sz / 2, sz, sz);
+                    }
+                    const H = J[0], mx = H.x + Math.cos(r.a) * 50 * G - camX, my = H.y + Math.sin(r.a) * 50 * G - camY, rad = (20 + 70 * k) * G * (0.9 + Math.random() * 0.2);
+                    const g = ctx.createRadialGradient(mx, my, 0, mx, my, rad); g.addColorStop(0, '#ffffff'); g.addColorStop(0.35, col); g.addColorStop(0.7, c2); g.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.globalAlpha = 0.9; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(mx, my, rad, 0, Math.PI * 2); ctx.fill();
+                    // ağıza çekilen enerji çizgileri
+                    ctx.strokeStyle = col; ctx.lineWidth = 2; ctx.globalAlpha = 0.7 * k;
+                    for (let s = 0; s < 6; s++) { const aa = Math.random() * Math.PI * 2, d = (90 + Math.random() * 160) * G; ctx.beginPath(); ctx.moveTo(mx + Math.cos(aa) * d, my + Math.sin(aa) * d); ctx.lineTo(mx + Math.cos(aa) * d * 0.25, my + Math.sin(aa) * d * 0.25); ctx.stroke(); }
+                    ctx.restore();
+                },
+                // ---- Süper ışın: kendi ışın çizimimizi uzak oyuncunun gövdesi ve kostümüyle çağırıyoruz (aynı görüntü, hasarsız)
+                drawRemoteBeam(r) {
+                    const theme = skinsDB.find(q => q.id === r.sk) || skinsDB[0];
+                    const sv = [joints, activeTheme];
+                    try { joints = r.joints; activeTheme = theme; drawPlayerBeam((r.gf || 1) * (r.sm || 1), false); }
+                    catch (e) { if (!B._bw) { B._bw = true; console.warn('Uzak ışın çizilemedi', e); } }
+                    finally { [joints, activeTheme] = sv; }
+                },
+                // Kendi süper ışınımız düşman oyuncuya değiyor mu?
+                pvpBeam(r) {
+                    if (!isSuperBeamFiring || !B.hostile(r.id) || r.g || r.d || MP.localDead) return;
+                    const G = LP.sm * playerGrowth(), a = joints[0].angle;
+                    const sx = joints[0].x + Math.cos(a) * 40 * G, sy = joints[0].y + Math.sin(a) * 40 * G, ex = sx + Math.cos(a) * 3200, ey = sy + Math.sin(a) * 3200;
+                    const half = 95 * G, J = r.joints, RG = (r.gf || 1) * (r.sm || 1);
+                    for (let i = 0; i < J.length; i += 3) {
+                        const d2 = distToSegmentSquared(J[i], { x: sx, y: sy }, { x: ex, y: ey }), rad = Math.max(8, 20 * RG);
+                        if (d2 < (half + rad) ** 2) { const dmg = 11 * (1 + powLvl() * 0.2); hitAcc.set(r.id, (hitAcc.get(r.id) || 0) + dmg); cnt.dealt += dmg; return; }
+                    }
                 },
                 drawArrow(r, vw, vh) {
                     const cx = camX + vw / 2, cy = camY + vh / 2, ang = Math.atan2(r.y - cy, r.x - cx);
@@ -12945,6 +13006,36 @@
             // Birlikte modunda asker yok; hiçbir modda köle/komutan yok
             const _shs = spawnHiveSoldier;
             spawnHiveSoldier = function (h) { if (B.matchActive && B.mode === 'coop') return; return _shs.apply(this, arguments); };
+            // HARİTADA MÜTTEFİKLER: Birlikte modunda herkes, Takım modunda takım arkadaşları görünür; düşmanlar asla.
+            const allies = () => { const o = []; if (!B.matchActive) return o; for (const r of R.values()) if (!r.d && !B.hostile(r.id) && performance.now() - r.seen < 6000) o.push(r); return o; };
+            const _mm = drawMinimap;
+            drawMinimap = function () {
+                _mm();
+                const L = allies(); if (!L.length) return;
+                const W = minimapCanvas.width, H = minimapCanvas.height, cx = W / 2, cy = H / 2, sc = 0.022, range = cx - 8;
+                mctx.save(); mctx.beginPath(); mctx.arc(cx, cy, cx, 0, Math.PI * 2); mctx.clip();
+                for (const r of L) {
+                    let dx = (r.x - world.dragonX) * sc, dy = (r.y - world.dragonY) * sc; const d = Math.hypot(dx, dy); if (d > range) { dx = dx / d * range; dy = dy / d * range; }
+                    mctx.save(); mctx.translate(cx + dx, cy + dy); mctx.rotate(r.a || 0);
+                    mctx.fillStyle = B.teamColor(r.id); mctx.strokeStyle = '#000'; mctx.lineWidth = 1.5;
+                    mctx.beginPath(); mctx.moveTo(7, 0); mctx.lineTo(-5, -5); mctx.lineTo(-5, 5); mctx.closePath(); mctx.fill(); mctx.stroke(); mctx.restore();
+                }
+                mctx.restore();
+            };
+            const _bd = bmDraw;
+            bmDraw = function () {
+                _bd();
+                if (!BM.open) return; const L = allies(); if (!L.length) return;
+                const c = bmCtx; c.save();
+                for (const r of L) {
+                    const [sx, sy] = bmW2S(r.tx != null ? r.tx : r.x, r.ty != null ? r.ty : r.y), col = B.teamColor(r.id);
+                    c.save(); c.translate(sx, sy); c.rotate(r.a || 0); c.fillStyle = col; c.strokeStyle = '#000'; c.lineWidth = 2;
+                    c.beginPath(); c.moveTo(13, 0); c.lineTo(-9, -9); c.lineTo(-9, 9); c.closePath(); c.fill(); c.stroke(); c.restore();
+                    c.font = 'bold 13px Arial'; c.textAlign = 'center'; c.lineWidth = 3; c.strokeStyle = '#000'; c.fillStyle = col;
+                    c.strokeText(r.name || '?', sx, sy - 16); c.fillText(r.name || '?', sx, sy - 16);
+                }
+                c.restore();
+            };
             const _pds = playDeathSound;
             playDeathSound = function (isBoss, x, y, type) { if (isBoss && B.matchActive) { cnt.bosses++; if (B.onBossKill) B.onBossKill(type); } return _pds.apply(this, arguments); };
         })();
