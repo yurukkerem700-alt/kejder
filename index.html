@@ -12805,10 +12805,48 @@
                     MP.localDead = false; dragonHp = maxHp; updateUI();
                     B.teleport(x, y);
                 },
+                // Anlık görüntü tamponu: gelen konumlar zaman damgasıyla saklanır, ekranda ~100 ms geriden
+                // iki paket arasında yumuşakça çizilir. Paket geç/eksik gelse de ejderha zıplamaz, titremez.
                 setRemote(id, s) {
+                    const now = performance.now();
                     let r = R.get(id);
-                    if (!r) { r = { id, x: s.x, y: s.y, a: s.a, joints: [] }; R.set(id, r); }
-                    Object.assign(r, s); r.tx = s.x; r.ty = s.y; r.ta = s.a; r.seen = performance.now();
+                    if (!r) { r = { id, x: s.x, y: s.y, a: s.a, joints: [], buf: [], off: null, gap: 66, jit: 0 }; R.set(id, r); }
+                    const px = r.tx, py = r.ty;
+                    for (const k in s) if (k !== 'x' && k !== 'y' && k !== 'a') r[k] = s[k]; // konum/açı tampondan çizilir
+                    r.tx = s.x; r.ty = s.y; r.ta = s.a;
+                    if (r.seen) { const g = now - r.seen; r.gap = r.gap * 0.9 + Math.min(1000, g) * 0.1; r.jit = r.jit * 0.9 + Math.abs(g - r.gap) * 0.1; }
+                    r.seen = now;
+                    const ts = s.ts != null ? s.ts : now;
+                    const sample = now - ts; // karşı tarafın saatiyle bizim saat arasındaki fark + ağ gecikmesi
+                    if (r.off == null || sample < r.off) r.off = sample; else r.off += (sample - r.off) * 0.02;
+                    // Işınlanma (yeniden doğma vb.): eski geçmişi at
+                    if (px != null && Math.hypot(s.x - px, s.y - py) > 1500) { r.buf.length = 0; r.x = s.x; r.y = s.y; r.a = s.a; r.joints = []; }
+                    const B0 = r.buf; if (B0.length && ts <= B0[B0.length - 1].t) return;
+                    B0.push({ t: ts, x: s.x, y: s.y, a: s.a });
+                    if (B0.length > 30) B0.splice(0, B0.length - 30);
+                },
+                sampleRemote(r, now) {
+                    const b = r.buf; if (!b.length) return;
+                    // Gecikme payı: doğrudan bağlantıda ~100 ms, yavaş aktarımda paket aralığına göre büyür
+                    const delay = Math.min(450, Math.max(90, r.gap * 1.6 + r.jit * 2));
+                    const t = now - r.off - delay;
+                    let i = b.length - 1; while (i > 0 && b[i - 1].t > t) i--;
+                    let x, y, a;
+                    if (t <= b[0].t) { x = b[0].x; y = b[0].y; a = b[0].a; }
+                    else if (i > 0 && b[i].t >= t) {
+                        const p = b[i - 1], q = b[i], k = (t - p.t) / Math.max(1, q.t - p.t);
+                        x = p.x + (q.x - p.x) * k; y = p.y + (q.y - p.y) * k;
+                        let da = q.a - p.a; while (da > Math.PI) da -= Math.PI * 2; while (da < -Math.PI) da += Math.PI * 2; a = p.a + da * k;
+                    } else {
+                        // Yeni paket gecikti: son hızla en fazla 200 ms ileri tahmin et
+                        const q = b[b.length - 1], p = b.length > 1 ? b[b.length - 2] : q, dt = Math.max(1, q.t - p.t), ex = Math.min(200, t - q.t);
+                        x = q.x + (q.x - p.x) / dt * ex; y = q.y + (q.y - p.y) / dt * ex; a = q.a;
+                    }
+                    while (b.length > 2 && b[1].t < t) b.shift();
+                    // Hedefe çok hafif yumuşatma (kare hızından bağımsız)
+                    const f = r.lastF ? Math.min(1, (now - r.lastF) / 40) : 1; r.lastF = now;
+                    r.x += (x - r.x) * f; r.y += (y - r.y) * f;
+                    let da = a - (r.a || 0); while (da > Math.PI) da -= Math.PI * 2; while (da < -Math.PI) da += Math.PI * 2; r.a = (r.a || 0) + da * f;
                 },
                 removeRemote(id) { R.delete(id); },
                 // Her oyun karesinde (kendi ejderhamız çizilmeden hemen önce) çağrılır
@@ -12817,11 +12855,7 @@
                     const now = performance.now(), vw = canvas.width / viewScale, vh = canvas.height / viewScale;
                     for (const r of R.values()) {
                         if (now - r.seen > 6000) continue;
-                        // Paketler arası: hızla ileri tahmin + yumuşak takip
-                        if (now - r.seen < 400) { r.tx += (r.vx || 0); r.ty += (r.vy || 0); }
-                        r.x += (r.tx - r.x) * 0.3; r.y += (r.ty - r.y) * 0.3;
-                        if (Math.hypot(r.tx - r.x, r.ty - r.y) > 1500) { r.x = r.tx; r.y = r.ty; r.joints = []; }
-                        let da = (r.ta || 0) - (r.a || 0); while (da > Math.PI) da -= Math.PI * 2; while (da < -Math.PI) da += Math.PI * 2; r.a += da * 0.35;
+                        B.sampleRemote(r, now);
                         const n = Math.max(3, Math.min(400, r.n || 20));
                         if (r.joints.length !== n) { const J = []; for (let i = 0; i < n; i++) { const o = r.joints[i]; J.push(o ? o : { x: r.x - Math.cos(r.a) * i * 10, y: r.y - Math.sin(r.a) * i * 10, angle: r.a }); } r.joints = J; }
                         const J = r.joints; J[0].x = r.x; J[0].y = r.y; J[0].angle = r.a;
@@ -12915,6 +12949,6 @@
             playDeathSound = function (isBoss, x, y, type) { if (isBoss && B.matchActive) { cnt.bosses++; if (B.onBossKill) B.onBossKill(type); } return _pds.apply(this, arguments); };
         })();
     </script>
-    <script src="mp.js?v=2" defer></script>
+    <script src="mp.js?v=3" defer></script>
 </body>
 </html>

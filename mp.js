@@ -11,7 +11,12 @@
     const SB_KEY = 'sb_publishable_ChOS06DqAyESAxdAvVThmw_Br5pSuQS';
     const TEST = new URLSearchParams(location.search).has('mptest');
     const MAX_PLAYERS = 6;
-    const ICE = [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun.cloudflare.com:3478'] }];
+    // STUN: çoğu ev interneti için yeterli. TURN: mobil veri / sıkı NAT arkasındaki oyuncular doğrudan bağlanamazsa
+    // yedek olarak kullanılır (yoksa oyun yavaş sunucu aktarımına düşer ve takılır).
+    const ICE = [
+        { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun.cloudflare.com:3478'] },
+        { urls: ['turn:openrelay.metered.ca:80', 'turn:openrelay.metered.ca:443', 'turns:openrelay.metered.ca:443?transport=tcp'], username: 'openrelayproject', credential: 'openrelayproject' }
+    ];
     const MODES = {
         coop: { name: 'Birlikte', icon: '🤝', desc: 'Müttefiksiniz, birbirinize hasar veremezsiniz. Köle ve asker yok. Düşen 10 sn sonra sığınakta dirilir.' },
         ffa: { name: 'Herkes Tek', icon: '⚔️', desc: 'Herkes herkese karşı. Kendi askerlerin kovanlardan çıkar. Düşen elenir, sona kalan kazanır.' },
@@ -178,7 +183,7 @@
 
     // ------------------------------------------------------------------ WEBRTC EŞLERİ
     class Peer {
-        constructor(id) { this.id = id; this.offerer = me.id < id; this.sid = null; this.queue = []; this.pending = {}; this.born = 0; this.pc = null; if (this.offerer) this.create(); }
+        constructor(id) { this.id = id; this.offerer = me.id < id; this.sid = null; this.queue = []; this.pending = {}; this.born = 0; this.pc = null; this.rtt = 0; this.badSince = 0; if (this.offerer) this.create(); }
         create(sid) {
             this.close();
             this.sid = sid || uid().slice(0, 8); this.queue = (this.pending[this.sid] || []).slice(); this.pending = {}; this.born = performance.now();
@@ -190,7 +195,7 @@
             this.dcR.onopen = () => { render(); }; this.dcR.onclose = () => render();
             pc.onicecandidate = (e) => { if (e.candidate) signal(this.id, { sid: this.sid, c: e.candidate.toJSON ? e.candidate.toJSON() : e.candidate }); };
             pc.ontrack = (e) => attachAudio(this.id, e.streams && e.streams[0] ? e.streams[0] : new MediaStream([e.track]));
-            pc.onconnectionstatechange = () => { render(); };
+            pc.onconnectionstatechange = () => { const st = pc.connectionState; if (st === 'connected') this.badSince = 0; else if (!this.badSince) this.badSince = performance.now(); render(); };
             if (this.offerer) {
                 this.tx = pc.addTransceiver('audio', { direction: 'sendrecv' });
                 if (voice.track) this.tx.sender.replaceTrack(voice.track).catch(() => {});
@@ -238,9 +243,14 @@
         for (const p of peers.values()) {
             if (!p.offerer) continue;
             const st = p.pc ? p.pc.connectionState : 'none';
-            if (st === 'failed' || st === 'closed' || st === 'none' || (st !== 'connected' && performance.now() - p.born > 12000)) p.create();
+            const now = performance.now();
+            // 'disconnected' çoğu zaman birkaç saniyede kendiliğinden düzelir: bağlantıyı hemen yıkma, 7 sn bekle
+            if (st === 'failed' || st === 'closed' || st === 'none' || (st === 'disconnected' && p.badSince && now - p.badSince > 7000) || ((st === 'new' || st === 'connecting') && now - p.born > 12000)) p.create();
         }
     }, 4000);
+
+    // Gecikme (ping) ölçümü: HUD'da her oyuncunun bağlantı kalitesi görünsün
+    setInterval(() => { const ts = Math.round(performance.now()); for (const p of peers.values()) if (p.okS()) { try { p.dcS.send('{"t":"pg","ts":' + ts + '}'); } catch (e) {} } }, 2000);
 
     // ------------------------------------------------------------------ MESAJLAŞMA
     function sendTo(id, msg) {
@@ -262,6 +272,7 @@
     function onRoomMsg(m) {
         if (!m || m.from === me.id) return;
         if (m.to && m.to !== me.id) return;
+        if (m.tos && !m.tos.includes(me.id)) return;
         if (m.t === 'sig') { let p = peers.get(m.from); if (!p) { p = new Peer(m.from); peers.set(m.from, p); } p.onSignal(m.d); return; }
         handle(m);
     }
@@ -270,6 +281,8 @@
         const M = S.match;
         switch (m.t) {
             case 'st': if (M && M.roster.has(m.from)) onState(m.from, m.s); break;
+            case 'pg': { const p = peers.get(m.from); if (p && p.okS()) { try { p.dcS.send('{"t":"po","ts":' + m.ts + '}'); } catch (e) {} } break; }
+            case 'po': { const p = peers.get(m.from); if (p) { const r = performance.now() - m.ts; p.rtt = p.rtt ? p.rtt * 0.6 + r * 0.4 : r; } break; }
             case 'hit': if (M && !M.over && (!m.to || m.to === me.id) && window.BORU && hostileTo(m.from)) BORU.applyHit(m.d, m.from); break;
             case 'dead': if (M) onRemoteDeath(m.from, m.by); break;
             case 'rev': if (M) { M.dead.delete(m.from); feed('✨ ' + nameOf(m.from) + ' yeniden doğdu', '#66ffcc'); } break;
@@ -414,27 +427,34 @@
     }
     function onState(id, s) {
         const M = S.match; if (!M) return;
+        // Sırasız / eski paket (ör. yavaş sunucu kopyası hızlı doğrudan paketten sonra gelirse) geri atlama yaptırmasın
+        const prev = M.states.get(id);
+        if (prev && s.q != null && prev.q != null && s.q <= prev.q && prev.q - s.q < 100000) { prev.t = performance.now(); return; }
         M.states.set(id, Object.assign({ t: performance.now() }, s)); if (s.st) M.stats.set(id, s.st);
+        if (M.left.has(id)) { M.left.delete(id); feed('🔌 ' + nameOf(id) + ' geri bağlandı', '#66ffcc'); }
         if (M.mode === 'coop' && !s.d && M.dead.has(id)) M.dead.delete(id);
         const r = M.roster.get(id);
         if (window.BORU && M.startedAt && !M.over) BORU.setRemote(id, Object.assign({}, s, { name: r ? r.name : '?' }));
     }
     // Maç döngüsü: durumu gönder, sayaç, bitişi kontrol et
-    let lastSend = 0, lastRelay = 0, lastHud = 0;
+    let lastSend = 0, lastRelay = 0, lastHud = 0, lastStats = 0, seq = 0;
     setInterval(() => {
         const M = S.match; if (!M || !M.startedAt || M.over || !window.BORU || !BORU.matchActive) return;
         const now = performance.now();
         if (now - lastSend >= 66) {
             lastSend = now;
-            const st = BORU.stats(); st.pk = M.pk; st.dh = M.deaths;
-            const s = BORU.localState(); s.st = st; s.m = voice.on ? 1 : 0;
-            const str = JSON.stringify({ t: 'st', s }); let relay = false;
+            const s = BORU.localState(); s.m = voice.on ? 1 : 0; s.q = ++seq; s.ts = Math.round(now);
+            // Skor tablosu verisi her pakette değil, saniyede bir gider (paketler küçülür, telefon ağı rahatlar)
+            if (now - lastStats > 1000) { lastStats = now; const st = BORU.stats(); st.pk = M.pk; st.dh = M.deaths; s.st = st; }
+            const str = JSON.stringify({ t: 'st', s }); const relay = [];
             for (const id of M.roster.keys()) {
-                if (id === me.id || M.left.has(id)) continue; const p = peers.get(id);
-                if (p && p.okS()) { try { p.dcS.send(str); continue; } catch (e) {} }
-                relay = true;
+                if (id === me.id) continue; const p = peers.get(id);
+                if (p && p.okS() && p.dcS.bufferedAmount < 16384) { try { p.dcS.send(str); continue; } catch (e) {} }
+                if (p && p.okS()) continue; // tampon dolu: bu paketi atla, bir sonraki zaten yolda
+                relay.push(id);
             }
-            if (relay && now - lastRelay > 250 && S.room) { lastRelay = now; S.room.send({ t: 'st', from: me.id, s }); }
+            // Doğrudan bağlanamayanlara sunucu üzerinden yedek (yalnızca onlara)
+            if (relay.length && now - lastRelay > 150 && S.room) { lastRelay = now; S.room.send({ t: 'st', from: me.id, tos: relay, s }); }
         }
         if (M.mode === 'coop' && M.reviveAt && now >= M.reviveAt) {
             M.reviveAt = 0; M.dead.delete(me.id);
@@ -717,13 +737,16 @@
     }
     function renderChips() {
         const M = S.match, el = $('#mpChips'); if (!M || !el || S.screen !== 'hud') return;
-        el.innerHTML = [...M.roster.values()].map(r => {
+        const html = [...M.roster.values()].map(r => {
             const st = r.id === me.id ? BORU.localState() : M.states.get(r.id);
             const hp = st ? Math.max(0, Math.min(1, st.hp / (st.mh || 1))) : 1;
             const dead = M.left.has(r.id) || !isAlive(r.id);
             const c = M.mode === 'team' ? TEAMS[r.team].color : (r.id === me.id ? '#ffd24a' : '#888');
-            return `<div class="c ${dead ? 'dead' : ''} ${voice.speaking.has(r.id) ? 'spk' : ''}" style="border-bottom-color:${c}">${voice.speaking.has(r.id) ? '🔊' : ''}${esc(r.name)}${M.left.has(r.id) ? ' 🚪' : ''}<div class="h"><i style="width:${Math.round(hp * 100)}%;background:${hostileTo(r.id) ? '#ff4455' : '#33ff88'}"></i></div></div>`;
+            let net = '';
+            if (r.id !== me.id && !M.left.has(r.id)) { const p = peers.get(r.id), st2 = M.states.get(r.id); if (p && p.okS()) { const ms = Math.round(p.rtt / 2); net = ms ? ' <span style="color:' + (ms < 80 ? '#6f6' : ms < 180 ? '#fd4' : '#f66') + '">' + ms + 'ms</span>' : ''; } else net = st2 && performance.now() - st2.t < 2000 ? ' <span style="color:#fd4">📡</span>' : ' <span style="color:#f66">⚠</span>'; }
+            return `<div class="c ${dead ? 'dead' : ''} ${voice.speaking.has(r.id) ? 'spk' : ''}" style="border-bottom-color:${c}">${voice.speaking.has(r.id) ? '🔊' : ''}${esc(r.name)}${M.left.has(r.id) ? ' 🚪' : ''}${net}<div class="h"><i style="width:${Math.round(hp * 100)}%;background:${hostileTo(r.id) ? '#ff4455' : '#33ff88'}"></i></div></div>`;
         }).join('');
+        if (html !== renderChips.last) { renderChips.last = html; el.innerHTML = html; } // değişmediyse DOM'a dokunma (kasmayı önler)
     }
     function renderHud() {
         const M = S.match; if (!M || S.screen !== 'hud') return;
