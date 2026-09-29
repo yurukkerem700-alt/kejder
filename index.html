@@ -788,6 +788,64 @@
         .bs-est { font-size: 12px; color: #e8dcc0; margin: 6px 0 10px; line-height: 1.5; }
         #installBtnMenu { display: none; }
         body.m.can-install #installBtnMenu { display: block; grid-column: 1 / -1; background: rgba(0,255,204,0.1); border-color: #00ffcc; color: #bffff0; }
+        /* ---- Sefer raporu: kanlı parşömen ---- */
+        #rpBtn { position: fixed; right: 14px; top: 44%; z-index: 60; display: none; align-items: center; gap: 6px; padding: 10px 14px 10px 12px; border-radius: 12px 4px 12px 4px; border: 1.5px solid #7a1a12; background: linear-gradient(160deg, #e9d6a8, #c9a86c 60%, #a7824a); color: #3a0d06; font: bold 14px Georgia, 'Times New Roman', serif; letter-spacing: 1.5px; cursor: pointer; box-shadow: 0 0 0 0 rgba(200,30,20,0.6), 0 6px 18px rgba(0,0,0,0.6); animation: rpPulse 1.8s ease-in-out infinite; }
+        body.in-game #rpBtn.show { display: flex; }
+        #rpBtn::after { content: ''; position: absolute; right: -6px; bottom: -6px; width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #d0202a, #7a0008 70%); box-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+        #rpBtn .rp-n { font-size: 11px; color: #7a0008; }
+        @keyframes rpPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(200,30,20,0.55), 0 6px 18px rgba(0,0,0,0.6); transform: translateY(0) rotate(-2deg); } 50% { box-shadow: 0 0 0 12px rgba(200,30,20,0), 0 6px 18px rgba(0,0,0,0.6); transform: translateY(-3px) rotate(1deg); } }
+        #rpModal { position: fixed; inset: 0; z-index: 400; display: none; align-items: center; justify-content: center; flex-direction: column; background: radial-gradient(ellipse at center, rgba(40,6,2,0.78) 0%, rgba(4,1,0,0.97) 75%); padding: 12px; }
+        #rpModal.open { display: flex; }
+        #rpModal::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 40%, rgba(255,150,60,0.10), transparent 55%); animation: rpCandle 2.3s ease-in-out infinite; }
+        @keyframes rpCandle { 0%,100% { opacity: 0.7; } 30% { opacity: 1; } 55% { opacity: 0.55; } 75% { opacity: 0.95; } }
+        .rp-stage { --h: min(74vh, 680px); --w: min(560px, 92vw); position: relative; width: var(--w); height: calc(var(--h) + 40px); opacity: 0; transform: translateY(-30px) scale(0.85) rotate(-3deg); }
+        #rpModal.play .rp-stage { animation: rpDrop 0.9s cubic-bezier(.2,.9,.3,1.2) forwards; }
+        @keyframes rpDrop { to { opacity: 1; transform: none; } }
+        .rp-rod { position: absolute; left: -16px; right: -16px; height: 22px; border-radius: 11px; z-index: 3; background: linear-gradient(180deg, #5a3517 0%, #a86c35 35%, #6b3f1a 60%, #2e1808 100%); box-shadow: 0 5px 12px rgba(0,0,0,0.7); }
+        .rp-rod::before, .rp-rod::after { content: ''; position: absolute; top: -5px; width: 20px; height: 32px; border-radius: 8px; background: radial-gradient(circle at 40% 35%, #c9a15a, #6b4618 60%, #2a1605); }
+        .rp-rod::before { left: -12px; } .rp-rod::after { right: -12px; }
+        .rp-rod.top { top: 0; }
+        .rp-rod.bot { top: 0; }
+        #rpModal.play .rp-rod.bot { animation: rpUnrollRod 2.5s cubic-bezier(.45,.05,.35,1) 0.8s forwards; }
+        @keyframes rpUnrollRod { to { transform: translateY(calc(var(--h) + 18px)); } }
+        #rpPaper { position: absolute; left: 0; right: 0; top: 11px; height: calc(var(--h) + 18px); z-index: 2; clip-path: inset(0 0 100% 0); }
+        #rpModal.play #rpPaper { animation: rpUnroll 2.5s cubic-bezier(.45,.05,.35,1) 0.8s forwards; }
+        @keyframes rpUnroll { to { clip-path: inset(0 0 0 0); } }
+        .rp-sheet { position: absolute; inset: 0; clip-path: var(--tear); color: #2a1406;
+            background:
+                radial-gradient(ellipse at 12% 8%, rgba(90,45,10,0.45), transparent 30%),
+                radial-gradient(ellipse at 90% 95%, rgba(80,35,5,0.5), transparent 35%),
+                radial-gradient(ellipse at 70% 30%, rgba(120,80,30,0.18), transparent 40%),
+                radial-gradient(ellipse at 30% 75%, rgba(110,70,25,0.2), transparent 35%),
+                repeating-linear-gradient(0deg, rgba(90,60,20,0.05) 0 2px, transparent 2px 5px),
+                linear-gradient(175deg, #e8d3a2 0%, #d9bd84 45%, #c7a266 100%);
+            box-shadow: inset 0 0 70px rgba(70,32,5,0.85), inset 0 0 16px rgba(40,15,0,0.9); }
+        .rp-sheet::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(0,0,0,0.25), transparent 6%, transparent 94%, rgba(0,0,0,0.3)); }
+        #rpBlood { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; mix-blend-mode: multiply; }
+        .rp-scroll { position: absolute; inset: 22px 30px 18px; overflow-y: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .rp-scroll::-webkit-scrollbar { display: none; }
+        #rpText { font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif; font-size: clamp(14px, 3.6vw, 16.5px); line-height: 1.6; padding-bottom: 18px; text-shadow: 0 0 1px rgba(60,20,0,0.4); }
+        #rpText > div { white-space: pre-line; margin: 0 0 10px; }
+        #rpText .ink::after { content: '▍'; color: rgba(60,15,5,0.7); animation: rpBlink 0.6s steps(2) infinite; }
+        @keyframes rpBlink { 50% { opacity: 0; } }
+        .rp-h { text-align: center; font-size: 1.7em; letter-spacing: 6px; font-weight: bold; color: #4a0c04; margin-bottom: 2px !important; }
+        .rp-sub { text-align: center; font-style: italic; font-size: 0.85em; color: #5a3212; border-bottom: 1px solid rgba(90,40,10,0.45); padding-bottom: 8px; }
+        .rp-sec { font-size: 0.78em; letter-spacing: 4px; font-weight: bold; color: #7a1a0c; margin: 14px 0 3px !important; animation: rpFade 0.6s ease; }
+        .rp-q { font-style: italic; font-size: 1.12em; text-align: center; color: #5a0a04; padding: 6px 12px; }
+        .rp-epi { text-align: center; font-weight: bold; font-style: italic; color: #3a0402; font-size: 1.05em; padding: 12px 8px; margin: 14px 0 !important; border-top: 1px solid rgba(120,20,10,0.5); border-bottom: 1px solid rgba(120,20,10,0.5); background: radial-gradient(ellipse, rgba(140,10,0,0.12), transparent 70%); }
+        .rp-sign { text-align: right; font-style: italic; margin-top: 16px !important; color: #4a1a06; }
+        @keyframes rpFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+        #rpClose { position: relative; z-index: 5; margin-top: 14px; opacity: 0; pointer-events: none; transition: opacity 1.2s; padding: 11px 22px; border-radius: 10px; border: 1px solid #a07a3a; background: rgba(20,8,2,0.85); color: #f3dfb0; font: 15px Georgia, serif; letter-spacing: 1px; cursor: pointer; }
+        #rpClose.show { opacity: 1; pointer-events: auto; }
+        .rp-hint { position: relative; z-index: 5; margin-top: 8px; font: italic 11px Georgia, serif; color: rgba(240,210,170,0.5); }
+        .cm-fallen { margin-top: 10px; padding: 8px; border-top: 1px solid rgba(255,120,100,0.25); display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: #e8c8b8; }
+        .cm-fallen b { color: #ff9a8a; letter-spacing: 2px; font-size: 11px; } .cm-fallen span { font-family: Georgia, serif; font-style: italic; } .cm-fallen small { display: block; font-style: normal; color: #a88; font-size: 10px; }
+        /* ---- Kara delik açıldı: sinematik bant ---- */
+        #bhBanner { position: fixed; left: 0; right: 0; top: 30%; z-index: 70; pointer-events: none; display: none; flex-direction: column; align-items: center; padding: 22px 10px; background: linear-gradient(90deg, transparent, rgba(0,0,0,0.85) 20%, rgba(0,0,0,0.85) 80%, transparent); }
+        #bhBanner.show { display: flex; animation: bhIn 5.2s ease forwards; }
+        #bhBanner .bh-t { font: 900 clamp(26px, 8vw, 58px) 'Segoe UI', sans-serif; letter-spacing: clamp(4px, 1.6vw, 14px); color: #fff; text-shadow: 0 0 18px var(--bc), 0 0 40px var(--bc); }
+        #bhBanner .bh-s { margin-top: 6px; font: italic clamp(12px, 3.4vw, 17px) Georgia, serif; color: var(--bc); letter-spacing: 2px; }
+        @keyframes bhIn { 0% { opacity: 0; transform: scaleY(0.2); filter: blur(12px); } 10% { opacity: 1; transform: scaleY(1); filter: blur(0); } 80% { opacity: 1; } 100% { opacity: 0; transform: scale(1.08); filter: blur(6px); } }
     </style>
 </head>
 <body>
@@ -861,6 +919,17 @@
     </div>
 
     <div id="goalHud"></div>
+    <button id="rpBtn" onclick="openReport()" title="Rapor (L)">📜 RAPOR <span class="rp-n"></span></button>
+    <div id="bhBanner"><div class="bh-t">KARA DELİK AÇILDI</div><div class="bh-s" id="bhSub"></div></div>
+    <div id="rpModal">
+        <div class="rp-stage" onclick="rpTap()">
+            <div class="rp-rod top"></div>
+            <div id="rpPaper"><div class="rp-sheet"><svg id="rpBlood" viewBox="0 0 100 100" preserveAspectRatio="none"></svg><div class="rp-scroll"><div id="rpText"></div></div></div></div>
+            <div class="rp-rod bot"></div>
+        </div>
+        <button id="rpClose" onclick="closeReport()">🕯️ Onları unutmayacağım</button>
+        <div class="rp-hint">dokun: satırları hızlandır</div>
+    </div>
     <div id="hintToast"></div>
     <button id="skillBtn" onclick="openSkillTree()" title="Yetenek Ağacı (T)">🌳 <span class="sb-t">YETENEK (T)</span><span class="sb-n" id="skillBtnN">0</span></button>
     <div id="skillModal"><div class="sk-box">
@@ -1152,7 +1221,7 @@
     <div id="territoryPanel">
         <h4>🕳️ KARA DELİK: 0/100</h4>
         <div id="territoryBarBg"><div id="territoryBarFill" style="width:0%;"></div></div>
-        <div id="territoryLabel">👑 0 · 🐍 Köle 0/6 · ⚔️ Asker 0</div>
+        <div id="territoryLabel">👑 0 · 🐍 Komutan 0/4 · ⚔️ Asker 0</div>
     </div>
     <div id="potionBar"></div>
 
@@ -2746,9 +2815,21 @@
                 if (!blackHolePortal || blackHolePortal.lvl !== blackHoleTier) {
                     const t = nextBHTier();
                     blackHolePortal = { x: t.portal.x, y: t.portal.y, spin: 0, tier: blackHoleTier % 3, lvl: blackHoleTier };
-                    if (gameActive) { showWaveText('🕳️ KARA DELİK ' + bhLabel(blackHoleTier) + ' AÇILDI!', true, t.color); mono('portal'); SND.net('portal', blackHolePortal ? { x: blackHolePortal.x, y: blackHolePortal.y } : null); applyShake(25); }
+                    if (gameActive) { announceBlackHole(); mono('portal'); SND.net('portal', blackHolePortal ? { x: blackHolePortal.x, y: blackHolePortal.y } : null); applyShake(25); }
                 }
             } else blackHolePortal = null;
+        }
+        // KARA DELİK AÇILDI: ekranın ortasında sinematik bir bant. Oyun kapalıyken açıldıysa, oyuna girince bir kez gösterilir.
+        function announceBlackHole() {
+            if (!blackHolePortal) return; const t = BH_TIERS[blackHolePortal.tier] || BH_TIERS[0];
+            const b = document.getElementById('bhBanner'); if (!b) return;
+            b.style.setProperty('--bc', t.color);
+            const dir = compassFrom(world.dragonX, world.dragonY, blackHolePortal.x, blackHolePortal.y), km = Math.round(Math.hypot(blackHolePortal.x - world.dragonX, blackHolePortal.y - world.dragonY) / 10);
+            document.getElementById('bhSub').textContent = '🕳️ ' + bhLabel(blackHolePortal.lvl) + ' · ' + t.arenaName + ' · ' + km + ' m ' + ['doğuda', 'güneydoğuda', 'güneyde', 'güneybatıda', 'batıda', 'kuzeybatıda', 'kuzeyde', 'kuzeydoğuda'][['doğusunda', 'güneydoğusunda', 'güneyinde', 'güneybatısında', 'batısında', 'kuzeybatısında', 'kuzeyinde', 'kuzeydoğusunda'].indexOf(dir)] + ' · pusulayı izle';
+            b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
+            clearTimeout(b._t); b._t = setTimeout(() => b.classList.remove('show'), 5300);
+            playTone(45, 'sine', 3, 0.3); playTone(90, 'sawtooth', 2.2, 0.06, true);
+            store.setItem('boruBHSeen', String(blackHolePortal.lvl));
         }
         function arenaTier() { return BH_TIERS[currentArenaTier]; }
         function arenaCenter() { return arenaTier().center; }
@@ -2879,7 +2960,45 @@
             }, t.rgb);
         }
 
+        // GİRDAP: kara delik etrafındaki her şeyi (ejderhayı, düşmanları, askerleri, taşları) sarmal bir
+        // yörüngeyle içine çeker. Uzakta hafif bir esinti, yakında kaçılması zor bir çekim. Olay ufkuna
+        // değen düşmanlar yutulur.
+        const VORTEX_R = 1150; let vortexDebris = [];
+        function vortexForce(x, y, p, k) {
+            const dx = p.x - x, dy = p.y - y, d = Math.hypot(dx, dy); if (d > VORTEX_R || d < 1) return null;
+            const s = 1 - d / VORTEX_R; const pull = (0.35 + 7.5 * s * s) * k, swirl = (0.4 + 3.2 * s) * k;
+            return { x: dx / d * pull - dy / d * swirl, y: dy / d * pull + dx / d * swirl, d, s };
+        }
+        function vortexPull(p) {
+            if (isPaused) return;
+            const pl = livingPlayers()[0];
+            if (pl && !(MP.active && MP.localDead)) { const f = vortexForce(world.dragonX, world.dragonY, p, TP_GHOST() ? 0.55 : 1); if (f) { world.dragonX += f.x; world.dragonY += f.y; if (f.s > 0.55 && (gFrame % 20) === 0) applyShake(2 + f.s * 4); } }
+            for (let i = enemies.length - 1; i >= 0; i--) { const e = enemies[i]; const f = vortexForce(e.x, e.y, p, 1.3); if (!f) continue; e.x += f.x; e.y += f.y; if (f.d < 70) { enemies.splice(i, 1); for (let q = 0; q < 4; q++) vortexDebris.push({ a: Math.random() * 6.28, r: 70, s: 0.12, life: 1 }); } }
+            for (const g of xpGems) { const f = vortexForce(g.x, g.y, p, 1.6); if (f) { g.x += f.x; g.y += f.y; } }
+            for (const s of hiveSoldiers) { const f = vortexForce(s.x, s.y, p, 0.8); if (f) { s.x += f.x; s.y += f.y; } }
+            for (const hb of hiredBosses) { const f = vortexForce(hb.x, hb.y, p, 0.7); if (f) { hb.x += f.x; hb.y += f.y; } }
+            // dönen enkaz parçacıkları
+            if (vortexDebris.length < 140 * (gfxMultMap[gfxQuality] || 1)) vortexDebris.push({ a: Math.random() * 6.28, r: 300 + Math.random() * (VORTEX_R - 300), s: 0.004 + Math.random() * 0.01, life: 1, sz: 1 + Math.random() * 3 });
+            for (let i = vortexDebris.length - 1; i >= 0; i--) { const d = vortexDebris[i]; d.a += d.s * (1 + 600 / Math.max(60, d.r)); d.r -= 1.2 + 260 / Math.max(40, d.r); if (d.r < 50) vortexDebris.splice(i, 1); }
+        }
+        function TP_GHOST() { return !!(LP && LP.ghost); }
         function drawBlackHolePortal(p, camX, camY) {
+            {   // girdap kolları ve içeri akan enkaz (portalın altında)
+                const t0 = BH_TIERS[p.tier] || BH_TIERS[0]; const sx0 = p.x - camX, sy0 = p.y - camY;
+                ctx.save(); ctx.translate(sx0, sy0);
+                const dg = ctx.createRadialGradient(0, 0, 40, 0, 0, VORTEX_R); dg.addColorStop(0, 'rgba(0,0,0,0.75)'); dg.addColorStop(0.35, `rgba(${t0.rgb},0.08)`); dg.addColorStop(1, 'rgba(0,0,0,0)');
+                ctx.fillStyle = dg; ctx.beginPath(); ctx.arc(0, 0, VORTEX_R, 0, Math.PI * 2); ctx.fill();
+                ctx.lineCap = 'round';
+                for (let arm = 0; arm < 5; arm++) {
+                    ctx.beginPath();
+                    for (let q = 0; q <= 60; q++) { const u = q / 60; const r = 60 + u * (VORTEX_R * 0.9); const a = arm * Math.PI * 2 / 5 - p.spin * 2.2 + Math.log(r / 60) * 2.1; const x = Math.cos(a) * r, y = Math.sin(a) * r; q ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+                    ctx.strokeStyle = `rgba(${t0.rgb},${0.16})`; ctx.lineWidth = 14; ctx.stroke(); ctx.strokeStyle = `rgba(${t0.rgb},0.35)`; ctx.lineWidth = 2.5; ctx.stroke();
+                }
+                ctx.globalCompositeOperation = 'lighter';
+                for (const d of vortexDebris) { const x = Math.cos(d.a) * d.r, y = Math.sin(d.a) * d.r; const al = Math.min(1, (VORTEX_R - d.r) / 200) * Math.min(1, d.r / 120); ctx.fillStyle = `rgba(${t0.rgb},${0.6 * al})`; ctx.fillRect(x, y, d.sz || 2, d.sz || 2); }
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.restore();
+            }
             const t = BH_TIERS[p.tier] || BH_TIERS[0]; const rgb = t.rgb;
             const sx = p.x - camX, sy = p.y - camY;
             ctx.save(); ctx.translate(sx, sy);
@@ -3072,8 +3191,11 @@
                     f.x += f.vx; f.y += f.vy; f.vx *= 0.975; f.vy *= 0.975; f.life -= f.decay; f.size += f.grow;
                     if (f.life <= 0 || flames > 280) { arenaFx.splice(i, 1); continue; }
                     if (!f.harmless && AUTH && f.life > 0.25) for (const pl of PLS) { if (!(arenaBurnCds[pl.id] > 0) && (pl.x - f.x) ** 2 + (pl.y - f.y) ** 2 < (f.size * 0.42) ** 2) { if (arenaHurtP(pl, 26, 6)) arenaBurnCds[pl.id] = 7; } }
+                    // Kovan Kalbi / göktaşı patlaması alevleri boss hiç ateş etmeden de doğabilir: sprite henüz yoksa önce oluştur
+                    if (!bossFireSprite || !bossHotFireSprite) ensureBossFireSprites();
+                    const fSpr = f.hot ? bossHotFireSprite : bossFireSprite; if (!fSpr) continue;
                     ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = Math.min(1, f.life * 1.3);
-                    ctx.drawImage(f.hot ? bossHotFireSprite : bossFireSprite, f.x - camX - f.size / 2, f.y - camY - f.size / 2, f.size, f.size);
+                    ctx.drawImage(fSpr, f.x - camX - f.size / 2, f.y - camY - f.size / 2, f.size, f.size);
                     ctx.globalAlpha = 1; ctx.globalCompositeOperation = 'source-over';
                 } else if (f.type === 'meteor') {
                     f.t++; const sx = f.x - camX, sy = f.y - camY; const k = Math.min(1, f.t / f.dur);
@@ -3479,6 +3601,7 @@
         //  Faz 3 (%25): Çıldırır; asit yağmuru, daha sık sürü ve mızrak.
         // ---------------------------------------------------------------------
         function spawnSwarmMother(t) {
+            ensureBossFireSprites();
             const c = t.center; const G = 3 * playerGrowth(); const hp = Math.round((MP.active ? sumPlayersMaxHp() * 1.5 : maxHp) * 5 * (1 + 0.6 * arenaCycle));
             activeBosses.push({ id: Math.random(), type: 'swarmMother', x: c.x, y: c.y - 350, angle: Math.PI / 2, G, maxHp: hp, hp, lastHp: hp, cap: hp / (60 * (MP.active ? 110 : 45)),
                 size: 30 * G, phase: 1, summonT: 200, lanceT: 200, acidT: 200, biteCd: 60, orbitA: -Math.PI / 2, hitFlash: 0, clack: 0 });
@@ -3678,6 +3801,7 @@
             for (let q = 0; q < 3; q++) { const a = ang + (Math.random() - 0.5) * 0.44, sp = 13 + Math.random() * 6; arenaFx.push({ type: 'flame', harmless, x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 1, decay: 0.021, size: 28 * G * 0.45, grow: 3.4, hot }); }
         }
         function spawnKiyamet(t) {
+            ensureBossFireSprites();
             ensureBossFireSprites();
             const c = t.center; const G = 3 * playerGrowth(); const base = (MP.active ? sumPlayersMaxHp() * 1.5 : maxHp) * (1 + 0.6 * arenaCycle);
             const coreHp = Math.round(base * 4), headHp = Math.round(base * 1.2);
@@ -4523,7 +4647,7 @@
         const FIRST_POI = { x: 950, y: -650, poiType: 'hive', archetype: 'bat' };
         function saveHives() {
             // Aktif kovanların/üslerin/toplanma yerlerinin durumunu kalıcı depoya yazar.
-            for (let h of hives) { hiveStates[h.id] = { status: h.status, kingdom: h.kingdom === undefined ? null : h.kingdom, commanderName: h.commanderName, kingDefeated: h.kingDefeated, governor: !!h.governor, poiType: h.poiType, archetype: h.archetype, garrison: hiveSoldiers.filter(so => so.hiveId === h.id && !so.escort && !so.called && !so.assault).length }; }
+            for (let h of hives) { hiveStates[h.id] = { status: h.status, kingdom: h.kingdom === undefined ? null : h.kingdom, commanderName: h.commanderName, kingDefeated: h.kingDefeated, governor: !!h.governor, poiType: h.poiType, archetype: h.archetype, garrison: hiveSoldiers.filter(so => so.hiveId === h.id && !so.escort && !so.called && !so.assault).length , fortress: h.fortress || 0, fortressBy: h.fortressBy || null }; }
             saveHiveStatesToStorage();
         }
         function ensureHivesNearPlayer() {
@@ -4536,7 +4660,7 @@
                 if (h.status === 'kingFight') continue; // kral/kraliçe savaşı sürerken kovanı asla kaldırma
                 let d = Math.min(...PTS.map(q => Math.hypot(h.x - q.x, h.y - q.y)));
                 if (d > HIVE_UNLOAD_RADIUS) {
-                    hiveStates[h.id] = { status: h.status, kingdom: h.kingdom === undefined ? null : h.kingdom, commanderName: h.commanderName, kingDefeated: h.kingDefeated, governor: !!h.governor, poiType: h.poiType, archetype: h.archetype, garrison: hiveSoldiers.filter(so => so.hiveId === h.id && !so.escort && !so.called && !so.assault).length };
+                    hiveStates[h.id] = { status: h.status, kingdom: h.kingdom === undefined ? null : h.kingdom, commanderName: h.commanderName, kingDefeated: h.kingDefeated, governor: !!h.governor, poiType: h.poiType, archetype: h.archetype, garrison: hiveSoldiers.filter(so => so.hiveId === h.id && !so.escort && !so.called && !so.assault).length , fortress: h.fortress || 0, fortressBy: h.fortressBy || null };
                     for (let ssi = hiveSoldiers.length - 1; ssi >= 0; ssi--) { if (hiveSoldiers[ssi].hiveId === h.id && !hiveSoldiers[ssi].escort && !hiveSoldiers[ssi].called && !hiveSoldiers[ssi].assault) hiveSoldiers.splice(ssi, 1); }
                     hives.splice(i, 1);
                 }
@@ -4569,6 +4693,7 @@
                         if (hive.status === 'friendly') hive.hp = hive.maxHp;
                         // Kral savaşı sırasında kaydedilip çıkılmışsa kral kaybolmuş olur: kovan yeniden fethedilebilsin
                         if (hive.status === 'kingFight') { hive.status = 'enemy'; hive.hp = hive.maxHp * 0.2; }
+                        if (saved.fortress) applyFortress(hive, saved.fortress, saved.fortressBy);
                     }
                     // KRALLIK: her kovan bulunduğu biyomun kralına bağlıdır. Kralı düşmüş krallıkta ilk kez bulunan
                     // kovanların bir kısmı zaten bize biat etmiştir, kalanlar hayattaki başka bir krala geçmiştir.
@@ -4590,7 +4715,7 @@
             let fill = document.getElementById('territoryBarFill'); let label = document.getElementById('territoryLabel'); let h4 = document.querySelector('#territoryPanel h4');
             if (fill) fill.style.width = portalPct + '%';
             if (h4) h4.innerText = bhT ? '🕳️ KARA DELİK ' + bhLabel(blackHoleTier) + ': ' + Math.min(totalHivesCapturedLifetime, bhReq) + '/' + bhReq : '🌌 TÜM KARA DELİKLER KAPANDI';
-            if (label) label.innerText = '👑 ' + totalHivesCapturedLifetime + ' · 🐍 Köle ' + hiredBosses.length + '/6 · ⚔️ Asker ' + hiveSoldiers.length;
+            if (label) label.innerText = '👑 ' + totalHivesCapturedLifetime + ' · 🐍 Komutan ' + armySlotsUsed() + '/' + slaveCap() + ' · ⚔️ Asker ' + hiveSoldiers.length;
         }
         let hiveSoldiers = []; // Dost kovanların ürettiği küçük askerler
         let assaultHive = null, gFrame = 0; // birliklerin kuşattığı kovan / kare sayacı
@@ -4654,7 +4779,7 @@
             if (h.archetype && h.archetype !== 'mixed' && h.archetype !== 'elite' && Math.random() < 0.75) { type = h.archetype; }
             else { type = types[Math.floor(Math.random() * types.length)]; }
             let sAngle = Math.random() * Math.PI * 2; let sDist = 100 + Math.random() * 100;
-            let eliteMult = h.archetype === 'elite' ? 1.6 : 1;
+            let eliteMult = (h.archetype === 'elite' ? 1.6 : 1) * (1 + 0.35 * (fortressOf(h.id) || 0));
             let eSize = 20, eSpeed = 3, eHp = 55;
             if (type === 'bat') { eSize = 18; eSpeed = 4; } else if (type === 'scorpion') { eSize = 25; eSpeed = 2.5; eHp = 85; } else if (type === 'kobra') { eSize = 20; eSpeed = 3; } else if (type === 'beetle') { eSize = 22; eSpeed = 1.5; eHp = 70; } else if (type === 'wasp') { eSize = 13; eSpeed = 6; eHp = 30; }
             eHp *= eliteMult; eSize *= (eliteMult > 1 ? 1.15 : 1);
@@ -4676,6 +4801,39 @@
         function spawnHiveQueen(h) {
             let qHp = (26000 + currentWave * 1600) * diffConfig.mult;
             activeBosses.push({ id: Math.random(), type: 'hiveQueen', hiveId: h.id, x: h.x, y: h.y, maxHp: qHp, hp: qHp, size: 65, speed: stats.baseMaxSpeed * 0.4 * diffConfig.speedMult, wobble: 0, attackCooldown: 0, summonTimer: 260, poisonTimer: 400, angle: 0, wingPhase: 0 });
+        }
+        // =====================================================================
+        // KALE KOVAN: bir komutanımızı öldüren kovan sıradan bir kovan olmaktan çıkar. Komutanın kanıyla
+        // semirir, etrafına sur ve kuleler örer, daha güçlü düşmanlar ve kendi Kale Muhafızı bosslarını üretir.
+        // Her yeni komutan kurbanı kaleyi bir kademe daha büyütür (en fazla 3).
+        // =====================================================================
+        function fortressOf(id) { const h = hives.find(q => q.id === id); if (h) return h.fortress || 0; const st = hiveStates[id]; return (st && st.fortress) || 0; }
+        function applyFortress(h, lvl, by) {
+            const was = h.fortress || 0; h.fortress = Math.max(was, Math.min(3, lvl)); h.fortressBy = by || h.fortressBy || null;
+            const k = (1 + 0.8 * h.fortress) / (1 + 0.8 * was); h.maxHp *= k; h.hp = h.status === 'enemy' ? h.maxHp : h.hp;
+            if (h.bossCd === undefined) h.bossCd = 60 * 20;
+        }
+        function fortifyHive(id, names) {
+            const h = hives.find(q => q.id === id); const lvl = Math.min(3, fortressOf(id) + 1);
+            const by = names.join(' ve ');
+            if (h) { h.status = 'enemy'; applyFortress(h, lvl, by); h.hp = h.maxHp; h.spawnCooldown = 60; }
+            hiveStates[id] = Object.assign(hiveStates[id] || { status: 'enemy', poiType: 'hive' }, { fortress: lvl, fortressBy: by });
+            if (h) saveHives(); else saveHiveStatesToStorage();
+            return lvl;
+        }
+        function updateFortressHive(h, dPlayer) {
+            // Kale Muhafızı: oyuncu yaklaşınca kaleden bir boss çıkar (aynı anda kale başına bir tane)
+            if (h.bossCd === undefined) h.bossCd = 60 * 20;
+            if (dPlayer < 2000 && !TUT.active) h.bossCd--;
+            if (h.bossCd <= 0 && dPlayer < 2000 && !activeBosses.some(b => b.fortHive === h.id)) {
+                h.bossCd = 60 * (80 - h.fortress * 12);
+                const cols = ['#ff3355', '#ff2a00', '#c0003a'], col = cols[h.fortress - 1] || '#ff3355';
+                const hp = 25000 * Math.max(1, currentWave) * diffConfig.mult * (0.35 + 0.2 * h.fortress);
+                const a = Math.random() * Math.PI * 2;
+                activeBosses.push({ id: Math.random(), type: 'regular', fortHive: h.id, chargeState: 'walk', attackTimer: 0, chargeDir: 0, x: h.x + Math.cos(a) * 140, y: h.y + Math.sin(a) * 140, maxHp: hp, hp, size: 62 + h.fortress * 8, speed: stats.baseMaxSpeed * 0.62 * diffConfig.speedMult, wobble: 0, attackCooldown: 0, color1: col, joints: Array.from({ length: 15 }, () => ({ x: h.x, y: h.y, angle: 0 })) });
+                setBossUi('KALE MUHAFIZI' + (h.fortress > 1 ? ' ' + ['', 'II', 'III'][h.fortress - 1] : ''), col);
+                showWaveText('🏰 KALE KOVANDAN BİR MUHAFIZ ÇIKTI!', true, col); applyShake(30); playRoarSound('b_regular', { x: h.x, y: h.y });
+            }
         }
         function spawnHiveSoldier(h) {
             hiveSoldiers.push({ hiveId: h.id, x: h.x + (Math.random() * 80 - 40), y: h.y + (Math.random() * 80 - 40), size: 24 * armyScale(), speed: stats.baseMaxSpeed * 0.9 * (1 + AB('soldier', 'spd')), hp: soldierMaxHp(), maxHp: soldierMaxHp(), wobble: Math.random() * Math.PI * 2, angle: 0, attackCooldown: 0, strike: 0 });
@@ -5081,7 +5239,7 @@
                 
                 // Güvenlik: Canı maxHp'ye eşitleyelim bug olmasın
                 if (dragonHp > maxHp) dragonHp = maxHp;
-                hiredBosses = []; loadExpeditions(); for (let k = 0; k < Math.min(slaveCap() - expeditions.length, data.slaves || 0); k++) spawnSlaveAt((Math.random() - 0.5) * 220, (Math.random() - 0.5) * 220);
+                hiredBosses = []; loadExpeditions(); for (let k = 0; k < Math.min(slaveCap() - armySlotsUsed(), data.slaves || 0); k++) spawnSlaveAt((Math.random() - 0.5) * 220, (Math.random() - 0.5) * 220);
                 if (typeof data.plasma === 'number') plasmaCharge = Math.min(PLASMA_MAX, data.plasma);
                 if (typeof data.rage === 'number') { rage = data.rage; document.getElementById('rageBar').style.width = rage + '%'; }
                 if (typeof data.ghost === 'number') ghostEnergy = data.ghost;
@@ -5362,7 +5520,7 @@
 
         document.getElementById('startBtn').addEventListener('click', () => {
             store.removeItem('boruSaveState'); startingNewGame = true; waveBossPending = false; scorches.length = 0;
-            level = 1; currentWave = 1; score = 0; currentXp = 0; maxXp = 18; killsInCurrentWave = 0; expeditions.length = 0; store.removeItem('boruExpeditions');
+            level = 1; currentWave = 1; score = 0; currentXp = 0; maxXp = 18; killsInCurrentWave = 0; expeditions.length = 0; store.removeItem('boruExpeditions'); rpReports.length = 0; store.removeItem('boruReports'); renderRpBtn();
             maxHp = 2400; dragonHp = 2400; activeBosses = []; enemies.length = 0; powerCores = []; safeZone.radius = 450; phoenixEmberUsed = false;
             buffLevels = { fire: 0, hp: 0, speed: 0, lifesteal: 0, rage: 0, size: 0, crit: 0, hiveFavor: 0, swiftClaw: 0, roarPower: 0 }; skillPoints = 0; renderSkillBtn();
             joints = []; for (let i = 0; i < 20; i++) joints.push({ x: 0, y: 0, angle: 0 });
@@ -5447,9 +5605,12 @@
         // ESKORT SİSTEMİ: ilk iki köle ANA ESKORT olur (taçlı, pelerinli, daha güçlü), kalan dört köle 2-2 şeklinde
         // onların adamlarıdır. Takviye çağrısıyla gelen askerler boss kalmadığında ana eskortların emrine girer.
         const ESC_MAIN = 2;
-        // Her 20 seviyede bir köle hakkı daha (6 → 13). Seferdeki komutanlar da bu hakkı kullanır.
-        function slaveCap() { return 6 + Math.floor(Math.min(level, MAX_LEVEL) / 20); }
-        function armySlotsUsed() { return hiredBosses.length + (typeof expeditions !== 'undefined' ? expeditions.length : 0); }
+        // KOMUTAN SINIRI: en fazla 4 komutan (2 ana eskort + 2). Seferdeki komutanlar da bu hakkı kullanır.
+        const CMD_CAP = 4;
+        function slaveCap() { return CMD_CAP; }
+        // Bir seferde birden fazla komutan birlikte yürüyebilir: e.pids (eski kayıtlarda tek e.pid)
+        function expPids(e) { return Array.isArray(e.pids) ? e.pids : (e.pid >= 0 ? [e.pid] : []); }
+        function armySlotsUsed() { let n = hiredBosses.length; if (typeof expeditions !== 'undefined') for (const e of expeditions) n += expPids(e).length; return n; }
         const ESCORT_NAMES = ['Kara Tolga', 'Ak Sungur', 'Demir Alp', 'Kızıl Toygar', 'Gök Bilge', 'Tunç Arslan', 'Bozkurt Ilgaz', 'Ay Kağan'];
         // =====================================================================
         // KOMUTANLAR: her köle yuvası kalıcı bir komutan profiline bağlıdır. Oyuncu adını, rengini,
@@ -5487,8 +5648,8 @@
         function cmdPal(c) { return c && c.pal >= 0 && CMD_PALS[c.pal] ? CMD_PALS[c.pal] : armyPal('slave'); }
         function cmdWeapon(c) { return CMD_WEAPONS.find(w => w.id === (c && c.weapon)) || CMD_WEAPONS[0]; }
         function freeCmdPid() {
-            const used = new Set(hiredBosses.map(h => h.pid).concat((typeof expeditions !== 'undefined' && expeditions) ? expeditions.map(e => e.pid) : []));
-            for (let i = 0; i < CMD_MAX; i++) if (!used.has(i)) return i; return 0;
+            const used = new Set(hiredBosses.map(h => h.pid).concat((typeof expeditions !== 'undefined' && expeditions) ? expeditions.flatMap(expPids) : []));
+            for (let i = 0; i < slaveCap(); i++) if (!used.has(i)) return i; return 0;
         }
         function applyCmdToSlave(hb, pid) {
             hb.pid = pid; const C = cmdProfiles[pid] || cmdProfiles[0]; const W = cmdWeapon(C);
@@ -5499,9 +5660,9 @@
             hb.speed = stats.baseMaxSpeed * 1.15 * (1 + AB('slave', 'spd')) * W.spd;
         }
         function cmdSlotState(i) {
-            if (i >= slaveCap()) return { k: 'lock', t: '🔒 Seviye ' + ((i - 5) * 20) };
+            if (i >= slaveCap()) return { k: 'lock', t: '🔒' };
             const hb = hiredBosses.find(h => h.pid === i); if (hb) return { k: 'on', t: hb.main ? '⚜️ ana eskort' : '🐍 yanında' };
-            const ex = (typeof expeditions !== 'undefined' && expeditions) ? expeditions.find(e => e.pid === i) : null; if (ex) return { k: 'away', t: '⚔️ seferde' };
+            const ex = (typeof expeditions !== 'undefined' && expeditions) ? expeditions.find(e => expPids(e).includes(i)) : null; if (ex) return { k: 'away', t: ex.phase === 'messenger' || ex.phase === 'laststand' ? '🩹 geri çekiliyor' : '⚔️ seferde' };
             return { k: 'free', t: 'boş yuva' };
         }
         // ---- Komutan penceresi ----
@@ -5538,10 +5699,11 @@
         };
         function renderCmd() {
             const cap = slaveCap(); if (cmdSel >= cap) cmdSel = 0;
-            document.getElementById('cmList').innerHTML = cmdProfiles.map((C, i) => {
+            const FL = fallenCmds();
+            document.getElementById('cmList').innerHTML = cmdProfiles.slice(0, cap).map((C, i) => {
                 const st = cmdSlotState(i), P = cmdPal(C), W = cmdWeapon(C);
                 return `<button class="cm-slot ${i === cmdSel ? 'sel' : ''} ${st.k}" onclick="cmdPick(${i})" style="--c:${P.main}"><i></i><b>${escapeHtml(C.name)}</b><small>${W.icon} ${st.t}</small></button>`;
-            }).join('');
+            }).join('') + (FL.length ? `<div class="cm-fallen"><b>🕯️ ŞEHİTLER</b>${FL.slice(-8).reverse().map(f => `<span>${escapeHtml(f.name)}<small>${escapeHtml(f.where || '')}</small></span>`).join('')}</div>` : '');
             const C = cmdProfiles[cmdSel], W = cmdWeapon(C);
             const sw = [`<button class="cm-sw ${C.pal < 0 ? 'on' : ''}" title="Marketteki ordu kostümü" onclick="cmdSet('pal',-1)" style="background:${armyPal('slave').main}">🛒</button>`]
                 .concat(CMD_PALS.map((p, k) => `<button class="cm-sw ${C.pal === k ? 'on' : ''}" title="${p.name}" onclick="cmdSet('pal',${k})" style="background:${p.main}"></button>`)).join('');
@@ -5621,7 +5783,7 @@
                 showWaveText(hiredBosses.length <= ESC_MAIN ? '⚜️ ANA ESKORT ÇAĞRILDI (' + hiredBosses.length + '/2)' : '🐍 ' + (hiredBosses[hiredBosses.length - 1].name || 'KÖLE').toUpperCase() + ' ESKORTA KATILDI (' + armySlotsUsed() + '/' + slaveCap() + ')', false, hiredBosses.length <= ESC_MAIN ? '#ffd700' : '#66aaff');
                 playTone(400, 'square', 0.5, 0.3); applyShake(10);
                 tutEvent('slave'); mono('firstSlave');
-            } else if (gameActive && armySlotsUsed() >= slaveCap()) showWaveTextLocal('🐍 EN FAZLA ' + slaveCap() + ' KÖLE · her 20 seviyede +1', false, '#88aaff');
+            } else if (gameActive && armySlotsUsed() >= slaveCap()) showWaveTextLocal('👑 EN FAZLA ' + slaveCap() + ' KOMUTAN', false, '#88aaff');
             else if (gameActive) { showWaveTextLocal('💰 KÖLE İÇİN 120 COIN GEREKLİ', false, '#ffaa66'); SND.play('deny'); }
         };
 
@@ -5764,6 +5926,7 @@
             if (keyStates['KeyQ'] && keyStates['KeyW'] && gameActive && !isPaused) { hireSlaveBoss(); keyStates['KeyQ'] = false; keyStates['KeyW'] = false; }
             if (keyStates['KeyQ'] && keyStates['KeyS'] && gameActive && !isPaused) { triggerReinforcementCall(); keyStates['KeyQ'] = false; keyStates['KeyS'] = false; }
             if (e.code === 'KeyR' && gameActive && !isPaused) tryPlasma();
+            if (e.code === 'KeyL' && gameActive) { if (document.getElementById('rpModal').classList.contains('open')) { if (rpDone) closeReport(); else rpTap(); } else if (!isPaused) openReport(); }
             if (e.code === 'Digit1' && gameActive && !isPaused) usePotion('speedPotion');
             if (e.code === 'Digit2' && gameActive && !isPaused) usePotion('shieldPotion');
             if (e.code === 'Digit3' && gameActive && !isPaused) usePotion('furyPotion');
@@ -7100,6 +7263,7 @@
             const hx = h.x - camX; const hy = h.y - camY;
             ctx.save(); ctx.translate(hx, hy);
             let pulse = Math.sin(h.wobble) * 6;
+            if (h.fortress) drawFortressWalls(h, h.status === 'friendly' ? hivePal.main : '#ff1a3a');
             if (h.status === 'friendly') {
                 ctx.strokeStyle = hexA(hivePal.main, 0.25); ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, 250 * (1 + AB('hive', 'auraRange')), 0, Math.PI * 2); ctx.stroke();
                 // Kovan kostümüne özel süslemeler (arkada)
@@ -7123,8 +7287,11 @@
             ctx.beginPath(); ctx.arc(0, 0, 10 + Math.sin(h.wobble * 2) * 2, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
             ctx.fillStyle = '#fff'; ctx.font = 'bold 13px Arial'; ctx.textAlign = 'center'; ctx.shadowBlur = 4; ctx.shadowColor = '#000';
             let enemyLabel = h.poiType === 'outpost' ? '⚔️ ASKERİ ÜS' : (h.poiType === 'rally' ? '🚩 TOPLANMA YERİ' : '🏴 DÜŞMAN KOVANI');
+            if (h.fortress) enemyLabel = '🏰 KALE KOVAN' + (h.fortress > 1 ? ' ' + ['', 'II', 'III'][h.fortress - 1] : '');
             let label = h.status === 'enemy' ? enemyLabel : (h.status === 'neutral' ? '⚪ TERK EDİLMİŞ KOVAN' : (h.status === 'kingFight' ? '🔥 KRAL SAVAŞI!' : '🛡️ ' + h.commanderName.toUpperCase() + ' KOVANI'));
-            ctx.fillText(label, 0, -75); ctx.shadowBlur = 0;
+            if (h.fortress) { ctx.font = 'bold 15px Georgia, serif'; ctx.fillStyle = h.status === 'enemy' ? '#ff6a7a' : '#ffe7a0'; }
+            ctx.fillText(label, 0, h.fortress ? -150 : -75); ctx.shadowBlur = 0;
+            if (h.fortress && h.fortressBy) { ctx.font = 'italic 11px Georgia, serif'; ctx.fillStyle = 'rgba(255,200,190,0.85)'; ctx.shadowBlur = 4; ctx.shadowColor = '#000'; ctx.fillText('☠ ' + h.fortressBy + ' burada düştü', 0, -134); ctx.shadowBlur = 0; }
             if (h.status === 'enemy' && h.kingdom) { const rk = royalById(h.kingdom); if (rk && !royalDead(rk.id)) { ctx.font = 'bold 11px Arial'; ctx.fillStyle = rk.color; ctx.shadowBlur = 4; ctx.shadowColor = '#000'; ctx.fillText('👑 ' + rk.short.toUpperCase() + ' KRALLIĞI', 0, -92); ctx.shadowBlur = 0; } }
             if (h.status === 'friendly') {
                 ctx.font = 'bold 11px Arial'; ctx.fillStyle = '#9fd8ff'; ctx.shadowBlur = 4; ctx.shadowColor = '#000';
@@ -7150,6 +7317,52 @@
             }
             ctx.restore();
             if (h.status === 'friendly' && h.governor) drawHiveGovernor(h);
+        }
+
+        // KALE KOVAN görünümü: kovanın çevresinde taş sur, kademeye göre 4/6/8 kule, kızıl sancaklar,
+        // surun üzerinde kazıklar ve kovanın üstünde yükselen koyu bir taç. Düşman kalede damarlar kanla nabız atar.
+        function drawFortressWalls(h, col) {
+            const L = h.fortress, R = 150 + L * 18, ry = 0.66, towers = 2 + L * 2, t = h.wobble;
+            // zemin gölgesi ve kan halesi
+            ctx.save();
+            let g = ctx.createRadialGradient(0, 0, 40, 0, 0, R * 1.35); g.addColorStop(0, hexA(col, 0.18 + Math.sin(t * 2) * 0.05)); g.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = g; ctx.beginPath(); ctx.ellipse(0, 10, R * 1.35, R * 1.35 * ry, 0, 0, Math.PI * 2); ctx.fill();
+            // sur (kalın taş halka)
+            ctx.lineWidth = 22 + L * 3; ctx.strokeStyle = '#1c1512'; ctx.beginPath(); ctx.ellipse(0, 10, R, R * ry, 0, 0, Math.PI * 2); ctx.stroke();
+            ctx.lineWidth = 14 + L * 3; ctx.strokeStyle = '#3a2c26'; ctx.beginPath(); ctx.ellipse(0, 6, R, R * ry, 0, 0, Math.PI * 2); ctx.stroke();
+            // taş dokusu
+            ctx.strokeStyle = 'rgba(0,0,0,0.55)'; ctx.lineWidth = 2;
+            for (let k = 0; k < 36; k++) { const a = k / 36 * Math.PI * 2; const x = Math.cos(a) * R, y = 6 + Math.sin(a) * R * ry; ctx.beginPath(); ctx.moveTo(x * 0.94, y * 0.94); ctx.lineTo(x * 1.06, y * 1.06); ctx.stroke(); }
+            // kanlı damarlar
+            ctx.strokeStyle = hexA(col, 0.35 + Math.sin(t * 3) * 0.2); ctx.lineWidth = 2.5; ctx.shadowBlur = 10; ctx.shadowColor = col;
+            for (let k = 0; k < 6 + L * 2; k++) { const a = k / (6 + L * 2) * Math.PI * 2 + 0.2; ctx.beginPath(); ctx.moveTo(Math.cos(a) * 50, Math.sin(a) * 34); ctx.quadraticCurveTo(Math.cos(a + 0.3) * R * 0.6, Math.sin(a + 0.3) * R * 0.4, Math.cos(a) * R, 6 + Math.sin(a) * R * ry); ctx.stroke(); }
+            ctx.shadowBlur = 0;
+            // mazgallar
+            ctx.fillStyle = '#2a201b'; ctx.strokeStyle = '#0a0706'; ctx.lineWidth = 1.5;
+            for (let k = 0; k < 28; k++) { const a = k / 28 * Math.PI * 2; const x = Math.cos(a) * R, y = Math.sin(a) * R * ry - 8; ctx.fillRect(x - 5, y - 6, 10, 9); ctx.strokeRect(x - 5, y - 6, 10, 9); }
+            // kuleler + sancaklar
+            for (let k = 0; k < towers; k++) {
+                const a = k / towers * Math.PI * 2 + Math.PI / towers; const x = Math.cos(a) * R, y = 6 + Math.sin(a) * R * ry; const tw = 20 + L * 3, th = 46 + L * 10;
+                ctx.save(); ctx.translate(x, y);
+                ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.ellipse(6, 6, tw, tw * 0.5, 0, 0, Math.PI * 2); ctx.fill();
+                let tg = ctx.createLinearGradient(-tw, 0, tw, 0); tg.addColorStop(0, '#15100d'); tg.addColorStop(0.45, '#4a3a31'); tg.addColorStop(1, '#120d0b');
+                ctx.fillStyle = tg; ctx.strokeStyle = '#050303'; ctx.lineWidth = 2; ctx.fillRect(-tw / 2, -th, tw, th); ctx.strokeRect(-tw / 2, -th, tw, th);
+                for (let m = 0; m < 3; m++) { ctx.fillRect(-tw / 2 + m * tw / 3 + 1, -th - 7, tw / 3 - 3, 7); }
+                ctx.fillStyle = hexA(col, 0.6 + Math.sin(t * 4 + k) * 0.3); ctx.fillRect(-3, -th * 0.62, 6, 10); // mazgal ışığı
+                // sancak direği ve dalgalanan kızıl bayrak
+                ctx.strokeStyle = '#111'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, -th - 7); ctx.lineTo(0, -th - 38); ctx.stroke();
+                ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(0, -th - 38);
+                for (let q = 0; q <= 6; q++) { const fx = q * 4.5, fy = -th - 38 + Math.sin(t * 6 + q * 0.8 + k) * 2.5; ctx.lineTo(fx, fy); }
+                for (let q = 6; q >= 0; q--) { const fx = q * 4.5, fy = -th - 26 + Math.sin(t * 6 + q * 0.8 + k) * 2.5; ctx.lineTo(fx, fy); }
+                ctx.closePath(); ctx.fill();
+                ctx.restore();
+            }
+            // kazıklar (L>=2)
+            if (L >= 2) { ctx.strokeStyle = '#6b5a4a'; ctx.lineWidth = 3; for (let k = 0; k < 18; k++) { const a = k / 18 * Math.PI * 2; const x = Math.cos(a) * (R + 26), y = 6 + Math.sin(a) * (R + 26) * ry; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(a) * 16, y + Math.sin(a) * 12 - 8); ctx.stroke(); } }
+            // kovanın üstünde koyu taç (L>=3 daha büyük)
+            ctx.translate(0, -40); ctx.fillStyle = '#140a0a'; ctx.strokeStyle = col; ctx.lineWidth = 2;
+            ctx.beginPath(); const cw = 34 + L * 8; ctx.moveTo(-cw, 0); for (let k = 0; k <= 6; k++) { const x = -cw + k * cw / 3; ctx.lineTo(x, k % 2 ? -18 - L * 7 : -4); } ctx.lineTo(cw, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+            ctx.restore();
         }
 
         // VALİ: yenilerek bize katılan kovan kralı, artık dolaşan bir köle değil - kendi kovanının
@@ -8353,7 +8566,8 @@
             addWhisper(h.x, h.y - 60, ['…efendimiz…', '…Gökteki Kıyamet\'e biat…', '…bizi yakma…']);
         }
         function onHiveCaptured(h) {
-            for (let g = 0; g < 2; g++) spawnHiveSoldier(h);
+            for (let g = 0; g < 2 + (h.fortress || 0) * 2; g++) spawnHiveSoldier(h);
+            if (h.fortress) { coins += earn(160 * h.fortress); gainXp(80 * h.fortress); document.getElementById('coinCount').innerText = coins; setTimeout(() => showWaveText('🏰 KALE DÜŞTÜ · ' + (h.fortressBy ? h.fortressBy.toUpperCase() + ' İÇİN' : 'İNTİKAM ALINDI'), true, '#ffd27a'), 1600); }
             subjugateHive(h);
             if (!MP.active) hitStop = Math.max(hitStop, 120);
             mono('firstCapture');
@@ -8827,6 +9041,8 @@
 
             if (blackHolePortal) {
                 blackHolePortal.spin += 0.03;
+                if (gameActive && !inMirrorArena && store.getItem('boruBHSeen') !== String(blackHolePortal.lvl)) announceBlackHole();
+                if (!inMirrorArena && !isArenaTransitioning) vortexPull(blackHolePortal);
                 if (!inMirrorArena && !isArenaTransitioning) {
                     if (livingPlayers().some(pl => Math.hypot(pl.x - blackHolePortal.x, pl.y - blackHolePortal.y) < 90)) enterMirrorArena();
                 }
@@ -9225,10 +9441,11 @@
                         }
                     }
 
+                    if (h.fortress) updateFortressHive(h, dPlayerHive);
                     if (!TUT.active) h.spawnCooldown--;
-                    if (h.spawnCooldown <= 0 && enemies.length < 100) {
-                        h.spawnCooldown = Math.max(50, (260 - currentWave * 4) * proxFactor);
-                        let burstCount = dPlayerHive < 500 ? 3 : 1;
+                    if (h.spawnCooldown <= 0 && enemies.length < 100 + (h.fortress ? 20 : 0)) {
+                        h.spawnCooldown = Math.max(h.fortress ? 30 : 50, (260 - currentWave * 4) * proxFactor * (h.fortress ? 0.6 - h.fortress * 0.06 : 1));
+                        let burstCount = (dPlayerHive < 500 ? 3 : 1) + (h.fortress || 0);
                         for (let bc = 0; bc < burstCount; bc++) spawnHiveGrunt(h);
                     }
                     let hIsHit = false;
@@ -9994,9 +10211,9 @@
             const poi = worldPois().find(q => q.id === id) || {};
             const st = hiveStates[id], h = hives.find(q => q.id === id);
             const kd = h && h.kingdom !== undefined ? h.kingdom : (st && st.kingdom !== undefined ? st.kingdom : kingdomFor(p));
-            return 2 + (poi.archetype === 'elite' ? 2 : 0) + Math.floor(Math.hypot(p.x, p.y) / 7000) + (kd && !royalDead(kd) ? 1 : 0) + Math.floor(currentWave / 10);
+            return 2 + (poi.archetype === 'elite' ? 2 : 0) + 3 * (fortressOf(id) || 0) + Math.floor(Math.hypot(p.x, p.y) / 7000) + (kd && !royalDead(kd) ? 1 : 0) + Math.floor(currentWave / 10);
         }
-        function expPower(e) { const C = cmdProfiles[e.pid] || cmdProfiles[0]; return e.soldiers + 2 + cmdWeapon(C).dmg; }
+        function expPower(e) { let p = e.soldiers; for (const pid of expPids(e)) { const C = cmdProfiles[pid] || cmdProfiles[0]; p += 2 + cmdWeapon(C).dmg; } return p; }
         function availableSoldiers() {
             let n = hiveSoldiers.length;
             for (const id in hiveStates) { const st = hiveStates[id]; if (st && st.status === 'friendly' && !hives.some(h => h.id === id)) n += st.garrison || 0; }
@@ -10009,10 +10226,10 @@
             for (const id in hiveStates) { if (got >= n) break; const st = hiveStates[id]; if (st && st.status === 'friendly' && st.garrison > 0 && !hives.some(h => h.id === id)) { const t = Math.min(st.garrison, n - got); st.garrison -= t; got += t; } }
             saveHiveStatesToStorage(); return got;
         }
-        function saveExpeditions() { try { store.setItem('boruExpeditions', JSON.stringify(expeditions.map(e => ({ pid: e.pid, soldiers: e.soldiers, x: Math.round(e.x), y: Math.round(e.y), targets: e.targets, idx: e.idx, phase: e.phase === 'siege' ? 'march' : e.phase, captured: e.captured, hp: e.hp })))); } catch (er) {} }
+        function saveExpeditions() { try { store.setItem('boruExpeditions', JSON.stringify(expeditions.map(e => ({ pid: expPids(e).length ? expPids(e)[0] : -1, pids: expPids(e), soldiers: e.soldiers, sent: e.sent, lostTotal: e.lostTotal || 0, x: Math.round(e.x), y: Math.round(e.y), targets: e.targets, idx: e.idx, phase: e.phase === 'siege' ? 'march' : (e.phase === 'laststand' ? 'messenger' : e.phase), captured: e.captured, hp: e.hp, report: e.report || null, courier: e.courier || null, fallenSnap: e.fallenSnap || null })))); } catch (er) {} }
         function loadExpeditions() {
             expeditions.length = 0; const a = safeParseJSON('boruExpeditions', []);
-            if (Array.isArray(a)) for (const e of a) if (e && Array.isArray(e.targets)) expeditions.push(Object.assign({ t: 0, dur: 1, captured: 0, anim: Math.random() * 6 }, e));
+            if (Array.isArray(a)) for (const e of a) if (e && Array.isArray(e.targets)) { const x = Object.assign({ t: 0, dur: 1, captured: 0, lostTotal: 0, anim: Math.random() * 6 }, e); if (!Array.isArray(x.pids)) x.pids = x.pid >= 0 ? [x.pid] : []; if (x.sent === undefined) x.sent = x.soldiers; expeditions.push(x); }
         }
         function captureHiveRemote(id, cmdName) {
             const h = hives.find(q => q.id === id);
@@ -10024,30 +10241,84 @@
                 hiveStates[id] = Object.assign(hiveStates[id] || {}, { status: 'friendly', commanderName: cmdName, kingDefeated: true, governor: true, kingdom: null, poiType: 'hive', archetype: p.archetype, garrison: 1 });
             }
             totalHivesCapturedLifetime++; store.setItem('boruHivesCapturedLifetime', totalHivesCapturedLifetime);
+            { const fl = fortressOf(id), by = h ? h.fortressBy : (hiveStates[id] && hiveStates[id].fortressBy); if (fl) { coins += earn(160 * fl); gainXp(80 * fl); showWaveText('🏰 KALE DÜŞTÜ · ' + (by ? by.toUpperCase() + ' İÇİN' : 'İNTİKAM ALINDI'), true, '#ffd27a'); } }
             coins += earn(90); document.getElementById('coinCount').innerText = coins; gainXp(60);
             saveHives(); refreshBlackHolePortal(); renderTerritoryPanel(); updateQuestProgress('hive', 1);
             const n = totalHivesCapturedLifetime; for (const m of [10, 25, 50, 75, 99]) if (n >= m) mono('hives' + m);
         }
-        window.startExpedition = function (pid, soldiers, targets) {
-            const hbI = hiredBosses.findIndex(h => h.pid === pid); if (hbI < 0 || !targets.length) return false;
-            const hb = hiredBosses[hbI]; const got = takeSoldiers(soldiers);
-            expeditions.push({ pid, soldiers: got, x: hb.x, y: hb.y, targets: targets.slice(), idx: 0, phase: 'march', t: 0, dur: 1, captured: 0, hp: hb.hp / hb.maxHp, anim: Math.random() * 6 });
-            hiredBosses.splice(hbI, 1); rebalanceEscorts(); saveExpeditions(); saveGame();
-            hintToast('⚔️ ' + cmdProfiles[pid].name + ' sefere çıktı · ' + got + ' asker · ' + targets.length + ' hedef', '#ffd24a', 3000);
+        window.startExpedition = function (pidsIn, soldiers, targets) {
+            const pids = (Array.isArray(pidsIn) ? pidsIn : [pidsIn]).filter((pid, k, a) => a.indexOf(pid) === k && hiredBosses.some(h => h.pid === pid));
+            if (!pids.length || !targets.length) return false;
+            const hbs = pids.map(pid => hiredBosses.find(h => h.pid === pid)); const lead = hbs[0];
+            const got = takeSoldiers(soldiers);
+            const hp = hbs.reduce((a, h) => a + h.hp / h.maxHp, 0) / hbs.length;
+            expeditions.push({ pid: pids[0], pids: pids.slice(), soldiers: got, sent: got, lostTotal: 0, x: lead.x, y: lead.y, targets: targets.slice(), idx: 0, phase: 'march', t: 0, dur: 1, captured: 0, hp, anim: Math.random() * 6 });
+            for (const hb of hbs) { const k = hiredBosses.indexOf(hb); if (k >= 0) hiredBosses.splice(k, 1); }
+            rebalanceEscorts(); saveExpeditions(); saveGame();
+            hintToast('⚔️ ' + expNames(pids) + ' sefere çıktı · ' + got + ' asker · ' + targets.length + ' hedef', '#ffd24a', 3000);
             return true;
         };
+        function expNames(pids, snaps) { const n = (snaps || pids.map(pid => cmdProfiles[pid] || { name: '?' })).map(c => c.name); return n.length <= 1 ? (n[0] || 'Birlik') : n.slice(0, -1).join(', ') + ' ve ' + n[n.length - 1]; }
         function expFinish(e, i) {
-            const C = cmdProfiles[e.pid];
-            if (armySlotsUsed() - 1 < slaveCap() && hiredBosses.length < slaveCap()) { spawnSlaveAt(e.x, e.y, e.pid); const hb = hiredBosses[hiredBosses.length - 1]; hb.hp = hb.maxHp * Math.max(0.3, e.hp || 1); }
-            for (let k = 0; k < e.soldiers; k++) { const s = { hiveId: 'exp', x: e.x + (Math.random() - 0.5) * 120, y: e.y + (Math.random() - 0.5) * 120, size: 24 * armyScale(), speed: stats.baseMaxSpeed * 0.9 * (1 + AB('soldier', 'spd')), hp: soldierMaxHp(), maxHp: soldierMaxHp(), wobble: Math.random() * 6, angle: 0, attackCooldown: 0, strike: 0 }; hiveSoldiers.push(s); s.escort = true; s.cmdIdx = 0; }
+            expeditions.splice(i, 1);
+            const back = [];
+            for (const pid of expPids(e)) { if (!cmdProfiles[pid] || hiredBosses.some(h => h.pid === pid) || armySlotsUsed() >= slaveCap()) continue; spawnSlaveAt(e.x, e.y, pid); const hb = hiredBosses[hiredBosses.length - 1]; hb.hp = hb.maxHp * Math.max(0.3, e.hp || 1); back.push(cmdProfiles[pid].name); }
+            for (let k = 0; k < e.soldiers; k++) { const s = { hiveId: 'exp', x: e.x + (Math.random() - 0.5) * 120, y: e.y + (Math.random() - 0.5) * 120, size: 24 * armyScale(), speed: stats.baseMaxSpeed * 0.9 * (1 + AB('soldier', 'spd')), hp: soldierMaxHp() * (e.report ? 0.45 : 1), maxHp: soldierMaxHp(), wobble: Math.random() * 6, angle: 0, attackCooldown: 0, strike: 0 }; hiveSoldiers.push(s); s.escort = true; s.cmdIdx = 0; }
             if (e.soldiers) rebalanceEscorts();
-            hintToast('🏁 ' + C.name + ' döndü · ' + e.captured + ' kovan fethedildi' + (e.soldiers ? ' · ' + e.soldiers + ' asker eskortuna katıldı' : ''), '#7dffb0', 3600);
-            expeditions.splice(i, 1); saveExpeditions();
+            if (e.report) {
+                rpDeliver(e.report);
+                showWaveText('📜 YARALI BİR ULAK GELDİ', true, '#ffcf8a'); applyShake(10); SND.play('toll');
+                hintToast('🩸 ' + e.report.courier + ' döndü. Üzerinde kanlı bir mektup var · 📜 RAPOR' + (isTouchUI ? '' : ' (L)'), '#ff9a7a', 6500);
+            } else hintToast('🏁 ' + (back.length ? back.join(', ') : 'Sefer') + ' döndü · ' + e.captured + ' kovan fethedildi' + (e.soldiers ? ' · ' + e.soldiers + ' asker eskortuna katıldı' : ''), '#7dffb0', 3600);
+            saveExpeditions(); renderTerritoryPanel();
+        }
+        const HIVE_ARCH_TR = { bat: 'Yarasa', scorpion: 'Akrep', beetle: 'Böcek', elite: 'Seçkin', wasp: 'Eşekarısı', mixed: 'Karma', kobra: 'Kobra' };
+        function hiveTitle(id) { const poi = worldPois().find(q => q.id === id) || {}; const h = hives.find(q => q.id === id); return (HIVE_ARCH_TR[(h && h.archetype) || poi.archetype] || 'Kara') + ' Kovanı'; }
+        function compassFrom(x0, y0, x, y) { const a = Math.atan2(y - y0, x - x0); const dirs = ['doğusunda', 'güneydoğusunda', 'güneyinde', 'güneybatısında', 'batısında', 'kuzeybatısında', 'kuzeyinde', 'kuzeydoğusunda']; return dirs[((Math.round(a / (Math.PI / 4)) % 8) + 8) % 8]; }
+        const COURIER_NAMES = ['Er Batu', 'Er Oğuz', 'Er Tarkan', 'Er Çağrı', 'Er Alpay', 'Er Turgut', 'Er Kaya', 'Er Ilgaz', 'Er Yiğit', 'Er Aybars', 'Er Atilla', 'Er Bora'];
+        // Şehit komutanlar kalıcı olarak kaydedilir; yuvaları yeni bir isimle boşalır
+        function fallenCmds() { const a = safeParseJSON('boruFallen', []); return Array.isArray(a) ? a : []; }
+        function fallCommander(pid, where) {
+            const C = cmdProfiles[pid]; if (!C) return;
+            const FL = fallenCmds(); FL.push({ name: C.name, pal: C.pal, weapon: C.weapon, costume: C.costume, where, wave: currentWave, at: Date.now() });
+            store.setItem('boruFallen', JSON.stringify(FL.slice(-40)));
+            const taken = new Set(cmdProfiles.slice(0, slaveCap()).map(c => c.name).concat(FL.map(f => f.name)));
+            const pool = CMD_NAMES.concat(['Arslan Bey', 'Toktamış', 'Kaya Alp', 'Börü Tegin', 'Çağrı Bey', 'Tuğrul', 'Aybars', 'Oğuz Alp', 'Temir Kağan', 'Ertuğ', 'Sungur Tigin', 'Kutlu Han', 'Batur', 'Alpagu', 'Bilge Tonyukuk', 'Er Kaya']);
+            const fresh = defaultCmd(pid); fresh.name = pool.find(n => !taken.has(n)) || ('Genç Alp ' + (FL.length + 1));
+            fresh.weapon = C.weapon; fresh.costume = 'yok';
+            cmdProfiles[pid] = fresh; saveCmds();
+        }
+        // YENİLGİ: askerler geri çekilirken ana komutanlar (en fazla 2) ölümüne savaşır. Kovan kanla semirir ve
+        // KALE KOVAN'a dönüşür. Sağ kalan askerlerden biri, üzerinde kanlı bir mektupla yanımıza döner.
+        function expDefeat(e, id, h) {
+            const pids = expPids(e); const leaders = pids.slice(0, 2), rest = pids.slice(2);
+            const pow = expPower(e), need = e.need || hiveReq(id);
+            const before = e.soldiers; const survivors = before > 0 ? Math.max(1, Math.round(before * (0.28 + Math.random() * 0.2))) : 1;
+            const dead = Math.max(0, before - survivors); e.lostTotal = (e.lostTotal || 0) + dead;
+            const snaps = leaders.map(pid => Object.assign({}, cmdProfiles[pid] || cmdProfiles[0]));
+            const pos = hivePosFromId(id) || { x: e.x, y: e.y };
+            const title = hiveTitle(id), dir = compassFrom(safeZone.x, safeZone.y, pos.x, pos.y), km = (Math.hypot(pos.x - safeZone.x, pos.y - safeZone.y) / 10000).toFixed(1);
+            const where = title + ' · sığınağın ' + dir;
+            const fortBefore = fortressOf(id);
+            const courier = COURIER_NAMES[Math.floor(Math.random() * COURIER_NAMES.length)];
+            const lvl = fortifyHive(id, snaps.map(c => c.name));
+            e.report = buildExpReport({ snaps, rest: rest.map(pid => cmdProfiles[pid] && cmdProfiles[pid].name).filter(Boolean), sent: e.sent || before, lostTotal: e.lostTotal, survivors, dead, captured: e.captured, targets: e.targets.length, title, dir, km, pow, need, dur: e.dur, courier, squire: before === 0, fortBefore, fortLvl: lvl, wave: currentWave });
+            for (const pid of leaders) fallCommander(pid, where);
+            e.pids = rest; e.pid = rest.length ? rest[0] : -1;
+            e.soldiers = survivors; e.fallenSnap = snaps; e.courier = courier; e.lsPos = { x: pos.x, y: pos.y };
+            e.phase = 'laststand'; e.t = 0; e.x = pos.x; e.y = pos.y; e.hp = Math.max(0.25, (e.hp || 1) - 0.4);
+            if (h) h.hp = h.maxHp;
+            const names = expNames(null, snaps);
+            hintToast('🩸 ' + names + ' kuşatıldı! Askerlerine geri çekilme emri verdi' + (snaps.length > 1 ? 'ler' : '') + ' — kendileri son nefese kadar savaşıyor.', '#ff5a5a', 5200);
+            if (Math.hypot(pos.x - world.dragonX, pos.y - world.dragonY) < 2600) { showWaveText('⚔️ ' + names.toUpperCase() + ': SON DİRENİŞ', true, '#ff3344'); applyShake(18); }
+            saveExpeditions(); saveGame(); if (typeof renderCmd === 'function' && document.getElementById('cmdModal').classList.contains('open')) renderCmd();
         }
         function updateAndDrawExpeditions() {
             for (let i = expeditions.length - 1; i >= 0; i--) {
-                const e = expeditions[i]; if (!cmdProfiles[e.pid]) { expeditions.splice(i, 1); continue; }
-                const C = cmdProfiles[e.pid]; e.anim += 0.05;
+                const e = expeditions[i]; const P0 = expPids(e);
+                const retreating = e.phase === 'laststand' || e.phase === 'messenger';
+                if (!retreating && (!P0.length || P0.some(pid => !cmdProfiles[pid]))) { expeditions.splice(i, 1); continue; }
+                const C = cmdProfiles[P0[0]] || (e.fallenSnap && e.fallenSnap[0]) || cmdProfiles[0]; e.anim += 0.05;
                 if (!isPaused && !isArenaTransitioning) {
                     if (e.phase === 'march') {
                         while (e.idx < e.targets.length && hiveStatusById(e.targets[e.idx]) !== 'enemy') e.idx++;
@@ -10069,23 +10340,30 @@
                                 const pow = expPower(e);
                                 if (pow >= e.need) {
                                     const loss = Math.min(e.soldiers, Math.max(0, Math.round(e.need * 0.3 + Math.random() * 1.4 - 0.5)));
-                                    e.soldiers -= loss; e.captured++; captureHiveRemote(id, C.name);
+                                    e.soldiers -= loss; e.lostTotal = (e.lostTotal || 0) + loss; e.captured++; captureHiveRemote(id, C.name);
                                     const near = h && Math.hypot(h.x - world.dragonX, h.y - world.dragonY) < 2500;
-                                    hintToast('🚩 ' + C.name + ' bir kovan fethetti' + (loss ? ' · ' + loss + ' asker düştü' : '') + ' (' + e.captured + '/' + e.targets.length + ')', '#ffd24a', 3000);
+                                    hintToast('🚩 ' + expNames(P0) + ' bir kovan fethetti' + (loss ? ' · ' + loss + ' asker düştü' : '') + ' (' + e.captured + '/' + e.targets.length + ')', '#ffd24a', 3000);
                                     if (near) { applyShake(12); SND.net('hiveBurst', { x: h.x, y: h.y }); }
                                     e.idx++; e.phase = 'march'; saveExpeditions();
-                                } else {
-                                    const loss = Math.ceil(e.soldiers * 0.5); e.soldiers -= loss; e.hp = Math.max(0.2, (e.hp || 1) - 0.4);
-                                    hintToast('🩸 ' + C.name + ' kuşatmada püskürtüldü (' + loss + ' asker kaybı) · geri çekiliyor. Daha çok asker gönder!', '#ff7a7a', 4200);
-                                    if (h) h.hp = Math.max(h.hp, h.maxHp * 0.6);
-                                    e.phase = 'return'; saveExpeditions();
-                                }
+                                } else expDefeat(e, id, h);
                             }
                         }
-                    } else if (e.phase === 'return') {
+                    } else if (e.phase === 'laststand') {
+                        e.t++;
+                        if (e.t === 200 || e.t === 300) { const p = e.lsPos; if (p && Math.hypot(p.x - world.dragonX, p.y - world.dragonY) < 2600) applyShake(8); }
+                        if (e.t >= 420) {
+                            e.phase = 'messenger'; e.t = 0; const names = expNames(null, e.fallenSnap || []);
+                            hintToast('🕯️ ' + names + ' düştü. ' + hiveTitle(e.targets[e.idx] || '') + ' kanla semirip bir KALE\'ye dönüştü.', '#ff8a8a', 5200);
+                            saveExpeditions();
+                        } else {
+                            // askerler kovandan uzaklaşarak geri çekilir
+                            const dx = world.dragonX - e.x, dy = world.dragonY - e.y, d = Math.hypot(dx, dy) || 1; e.ang = Math.atan2(dy, dx);
+                            if (!inMirrorArena && d > 380) { e.x += dx / d * EXP_SPEED * 0.9; e.y += dy / d * EXP_SPEED * 0.9; }
+                        }
+                    } else if (e.phase === 'return' || e.phase === 'messenger') {
                         const dx = world.dragonX - e.x, dy = world.dragonY - e.y, d = Math.hypot(dx, dy); e.ang = Math.atan2(dy, dx);
                         if (inMirrorArena) { /* kara delikten dönmeni bekler */ }
-                        else if (d > 380) { e.x += dx / d * EXP_SPEED * 1.2; e.y += dy / d * EXP_SPEED * 1.2; }
+                        else if (d > 380) { const sp = EXP_SPEED * (e.phase === 'messenger' ? 1.35 : 1.2); e.x += dx / d * sp; e.y += dy / d * sp; }
                         else { expFinish(e, i); continue; }
                     }
                 }
@@ -10101,34 +10379,194 @@
                 ctx.restore();
             }
         }
+        function drawExpCmd(C, x, y, rot, sc, bite, alpha) {
+            const P = cmdPal(C), W = cmdWeapon(C);
+            ctx.save(); ctx.globalAlpha = alpha === undefined ? 1 : alpha; ctx.translate(x - camX, y - camY); ctx.rotate(rot); ctx.scale(sc, sc);
+            for (let i = 4; i > 0; i--) { ctx.save(); ctx.translate(-i * 9, 0); drawCmdSeg(ctx, Math.max(3, 11 - i * 1.6), i, P, C, false, 1); ctx.restore(); }
+            drawCmdHead(ctx, C, P, W, false, Math.sin(tick * 6) * 0.3, bite, tick, sc);
+            ctx.restore();
+        }
+        function drawExpSoldier(sx, sy, sa, z, hurt) {
+            ctx.save(); ctx.translate(sx - camX, sy - camY); ctx.rotate(sa);
+            ctx.fillStyle = armyPal('soldier').dark || '#0a1a30'; ctx.strokeStyle = hurt ? '#b04040' : (armyPal('soldier').main || '#2f8cff'); ctx.lineWidth = 1.6;
+            ctx.beginPath(); ctx.moveTo(14 * z, 0); ctx.lineTo(-8 * z, -9 * z); ctx.lineTo(-4 * z, 0); ctx.lineTo(-8 * z, 9 * z); ctx.closePath(); ctx.fill(); ctx.stroke();
+            ctx.restore();
+        }
         function drawExpedition(e, C) {
             const vw = canvas.width / viewScale, vh = canvas.height / viewScale;
-            if (e.x < camX - 300 || e.y < camY - 300 || e.x > camX + vw + 300 || e.y > camY + vh + 300) return;
-            const P = cmdPal(C), W = cmdWeapon(C), sc = 23 / 16 * armyScale(), ang = e.ang || 0;
+            const bx = e.phase === 'laststand' && e.lsPos ? Math.min(e.x, e.lsPos.x) : e.x, by = e.phase === 'laststand' && e.lsPos ? Math.min(e.y, e.lsPos.y) : e.y;
+            const bx2 = e.phase === 'laststand' && e.lsPos ? Math.max(e.x, e.lsPos.x) : e.x, by2 = e.phase === 'laststand' && e.lsPos ? Math.max(e.y, e.lsPos.y) : e.y;
+            if (bx2 < camX - 500 || by2 < camY - 500 || bx > camX + vw + 500 || by > camY + vh + 500) return;
+            const sc = 23 / 16 * armyScale(), ang = e.ang || 0, z = 0.9 * armyScale(), pids = expPids(e);
+            if (e.phase === 'laststand' && e.lsPos) { drawLastStand(e, sc); }
             let cx = e.x, cy = e.y;
             if (e.phase === 'siege') { const p = hivePosFromId(e.targets[e.idx]); if (p) { cx = p.x + Math.cos(e.anim) * 170; cy = p.y + Math.sin(e.anim) * 170; } }
             // askerler (kuşatmada kovanın çevresinde döner)
-            const shown = Math.min(e.soldiers, 24);
+            const shown = Math.min(e.soldiers, 24), retreat = e.phase === 'laststand' || e.phase === 'messenger';
             for (let k = 0; k < shown; k++) {
                 let sx, sy, sa;
                 if (e.phase === 'siege') { const p = hivePosFromId(e.targets[e.idx]) || e; const a = e.anim * 1.4 + k / shown * Math.PI * 2; const r = 120 + (k % 3) * 22 + Math.sin(e.anim * 5 + k) * 10; sx = p.x + Math.cos(a) * r; sy = p.y + Math.sin(a) * r; sa = a + Math.PI; }
-                else { const row = Math.floor(k / 4) + 1, col = (k % 4) - 1.5; sx = cx - Math.cos(ang) * row * 44 + Math.cos(ang + Math.PI / 2) * col * 34; sy = cy - Math.sin(ang) * row * 44 + Math.sin(ang + Math.PI / 2) * col * 34; sa = ang; }
-                ctx.save(); ctx.translate(sx - camX, sy - camY); ctx.rotate(sa); const z = 0.9 * armyScale();
-                ctx.fillStyle = armyPal('soldier').dark || '#0a1a30'; ctx.strokeStyle = armyPal('soldier').main || '#2f8cff'; ctx.lineWidth = 1.6;
-                ctx.beginPath(); ctx.moveTo(14 * z, 0); ctx.lineTo(-8 * z, -9 * z); ctx.lineTo(-4 * z, 0); ctx.lineTo(-8 * z, 9 * z); ctx.closePath(); ctx.fill(); ctx.stroke();
-                if (e.phase === 'siege' && (tick * 3 + k) % 7 < 0.6) { ctx.fillStyle = 'rgba(255,230,160,0.9)'; ctx.beginPath(); ctx.arc(-10 * z, 0, 5 * z, 0, Math.PI * 2); ctx.fill(); }
-                ctx.restore();
+                else { const row = Math.floor(k / 4) + 1, col = (k % 4) - 1.5; sx = cx - Math.cos(ang) * row * 44 + Math.cos(ang + Math.PI / 2) * col * 34 + (retreat ? Math.sin(tick * 3 + k) * 6 : 0); sy = cy - Math.sin(ang) * row * 44 + Math.sin(ang + Math.PI / 2) * col * 34; sa = ang; }
+                drawExpSoldier(sx, sy, sa, z, retreat);
+                if (e.phase === 'siege' && (tick * 3 + k) % 7 < 0.6) { ctx.fillStyle = 'rgba(255,230,160,0.9)'; ctx.beginPath(); ctx.arc(sx - camX - Math.cos(sa) * 10 * z, sy - camY - Math.sin(sa) * 10 * z, 5 * z, 0, Math.PI * 2); ctx.fill(); }
             }
-            // komutan
-            ctx.save(); ctx.translate(cx - camX, cy - camY); ctx.rotate(e.phase === 'siege' ? e.anim + Math.PI / 2 : ang); ctx.scale(sc, sc);
-            for (let i = 4; i > 0; i--) { ctx.save(); ctx.translate(-i * 9, 0); drawCmdSeg(ctx, Math.max(3, 11 - i * 1.6), i, P, C, false, 1); ctx.restore(); }
-            drawCmdHead(ctx, C, P, W, false, Math.sin(tick * 6) * 0.3, e.phase === 'siege' ? Math.max(0, Math.sin(tick * 4)) : 0, tick, sc);
-            ctx.restore();
+            // ULAK: en önde, sırtında kanlı mektup
+            if (retreat) {
+                const ux = cx + Math.cos(ang) * 40, uy = cy + Math.sin(ang) * 40;
+                drawExpSoldier(ux, uy, ang, z * 1.15, true);
+                ctx.save(); ctx.translate(ux - camX, uy - camY); ctx.rotate(ang);
+                ctx.fillStyle = '#e6d3a3'; ctx.strokeStyle = '#6b4a1a'; ctx.lineWidth = 1.2; ctx.fillRect(-12 * z, -5 * z, 12 * z, 10 * z); ctx.strokeRect(-12 * z, -5 * z, 12 * z, 10 * z);
+                ctx.fillStyle = '#8a0010'; ctx.beginPath(); ctx.arc(-6 * z, 0, 3 * z, 0, Math.PI * 2); ctx.fill();
+                ctx.restore();
+                if ((tick * 10 | 0) % 9 === 0) { ctx.fillStyle = 'rgba(140,0,10,0.7)'; ctx.beginPath(); ctx.arc(ux - camX - Math.cos(ang) * 16, uy - camY - Math.sin(ang) * 16, 2.5, 0, Math.PI * 2); ctx.fill(); }
+            }
+            // komutanlar: birlikte yürür, yan yana dizilir
+            pids.forEach((pid, k) => {
+                const PC = cmdProfiles[pid]; if (!PC) return;
+                const off = (k - (pids.length - 1) / 2) * 62 * armyScale();
+                if (e.phase === 'siege') { const p = hivePosFromId(e.targets[e.idx]); if (p) { const a = e.anim + k * Math.PI * 2 / pids.length; drawExpCmd(PC, p.x + Math.cos(a) * 170, p.y + Math.sin(a) * 170, a + Math.PI / 2, sc, Math.max(0, Math.sin(tick * 4 + k)), 1); return; } }
+                drawExpCmd(PC, cx + Math.cos(ang + Math.PI / 2) * off - Math.cos(ang) * Math.abs(off) * 0.4, cy + Math.sin(ang + Math.PI / 2) * off - Math.sin(ang) * Math.abs(off) * 0.4, ang, sc, 0, 1);
+            });
             // sancak
-            ctx.save(); ctx.fillStyle = '#ffd24a'; ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center'; ctx.shadowBlur = 4; ctx.shadowColor = '#000';
-            ctx.fillText('⚔️ ' + C.name + ' · ' + e.soldiers, cx - camX, cy - camY - 44 * sc); ctx.restore();
+            ctx.save(); ctx.font = 'bold 12px Arial'; ctx.textAlign = 'center'; ctx.shadowBlur = 4; ctx.shadowColor = '#000';
+            if (retreat) { ctx.fillStyle = '#ffb08a'; ctx.fillText('📜 ' + (e.courier || 'Ulak') + ' · ' + e.soldiers + ' sağ kalan', cx - camX, cy - camY - 44 * sc); }
+            else { ctx.fillStyle = '#ffd24a'; ctx.fillText('⚔️ ' + expNames(pids) + ' · ' + e.soldiers, cx - camX, cy - camY - 44 * sc); }
+            ctx.restore();
             if (e.phase === 'siege') { const p = hivePosFromId(e.targets[e.idx]); if (p) { const f = Math.min(1, e.t / e.dur); ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(p.x - camX - 60, p.y - camY - 130, 120, 8); ctx.fillStyle = expPower(e) >= e.need ? '#ffd24a' : '#ff5a5a'; ctx.fillRect(p.x - camX - 60, p.y - camY - 130, 120 * f, 8); } }
         }
+        // SON DİRENİŞ: şehit olacak komutanlar kovanın önünde sırt sırta savaşır, düşman sürüsü çember daraltır.
+        function drawLastStand(e, sc) {
+            const p = e.lsPos, t = e.t, f = Math.min(1, t / 420), snaps = e.fallenSnap || [];
+            const fade = t > 330 ? Math.max(0, 1 - (t - 330) / 90) : 1;
+            // daralan düşman çemberi
+            const ring = 330 - f * 190, n = 40;
+            for (let k = 0; k < n; k++) {
+                const a = k / n * Math.PI * 2 + Math.sin(tick * 0.7 + k) * 0.05; const r = ring + Math.sin(tick * 5 + k * 1.7) * 18;
+                const x = p.x + Math.cos(a) * r - camX, y = p.y + Math.sin(a) * r - camY;
+                ctx.save(); ctx.translate(x, y); ctx.rotate(a + Math.PI);
+                ctx.fillStyle = '#2a0508'; ctx.strokeStyle = '#ff2a3a'; ctx.lineWidth = 1.2;
+                ctx.beginPath(); ctx.moveTo(12, 0); ctx.lineTo(-7, -8); ctx.lineTo(-3, 0); ctx.lineTo(-7, 8); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+            }
+            // komutanlar sırt sırta döner, hamle yapar
+            snaps.forEach((C, k) => {
+                const a = tick * 1.6 + k * Math.PI; const lunge = Math.max(0, Math.sin(tick * 7 + k * 2)) * 40;
+                const x = p.x + Math.cos(a) * (70 + lunge), y = p.y + Math.sin(a) * (70 + lunge);
+                drawExpCmd(C, x, y, a, sc * 1.1, Math.max(0, Math.sin(tick * 7 + k * 2)), fade);
+                if (Math.sin(tick * 7 + k * 2) > 0.92) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = 'rgba(255,90,60,0.8)'; ctx.beginPath(); ctx.arc(x + Math.cos(a) * 60 - camX, y + Math.sin(a) * 60 - camY, 22, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+                if (fade > 0.2) { ctx.save(); ctx.globalAlpha = fade; ctx.font = 'bold 12px Georgia, serif'; ctx.fillStyle = '#ffd6c8'; ctx.textAlign = 'center'; ctx.shadowBlur = 5; ctx.shadowColor = '#000'; ctx.fillText('⚔️ ' + C.name, x - camX, y - camY - 42 * sc); ctx.restore(); }
+            });
+            // kan sıçraması
+            if ((tick * 10 | 0) % 3 === 0) for (let q = 0; q < 2; q++) { const a = Math.random() * Math.PI * 2, r = 40 + Math.random() * 140; ctx.fillStyle = `rgba(${120 + Math.random() * 60 | 0},0,10,0.55)`; ctx.beginPath(); ctx.arc(p.x + Math.cos(a) * r - camX, p.y + Math.sin(a) * r - camY, 2 + Math.random() * 4, 0, Math.PI * 2); ctx.fill(); }
+            if (t > 400) { ctx.save(); ctx.globalAlpha = (420 - t) / 20; ctx.globalCompositeOperation = 'lighter'; const g = ctx.createRadialGradient(p.x - camX, p.y - camY, 0, p.x - camX, p.y - camY, 260); g.addColorStop(0, 'rgba(255,220,180,0.9)'); g.addColorStop(1, 'rgba(255,40,0,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x - camX, p.y - camY, 260, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+        }
+
+        // =====================================================================
+        // SEFER RAPORU: yenilgiden sağ dönen ulağın kanlı mektubu. Oyuncu "📜 RAPOR" dediğinde oyun durur,
+        // yıpranmış bir parşömen yavaşça açılır ve satırlar tek tek mürekkep gibi dökülür.
+        // =====================================================================
+        var rpReports = (() => { const a = safeParseJSON('boruReports', []); return Array.isArray(a) ? a : []; })();
+        setTimeout(renderRpBtn, 0);
+        function rpSave() { store.setItem('boruReports', JSON.stringify(rpReports.slice(-12))); }
+        function rpDeliver(r) { r.read = false; rpReports.push(r); if (rpReports.length > 12) rpReports.splice(0, rpReports.length - 12); rpSave(); renderRpBtn(); }
+        function rpUnread() { return rpReports.filter(r => !r.read).length; }
+        function renderRpBtn() { const b = document.getElementById('rpBtn'); if (!b) return; const n = rpUnread(); b.classList.toggle('show', n > 0); const c = b.querySelector('.rp-n'); if (c) c.textContent = n > 1 ? n : ''; }
+        function rpPick(arr, seed) { return arr[Math.abs(Math.floor(seed)) % arr.length]; }
+        function buildExpReport(o) {
+            const seed = Math.floor(Math.random() * 1e6);
+            const L = o.snaps, two = L.length > 1, A = L[0] ? L[0].name : 'Komutan', B = two ? L[1].name : null;
+            const names = two ? A + ' ile ' + B : A;
+            const W = (C) => (CMD_WEAPONS.find(w => w.id === C.weapon) || CMD_WEAPONS[0]).id;
+            const lastImg = {
+                kilic: 'kılıcı kırıldığında bile kabzasıyla vurmaya devam ediyordu',
+                mizrak: 'mızrağını kovanın kapısına saplamış, geçidi kendi bedeniyle tutuyordu',
+                balta: 'baltasının her inişinde bir düşman daha yere seriliyordu; sonunda baltayı kaldıracak kolu kalmadı, yine de geri adım atmadı',
+                yay: 'son okunu attı, yayını kırdı ve pençeleriyle yürüdü',
+                asa: 'son büyüsünü kendine değil, geri çekilen askerlerinin üzerine yaptı; kendisine tek bir kıvılcım bile bırakmadı',
+                pence: 'pençeleri kan içindeydi; dişleriyle savaşmaya devam ediyordu'
+            };
+            const quotes = [
+                'Gidin. Biriniz bile dönerse, bu savaş kaybedilmiş sayılmaz.',
+                'Ejderhamıza söyleyin: sancağı ben düşürmedim. Ben düştüm — sancak ayakta.',
+                'Geri çekilmek sizin göreviniz. Benimki burada bitiyor.',
+                'Ateşine söyleyin, benim için bir kez daha yansın.',
+                'Bir Börü sırtını dönmez. Ama askerlerinin sırtını kollar. Gidin!',
+                'Adımı bu kovanın duvarlarına kanımla yazacağım. Gelsin, okusun.'
+            ];
+            const dSec = Math.round((o.dur || 600) / 60);
+            const days = dSec < 10 ? 'bir gün bir gece' : (dSec < 18 ? 'iki gün iki gece' : 'üç gün üç gece');
+            const enemies = Math.round(o.need * (70 + (seed % 40)) * (1 + (o.fortBefore || 0) * 0.6) / 10) * 10;
+            const ratio = o.need / Math.max(1, o.pow);
+            const ratioTxt = ratio >= 2 ? 'bizim iki katımızdan fazlaydı' : (ratio >= 1.4 ? 'bizden bir buçuk kat güçlüydü' : 'bizden yalnızca biraz güçlüydü — ama o "biraz", bir birliğin kaderini yazdı');
+            const blocks = [];
+            blocks.push({ k: 'h', t: 'SEFER RAPORU' });
+            blocks.push({ k: 'sub', t: o.title + ' önlerinden · Dalga ' + o.wave + ' · ulak: ' + o.courier });
+            blocks.push({ k: 'sec', t: 'GÖREV' });
+            blocks.push({ k: 'p', t: o.targets + ' kovanın fethi emredildi. ' + (o.captured ? o.captured + ' kovan sancağımıza geçti. ' : '') + o.title + ', sığınağın ' + o.dir + ', ' + Math.max(1, Math.round(o.km * 1000)) + ' adım ötede, önümüze bir duvar gibi dikildi.' });
+            blocks.push({ k: 'sec', t: 'BİRLİK' });
+            blocks.push({ k: 'p', t: 'Komutan' + (two ? 'lar' : '') + ': ' + names + (o.rest.length ? ' · yanlarında ' + o.rest.join(', ') : '') + '.\nYola çıkan: ' + o.sent + ' asker.  Düşen: ' + Math.max(0, o.sent - o.survivors) + '.  Sağ dönen: ' + o.survivors + (o.squire ? ' (komutanın kendi silahtarı)' : '') + '.' });
+            blocks.push({ k: 'sec', t: 'GENEL RAPOR' });
+            blocks.push({ k: 'p', t: 'Kuşatma ' + days + ' sürdü. Kovanın ağzından ' + enemies + '\'den fazla düşman aktı; gök kanatlarla karardı, toprak kanla çamur oldu. ' + (o.captured ? 'Önceki kovanları alırken yorulmuştuk ama kimse durmak istemedi. ' : '') + 'Her hücumda bir sıra daha eksildik ve her seferinde yeniden saf tuttuk.' });
+            blocks.push({ k: 'p', t: 'Kovanın gücü ' + ratioTxt + '. Bunu ilk anlayan ' + A + ' oldu. Kanatlarını açtı, sesini bütün savaş alanı duydu:' });
+            blocks.push({ k: 'q', t: '“' + rpPick(quotes, seed) + '”' });
+            if (two) blocks.push({ k: 'p', t: B + ' ise yalnızca güldü, yanına geçti ve omzunu onunkine dayadı: “Seninle ölmek, başkasıyla yaşamaktan iyidir, kardeşim.”' });
+            const lastImg2 = { kilic: 'kılıcını iki eliyle kavramış, düşen her kardeşinin yerine bir adım öne çıkıyordu', mizrak: 'mızrağı kırılınca sapıyla savaştı; sap da kırılınca kanatlarıyla', balta: 'baltası düşmanın kalkanlarına gömülü kaldı; çıplak pençelerle yürüdü', yay: 'oklarını düşmanın kanatlarına yağdırdı; sadağı boşalınca yay kirişiyle boğuşuyordu', asa: 'asasını yere vurdu, toprak yarıldı; ışığı sönene kadar geçidi aydınlattı', pence: 'bir düşmanın boğazından ötekininkine atlıyordu; yorulmak nedir bilmedi' };
+            blocks.push({ k: 'p', t: 'Geri çekilirken arkama baktım. ' + L.map((C, k) => C.name + ' ' + ((k && W(C) === W(L[0])) ? lastImg2 : lastImg)[W(C)]).join('. ') + '. Onlar orada durdukça tek bir düşman peşimize düşemedi. Çığlıklar bir süre daha sürdü. Sonra sustu. Sustuğunda anladık.' });
+            blocks.push({ k: 'epi', t: names + ', savaşın kaybedileceği anlaşılınca birliklerini geri gönderip ' + (two ? 'kendileri' : 'kendisi') + ' onurlu bir ölüme yürümüştür.' });
+            blocks.push({ k: 'p', t: 'O kovan artık bir kovan değil. Komutan' + (two ? 'larımızın' : 'ımızın') + ' kanıyla semirdi; surları yükseldi, kuleleri göğe uzandı, içinden devler çıkıyor. Oraya bir kale dikildi' + (o.fortLvl > 1 ? ' — ve her kurbanla daha da büyüyor' : '') + '. Bir mezar taşı gibi.' });
+            blocks.push({ k: 'p', t: 'Bu mektubu bana ' + A + ' verdi, son emriyle: “Bunu ona ulaştır.” Ulaştırdım. ' + (o.survivors > 1 ? 'Arkamda ' + (o.survivors - 1) + ' yaralı kardeşim var; hepsi senin emrini bekliyor.' : 'Geriye yalnız ben kaldım.') });
+            blocks.push({ k: 'sign', t: '— ' + o.courier + ', ' + names + ' komutasındaki birlikten' });
+            return { id: seed, courier: o.courier, fallen: L.map(C => C.name), title: o.title, blocks, at: Date.now() };
+        }
+        let rpCur = null, rpTimer = 0, rpPaused = false, rpDone = false, rpSkip = false;
+        window.openReport = function (idx) {
+            if (!gameActive) return;
+            let r = idx !== undefined ? rpReports[idx] : (rpReports.slice().reverse().find(x => !x.read) || rpReports[rpReports.length - 1]);
+            if (!r) { hintToast('📜 Henüz bir ulak gelmedi.', '#d8c8a0', 2200); return; }
+            if (typeof closeMMenu === 'function' && mMenuOpen()) closeMMenu();
+            rpCur = r; rpDone = false; rpSkip = false;
+            if (!isPaused) { isPaused = true; rpPaused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
+            const m = document.getElementById('rpModal'), paper = document.getElementById('rpPaper'), txt = document.getElementById('rpText');
+            txt.innerHTML = ''; document.getElementById('rpClose').classList.remove('show');
+            // yırtık kenarlar: her mektup farklı yıpranır
+            const pts = []; const N = 26;
+            for (let k = 0; k <= N; k++) pts.push((1.2 + Math.random() * 2.4).toFixed(1) + '% ' + (k / N * 100).toFixed(1) + '%');
+            for (let k = N; k >= 0; k--) pts.push((98.8 - Math.random() * 2.4).toFixed(1) + '% ' + (k / N * 100).toFixed(1) + '%');
+            paper.style.setProperty('--tear', 'polygon(' + pts.join(',') + ')');
+            // kan lekeleri
+            const svg = document.getElementById('rpBlood'); let s = '';
+            const blot = (x, y, r, a) => { s += `<circle cx="${x}" cy="${y}" r="${r}" fill="rgba(${90 + Math.random() * 40 | 0},0,${Math.random() * 12 | 0},${a})" filter="url(#rpBlot)"/>`; for (let q = 0; q < 5; q++) { const aa = Math.random() * 6.28, d = r * (1.1 + Math.random() * 1.2); s += `<circle cx="${(x + Math.cos(aa) * d).toFixed(1)}" cy="${(y + Math.sin(aa) * d).toFixed(1)}" r="${(1 + Math.random() * r * 0.14).toFixed(1)}" fill="rgba(110,0,5,${a})"/>`; } };
+            blot(82 + Math.random() * 10, 8 + Math.random() * 8, 7 + Math.random() * 4, 0.55);
+            blot(8 + Math.random() * 12, 70 + Math.random() * 20, 5 + Math.random() * 4, 0.45);
+            blot(60 + Math.random() * 30, 88 + Math.random() * 8, 4 + Math.random() * 3, 0.5);
+            s += `<path d="M${20 + Math.random() * 50} 0 q 1 ${6 + Math.random() * 6} -0.6 ${14 + Math.random() * 10}" stroke="rgba(100,0,5,0.5)" stroke-width="1.4" fill="none" filter="url(#rpBlot)"/>`;
+            s += `<ellipse cx="${30 + Math.random() * 40}" cy="${40 + Math.random() * 30}" rx="5" ry="7" fill="none" stroke="rgba(90,0,0,0.22)" stroke-width="0.5" stroke-dasharray="0.6 0.5"/>`; // kanlı parmak izi
+            svg.innerHTML = '<defs><filter id="rpBlot"><feTurbulence type="fractalNoise" baseFrequency="0.25" numOctaves="3" seed="' + (Math.random() * 99 | 0) + '"/><feDisplacementMap in="SourceGraphic" scale="4"/></filter></defs>' + s;
+            m.classList.remove('play'); void m.offsetWidth; m.classList.add('open', 'play');
+            SND.play('toll'); playTone(55, 'sine', 2.4, 0.22);
+            clearTimeout(rpTimer); rpTimer = setTimeout(() => rpType(r, 0, 0), 3300);
+            r.read = true; rpSave(); renderRpBtn();
+        };
+        function rpType(r, bi, ci) {
+            if (rpCur !== r) return;
+            const txt = document.getElementById('rpText');
+            if (bi >= r.blocks.length) { rpDone = true; document.getElementById('rpClose').classList.add('show'); return; }
+            const b = r.blocks[bi];
+            let el = txt.children[bi];
+            if (!el) { el = document.createElement('div'); el.className = 'rp-' + b.k; txt.appendChild(el); if (b.k === 'q' || b.k === 'epi') { SND.play('toll'); if (b.k === 'epi') applyShake(0); } }
+            if (rpSkip || b.k === 'sec') { el.textContent = b.t; rpSkip = rpSkip && bi < r.blocks.length; txt.parentElement.scrollTop = 1e9; rpTimer = setTimeout(() => rpType(r, bi + 1, 0), rpSkip ? 0 : 380); return; }
+            el.textContent = b.t.slice(0, ci + 1); el.classList.add('ink');
+            txt.parentElement.scrollTop = 1e9;
+            const ch = b.t[ci]; let d = b.k === 'h' ? 110 : (b.k === 'q' || b.k === 'epi' ? 55 : 30);
+            if (ch === '.' || ch === '—' || ch === '!' || ch === '?') d += 320; else if (ch === ',' || ch === ':') d += 140; else if (ch === '\n') d += 380;
+            if (ci % 4 === 0 && ch !== ' ') playTone(1700 + Math.random() * 900, 'triangle', 0.018, 0.012);
+            if (ci + 1 >= b.t.length) { el.classList.remove('ink'); rpTimer = setTimeout(() => rpType(r, bi + 1, 0), b.k === 'h' ? 700 : 520); }
+            else rpTimer = setTimeout(() => rpType(r, bi, ci + 1), d);
+        }
+        window.rpTap = function () { if (!rpCur || rpDone) return; rpSkip = true; clearTimeout(rpTimer); const txt = document.getElementById('rpText'); const bi = Math.max(0, txt.children.length - 1); rpType(rpCur, bi, 0); };
+        window.closeReport = function () {
+            clearTimeout(rpTimer); rpCur = null; const m = document.getElementById('rpModal'); m.classList.remove('open', 'play');
+            if (rpPaused) { rpPaused = false; isPaused = false; world.lastX = world.dragonX; world.lastY = world.dragonY; }
+        };
 
         // ---------------- BÜYÜK HARİTA: SEFER MODU ----------------
         function bmSeferReset() { BM.mode = null; BM.region = false; BM.rect = null; BM.selSet = new Set(); BM.sheet = null; document.getElementById('bmSheet').classList.remove('open'); bmSeferPanel(); }
@@ -10156,12 +10594,13 @@
             const n = BM.selSet.size;
             el.classList.add('open');
             el.innerHTML = `<div class="bs-row"><b>⚔️ SEFER</b><span>${n ? n + ' kovan seçili' : (BM.region ? 'Parmağınla bir alan çiz' : 'Düşman kovanlarına dokun')}</span></div>
-                <div class="bs-msg">${msg ? escapeHtml(msg) : (expeditions.length ? '🚩 Yolda: ' + expeditions.map(e => escapeHtml(cmdProfiles[e.pid].name) + ' (' + e.soldiers + ')').join(', ') : 'Birden fazla kovan ya da bir bölge seçebilirsin.')}</div>
+                <div class="bs-msg">${msg ? escapeHtml(msg) : (expeditions.length ? '🚩 Yolda: ' + expeditions.map(e => escapeHtml(e.phase === 'messenger' || e.phase === 'laststand' ? '📜 ' + (e.courier || 'ulak') : expNames(expPids(e))) + ' (' + e.soldiers + ')').join(', ') : 'Birden fazla kovan ya da bir bölge seçebilirsin.')}</div>
                 <div class="bs-btns"><button class="${BM.region ? 'on' : ''}" onclick="bmRegionToggle()">▭ Bölge ${BM.region ? 'açık' : ''}</button><button onclick="bmSelClear()" ${n ? '' : 'disabled'}>Temizle</button><button class="go" onclick="bmSheetOpen()" ${n ? '' : 'disabled'}>🚩 Gönder</button></div>`;
         }
-        window.bmSheetOpen = function () { if (!BM.selSet.size) return; const firstFree = hiredBosses.find(h => true); BM.sheet = { pid: firstFree ? firstFree.pid : null, n: 0 }; bmSheetRender(true); document.getElementById('bmSheet').classList.add('open'); };
+        window.bmSheetOpen = function () { if (!BM.selSet.size) return; const firstFree = hiredBosses.find(h => true); BM.sheet = { pids: firstFree ? [firstFree.pid] : [], n: 0 }; bmSheetRender(true); document.getElementById('bmSheet').classList.add('open'); };
         window.bmSheetClose = function () { document.getElementById('bmSheet').classList.remove('open'); BM.sheet = null; };
-        window.bmSheetPick = function (pid) { BM.sheet.pid = pid; bmSheetRender(); };
+        // Birden fazla komutan seçilebilir: hepsi aynı seferde birlikte yürür (ilk ikisi ana komutandır)
+        window.bmSheetPick = function (pid) { const a = BM.sheet.pids; const k = a.indexOf(pid); if (k >= 0) { if (a.length > 1) a.splice(k, 1); } else a.push(pid); bmSheetRender(); };
         window.bmSheetN = function (v) { BM.sheet.n = +v; bmSheetEst(); };
         function bmSheetTargets() {
             const ids = [...BM.selSet].filter(id => hiveStatusById(id) === 'enemy');
@@ -10173,41 +10612,40 @@
         function bmSheetEst() {
             const el = document.getElementById('bsEst'); if (!el || !BM.sheet) return;
             const ts = bmSheetTargets(), reqs = ts.map(hiveReq), maxR = reqs.length ? Math.max(...reqs) : 0;
-            const C = BM.sheet.pid !== null ? cmdProfiles[BM.sheet.pid] : null;
-            const pow = BM.sheet.n + 2 + (C ? cmdWeapon(C).dmg : 1);
+            const pow = BM.sheet.n + BM.sheet.pids.reduce((a, pid) => a + 2 + cmdWeapon(cmdProfiles[pid]).dmg, 0);
             const lossEst = reqs.reduce((a, r) => a + Math.round(r * 0.3), 0);
             const ok = pow >= maxR; document.getElementById('bsN').textContent = BM.sheet.n;
-            el.innerHTML = `Güç <b>${pow.toFixed(1)}</b> · en zor kovan <b>${maxR}</b> · tahmini kayıp ~${lossEst} asker<br><span style="color:${ok ? (BM.sheet.n - lossEst >= 0 ? '#7dffb0' : '#ffd24a') : '#ff7a7a'}">${ok ? (BM.sheet.n >= lossEst + maxR - 3 ? '✔ Hepsini alabilir' : '⚠ İlk kovanları alır, sonra askeri azalabilir') : '✖ Bu güçle en zor kovanda püskürtülür'}</span>`;
+            el.innerHTML = `Güç <b>${pow.toFixed(1)}</b> · en zor kovan <b>${maxR}</b> · tahmini kayıp ~${lossEst} asker<br><span style="color:${ok ? (BM.sheet.n - lossEst >= 0 ? '#7dffb0' : '#ffd24a') : '#ff7a7a'}">${ok ? (BM.sheet.n >= lossEst + maxR - 3 ? '✔ Hepsini alabilir' : '⚠ İlk kovanları alır, sonra askeri azalabilir') : '✖ Bu güçle en zor kovanda püskürtülür — komutanlar geri çekilmez, ölümüne savaşır!'}</span>${fortressOf(ts.find(id => fortressOf(id)) || '') ? '<br><span style="color:#ff8a9a">🏰 Hedeflerde KALE KOVAN var</span>' : ''}`;
         }
         function bmSheetRender() {
             const sh = BM.sheet; if (!sh) return; const avail = availableSoldiers();
-            if (sh.pid !== null && !hiredBosses.some(h => h.pid === sh.pid)) sh.pid = hiredBosses.length ? hiredBosses[0].pid : null;
+            sh.pids = sh.pids.filter(pid => hiredBosses.some(h => h.pid === pid)); if (!sh.pids.length && hiredBosses.length) sh.pids = [hiredBosses[0].pid];
             if (!sh.n) sh.n = Math.min(avail, Math.max(3, Math.max(...bmSheetTargets().map(hiveReq), 0)));
             sh.n = Math.min(sh.n, avail);
-            const cmds = hiredBosses.map(hb => { const C = cmdProfiles[hb.pid], W = cmdWeapon(C), P = cmdPal(C); return `<button class="${sh.pid === hb.pid ? 'on' : ''}" style="--c:${P.main}" onclick="bmSheetPick(${hb.pid})"><i></i>${escapeHtml(C.name)} <small>${W.icon}</small></button>`; }).join('');
+            const cmds = hiredBosses.map(hb => { const C = cmdProfiles[hb.pid], W = cmdWeapon(C), P = cmdPal(C); return `<button class="${sh.pids.includes(hb.pid) ? 'on' : ''}" style="--c:${P.main}" onclick="bmSheetPick(${hb.pid})"><i></i>${sh.pids.includes(hb.pid) ? (sh.pids.indexOf(hb.pid) < 2 ? '⚜️ ' : '✔ ') : ''}${escapeHtml(C.name)} <small>${W.icon}</small></button>`; }).join('');
             document.getElementById('bmSheet').innerHTML = `<div class="bs-box"><div class="bs-h"><b>🚩 SEFER EMRİ</b><span>${BM.selSet.size} hedef</span><button class="bs-x" onclick="bmSheetClose()">✕</button></div>
-                <div class="bs-lab">Komutan</div><div class="bs-cmds">${cmds || '<span class="bs-none">Yanında köle yok: önce köle çağır (Q+W / 🐍).</span>'}</div>
+                <div class="bs-lab">Komutanlar <small style="font-weight:400;letter-spacing:0;color:#d8c8a0">· birden çok seç, birlikte yürürler</small></div><div class="bs-cmds">${cmds || '<span class="bs-none">Yanında köle yok: önce köle çağır (Q+W / 🐍).</span>'}</div>
                 <div class="bs-lab">Asker: <b id="bsN">${sh.n}</b> / ${avail}</div>
                 <input type="range" min="0" max="${avail}" step="1" value="${sh.n}" oninput="bmSheetN(this.value)" ${avail ? '' : 'disabled'}>
                 <div class="bs-est" id="bsEst"></div>
-                <div class="bs-btns"><button onclick="openCmd()">✏️ Komutanı düzenle</button><button class="go" onclick="bmSend()" ${sh.pid === null ? 'disabled' : ''}>⚔️ SEFERE ÇIK</button></div></div>`;
+                <div class="bs-btns"><button onclick="openCmd()">✏️ Komutanı düzenle</button><button class="go" onclick="bmSend()" ${sh.pids.length ? '' : 'disabled'}>⚔️ SEFERE ÇIK</button></div></div>`;
             bmSheetEst();
         }
         window.bmSend = function () {
-            const sh = BM.sheet; if (!sh || sh.pid === null) return;
+            const sh = BM.sheet; if (!sh || !sh.pids.length) return;
             const ts = bmSheetTargets(); if (!ts.length) return;
-            if (startExpedition(sh.pid, sh.n, ts)) { bmSheetClose(); BM.selSet = new Set(); bmSeferPanel('🚩 Sefer yola çıktı. Haritada ⚔️ ile izleyebilirsin.'); }
+            if (startExpedition(sh.pids, sh.n, ts)) { bmSheetClose(); BM.selSet = new Set(); bmSeferPanel('🚩 Sefer yola çıktı. Haritada ⚔️ ile izleyebilirsin.'); }
         };
         function bmDrawSefer(c, hs) {
             // seferler ve rotaları
             for (const e of expeditions) {
-                const C = cmdProfiles[e.pid]; let [px, py] = bmW2S(e.x, e.y);
+                const retreat = e.phase === 'messenger' || e.phase === 'laststand'; let [px, py] = bmW2S(e.x, e.y);
                 c.save(); c.setLineDash([5, 6]); c.strokeStyle = 'rgba(255,210,74,0.75)'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(px, py);
-                for (let k = e.idx; k < e.targets.length; k++) { const p = hivePosFromId(e.targets[k]); if (!p) continue; const [tx, ty] = bmW2S(p.x, p.y); c.lineTo(tx, ty); }
-                if (e.phase === 'return') { const [tx, ty] = bmW2S(world.dragonX, world.dragonY); c.lineTo(tx, ty); }
+                if (!retreat) for (let k = e.idx; k < e.targets.length; k++) { const p = hivePosFromId(e.targets[k]); if (!p) continue; const [tx, ty] = bmW2S(p.x, p.y); c.lineTo(tx, ty); }
+                if (e.phase === 'return' || retreat) { const [tx, ty] = bmW2S(world.dragonX, world.dragonY); c.lineTo(tx, ty); }
                 c.stroke(); c.setLineDash([]);
                 c.fillStyle = '#ffd24a'; c.strokeStyle = '#000'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(px, py - 8); c.lineTo(px + 8, py); c.lineTo(px, py + 8); c.lineTo(px - 8, py); c.closePath(); c.fill(); c.stroke();
-                c.font = 'bold 11px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.fillStyle = '#ffe9a0'; c.fillText('⚔️ ' + C.name + ' · ' + e.soldiers + (e.phase === 'siege' ? ' · kuşatma' : e.phase === 'return' ? ' · dönüş' : ''), px, py - 10);
+                c.font = 'bold 11px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.fillStyle = '#ffe9a0'; c.fillText(retreat ? '📜 ' + (e.courier || 'Ulak') + ' · ' + e.soldiers + ' sağ kalan' + (e.phase === 'laststand' ? ' · son direniş' : '') : '⚔️ ' + expNames(expPids(e)) + ' · ' + e.soldiers + (e.phase === 'siege' ? ' · kuşatma' : e.phase === 'return' ? ' · dönüş' : ''), px, py - 10);
                 c.restore();
             }
             if (BM.rect) { const r = BM.rect; c.save(); c.fillStyle = 'rgba(255,210,74,0.12)'; c.strokeStyle = '#ffd24a'; c.lineWidth = 1.5; c.setLineDash([6, 4]); c.fillRect(Math.min(r.x0, r.x1), Math.min(r.y0, r.y1), Math.abs(r.x1 - r.x0), Math.abs(r.y1 - r.y0)); c.strokeRect(Math.min(r.x0, r.x1), Math.min(r.y0, r.y1), Math.abs(r.x1 - r.x0), Math.abs(r.y1 - r.y0)); c.restore(); }
@@ -10225,9 +10663,9 @@
                 const st = hiveStates[id]; if (!st || st.status === 'destroyed' || !id.startsWith('poi_')) continue;
                 const [cx, cy] = id.slice(4).split('_').map(Number);
                 const poi = (cx === 0 && cy === -1) ? FIRST_POI : chunkPOI(cx, cy); if (!poi) continue;
-                map.set(id, { id, x: poi.x, y: poi.y, status: st.status, name: st.commanderName, garrison: st.garrison || 0 });
+                map.set(id, { id, x: poi.x, y: poi.y, status: st.status, name: st.commanderName, garrison: st.garrison || 0, fort: st.fortress || 0 });
             }
-            for (const h of hives) if (h.status !== 'destroyed') map.set(h.id, { id: h.id, x: h.x, y: h.y, status: h.status, name: h.commanderName, garrison: h.garrisonCount || 0, live: h });
+            for (const h of hives) if (h.status !== 'destroyed') map.set(h.id, { id: h.id, x: h.x, y: h.y, status: h.status, name: h.commanderName, garrison: h.garrisonCount || 0, live: h, fort: h.fortress || 0 });
             return [...map.values()];
         }
         function bmResize() { const d = Math.min(2, window.devicePixelRatio || 1); bmCanvas.width = innerWidth * d; bmCanvas.height = innerHeight * d; bmCtx.setTransform(d, 0, 0, d, 0, 0); }
@@ -10273,6 +10711,7 @@
                 c.shadowBlur = 0;
                 c.globalAlpha = 1;
                 if (BM.selSet && BM.selSet.has(h.id)) { c.strokeStyle = '#ffd24a'; c.lineWidth = 3; c.beginPath(); c.arc(0, 0, size + 6, 0, Math.PI * 2); c.stroke(); }
+                if (h.fort) { c.strokeStyle = '#ff1a3a'; c.lineWidth = 2.5; c.strokeRect(-size - 4, -size - 4, size * 2 + 8, size * 2 + 8); c.font = `${Math.round(size * 1.3)}px sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('🏰', 0, -size - 10); }
                 if (h.status === 'friendly' && size > 7) { c.fillStyle = '#fff'; c.font = `bold ${Math.round(size)}px sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('⚑', 0, 1); }
                 c.restore();
             }
@@ -10448,6 +10887,7 @@
                 ['sanct', '🏰', 'Sığınak', playerInSanctuary ? 'yönet' : 'sığınakta açılır', !playerInSanctuary],
                 ['skills', '🌳', 'Yetenekler', skillPoints > 0 ? skillPoints + ' puan hazır' : 'yetenek ağacı', false],
                 ['journal', '📖', 'Günlük', 'hikâye · amaç', false],
+                ['reports', '📜', 'Raporlar', rpUnread() ? rpUnread() + ' yeni mektup' : 'ulak mektupları', !rpReports.length],
                 ['market', '🛒', 'Market', 'kostüm · iksir', false],
                 ['settings', '⚙️', 'Ayarlar', 'ses · görüntü', false],
                 ['map', '🗺️', 'Harita', 'kovanlarını gör', inMirrorArena],
@@ -10475,6 +10915,7 @@
             else if (a === 'settings') openSettingsModal();
             else if (a === 'map') openBigMap();
             else if (a === 'cmds') { openCmd(); return; }
+            else if (a === 'reports') { openReport(); return; }
             else if (a === 'install') doInstall();
             renderMMenu();
         };
