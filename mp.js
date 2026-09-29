@@ -509,8 +509,14 @@
     const css = `
     #mpRoot{position:fixed;inset:0;z-index:600;display:none;font-family:Arial,Helvetica,sans-serif;color:#eee}
     #mpRoot.on{display:block}
-    #mpRoot .mp-scr{position:absolute;inset:0;overflow-y:auto;background:radial-gradient(ellipse at top,#1d0c06 0%,#070508 70%);padding:18px 14px 40px;box-sizing:border-box}
+    #mpRoot .mp-scr{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y!important;background:radial-gradient(ellipse at top,#1d0c06 0%,#070508 70%);padding:18px 14px 40px;box-sizing:border-box}
     #mpRoot .mp-wrap{max-width:720px;margin:0 auto}
+    #mpRoot .mp-scr *{touch-action:pan-y}
+    #mpRoot .mp-skins,#mpRoot .mp-skins *{touch-action:pan-x!important;-webkit-overflow-scrolling:touch}
+    #mpRoot input{touch-action:manipulation!important}
+    #mpRoot .mp-btn,#mpRoot .mp-mode,#mpRoot .mp-skin{-webkit-tap-highlight-color:transparent}
+    #mpRoot .mp-card table{display:block;overflow-x:auto;touch-action:pan-x pan-y}
+    #mpRoot .mp-foot{position:sticky;bottom:-40px;margin:12px -14px -40px;padding:10px 14px calc(env(safe-area-inset-bottom,0px) + 14px);background:linear-gradient(180deg,rgba(7,5,8,0),rgba(7,5,8,.92) 22%,#070508);z-index:2}
     #mpRoot h2{margin:4px 40px 14px;text-align:center;color:#ffaa33;letter-spacing:1px;font-size:24px;text-shadow:0 0 14px #ff5500}
     #mpRoot .mp-x{position:absolute;top:10px;right:12px;background:none;border:1px solid #555;color:#ccc;border-radius:8px;font-size:18px;padding:4px 10px;cursor:pointer}
     #mpRoot .mp-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,170,51,.25);border-radius:12px;padding:12px;margin-bottom:12px}
@@ -582,6 +588,7 @@
     body.mp-match #hireBossBtn,body.mp-match #hireBtnM,body.mp-match #callBtn{display:none!important}
     @media (max-width:520px){#mpRoot .mp-modes{grid-template-columns:1fr}#mpRoot .mp-mode{display:flex;align-items:center;gap:10px;text-align:left}#mpRoot .mp-mode b{margin:0}#mpRoot .mp-code{font-size:30px}}
     `;
+    let touchDown = false, scrollT = null;
     function mount() {
         if ($('#mpRoot')) return;
         const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
@@ -595,6 +602,11 @@
         $('#mpMicBtn').onclick = toggleMic; $('#mpEndBtn').onclick = hostEndNow;
         $('#mpRoot').addEventListener('click', onClick);
         $('#mpRoot').addEventListener('input', onInput);
+        const rt = $('#mpRoot');
+        rt.addEventListener('pointerdown', () => { touchDown = true; }, { passive: true });
+        const up = () => { if (!touchDown) return; touchDown = false; if (render.pending) setTimeout(render, 60); };
+        ['pointerup', 'pointercancel', 'touchend', 'touchcancel'].forEach(ev => rt.addEventListener(ev, up, { passive: true }));
+        rt.querySelector('.mp-scr').addEventListener('scroll', () => { clearTimeout(scrollT); touchDown = true; scrollT = setTimeout(() => { touchDown = false; if (render.pending) render(); }, 180); }, { passive: true });
         document.addEventListener('pointerdown', unlockAudio, { passive: true });
     }
     let toastT = null;
@@ -623,6 +635,8 @@
         const focus = document.activeElement && document.activeElement.id;
         const html = S.screen === 'home' ? homeHtml() : S.screen === 'lobby' ? lobbyHtml() : S.screen === 'end' ? endHtml() : '';
         if (html === render.last) return; // aynıysa DOM'a dokunma: dokunuşlar kaybolmasın
+        if (touchDown) { render.pending = true; return; } // parmak ekrandayken butonları değiştirme: dokunuş kaybolmasın
+        render.pending = false;
         render.last = html; body.innerHTML = html;
         if (focus) { const el = document.getElementById(focus); if (el && el.tagName === 'INPUT') { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {} } }
     }
@@ -679,10 +693,10 @@
             ${S.mode === 'team' ? `<div class="mp-teams" style="margin-top:10px">${TEAMS.map((t, i) => `<button class="mp-btn" style="border-color:${t.color};${S.team === i ? 'background:' + t.color + '55' : ''}" data-a="team" data-t="${i}">${S.team === i ? '✔ ' : ''}${t.name} Takım</button>`).join('')}</div>` : ''}
         </div>
         <div class="mp-card"><h3>👥 Oyuncular (${S.members.length}/${MAX_PLAYERS})</h3>${players}</div>
-        <button class="mp-btn big ${S.ready ? 'ok' : ''}" data-a="ready">${S.ready ? '✅ HAZIRSIN (iptal için dokun)' : '✋ HAZIRIM'}</button>
-        ${host ? `<button class="mp-btn go big" style="margin-top:10px" data-a="start" ${blockers.length ? 'disabled' : ''}>⚔️ MAÇI BAŞLAT</button>${blockers.length ? `<div class="mp-warn">${esc(blockers.join(' · '))}</div>` : ''}` : '<div class="mp-desc" style="margin-top:8px">Herkes hazır olunca oda sahibi maçı başlatır.</div>'}
         ${S.err ? `<div class="mp-err">${esc(S.err)}</div>` : ''}
-        ${last}`;
+        ${last}
+        <div class="mp-foot"><button class="mp-btn big ${S.ready ? 'ok' : ''}" data-a="ready">${S.ready ? '✅ HAZIRSIN (iptal için dokun)' : '✋ HAZIRIM'}</button>
+        ${host ? `<button class="mp-btn go big" style="margin-top:10px" data-a="start" ${blockers.length ? 'disabled' : ''}>⚔️ MAÇI BAŞLAT</button>${blockers.length ? `<div class="mp-warn">${esc(blockers.join(' · '))}</div>` : ''}` : '<div class="mp-desc" style="margin-top:8px">Herkes hazır olunca oda sahibi maçı başlatır.</div>'}</div>`;
     }
     function boardTable(board, mode) {
         const rows = [...board].sort((a, b) => (b.alive - a.alive) || (b.pk - a.pk) || (b.k - a.k));
