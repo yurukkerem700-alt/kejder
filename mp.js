@@ -12,13 +12,30 @@
     const TEST = new URLSearchParams(location.search).has('mptest');
     const MAX_PLAYERS = 6;
     // STUN: çoğu ev interneti için yeterli. TURN: mobil veri / sıkı NAT arkasındaki oyuncular doğrudan bağlanamazsa
-    // yedek olarak kullanılır (yoksa oyun yavaş sunucu aktarımına düşer ve takılır).
+    // yedek olarak kullanılır (yoksa oyun yavaş sunucu aktarımına düşer, takılır ve SES HİÇ GİTMEZ).
+    // Eski sabit "openrelayproject" şifresi artık kabul edilmiyor. Open Relay'in paylaşılan-sır (static auth) sunucusu
+    // için süreli kullanıcı adı/şifre tarayıcıda HMAC-SHA1 ile üretilir (kayıt ve API anahtarı gerekmez).
     const ICE = [
-        { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun.cloudflare.com:3478'] },
-        { urls: ['turn:openrelay.metered.ca:80', 'turn:openrelay.metered.ca:443', 'turns:openrelay.metered.ca:443?transport=tcp'], username: 'openrelayproject', credential: 'openrelayproject' }
+        { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun.cloudflare.com:3478'] }
     ];
+    const TURN_HOST = 'staticauth.openrelay.metered.ca', TURN_SECRET = 'openrelayprojectsecret';
+    let turnReady = null;
+    function prepTurn() {
+        if (turnReady) return turnReady;
+        turnReady = (async () => {
+            try {
+                const user = (Math.floor(Date.now() / 1000) + 24 * 3600) + ':boru' + me.id.slice(0, 6);
+                const enc = new TextEncoder();
+                const key = await crypto.subtle.importKey('raw', enc.encode(TURN_SECRET), { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+                const sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, enc.encode(user)));
+                let bin = ''; for (let i = 0; i < sig.length; i++) bin += String.fromCharCode(sig[i]);
+                ICE.push({ urls: ['turn:' + TURN_HOST + ':80', 'turn:' + TURN_HOST + ':80?transport=tcp', 'turn:' + TURN_HOST + ':443', 'turns:' + TURN_HOST + ':443?transport=tcp'], username: user, credential: btoa(bin) });
+            } catch (e) { console.warn('TURN hazırlanamadı', e); }
+        })();
+        return turnReady;
+    }
     const MODES = {
-        coop: { name: 'Birlikte', icon: '🤝', desc: 'Müttefiksiniz, birbirinize hasar veremezsiniz. Köle ve asker yok. Düşen 10 sn sonra sığınakta dirilir.' },
+        coop: { name: 'Birlikte', icon: '🤝', desc: 'Müttefiksiniz, birbirinize hasar veremezsiniz. Fethedilen kovanlar ORTAK sayılır, kara deliğe hep birlikte girip aynı bossla savaşırsınız. Köle ve asker yok. Düşen 2 dk sonra sığınakta dirilir.' },
         ffa: { name: 'Herkes Tek', icon: '⚔️', desc: 'Herkes herkese karşı. Kendi askerlerin kovanlardan çıkar. Düşen elenir, sona kalan kazanır.' },
         team: { name: 'Takım Savaşı', icon: '🛡️', desc: 'Kızıl ve Mavi takım (2v2, 3v3...). Takım arkadaşına hasar yok. Son ayakta kalan takım kazanır.' }
     };
@@ -139,47 +156,127 @@
     const nameOf = (id) => { if (id === me.id) return me.name; const r = S.match && S.match.roster.get(id); if (r) return r.name; const m = member(id); return m ? m.name : 'Ejderha'; };
     function myMeta() {
         return { id: me.id, code: me.code, name: me.name, skin: me.skin, ready: S.ready, team: S.team, joinedAt: S.joinedAt, mode: S.mode,
-            phase: S.match && !S.match.over ? 'playing' : 'lobby', mic: voice.on ? 1 : 0 };
+            phase: S.match && !S.match.over ? 'playing' : 'lobby', mic: voice.on ? 1 : 0, rm: S.rmVote ? 1 : 0 };
     }
     let trackT = null;
     function pushMeta() { clearTimeout(trackT); trackT = setTimeout(() => { if (S.room) S.room.track(myMeta()); }, 60); }
 
     // ------------------------------------------------------------------ SES
-    const voice = { track: null, on: false, els: new Map(), muted: new Set(), ac: null, an: new Map(), speaking: new Set() };
+    // İki yol: (1) doğrudan WebRTC ses kanalı (en iyi kalite, en az gecikme). (2) Doğrudan bağlantı kurulamayan
+    // oyunculara YEDEK SES: mikrofon 8 kHz'e indirilip μ-law ile sıkıştırılır, oda sunucusu üzerinden gider.
+    // Böylece mobil veri / sıkı NAT arkasında bile birbirinizi duyarsınız.
+    const voice = { track: null, stream: null, on: false, els: new Map(), muted: new Set(), ac: null, speaking: new Set(), talk: false, talkT: 0,
+        an: null, buf: null, proc: null, relSeq: 0, relBuf: [], relLen: 0, play: new Map(), heard: new Map() };
+    function getAC() {
+        if (!voice.ac) { try { voice.ac = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { voice.ac = null; } }
+        return voice.ac;
+    }
     async function toggleMic() {
         if (!voice.track) {
             try {
-                const st = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
-                voice.track = st.getAudioTracks()[0]; watchLevel(me.id, st);
-            } catch (e) { toast('🎤 Mikrofon izni verilmedi.', '#ff5555'); return; }
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('desteklenmiyor');
+                const st = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
+                voice.stream = st; voice.track = st.getAudioTracks()[0];
+                voice.track.onended = () => { voice.track = null; voice.stream = null; voice.on = false; pushMeta(); render(); toast('🎤 Mikrofon kapandı (başka uygulama kullanıyor olabilir).', '#ffaa33'); };
+                startLocalAudio();
+            } catch (e) {
+                const msg = location.protocol !== 'https:' && location.hostname !== 'localhost' ? '🎤 Mikrofon yalnızca https adresinde çalışır.' : '🎤 Mikrofon izni verilmedi. Tarayıcı/uygulama ayarlarından mikrofona izin ver.';
+                toast(msg, '#ff5555'); return;
+            }
             for (const p of peers.values()) p.setTrack(voice.track);
         }
         voice.on = !voice.on; voice.track.enabled = voice.on; unlockAudio(); pushMeta(); render();
+        toast(voice.on ? '🎤 Mikrofon açık — konuşabilirsin' : '🔇 Mikrofon kapalı', voice.on ? '#33ff99' : '#aaaaaa');
+    }
+    // Kendi mikrofonumuz: konuşma algılama + (gerekirse) sunucu üzerinden yedek ses gönderimi
+    function startLocalAudio() {
+        const ac = getAC(); if (!ac || !voice.stream) return;
+        try {
+            const src = ac.createMediaStreamSource(voice.stream);
+            const an = ac.createAnalyser(); an.fftSize = 512; src.connect(an); voice.an = an; voice.buf = new Uint8Array(an.fftSize);
+            if (ac.createScriptProcessor) {
+                const proc = ac.createScriptProcessor(4096, 1, 1), sink = ac.createGain(); sink.gain.value = 0;
+                src.connect(proc); proc.connect(sink); sink.connect(ac.destination); voice.proc = proc;
+                proc.onaudioprocess = (e) => relayCapture(e.inputBuffer.getChannelData(0), ac.sampleRate);
+            }
+        } catch (e) { console.warn('Ses işleme kurulamadı', e); }
+    }
+    // μ-law (telefon kalitesi, 8 bit) kodlama
+    const MU_DEC = new Float32Array(256);
+    (function () { for (let u = 0; u < 256; u++) { const v = ~u & 0xFF, sign = v & 0x80, ex = (v >> 4) & 7, man = v & 0x0F; let x = ((man << 3) + 0x84) << ex; x -= 0x84; MU_DEC[u] = (sign ? -x : x) / 32768; } })();
+    function muEnc(f) {
+        let x = Math.max(-1, Math.min(1, f)) * 32767 | 0; const sign = x < 0 ? 0x80 : 0; if (sign) x = -x; if (x > 32635) x = 32635; x += 0x84;
+        let ex = 7; for (let m = 0x4000; (x & m) === 0 && ex > 0; ex--, m >>= 1);
+        return ~(sign | (ex << 4) | ((x >> (ex + 3)) & 0x0F)) & 0xFF;
+    }
+    function relayTargets() {
+        const out = [];
+        for (const m of S.members) {
+            if (m.id === me.id) continue;
+            const p = peers.get(m.id); const st = p && p.pc ? p.pc.connectionState : 'none';
+            if (st !== 'connected') out.push(m.id);
+        }
+        return out;
+    }
+    function relayCapture(inp, rate) {
+        if (!voice.on || !voice.talk || !S.room) { voice.relLen = 0; voice.relBuf.length = 0; return; }
+        const ratio = rate / 8000, n = Math.floor(inp.length / ratio), out = new Uint8Array(n);
+        for (let i = 0; i < n; i++) { const a = Math.floor(i * ratio), b = Math.min(inp.length, Math.floor((i + 1) * ratio)); let sum = 0; for (let k = a; k < b; k++) sum += inp[k]; out[i] = muEnc(sum / Math.max(1, b - a) * 1.4); }
+        voice.relBuf.push(out); voice.relLen += n;
+        if (voice.relLen < 1600) return; // ~200 ms'lik paket
+        const tos = relayTargets(); const all = new Uint8Array(voice.relLen); let o = 0; for (const c of voice.relBuf) { all.set(c, o); o += c.length; }
+        voice.relBuf.length = 0; voice.relLen = 0;
+        if (!tos.length) return;
+        let bin = ''; for (let i = 0; i < all.length; i++) bin += String.fromCharCode(all[i]);
+        S.room.send({ t: 'vc', from: me.id, tos, d: btoa(bin), q: ++voice.relSeq });
+    }
+    function playRelay(id, b64) {
+        if (voice.muted.has(id)) return;
+        const ac = getAC(); if (!ac) return; if (ac.state === 'suspended') { try { ac.resume(); } catch (e) {} }
+        let bin; try { bin = atob(b64); } catch (e) { return; }
+        let pl = voice.play.get(id);
+        if (!pl) { const g = ac.createGain(); g.gain.value = 1.6; g.connect(ac.destination); pl = { g, t: 0, prev: 0 }; voice.play.set(id, pl); }
+        const n = bin.length, up = 3, buf = ac.createBuffer(1, n * up, 24000), ch = buf.getChannelData(0);
+        let prev = pl.prev; for (let i = 0; i < n; i++) { const v = MU_DEC[bin.charCodeAt(i)]; for (let k = 0; k < up; k++) ch[i * up + k] = prev + (v - prev) * (k + 1) / up; prev = v; }
+        pl.prev = prev;
+        const src = ac.createBufferSource(); src.buffer = buf; src.connect(pl.g);
+        const now = ac.currentTime; if (pl.t < now + 0.04 || pl.t > now + 1.2) pl.t = now + 0.16;
+        src.start(pl.t); pl.t += buf.duration;
+        voice.heard.set(id, performance.now());
     }
     function attachAudio(id, stream) {
         let el = voice.els.get(id);
-        if (!el) { el = document.createElement('audio'); el.autoplay = true; el.setAttribute('playsinline', ''); $('#mpAudio').appendChild(el); voice.els.set(id, el); }
-        if (el.srcObject !== stream) { el.srcObject = stream; watchLevel(id, stream); }
-        el.muted = voice.muted.has(id); el.play().catch(() => {});
+        if (!el) { el = document.createElement('audio'); el.autoplay = true; el.setAttribute('playsinline', ''); el.setAttribute('webkit-playsinline', ''); $('#mpAudio').appendChild(el); voice.els.set(id, el); }
+        if (el.srcObject !== stream) el.srcObject = stream;
+        el.muted = voice.muted.has(id); el.volume = 1; el.play().catch(() => {});
+        render();
     }
-    function unlockAudio() { for (const el of voice.els.values()) el.play().catch(() => {}); try { if (voice.ac && voice.ac.state === 'suspended') voice.ac.resume(); } catch (e) {} }
-    function watchLevel(id, stream) {
-        try {
-            if (!voice.ac) voice.ac = new (window.AudioContext || window.webkitAudioContext)();
-            const src = voice.ac.createMediaStreamSource(stream), an = voice.ac.createAnalyser(); an.fftSize = 256; src.connect(an);
-            voice.an.set(id, { an, buf: new Uint8Array(an.fftSize) });
-        } catch (e) {}
-    }
+    function unlockAudio() { for (const el of voice.els.values()) if (el.paused) el.play().catch(() => {}); try { const ac = getAC(); if (ac && ac.state === 'suspended') ac.resume(); } catch (e) {} }
+    // Konuşma algılama: kendi sesimizi ölçeriz; karşı tarafın konuştuğunu kendi paketindeki "sp" bayrağı söyler.
+    // (Uzak sesi ayrıca analiz etmek iPhone'da sesi kısabiliyordu, o yüzden kaldırıldı.)
     setInterval(() => {
         let ch = false;
-        for (const [id, o] of voice.an) {
-            o.an.getByteTimeDomainData(o.buf); let m = 0; for (let i = 0; i < o.buf.length; i++) m = Math.max(m, Math.abs(o.buf[i] - 128));
-            const on = m > 10 && !(id === me.id && !voice.on) && !(id !== me.id && voice.muted.has(id));
-            if (on !== voice.speaking.has(id)) { ch = true; if (on) voice.speaking.add(id); else voice.speaking.delete(id); }
+        if (voice.an && voice.buf) {
+            voice.an.getByteTimeDomainData(voice.buf); let m = 0; for (let i = 0; i < voice.buf.length; i++) m = Math.max(m, Math.abs(voice.buf[i] - 128));
+            const now = performance.now();
+            if (voice.on && m > 7) voice.talkT = now;
+            const talk = voice.on && now - voice.talkT < 450;
+            if (talk !== voice.talk) {
+                voice.talk = talk; ch = true; if (talk) voice.speaking.add(me.id); else voice.speaking.delete(me.id);
+                const msg = '{"t":"vs","on":' + (talk ? 1 : 0) + '}'; for (const p of peers.values()) if (p.okS()) { try { p.dcS.send(msg); } catch (e) {} }
+            }
         }
-        if (ch) renderChips();
-    }, 160);
-    function toggleMute(id) { if (voice.muted.has(id)) voice.muted.delete(id); else voice.muted.add(id); const el = voice.els.get(id); if (el) el.muted = voice.muted.has(id); render(); }
+        // Yedek sesle gelen konuşma göstergesi
+        const now = performance.now();
+        for (const [id, t] of voice.heard) { const on = now - t < 500 && !voice.muted.has(id); if (on !== voice.speaking.has(id)) { ch = true; if (on) voice.speaking.add(id); else voice.speaking.delete(id); } }
+        if (ch) { renderChips(); if (S.screen === 'lobby') render(); }
+    }, 100);
+    function setRemoteSpeaking(id, on) {
+        on = !!on && !voice.muted.has(id);
+        if (!on && voice.heard.has(id) && performance.now() - voice.heard.get(id) < 500) return;
+        if (on !== voice.speaking.has(id)) { if (on) voice.speaking.add(id); else voice.speaking.delete(id); renderChips(); }
+    }
+    function toggleMute(id) { if (voice.muted.has(id)) voice.muted.delete(id); else voice.muted.add(id); const el = voice.els.get(id); if (el) el.muted = voice.muted.has(id); toast(voice.muted.has(id) ? '🔇 ' + nameOf(id) + ' sessize alındı' : '🔈 ' + nameOf(id) + ' duyuluyor'); renderChips.last = ''; render(); }
 
     // ------------------------------------------------------------------ WEBRTC EŞLERİ
     class Peer {
@@ -236,7 +333,7 @@
     function syncPeers() {
         const ids = new Set(S.members.map(m => m.id).filter(id => id !== me.id));
         for (const id of ids) if (!peers.has(id)) peers.set(id, new Peer(id));
-        for (const [id, p] of peers) if (!ids.has(id)) { p.close(); peers.delete(id); const el = voice.els.get(id); if (el) { el.remove(); voice.els.delete(id); } voice.an.delete(id); }
+        for (const [id, p] of peers) if (!ids.has(id)) { p.close(); peers.delete(id); const el = voice.els.get(id); if (el) { el.remove(); voice.els.delete(id); } voice.play.delete(id); voice.heard.delete(id); voice.speaking.delete(id); }
     }
     // Bağlanamayan eşleri yeniden dene
     setInterval(() => {
@@ -289,6 +386,14 @@
             case 'note': if (M) feed(m.txt, m.c); break;
             case 'start': onStart(m); break;
             case 'end': onEnd(m); break;
+            case 'vs': setRemoteSpeaking(m.from, m.on); break;
+            case 'vc': playRelay(m.from, m.d); break;
+            // Ortak veri (Birlikte modu)
+            case 'hv': if (M && M.mode === 'coop' && window.BORU && M.roster.has(m.from)) { if (m.id) BORU.allyCapturedHive(m.id); BORU.setAllyHives(m.from, m.n); } break;
+            case 'bhgo': if (M && M.mode === 'coop' && window.BORU && M.startedAt && !M.over) { feed('🕳️ ' + nameOf(m.from) + ' kara deliğe girdi — herkes içeri çekiliyor!', '#b77bff'); BORU.netEnterBH(m.lvl); } break;
+            case 'bhwin': if (M && M.mode === 'coop' && window.BORU) { feed('🏆 Kara delik bossu yenildi!', '#ffd24a'); BORU.netBhWin(m.lvl); } break;
+            case 'bd': if (M && M.mode === 'coop' && window.BORU && BORU.bhIsAuth()) BORU.bossDamageIn(m.d); break;
+            case 'rm': if (M && M.over) { M.rm.add(m.from); if (isHost()) toast('🔁 ' + nameOf(m.from) + ' yeniden oynamak istiyor', '#ffd24a'); render(); checkRematchVotes(); } break;
         }
     }
 
@@ -301,7 +406,7 @@
         if (!me.name.trim()) { S.err = 'Önce ejderhana bir isim ver.'; render(); return; }
         S.err = ''; S.busy = true; render();
         try {
-            await saveProfile();
+            await Promise.all([saveProfile(), prepTurn()]);
             const room = TEST ? new TestRoom(code) : new SbRoom(code);
             S.code = code; S.joinedAt = Date.now(); S.ready = false; S.mode = 'coop'; S.team = 0;
             S.room = room;
@@ -335,6 +440,7 @@
         syncPeers();
         const need = S.members.map(m => m.id).filter(id => !S.profiles[id]); if (need.length) fetchProfiles(need);
         if (S.match && !S.match.over) checkEnd();
+        if (S.match && S.match.over) checkRematchVotes();
         render();
     }
     function autoTeam() {
@@ -356,7 +462,29 @@
     }
     function hostStart() {
         if (!isHost() || startBlockers().length) return;
-        const roster = S.members.map(m => ({ id: m.id, name: m.name, skin: m.skin, team: S.mode === 'team' ? (m.team === 1 ? 1 : 0) : 0, code: m.code }));
+        startWith(S.members);
+    }
+    // MAÇ SONU: aynı oyuncularla lobiye dönmeden yeniden başla
+    function hostRematch() {
+        if (!isHost()) return;
+        if (S.members.length < 2) { toast('Yeniden başlatmak için odada en az 2 oyuncu olmalı', '#ff5555'); return; }
+        if (S.mode === 'team') { const t0 = S.members.filter(m => m.team !== 1).length; if (!t0 || t0 === S.members.length) { toast('Takım modunda iki takımda da oyuncu olmalı', '#ff5555'); return; } }
+        toast('🔁 Maç yeniden başlıyor…', '#33ff99');
+        startWith(S.members);
+    }
+    function voteRematch() {
+        if (isHost()) { hostRematch(); return; }
+        S.rmVote = !S.rmVote; pushMeta();
+        if (S.rmVote) sendAll({ t: 'rm' });
+        render();
+    }
+    function checkRematchVotes() {
+        const M = S.match; if (!isHost() || !M || !M.over || M.autoRm) return;
+        const others = S.members.filter(m => m.id !== me.id); if (!others.length) return;
+        if (others.every(m => m.rm || M.rm.has(m.id))) { M.autoRm = true; setTimeout(() => { if (S.match === M && M.over) hostRematch(); }, 1500); }
+    }
+    function startWith(members) {
+        const roster = members.map(m => ({ id: m.id, name: m.name, skin: m.skin, team: S.mode === 'team' ? (m.team === 1 ? 1 : 0) : 0, code: m.code }));
         const spawns = {}, n = roster.length, rot = Math.random() * Math.PI * 2;
         if (S.mode === 'coop') roster.forEach((r, i) => { const a = rot + i / n * Math.PI * 2; spawns[r.id] = { x: Math.round(Math.cos(a) * 160), y: Math.round(Math.sin(a) * 160) }; });
         else if (S.mode === 'ffa') roster.forEach((r, i) => { const a = rot + i / n * Math.PI * 2; spawns[r.id] = { x: Math.round(Math.cos(a) * 2200), y: Math.round(Math.sin(a) * 2200) }; });
@@ -365,6 +493,7 @@
     }
 
     // ------------------------------------------------------------------ MAÇ
+    const REVIVE_MS = 120000; // Birlikte modunda düşen oyuncu 2 dakika sonra sığınakta doğar
     function hostileTo(id) {
         const M = S.match; if (!M || M.over || id === me.id) return false;
         if (M.mode === 'coop') return false;
@@ -382,7 +511,8 @@
         if (!m.roster || !m.roster.some(r => r.id === me.id)) { toast('Maç başladı, bir sonrakine katılabilirsin.', '#ffd24a'); return; }
         const roster = new Map(m.roster.map(r => [r.id, r]));
         S.match = { mid: m.mid, mode: m.mode, roster, spawns: m.spawns, room: m.room || S.code, hostId: m.from, t0: performance.now() + 3200, startedAt: 0,
-            states: new Map(), stats: new Map(), dead: new Set(), left: new Set(), pk: 0, deaths: 0, over: false, eliminated: false, reviveAt: 0, endCandidate: 0 };
+            states: new Map(), stats: new Map(), dead: new Set(), left: new Set(), pk: 0, deaths: 0, over: false, eliminated: false, reviveAt: 0, endCandidate: 0, rm: new Set() };
+        S.rmVote = false;
         S.mode = m.mode; S.screen = 'count'; pushMeta(); unlockAudio(); render();
         const tick = () => {
             const M = S.match; if (!M || M.mid !== m.mid) return;
@@ -400,7 +530,21 @@
         B.hostile = hostileTo; B.teamColor = colorOf;
         B.onHit = (id, d) => sendTo(id, { t: 'hit', to: id, d });
         B.onLocalDeath = onLocalDeath;
-        B.onHiveCaptured = () => { const t = '🏰 ' + me.name + ' bir kovanı fethetti'; feed(t, '#ffd24a'); sendAll({ t: 'note', txt: t, c: '#ffd24a' }); };
+        B.onHiveCaptured = (h) => {
+            const t = '🏰 ' + me.name + ' bir kovanı fethetti'; feed(t, '#ffd24a'); sendAll({ t: 'note', txt: t, c: '#ffd24a' });
+            if (M.mode === 'coop') sendAll({ t: 'hv', id: h && h.id, n: B.ownHives() });
+        };
+        B.playerCount = () => { let n = 0; for (const id of M.roster.keys()) if (!M.left.has(id)) n++; return Math.max(1, n); };
+        // Kara delik hakemi: kara delikteki (ölmemiş) oyunculardan kimliği en küçük olan bossun gerçek canını tutar
+        B.bhAuthId = () => {
+            const now = performance.now(); let best = B.inArena() && !B.isDead() ? me.id : null;
+            for (const [id, st] of M.states) { if (M.left.has(id) || !st.ar || st.d || now - st.t > 3000) continue; if (best === null || id < best) best = id; }
+            return best;
+        };
+        B.bhIsAuth = () => { const a = B.bhAuthId(); return a === null ? B.inArena() : a === me.id; };
+        B.onBhGo = (lvl) => { if (M.mode === 'coop') { sendAll({ t: 'bhgo', lvl }); feed('🕳️ Kara deliğe girdin — müttefiklerin de çekiliyor', '#b77bff'); } };
+        B.onBhWin = (lvl) => { if (M.mode === 'coop') sendAll({ t: 'bhwin', lvl }); };
+        B.onBossDmg = (d) => { const a = B.bhAuthId(); if (a && a !== me.id) sendTo(a, { t: 'bd', to: a, d }); };
         B.onBossKill = () => { const t = '👑 ' + me.name + ' bir bossu devirdi!'; feed(t, '#ff66ff'); sendAll({ t: 'note', txt: t, c: '#ff66ff' }); };
         try { B.startMatch({ name: me.name, skin: me.skin, x: sp.x, y: sp.y, mode: M.mode }); }
         catch (e) { console.error(e); toast('Maç başlatılamadı: ' + e.message, '#ff5555'); }
@@ -412,7 +556,7 @@
         M.deaths++; M.dead.add(me.id);
         sendAll({ t: 'dead', by: by || null });
         feed(by ? '🔥 ' + nameOf(by) + ', seni yaktı!' : '💀 Düştün!', '#ff5566');
-        if (M.mode === 'coop') { M.reviveAt = performance.now() + 10000; }
+        if (M.mode === 'coop') { M.reviveAt = performance.now() + REVIVE_MS; }
         else { M.eliminated = true; }
         renderHud(); checkEnd();
     }
@@ -431,6 +575,11 @@
         const prev = M.states.get(id);
         if (prev && s.q != null && prev.q != null && s.q <= prev.q && prev.q - s.q < 100000) { prev.t = performance.now(); return; }
         M.states.set(id, Object.assign({ t: performance.now() }, s)); if (s.st) M.stats.set(id, s.st);
+        setRemoteSpeaking(id, s.sp);
+        if (M.mode === 'coop' && window.BORU) {
+            if (s.st && s.st.ho != null) BORU.setAllyHives(id, s.st.ho);
+            if (s.bs) BORU.remoteBossState(s.bs);
+        }
         if (M.left.has(id)) { M.left.delete(id); feed('🔌 ' + nameOf(id) + ' geri bağlandı', '#66ffcc'); }
         if (M.mode === 'coop' && !s.d && M.dead.has(id)) M.dead.delete(id);
         const r = M.roster.get(id);
@@ -443,9 +592,11 @@
         const now = performance.now();
         if (now - lastSend >= 66) {
             lastSend = now;
-            const s = BORU.localState(); s.m = voice.on ? 1 : 0; s.q = ++seq; s.ts = Math.round(now);
+            const s = BORU.localState(); s.m = voice.on ? 1 : 0; s.sp = voice.talk ? 1 : 0; s.q = ++seq; s.ts = Math.round(now);
             // Skor tablosu verisi her pakette değil, saniyede bir gider (paketler küçülür, telefon ağı rahatlar)
-            if (now - lastStats > 1000) { lastStats = now; const st = BORU.stats(); st.pk = M.pk; st.dh = M.deaths; s.st = st; }
+            if (now - lastStats > 1000) { lastStats = now; const st = BORU.stats(); st.pk = M.pk; st.dh = M.deaths; if (M.mode === 'coop') st.ho = BORU.ownHives(); s.st = st; }
+            // Kara delik hakemiysek ortak bossun durumu da pakete eklenir
+            if (M.mode === 'coop' && s.ar) { const bs = BORU.bossState(); if (bs) s.bs = bs; }
             const str = JSON.stringify({ t: 'st', s }); const relay = [];
             for (const id of M.roster.keys()) {
                 if (id === me.id) continue; const p = peers.get(id);
@@ -585,10 +736,10 @@
     #mpHud.on{display:flex}
     #mpHud .bar{display:flex;gap:6px;align-items:center;pointer-events:auto}
     #mpHud .tm{background:rgba(0,0,0,.65);border:1px solid rgba(255,170,51,.5);border-radius:14px;padding:4px 12px;font-weight:bold;font-size:15px;color:#fff;font-family:monospace}
-    #mpHud .hb{background:rgba(0,0,0,.65);border:1px solid #666;border-radius:14px;color:#fff;font-size:15px;padding:3px 9px;cursor:pointer}
+    #mpHud .hb{background:rgba(0,0,0,.65);border:1px solid #666;border-radius:14px;color:#fff;font-size:15px;padding:3px 9px;cursor:pointer;touch-action:manipulation}
     #mpHud .hb.on{border-color:#33ff99;background:rgba(0,120,60,.6)}
     #mpChips{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:92vw}
-    #mpChips .c{background:rgba(0,0,0,.55);border-radius:8px;padding:2px 6px;font-size:11px;color:#fff;border-bottom:3px solid #555;min-width:56px;text-align:center}
+    #mpChips .c{background:rgba(0,0,0,.55);border-radius:8px;padding:2px 6px;font-size:11px;color:#fff;border-bottom:3px solid #555;min-width:56px;text-align:center;pointer-events:auto;cursor:pointer;touch-action:manipulation}
     #mpChips .c.dead{opacity:.45;text-decoration:line-through}
     #mpChips .c .h{height:3px;background:#222;border-radius:2px;margin-top:2px;overflow:hidden}
     #mpChips .c .h i{display:block;height:100%;background:#3f8}
@@ -606,6 +757,14 @@
     #mpRoot td.l{text-align:left}
     #mpRoot .mp-win{text-align:center;font-size:34px;font-weight:bold;margin:8px 0 2px}
     body.mp-match #hireBossBtn,body.mp-match #hireBtnM,body.mp-match #callBtn{display:none!important}
+    /* Mobil: maç şeridi üst bilgi ve sığınak butonunun altına iner, butonlar büyür ve arası açılır */
+    body.m #mpHud{top:calc(env(safe-area-inset-top,0px) + 132px);left:calc(env(safe-area-inset-left,0px) + 8px);right:calc(env(safe-area-inset-right,0px) + 96px);gap:8px}
+    body.m #mpHud .bar{gap:14px}
+    body.m #mpHud .tm{font-size:13px;padding:6px 12px}
+    body.m #mpHud .hb{min-width:44px;height:40px;font-size:18px;padding:0 10px;border-radius:20px}
+    body.m #mpChips{gap:8px;max-width:68vw}
+    body.m #mpChips .c{padding:4px 8px;font-size:11px}
+    @media (orientation:landscape) and (max-height:520px){body.m #mpHud{top:calc(env(safe-area-inset-top,0px) + 50px)}body.m #mpChips{max-width:50vw}}
     @media (max-width:520px){#mpRoot .mp-modes{grid-template-columns:1fr}#mpRoot .mp-mode{display:flex;align-items:center;gap:10px;text-align:left}#mpRoot .mp-mode b{margin:0}#mpRoot .mp-code{font-size:30px}}
     `;
     let touchDown = false, scrollT = null;
@@ -617,9 +776,11 @@
             <div id="mpCount"><div id="mpCountNum">3</div><div class="lbl" id="mpCountLbl"></div></div>
             <div id="mpHud"><div class="bar"><span class="tm" id="mpTimer">00:00</span><button class="hb" id="mpMicBtn" title="Mikrofon">🎤</button><button class="hb" id="mpEndBtn" title="Maçı bitir" style="display:none">⏹</button></div><div id="mpChips"></div><div id="mpFeed"></div></div>
             <div id="mpDeath"><b id="mpDeathT"></b><span id="mpDeathS"></span></div>
-            <div id="mpToast"></div><div id="mpAudio" style="display:none"></div>`;
+            <div id="mpToast"></div><div id="mpAudio" style="position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;pointer-events:none;overflow:hidden"></div>`;
         while (d.firstChild) document.body.appendChild(d.firstChild);
         $('#mpMicBtn').onclick = toggleMic; $('#mpEndBtn').onclick = hostEndNow;
+        // Oyun içinde bir oyuncunun adına dokun: onu sessize al / aç
+        $('#mpChips').addEventListener('click', (e) => { const c = e.target.closest('.c'); if (c && c.dataset.id) toggleMute(c.dataset.id); });
         $('#mpRoot').addEventListener('click', onClick);
         $('#mpRoot').addEventListener('input', onInput);
         const rt = $('#mpRoot');
@@ -692,7 +853,7 @@
             return `<div class="mp-pl" style="border-left-color:${tc}"><span class="ic">${sk.icon}</span>
                 <div><div class="nm">${m.id === S.hostId ? '👑 ' : ''}${esc(m.name)}${m.id === me.id ? ' (sen)' : ''} <span class="sub">${esc(m.code || '')}</span></div>
                 <div class="sub">${esc(sk.name)}${S.mode === 'team' ? ' · <b style="color:' + tc + '">' + TEAMS[m.team === 1 ? 1 : 0].name + '</b>' : ''} ${net}</div>${statsLine(S.profiles[m.id])}</div>
-                <div class="rt">${spk}${m.id !== me.id && voice.els.has(m.id) ? `<button class="mp-btn" style="padding:4px 8px;font-size:13px" data-a="mute" data-id="${esc(m.id)}">${voice.muted.has(m.id) ? '🔇' : '🔈'}</button>` : ''}<span class="rdy ${m.ready ? 'y' : ''}">${m.ready ? 'HAZIR' : 'bekliyor'}</span></div></div>`;
+                <div class="rt">${spk}${m.id !== me.id && (voice.els.has(m.id) || voice.heard.has(m.id) || m.mic) ? `<button class="mp-btn" style="padding:4px 8px;font-size:13px" data-a="mute" data-id="${esc(m.id)}">${voice.muted.has(m.id) ? '🔇' : '🔈'}</button>` : ''}<span class="rdy ${m.ready ? 'y' : ''}">${m.ready ? 'HAZIR' : 'bekliyor'}</span></div></div>`;
         }).join('');
         const lm = S.lastMatch;
         const last = lm ? `<div class="mp-card"><h3>📜 Bu odadaki son maç · ${MODES[lm.mode] ? MODES[lm.mode].icon + ' ' + MODES[lm.mode].name : ''}</h3>
@@ -732,8 +893,16 @@
         <div class="mp-desc" style="font-size:15px;color:#ddd">🏆 ${esc(m.winner.label)} · ⏱ ${fmtTime(m.dur * 1000)}</div>
         <div class="mp-card" style="margin-top:12px">${boardTable(m.board, M.mode)}</div>
         <div class="mp-card"><h3>📈 Genel skorun</h3>${statsLine(S.profiles[me.id])}</div>
-        <button class="mp-btn go big" data-a="relobby">🔁 LOBİYE DÖN (${esc(M.room)})</button>
-        <button class="mp-btn big" style="margin-top:8px" data-a="menu">🏠 ANA MENÜ</button>`;
+        ${rematchHtml(M)}
+        <button class="mp-btn big" style="margin-top:10px" data-a="relobby">🏠 LOBİYE DÖN (${esc(M.room)})</button>
+        <button class="mp-btn big" style="margin-top:10px" data-a="menu">↩ ANA MENÜ</button>`;
+    }
+    function rematchHtml(M) {
+        const others = S.members.filter(m => m.id !== me.id);
+        const voted = others.filter(m => m.rm || M.rm.has(m.id));
+        const list = others.length ? `<div class="mp-desc">${others.map(m => (m.rm || M.rm.has(m.id) ? '✅ ' : '⏳ ') + esc(m.name)).join(' · ')}</div>` : '<div class="mp-desc">Odada başka oyuncu kalmadı.</div>';
+        if (isHost()) return `<button class="mp-btn go big" data-a="rematch" ${S.members.length < 2 ? 'disabled' : ''}>🔁 YENİDEN BAŞLAT (aynı ekip)</button>${list}${others.length && voted.length === others.length ? '<div class="mp-desc" style="color:#33ff99">Herkes hazır, maç başlıyor…</div>' : ''}`;
+        return `<button class="mp-btn big ${S.rmVote ? 'ok' : 'go'}" data-a="rematch">${S.rmVote ? '✅ YENİDEN OYNAMAYA HAZIRSIN' : '🔁 YENİDEN BAŞLAT'}</button><div class="mp-desc">${S.rmVote ? 'Herkes hazır olunca ya da oda sahibi başlatınca maç yeniden başlar.' : 'Bas: oda sahibine yeniden oynamak istediğini söyler.'}</div>${list}`;
     }
     function renderChips() {
         const M = S.match, el = $('#mpChips'); if (!M || !el || S.screen !== 'hud') return;
@@ -744,7 +913,7 @@
             const c = M.mode === 'team' ? TEAMS[r.team].color : (r.id === me.id ? '#ffd24a' : '#888');
             let net = '';
             if (r.id !== me.id && !M.left.has(r.id)) { const p = peers.get(r.id), st2 = M.states.get(r.id); if (p && p.okS()) { const ms = Math.round(p.rtt / 2); net = ms ? ' <span style="color:' + (ms < 80 ? '#6f6' : ms < 180 ? '#fd4' : '#f66') + '">' + ms + 'ms</span>' : ''; } else net = st2 && performance.now() - st2.t < 2000 ? ' <span style="color:#fd4">📡</span>' : ' <span style="color:#f66">⚠</span>'; }
-            return `<div class="c ${dead ? 'dead' : ''} ${voice.speaking.has(r.id) ? 'spk' : ''}" style="border-bottom-color:${c}">${voice.speaking.has(r.id) ? '🔊' : ''}${esc(r.name)}${M.left.has(r.id) ? ' 🚪' : ''}${net}<div class="h"><i style="width:${Math.round(hp * 100)}%;background:${hostileTo(r.id) ? '#ff4455' : '#33ff88'}"></i></div></div>`;
+            return `<div class="c ${dead ? 'dead' : ''} ${voice.speaking.has(r.id) ? 'spk' : ''}" data-id="${r.id === me.id ? '' : esc(r.id)}" style="border-bottom-color:${c}">${voice.muted.has(r.id) ? '🔇' : voice.speaking.has(r.id) ? '🔊' : ''}${esc(r.name)}${M.left.has(r.id) ? ' 🚪' : ''}${net}<div class="h"><i style="width:${Math.round(hp * 100)}%;background:${hostileTo(r.id) ? '#ff4455' : '#33ff88'}"></i></div></div>`;
         }).join('');
         if (html !== renderChips.last) { renderChips.last = html; el.innerHTML = html; } // değişmediyse DOM'a dokunma (kasmayı önler)
     }
@@ -757,7 +926,7 @@
         const dl = $('#mpDeath'), dead = window.BORU && BORU.isDead();
         dl.classList.toggle('on', !!dead);
         if (dead) {
-            if (M.mode === 'coop') { $('#mpDeathT').textContent = '💀 DÜŞTÜN'; $('#mpDeathS').textContent = 'Sığınakta yeniden doğuyorsun: ' + Math.max(0, Math.ceil((M.reviveAt - performance.now()) / 1000)) + ' sn'; }
+            if (M.mode === 'coop') { $('#mpDeathT').textContent = '💀 DÜŞTÜN'; $('#mpDeathS').textContent = 'Sığınakta yeniden doğuyorsun: ' + fmtTime(Math.max(0, M.reviveAt - performance.now()) + 999); }
             else { $('#mpDeathT').textContent = '💀 ELENDİN'; $('#mpDeathS').textContent = 'Savaşı izliyorsun · kalan: ' + aliveGroups().label; }
         }
     }
@@ -779,6 +948,7 @@
         else if (a === 'mic') toggleMic();
         else if (a === 'mute') toggleMute(b.dataset.id);
         else if (a === 'relobby') backToLobby();
+        else if (a === 'rematch') voteRematch();
         else if (a === 'menu') backToMenu();
         else if (a === 'copyid') { try { await navigator.clipboard.writeText(me.code); toast('ID kopyalandı: ' + me.code); } catch (er) {} }
         else if (a === 'share') {
@@ -802,11 +972,11 @@
             if (S.screen !== 'lobby') S.screen = 'home';
             render(); saveProfile().then(render);
         },
-        _state: S, _me: me
+        _state: S, _me: me, _voice: voice, _peers: peers
     };
     // Davet linkiyle gelindiyse doğrudan odaya gir
     function boot() {
-        mount();
+        mount(); prepTurn();
         const code = new URLSearchParams(location.search).get('oda');
         if (code) { window.MPUI.open(); if (me.name) joinRoom(code, false); else { S.err = 'Odaya katılmak için ejderhana isim ver, sonra KATIL\'a bas.'; render(); setTimeout(() => { const i = $('#mpJoinCode'); if (i) i.value = code; }, 0); } }
     }
