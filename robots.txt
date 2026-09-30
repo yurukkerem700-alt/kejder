@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kejder.vercel.app/sitemap.xml
