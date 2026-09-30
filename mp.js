@@ -147,7 +147,7 @@
 
     // ------------------------------------------------------------------ DURUM
     const S = {
-        screen: 'home', room: null, code: '', members: [], hostId: null, mode: 'coop', ready: false, team: 0, joinedAt: 0,
+        screen: 'home', room: null, pub: true, code: '', members: [], hostId: null, mode: 'coop', ready: false, team: 0, joinedAt: 0,
         profiles: {}, lastMatch: null, err: '', busy: false, match: null, lookup: null, seenEid: new Set()
     };
     const peers = new Map();
@@ -397,6 +397,57 @@
         }
     }
 
+    // ------------------------------------------------------------------ AÇIK ODALAR
+    // Herkese açık lobiler ortak bir Supabase presence kanalında ilan edilir (ücretsiz, sunucu yok).
+    // Kodu olmayan oyuncular listeden katılır ya da HIZLI OYUN ile en kalabalık açık odaya düşer.
+    const DIR = { ch: null, rooms: [], online: 0, sig: '', joining: null };
+    const CODE_RE = /^[A-Z0-9]{4,6}$/;
+    function dirJoin() {
+        if (TEST || DIR.ch) return Promise.resolve();
+        if (DIR.joining) return DIR.joining;
+        DIR.joining = (async () => {
+            try {
+                await loadSb();
+                const ch = sb.channel('boru-lobiler', { config: { presence: { key: me.id } } });
+                ch.on('presence', { event: 'sync' }, () => {
+                    const st = ch.presenceState(), out = [];
+                    for (const k in st) { const a = st[k]; const m = a && a[a.length - 1]; if (m && k !== me.id && CODE_RE.test(String(m.code || '')) && m.n > 0 && m.n < MAX_PLAYERS) out.push(m); }
+                    DIR.rooms = out.sort((a, b) => b.n - a.n); DIR.online = Object.keys(st).length; render();
+                });
+                await new Promise((res, rej) => {
+                    const to = setTimeout(() => rej(new Error('zaman aşımı')), 15000);
+                    ch.subscribe((st) => { if (st === 'SUBSCRIBED') { clearTimeout(to); res(); } else if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT') { clearTimeout(to); rej(new Error(st)); } });
+                });
+                DIR.ch = ch; DIR.sig = ''; dirAdvertise();
+            } catch (e) { console.warn('Açık odalar yüklenemedi', e); }
+            finally { DIR.joining = null; }
+        })();
+        return DIR.joining;
+    }
+    function dirAdvertise() {
+        if (!DIR.ch) return;
+        const open = S.room && S.screen === 'lobby' && isHost() && S.pub !== false && S.members.length < MAX_PLAYERS;
+        const meta = open ? { code: S.code, name: me.name, mode: S.mode, n: S.members.length, skin: me.skin } : { idle: 1 };
+        const sig = JSON.stringify(meta); if (sig === DIR.sig) return; DIR.sig = sig;
+        try { DIR.ch.track(meta); } catch (e) {}
+    }
+    async function quickPlay() {
+        if (!me.name.trim()) { S.err = 'Önce ejderhana bir isim ver.'; render(); return; }
+        S.busy = true; render(); await dirJoin(); S.busy = false;
+        const pick = DIR.rooms.slice().sort((a, b) => ((b.mode === 'coop') - (a.mode === 'coop')) || (b.n - a.n))[0];
+        if (pick) joinRoom(pick.code, false); else { S.pub = true; joinRoom(newCode(), true); }
+    }
+    window.addEventListener('pagehide', () => { try { if (DIR.ch) DIR.ch.untrack(); } catch (e) {} });
+    function dirHtml() {
+        if (TEST) return '';
+        const rooms = DIR.rooms.slice(0, 8).map(r => { const sk = skinCard(r.skin), md = MODES[r.mode] || MODES.coop;
+            return `<div class="mp-pl" style="border-left-color:${sk.color}"><span class="ic">${sk.icon}</span><div><div class="nm">${esc(r.name || 'Ejderha')}'in odası</div><div class="sub">${md.icon} ${md.name} · 👥 ${r.n}/${MAX_PLAYERS}</div></div>
+                <div class="rt"><button class="mp-btn blue" data-a="joinpub" data-c="${esc(r.code)}" ${S.busy ? 'disabled' : ''}>🚪 KATIL</button></div></div>`; }).join('');
+        return `<div class="mp-card"><h3>🌍 Açık Odalar <span style="float:right;font-size:12px;color:#8f8">${DIR.ch ? '🟢 ' + DIR.online + ' oyuncu çevrimiçi' : 'bağlanıyor…'}</span></h3>
+            <button class="mp-btn go big" data-a="quick" ${S.busy ? 'disabled' : ''}>⚡ HIZLI OYUN</button>
+            <div class="mp-desc" style="margin-bottom:8px">Açık bir odaya katılır; yoksa yeni bir açık oda kurar ve gelen herkes seni görür.</div>
+            ${rooms || '<div class="mp-desc">Şu an bekleyen açık oda yok. İlk odayı sen kur!</div>'}</div>`;
+    }
     // ------------------------------------------------------------------ ODA GİRİŞ / ÇIKIŞ
     const CODE_CH = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     function newCode() { let s = ''; for (let i = 0; i < 5; i++) s += CODE_CH[Math.floor(Math.random() * CODE_CH.length)]; return s; }
@@ -806,6 +857,7 @@
 
     function render() {
         if (!$('#mpRoot')) return;
+        dirAdvertise();
         const root = $('#mpRoot'), body = $('#mpBody');
         root.classList.toggle('on', ['home', 'lobby', 'end'].includes(S.screen) && S.open);
         $('#mpCount').classList.toggle('on', S.screen === 'count');
@@ -829,7 +881,8 @@
             <div class="mp-row"><input id="mpName" maxlength="14" placeholder="Ejderhanın adı" value="${esc(me.name)}"><span class="mp-id" data-a="copyid" title="Kopyala">${esc(me.code || 'ID alınıyor…')}</span></div>
             ${statsLine(p)}
         </div>
-        <div class="mp-card"><h3>🏠 Lobi</h3>
+        ${dirHtml()}
+        <div class="mp-card"><h3>🏠 Özel Lobi</h3>
             <button class="mp-btn go big" data-a="create" ${S.busy ? 'disabled' : ''}>➕ YENİ LOBİ KUR</button>
             <div class="mp-row" style="margin-top:10px"><input id="mpJoinCode" maxlength="6" placeholder="Oda kodu (ör. K7M2Q)" style="text-transform:uppercase"><button class="mp-btn blue" data-a="join" ${S.busy ? 'disabled' : ''}>🚪 KATIL</button></div>
             ${S.busy ? '<div class="mp-desc">Bağlanıyor…</div>' : ''}
@@ -862,7 +915,7 @@
         <h2>🏠 LOBİ</h2>
         <div class="mp-card" style="text-align:center"><div class="sub" style="font-size:12px;color:#aaa">ODA KODU · arkadaşlarına gönder</div>
             <div class="mp-code">${esc(S.code)}</div>
-            <div class="mp-row" style="justify-content:center;margin-top:6px"><button class="mp-btn" data-a="share">📤 Davet Linki Gönder</button><button class="mp-btn ${voice.on ? 'ok' : ''}" data-a="mic">${voice.on ? '🎤 Mikrofon Açık' : '🎤 Sesli Sohbet'}</button></div>
+            <div class="mp-row" style="justify-content:center;margin-top:6px"><button class="mp-btn" data-a="share">📤 Davet Linki Gönder</button>${host && !TEST ? `<button class="mp-btn ${S.pub ? 'ok' : ''}" data-a="pub">${S.pub ? '🌍 Herkese Açık' : '🔒 Sadece Davetle'}</button>` : ''}<button class="mp-btn ${voice.on ? 'ok' : ''}" data-a="mic">${voice.on ? '🎤 Mikrofon Açık' : '🎤 Sesli Sohbet'}</button></div>
         </div>
         ${playing ? '<div class="mp-card" style="text-align:center;color:#ffd24a">⚔️ Bu odada maç sürüyor. Bitince bir sonrakine katılabilirsin.</div>' : ''}
         <div class="mp-card"><h3>🎮 Mod ${host ? '(sen seçiyorsun)' : '(oda sahibi seçer)'}</h3>
@@ -937,8 +990,11 @@
         const b = e.target.closest('[data-a]'); if (!b) return;
         const a = b.dataset.a;
         if (a === 'close') { S.open = false; render(); }
-        else if (a === 'create') joinRoom(newCode(), true);
+        else if (a === 'create') { S.pub = false; joinRoom(newCode(), true); }
         else if (a === 'join') joinRoom(($('#mpJoinCode') || {}).value, false);
+        else if (a === 'quick') quickPlay();
+        else if (a === 'joinpub') { const c = String(b.dataset.c || ''); if (CODE_RE.test(c)) joinRoom(c, false); }
+        else if (a === 'pub') { S.pub = !S.pub; render(); toast(S.pub ? '🌍 Oda Açık Odalar listesinde görünüyor' : '🔒 Oda sadece kodla/davetle girilebilir'); }
         else if (a === 'leave') leaveRoom();
         else if (a === 'mode') setMode(b.dataset.m);
         else if (a === 'skin') setSkin(b.dataset.s);
@@ -966,7 +1022,7 @@
     // Oyun dışında dokunulmaz: yalnızca menüden açılır
     window.MPUI = {
         open() {
-            mount(); S.open = true;
+            mount(); S.open = true; dirJoin();
             if (!me.name) me.name = (window.BORU && BORU.savedName()) || '';
             if (!me.skin && window.BORU) me.skin = BORU.activeSkin();
             if (S.screen !== 'lobby') S.screen = 'home';
