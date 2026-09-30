@@ -2913,25 +2913,25 @@
         // KARA DELİKLER: kademeli geçitler. Her biri belirli sayıda kovan fethedilince açılır,
         // kendi arenasına ve kendi bossuna götürür. Boss yenilince ana haritaya dönülür ve ödül
         // ekranı belirir; ardından bir sonraki kara deliğin eşiği devreye girer.
-        //   I  · 100 kovan · Yansıma Uçurumu   · VAHŞİ AYNA EJDERHA (bizim 3 katımız)
-        //   II · 200 kovan · Yıkılmış Ateşyurt · SÜRÜ ANA (Ateşyurt'u yutan sürünün anası)
+        //   I  · 60 kovan · Yansıma Uçurumu   · VAHŞİ AYNA EJDERHA (bizim 3 katımız)
+        //   II · 120 kovan · Yıkılmış Ateşyurt · SÜRÜ ANA (Ateşyurt'u yutan sürünün anası)
         // =====================================================================
         const BH_TIERS = [
-            { req: 100, key: 'abyss', roman: 'I', bossName: 'VAHŞİ AYNA EJDERHA', arenaName: 'Yansıma Uçurumu',
+            { req: 60, key: 'abyss', roman: 'I', bossName: 'VAHŞİ AYNA EJDERHA', arenaName: 'Yansıma Uçurumu',
               portal: { x: 4400, y: -1200 }, center: { x: 40000, y: 40000 }, color: '#00e5ff', rgb: '120,230,255', bossColor: '#ff2a3a', bg: 'rgb(4,12,30)',
               enterText: '🕳️ KARA DELİĞE SÜRÜKLENİYORSUN...', exitText: '🌊 GERÇEK DÜNYAYA DÖNÜYORSUN...',
               enterLore: 'Karanlığın içinden bir yansıma çıktı... ama bu ben değilim. Bu, içimde büyüttüğüm öfkenin ta kendisi — üç kat büyümüş hali.',
               reward: { coins: 3000, xp: 1500, skin: 'mirrorbane', potions: 2 },
               winLore: 'Yansımanı parçaladın. Öfken artık seni yönetmiyor — sen onu yönetiyorsun.',
               teaser: 'Kara deliğin öbür ucunda başka bir şey kıpırdıyor... Bir zamanlar Ateşyurt\'u yutan o sürü — ve onu doğuran ANA — hâlâ yurdumuzun küllerinde yuvalanıyor. Üç Kovan Kalbi onu korurken ona dokunamazsın. Kalpler düşünce gökyüzünü karartacak, sürüsünü üstüne salacak. Geçit seni eve, Yıkılmış Ateşyurt\'a götürecek.' },
-            { req: 200, key: 'ashland', roman: 'II', bossName: 'SÜRÜ ANA', arenaName: 'Yıkılmış Ateşyurt',
+            { req: 120, key: 'ashland', roman: 'II', bossName: 'SÜRÜ ANA', arenaName: 'Yıkılmış Ateşyurt',
               portal: { x: -4600, y: 2400 }, center: { x: -40000, y: 40000 }, color: '#ff8a2a', rgb: '255,150,70', bossColor: '#c8ff3a', bg: 'rgb(30,9,5)',
               enterText: '🌋 ATEŞYURT\'UN KÜLLERİNE DÜŞÜYORSUN...', exitText: '🔥 İNTİKAM ALINDI, GERİ DÖNÜYORSUN...',
               enterLore: 'Burası... Ateşyurt. Annemin bana anlattığı yer. Şimdi sadece kül, kemik ve o sürünün yuvası var.',
               reward: { coins: 6000, xp: 4000, skin: 'emberheir', potions: 3 },
               winLore: 'Gökyüzünü karartan sürünün anası düştü. Ateşyurt\'un külleri ilk kez yeniden ısınıyor. Babam, annem... bu sizin için.',
               teaser: 'Sürü Ana ölürken son bir çığlıkla yıldızlara seslendi. Cevap veren şey onun efendisiydi: sönmüş yıldızların arasında bekleyen, üç başlı ve tek kalpli bir kıyamet. Başları yenilenir; kalbine ancak üçü birden düştüğünde ulaşabilirsin. Geçit seni Yıldızların Mezarlığı\'na götürecek.' },
-            { req: 300, key: 'graveyard', roman: 'III', bossName: 'ÜÇ BAŞLI KIYAMET', arenaName: 'Yıldızların Mezarlığı',
+            { req: 180, key: 'graveyard', roman: 'III', bossName: 'ÜÇ BAŞLI KIYAMET', arenaName: 'Yıldızların Mezarlığı',
               portal: { x: 1400, y: 5200 }, center: { x: 0, y: -40000 }, color: '#b77bff', rgb: '190,140,255', bossColor: '#b77bff', bg: 'rgb(9,5,20)',
               enterText: '🌌 YILDIZLARIN MEZARLIĞINA ÇEKİLİYORSUN...', exitText: '✨ KIYAMET SUSTU, EVE DÖNÜYORSUN...',
               enterLore: 'Sürü Ana sadece bir hizmetkârmış. Onu gönderen, sönmüş dünyaların arasında bekliyormuş: üç başı, tek bir kalbi olan bir kıyamet.',
@@ -2942,7 +2942,7 @@
         let blackHoleTier = parseInt(store.getItem('boruBlackHoleTier'));
         if (isNaN(blackHoleTier)) blackHoleTier = store.getItem('boruBlackHoleDefeated') === '1' ? 1 : 0;
         let portalBanReq = parseInt(store.getItem('boruPortalBanReq')) || 0;
-        if (!portalBanReq && blackHoleTier === 0 && store.getItem('boruPortalBanned') === '1') portalBanReq = 150;
+        if (!portalBanReq && blackHoleTier === 0 && store.getItem('boruPortalBanned') === '1') portalBanReq = 90;
         const ARENA_R = 3600; // kara delik savaş alanı genişletildi (eski 2100)
         let blackHolePortal = null;
         let inMirrorArena = false;
@@ -2956,7 +2956,7 @@
         function bhCycle() { return Math.floor(blackHoleTier / 3); }
         function bhLabel(lvl) { return BH_TIERS[lvl % 3].roman + (lvl >= 3 ? ' · YANKI ' + Math.floor(lvl / 3) : ''); }
         function nextBHTier() { if (MP.active && blackHoleTier >= 3) return null; return BH_TIERS[blackHoleTier % 3]; }
-        function nextBHReq() { const t = nextBHTier(); if (!t) return 0; return Math.max(t.req + bhCycle() * 300, portalBanReq); }
+        function nextBHReq() { const t = nextBHTier(); if (!t) return 0; return Math.max(t.req + bhCycle() * 180, portalBanReq); }
         function portalShouldExist() { const t = nextBHTier(); return !!t && totalHivesCapturedLifetime >= nextBHReq(); }
         function refreshBlackHolePortal() {
             if (portalShouldExist()) {
@@ -5583,7 +5583,7 @@
             '💡 E ile kükre: önündeki düşmanları geri savurur ve kısa süre yavaşlatır.',
             '💡 Sığınaktan uzaklaştıkça düşmanlar daha fazla coin bırakır.',
             '💡 Q + S ile bağlı kovanlarından asker çağırabilirsin.',
-            '💡 100 kovan fethedildiğinde haritada gizemli bir kara delik belirir...',
+            '💡 60 kovan fethedildiğinde haritada gizemli bir kara delik belirir...',
             '💡 Karaborsa eşyalarını marketten istediğin an kuşanıp çıkarabilirsin.',
             '💡 R ile Süper Plazma: dolduğunda önündeki her şeyi eritir.',
             '💡 Ayarlardan grafik kalitesini düşürerek zayıf cihazlarda akıcılığı artırabilirsin.',
@@ -8362,7 +8362,7 @@
             if (inMirrorArena) {
                 // KARA DELİKTE YENİLDİK: geçit ancak +50 kovan daha fethedilince yeniden açılır.
                 const t = arenaTier();
-                portalBanReq = nextBHReq() + 50; store.setItem('boruPortalBanReq', portalBanReq); inMirrorArena = false;
+                portalBanReq = nextBHReq() + 30; store.setItem('boruPortalBanReq', portalBanReq); inMirrorArena = false;
                 activeBosses = []; clearArenaState(); blackHolePortal = null; document.getElementById('bossUi').style.display = 'none';
                 gon.innerText = '🕳️ ' + t.bossName + ' seni yuttu. Kara Delik ' + t.roman + ' ancak ' + portalBanReq + ' kovanda yeniden açılacak.'; gon.style.display = 'block';
             } else { gon.innerText = pick(DEATH_LINES); gon.style.display = 'block'; }
@@ -10762,7 +10762,7 @@
             const req = nextBHReq();
             return { t: '🏴 Kovan fethet: ' + Math.min(totalHivesCapturedLifetime, req) + ' / ' + req, w: 'Sonra Kara Delik ' + bhLabel(blackHoleTier) + ' açılacak — ' + bhWhy() };
         }
-        // AMAÇ PANELİ: yeni başlayan oyuncu tek bakışta ne yapacağını görsün - önce 100 kovan, sonra kara delik bossu
+        // AMAÇ PANELİ: yeni başlayan oyuncu tek bakışta ne yapacağını görsün - önce 60 kovan, sonra kara delik bossu
         function renderGoal() {
             const el = document.getElementById('goalHud'); if (!el) return; let h;
             const bt = nextBHTier();
@@ -10796,7 +10796,7 @@
             { t: 'VII · İlk Diz Çöken', req: () => totalHivesCapturedLifetime >= 1, hint: 'İlk kovanı fethet.', x: 'İlk kral önümde eğildi, halkı yüzünü toprağa gömdü. Artık kovanı benim adıma yönetiyor, benim için asker yetiştiriyor. İstediğim buydu. …Değil mi?' },
             { t: 'VIII · Gökteki Kıyamet', req: () => totalHivesCapturedLifetime >= 25, hint: '25 kovan fethet.', x: 'Yerliler bana bir ad taktı: Gökteki Kıyamet. Yavrularını benim adımla korkutuyorlar. Tapınaklarında bana dua ediyorlar — sevgiden değil, dehşetten.' },
             { t: 'IX · Yarısı', req: () => totalHivesCapturedLifetime >= 50, hint: '50 kovan fethet.', x: 'Bulutsu\'nun yarısı artık benim. Geceleri yıldızların arasında bir yırtık görüyorum. Bir şey bana sesleniyor.' },
-            { t: 'X · Geçit', req: () => blackHoleTier >= 1 || totalHivesCapturedLifetime >= 100, hint: '100 kovan fethet.', x: 'Yüzüncü kovan düştüğünde gök yırtıldı. Kara deliğin içinden bana bakan şey… bendim. Ya da öfkemin üç kat büyümüş hali.' },
+            { t: 'X · Geçit', req: () => blackHoleTier >= 1 || totalHivesCapturedLifetime >= 60, hint: '60 kovan fethet.', x: 'Altmışıncı kovan düştüğünde gök yırtıldı. Kara deliğin içinden bana bakan şey… bendim. Ya da öfkemin üç kat büyümüş hali.' },
             { t: 'XI · Yansıma', req: () => blackHoleTier >= 1, hint: 'Kara Delik I\'i fethet.', x: 'Yansımamı parçaladım. Öfke artık beni yönetmiyor; ben onu yönetiyorum. Ama geçidin öbür ucunda tanıdık bir koku var: kül ve kemik. Ateşyurt.' },
             { t: 'XII · Eve Dönüş', req: () => blackHoleTier >= 2, hint: 'Kara Delik II\'yi fethet.', x: 'Ateşyurt\'un küllerinde yurdumu yutan sürünün anasını buldum ve yaktım. Babam, annem… bu sizin içindi. Ama ölürken yıldızlara seslendi. Ve bir şey cevap verdi.' },
             { t: 'XIII · Kıyametin Sonu', req: () => blackHoleTier >= 3, hint: 'Kara Delik III\'ü fethet.', x: 'Üç başlı kıyamet sustu. Sürüyü gönderen, yurdumu yakan güç artık yok. Yıldızların mezarlığında yanan tek ışık benim ateşim. Gökyüzünün tek sahibi benim. …Ve hâlâ yalnızım.' }
@@ -10841,9 +10841,9 @@
                 <div class="gl-lore">Ateşyurt'u bir sürü yuttu. Bulutsu'nun yerlileri babamı yaktı, annemi sığınağın kapısında öldürdü. Ben hayatta kaldım — ve büyüdüm.<br>Şimdi bu dünyaya yıkım getiren en büyük güç benim. Ama yıkım amaç değil, yol.</div>
                 <div class="gl-road">
                     <div class="gl-step"><div class="gl-n">1</div><div><b>Kovanları fethet.</b> Her kovan bir yerli kalesidir. Yak, hükümdarını yen, halkı diz çöksün. Fethedilen kovan benim adıma asker yetiştirir ve beni korur.</div></div>
-                    <div class="gl-step"><div class="gl-n">2</div><div><b>100 kovan → Kara Delik I · Yansıma Uçurumu.</b> Gök yırtılır. İçinde öfkemin üç kat büyümüş yansıması bekler. Kendi öfkemi yenmeden intikam alamam.</div></div>
-                    <div class="gl-step"><div class="gl-n">3</div><div><b>200 kovan → Kara Delik II · Yıkılmış Ateşyurt.</b> Yurdumun küllerine dönüş. Onu yutan sürünün anası orada yuvalanmış.</div></div>
-                    <div class="gl-step"><div class="gl-n">4</div><div><b>300 kovan → Kara Delik III · Yıldızların Mezarlığı.</b> Sürüyü gönderen, her şeyin arkasındaki üç başlı kıyamet.</div></div>
+                    <div class="gl-step"><div class="gl-n">2</div><div><b>60 kovan → Kara Delik I · Yansıma Uçurumu.</b> Gök yırtılır. İçinde öfkemin üç kat büyümüş yansıması bekler. Kendi öfkemi yenmeden intikam alamam.</div></div>
+                    <div class="gl-step"><div class="gl-n">3</div><div><b>120 kovan → Kara Delik II · Yıkılmış Ateşyurt.</b> Yurdumun küllerine dönüş. Onu yutan sürünün anası orada yuvalanmış.</div></div>
+                    <div class="gl-step"><div class="gl-n">4</div><div><b>180 kovan → Kara Delik III · Yıldızların Mezarlığı.</b> Sürüyü gönderen, her şeyin arkasındaki üç başlı kıyamet.</div></div>
                 </div>
                 <div class="gl-how"><b>Yol boyunca:</b> Dalgalar büyüdükçe devler gelir; 25 ruh yaktıktan sonra dalganın bossu çıkar. Sığınakta yaralarını sar ve onu büyüt (${kk('B', 'SIĞINAK butonu')}). Köle topla (${kk('Q+W', '☰ → Köle')}), fethettiğin kovanlardan takviye çağır (${kk('Q+S', '☰ → Takviye')}). Ne kadar uzağa gidersen düşmanların o kadar çok coin bırakır.<br><br>Amacını unutursan: <b>📖 Günlüğe (${kk('J', '☰ → Günlük')})</b> bak.</div>
                 <button class="action-btn menu-btn-primary" onclick="closeGoal()">🔥 YEMİNİMİ HATIRLIYORUM</button>`;
@@ -13615,6 +13615,6 @@
     </script>
     <script src="plus.js?v=1"></script>
     <script src="ui.js?v=1" defer></script>
-    <script src="mp.js?v=5" defer></script>
+    <script src="mp.js?v=6" defer></script>
 </body>
 </html>
