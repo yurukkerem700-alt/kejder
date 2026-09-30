@@ -1,6 +1,6 @@
 // Börü: Son Kral - servis çalışanı
 // Önce ağdan yükler (güncellemeler hemen gelir); internet yoksa son kaydedilen sürümü açar.
-const CACHE = 'boru-v10';
+const CACHE = 'boru-v11';
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(
   caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())
