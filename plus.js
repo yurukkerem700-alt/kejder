@@ -100,7 +100,7 @@
         const saved = store.getItem('boruActiveSkin');
         if (saved && saved !== activeTheme.id && skinsDB.some(q => q.id === saved)) { activeSkinId = saved; activeTheme = skinsDB.find(q => q.id === saved); applyThemeColors(); }
     });
-    const skinPassive = () => SKIN_PASSIVE[activeTheme && activeTheme.id] || null;
+    const skinPassive = () => (MP.noSkinBuffs ? null : SKIN_PASSIVE[activeTheme && activeTheme.id]) || null; // Birlikte modunda kostüm gücü yok
 
     // =====================================================================
     // 2) YENİ KARABORSA EŞYALARI ve İKSİRLER
@@ -566,7 +566,8 @@
     // Günlük ödül hazırsa ana menüde bir kez göster
     setTimeout(() => safe(() => {
         const so = $('storyOverlay');
-        if (!gameActive && dailyReady() && $('startScreen').style.display !== 'none' && !(so && getComputedStyle(so).display !== 'none') && !modal.classList.contains('open')) show('daily');
+        const mpOpen = new URLSearchParams(location.search).has('oda') || !!document.querySelector('#mpRoot.on'); // davet linkiyle / lobideyken araya girmesin
+        if (!gameActive && !inMatch() && !mpOpen && dailyReady() && $('startScreen').style.display !== 'none' && !(so && getComputedStyle(so).display !== 'none') && !modal.classList.contains('open')) show('daily');
     }), 1500);
     safe(checkAchievements);
 })();

@@ -1368,7 +1368,7 @@
         document.addEventListener('click', (e) => { try { if (e.target && e.target.closest && e.target.closest('button')) SND.play('click'); } catch (er) {} }, true);
         document.addEventListener('visibilitychange', () => { try { if (!audioCtx) return; if (document.hidden) audioCtx.suspend(); else audioCtx.resume(); } catch (e) {} });
         // MP: çok oyunculu mod Börü 1'den çıkarıldı; oyun kodunda kalan kontroller hep "kapalı" okur
-        const MP = { active: false, isHost: false, localDead: false, players: new Map(), ro: 0, nv: 0 };
+        const MP = { active: false, isHost: false, localDead: false, players: new Map(), ro: 0, nv: 0, noSkinBuffs: false, lite: false }; // noSkinBuffs: Birlikte modunda kostümler yalnızca görünüş
         const LP = { id: 'local', local: true, x: 0, y: 0, vx: 0, vy: 0, a: 0, ghost: false, safe: false, dead: false, sm: 1, name: '', maxHp: 2400, hp: 2400 };
         function getPlayer(id) { return id === LP.id ? LP : null; }
         function allPlayers() { return [LP]; }
@@ -1627,7 +1627,7 @@
         skinsDB.sort((a, b) => SKIN_ORDER.indexOf(a.id) - SKIN_ORDER.indexOf(b.id));
         // Seviye şartları 100'lük ölçekten 15'lik ölçeğe, coin fiyatları yeni ekonomiye çekildi
         skinsDB.forEach(sk => { if (sk.reqLvl < 999) { sk.reqLvl = Math.max(1, Math.ceil(sk.reqLvl)); if (sk.reqCoin > 0) sk.reqCoin = Math.max(50, Math.round(sk.reqCoin * 0.4 / 50) * 50); } });
-        function skinBonus(sk) { const t = (sk && sk.tier) || 0; return { fire: t * 0.04, hp: t * 0.03 }; }
+        function skinBonus(sk) { const t = (MP.noSkinBuffs ? 0 : (sk && sk.tier)) || 0; return { fire: t * 0.04, hp: t * 0.03 }; }
 
         let shopUnlocks = safeParseJSON('boruShopUnlocks', { bigWings: false, demonHorns: false, dragonHeart: false, fireStorm: false, speedBoots: false, trailOfFire: false, vampireTooth: false, titanScales: false, plasmaCore: false, toxicBreath: false, ancientRoar: false, gemMagnet: false });
         
@@ -2928,7 +2928,8 @@
         function bhCycle() { return Math.floor(blackHoleTier / 3); }
         function bhLabel(lvl) { return BH_TIERS[lvl % 3].roman + (lvl >= 3 ? ' · YANKI ' + Math.floor(lvl / 3) : ''); }
         function nextBHTier() { if (MP.active && blackHoleTier >= 3) return null; return BH_TIERS[blackHoleTier % 3]; }
-        function nextBHReq() { const t = nextBHTier(); if (!t) return 0; return Math.max(t.req + bhCycle() * 300, portalBanReq); }
+        // Çok oyunculu maçta kara delikler yarı eşikte açılır (50 / 100 / 150) ve oyuncuların TOPLAM kovan sayısı sayılır
+        function nextBHReq() { const t = nextBHTier(); if (!t) return 0; if (MP.active) return Math.max(Math.round(t.req / 2), portalBanReq); return Math.max(t.req + bhCycle() * 300, portalBanReq); }
         function portalShouldExist() { const t = nextBHTier(); return !!t && totalHivesCapturedLifetime >= nextBHReq(); }
         function refreshBlackHolePortal() {
             if (portalShouldExist()) {
@@ -9292,7 +9293,7 @@
         function abFx(o) { if (ABIL.fx.length < 80) ABIL.fx.push(Object.assign({ t: 0 }, o)); }
         function orgAbilityTick(S, G) {
             const id = activeTheme.id; const n = joints.length; if (n < 4) return;
-            const live = !isPaused && gameActive && !(MP.active && MP.localDead) && !spacePressed;
+            const live = !isPaused && gameActive && !(MP.active && MP.localDead) && !spacePressed && !MP.noSkinBuffs;
             const D = Math.max(6, stats.fireDamage || 10); const H = joints[0], ha = H.angle;
             const mouth = { x: H.x + Math.cos(ha) * 50 * G * S, y: H.y + Math.sin(ha) * 50 * G * S };
             const hiQ = gfxQuality !== 'low'; const P = (ORG_SKINS[id] || {}).pal || { vein: activeTheme.mainColor, body: ['#fff', '#888', '#000'], bone: '#fff', scaleEdge: '#fff', membrane: ['#fff', '#888', '#000'] };
@@ -9788,7 +9789,7 @@
 
             // Spiral çizince üstten geçen halkaların altına gölge: gövde yılan gibi kendi üstüne çıkar
             const crossJ = new Uint8Array(joints.length);
-            { const nJ = joints.length; const rad = (i) => Math.max(3, 20 * (1 - i / nJ)) * growthFactor * sizeMultiplier;
+            if (!MP.lite) { const nJ = joints.length; const rad = (i) => Math.max(3, 20 * (1 - i / nJ)) * growthFactor * sizeMultiplier;
               for (let i = 1; i < nJ; i++) for (let k = i + 6; k < nJ; k++) { const rr = (rad(i) + rad(k)) * 0.95; const dx = joints[i].x - joints[k].x, dy = joints[i].y - joints[k].y; if (dx * dx + dy * dy < rr * rr) { crossJ[i] = 1; break; } } }
             for (let i = joints.length - 1; i >= 0; i--) {
                 const j = joints[i]; const scrX = j.x - camX; const scrY = j.y - camY;
@@ -10743,7 +10744,7 @@
             else {
                 const req = nextBHReq(), n = Math.min(totalHivesCapturedLifetime, req);
                 if (blackHolePortal) h = `<div class="g1">🕳️ Kara deliğe gir</div><div class="g2">bossu yen: <b>${bt.bossName}</b></div>`;
-                else h = `<div class="g1">🎯 <b>${n}/${req}</b> kovan</div><div class="gbar"><i style="width:${Math.min(100, n / req * 100)}%"></i></div><div class="g2">sonra 🕳️ kara delik bossu</div>`;
+                else h = `<div class="g1">🎯 <b>${n}/${req}</b> kovan${MP.active ? ' <small>(ekip toplamı)</small>' : ''}</div><div class="gbar"><i style="width:${Math.min(100, n / req * 100)}%"></i></div><div class="g2">sonra 🕳️ kara delik bossu</div>`;
             }
             // Mobil: tek satırlık kısa amaç
             let m; if (inMirrorArena) m = '🕳️ Bossu yen: ' + arenaTier().bossName; else if (!bt) m = '👑 Sefer tamam'; else if (blackHolePortal) m = '🕳️ Kara deliğe gir'; else m = '🎯 ' + Math.min(totalHivesCapturedLifetime, nextBHReq()) + '/' + nextBHReq() + ' kovan';
@@ -11205,7 +11206,7 @@
                 // SÜREKLİ ALEV: eskiden parçacık sınırı dolunca ağız birkaç kare tamamen susuyordu (kesik kesik alev).
                 // Artık sınır aşılacaksa daha az ama daha büyük/güçlü parçacık çıkar: akış hiç kesilmez, hasar aynı kalır.
                 const want = Math.max(1, Math.ceil(stats.fireVolume * (isRageActive ? 2 : 1)));
-                const cap = Math.max(50, (isRageActive ? 300 : 150) * gfxMultMap[gfxQuality] * FX.q) + (MP.active ? (isMobile ? 60 : 200) : 0);
+                const cap = Math.max(50, (isRageActive ? 300 : 150) * gfxMultMap[gfxQuality] * FX.q) + (MP.active ? (isMobile ? 40 : 120) * FX.q : 0); // maçta ek parçacık payı kasma varsa küçülür (hasar aynı kalır)
                 const n = Math.max(2, Math.min(want, Math.floor(cap / (1 / currentDecay))));
                 const k = want / n, sK = Math.min(1.7, Math.sqrt(k));
                 const pw = k > 1.01 ? stats.fireDamage * (isRageActive ? 3 : 1) * k : undefined;
@@ -13088,12 +13089,14 @@
                 remotes: R, matchActive: false,
                 onLocalDeath: null, onHiveCaptured: null, onBossKill: null, onHit: null,
                 hostile: () => false, teamColor: () => '#ffffff',
-                skins() { return skinsDB.filter(s => unlockedSkins.includes(s.id)).map(s => ({ id: s.id, name: s.name, icon: s.icon || '🐉', color: s.mainColor })); },
+                // Birlikte modunda tüm kostümler açıktır (yalnızca görünüş, güç vermez)
+                skins(mode) { return skinsDB.filter(s => mode === 'coop' || unlockedSkins.includes(s.id)).map(s => ({ id: s.id, name: s.name, icon: s.icon || '🐉', color: s.mainColor })); },
                 skinInfo(id) { const s = skinsDB.find(q => q.id === id) || skinsDB[0]; return { id: s.id, name: s.name, icon: s.icon || '🐉', color: s.mainColor }; },
                 activeSkin() { return activeTheme.id; },
                 savedName() { return (dragonName && dragonName !== 'İsimsiz Börü') ? dragonName : (store.getItem('boruDragonName') || ''); },
                 startMatch(o) {
                     store.mem = new Map();
+                    MP.noSkinBuffs = o.mode === 'coop';
                     MP.active = true; MP.isHost = true; MP.localDead = false; MP.pendingPicks = 0;
                     startingNewGame = false; waveBossPending = false; scorches.length = 0;
                     level = 1; currentWave = 1; score = 0; currentXp = 0; maxXp = 18; killsInCurrentWave = 0; expeditions.length = 0; rpReports.length = 0;
@@ -13111,6 +13114,7 @@
                     POOL.by.clear(); POOL.added = 0; POOL.allyIds.clear(); BS.pkt = null; BS.won = false; BS.out = null; BS.inc = null;
                     inMirrorArena = false; isArenaTransitioning = false; arenaStash = null; blackHolePortal = null; clearArenaState();
                     document.getElementById('gameOverScreen').style.display = 'none';
+                    { const pm = document.getElementById('pxModal'); if (pm) pm.classList.remove('open'); } // menü pencereleri maçı kapatmasın
                     R.clear(); B.matchActive = true; B.mode = o.mode || 'coop'; document.body.classList.add('mp-match');
                     prepGameStart();
                     dragonName = o.name || dragonName;
@@ -13123,7 +13127,7 @@
                     camX = x - (canvas.width / viewScale) / 2; camY = y - (canvas.height / viewScale) / 2;
                 },
                 endMatch() {
-                    B.matchActive = false; gameActive = false; MP.players.clear(); RF.length = 0; isBreathingFire = false; spacePressed = false;
+                    B.matchActive = false; gameActive = false; MP.players.clear(); MP.noSkinBuffs = false; RF.length = 0; isBreathingFire = false; spacePressed = false;
                     try { inMirrorArena = false; isArenaTransitioning = false; activeBosses = []; clearArenaState(); document.getElementById('bossUi').style.display = 'none'; const ov = document.getElementById('arenaTransitionOverlay'); if (ov) ov.style.display = 'none'; } catch (e) {}
                     try { if (fireGain) fireGain.gain.value = 0; } catch (e) {}
                     document.getElementById('pauseMenu').style.display = 'none';
@@ -13156,8 +13160,9 @@
                 },
                 // ---------------- ORTAK KOVAN SAYISI
                 ownHives() { return Math.max(0, totalHivesCapturedLifetime - POOL.added); },
+                // Kara delik eşiği için oyuncuların kovanları toplanır (Birlikte/Herkes Tek: herkes, Takım: takım arkadaşları)
                 setAllyHives(id, n) {
-                    if (!coop() || !(n >= 0)) return;
+                    if (!B.matchActive || !(n >= 0)) return;
                     const prev = POOL.by.get(id) || 0; if (n <= prev) return;
                     POOL.by.set(id, n);
                     let sum = 0; for (const v of POOL.by.values()) sum += v;
@@ -13321,6 +13326,8 @@
                     try { B.bossSync(performance.now()); } catch (e) { if (!B._bsw) { B._bsw = true; console.warn('Boss eşitlenemedi', e); } }
                     if (R.size === 0) return;
                     const now = performance.now(), vw = canvas.width / viewScale, vh = canvas.height / viewScale;
+                    // Yetişme adımlarında (ekran çizilmiyorken) uzak ejderhaları boşuna çizme: yalnızca konum/hasar işlenir
+                    const drawing = !Object.prototype.hasOwnProperty.call(ctx, 'fill');
                     for (const r of R.values()) {
                         if (now - r.seen > 6000) continue;
                         B.sampleRemote(r, now);
@@ -13334,33 +13341,48 @@
                         // Kükreme: karşı taraftaki sayaç arttıysa dalgayı burada da oynat
                         if (r.ro != null) { if (r.roSeen == null) r.roSeen = r.ro; else if (r.ro > r.roSeen) { r.roSeen = r.ro; roars.push({ owner: r.id, x: r.x, y: r.y, angle: r.a, radius: 20, life: 1.0, seed: Math.random() * 100, vis: 1 }); } }
                         const onScreen = r.x > camX - 900 && r.x < camX + vw + 900 && r.y > camY - 900 && r.y < camY + vh + 900;
-                        if (r.f && !r.g && !r.bc && !r.bf) B.spawnRemoteFire(r);
-                        // Işın ekrana uzaktan da girebilir (3200 birim): çizimi ekrana göre değil ışına göre yap
-                        if (r.bf && !r.g) B.drawRemoteBeam(r);
-                        if (onScreen) { if (r.bc > 0 && !r.g) B.drawRemoteCharge(r); B.drawRemote(r); }
-                        else if (!B.hostile(r.id)) B.drawArrow(r, vw, vh); // düşmanın yeri gösterilmez
+                        // Ekran dışındaki oyuncunun alevi görünmez: parçacık üretme (en büyük FPS kaybı buydu)
+                        if (onScreen && r.f && !r.g && !r.bc && !r.bf) B.spawnRemoteFire(r);
+                        if (drawing) {
+                            // Işın ekrana uzaktan da girebilir (3200 birim): çizimi ekrana göre değil ışına göre yap
+                            if (r.bf && !r.g) B.drawRemoteBeam(r);
+                            if (onScreen) { if (r.bc > 0 && !r.g) B.drawRemoteCharge(r); B.drawRemote(r); }
+                            else if (!B.hostile(r.id)) B.drawArrow(r, vw, vh); // düşmanın yeri gösterilmez
+                        }
                         B.pvpFire(r); B.pvpBeam(r);
                     }
-                    B.drawRemoteFire();
+                    B.drawRemoteFire(vw, vh);
                     const tNow = performance.now();
                     if (hitAcc.size && tNow - lastHitFlush > 120) { lastHitFlush = tNow; for (const [id, d] of hitAcc) { if (B.onHit) B.onHit(id, Math.round(d * 10) / 10); } hitAcc.clear(); }
                 },
                 drawRemote(r) {
                     const theme = skinsDB.find(s => s.id === r.sk) || skinsDB[0];
-                    const sv = [joints, activeTheme, spacePressed, isRageActive, isBreathingFire, isSuperBeamCharging, isSuperBeamFiring];
+                    // PERFORMANS: uzak ejderhalar daha hafif kalitede çizilir (gölge bulanıklığı yok, kesişim gölgesi yok,
+                    // telefonda ve kasan cihazda düşük detay). Kendi ejderhan her zaman seçtiğin kalitede kalır.
+                    const sv = [joints, activeTheme, spacePressed, isRageActive, isBreathingFire, isSuperBeamCharging, isSuperBeamFiring, gfxQuality, ctx._sbMax, ORG_TAIL];
                     try {
                         joints = r.joints; activeTheme = theme; spacePressed = !!r.g; isRageActive = !!r.r; isBreathingFire = !!r.f; isSuperBeamCharging = false; isSuperBeamFiring = false;
+                        gfxQuality = (isMobile || FX.q < 1 || R.size > 2) ? 'low' : (gfxQuality === 'high' ? 'mid' : gfxQuality);
+                        ctx._sbMax = 0; MP.lite = true; ORG_TAIL = r.tail || (r.tail = []); // kuyruk uzantısı her oyuncuda ayrı (eskiden kendi kuyruğumuzu bozuyordu)
                         drawDragonBody(r.sm || 1, r.gf || 1, 1);
                     } catch (e) { if (!B._warned) { B._warned = true; console.warn('Uzak ejderha çizilemedi', e); } }
-                    finally { [joints, activeTheme, spacePressed, isRageActive, isBreathingFire, isSuperBeamCharging, isSuperBeamFiring] = sv; }
-                    // İsim + can barı
+                    finally { [joints, activeTheme, spacePressed, isRageActive, isBreathingFire, isSuperBeamCharging, isSuperBeamFiring, gfxQuality, ctx._sbMax, ORG_TAIL] = sv; MP.lite = false; }
+                    B.drawTag(r);
+                },
+                // İsim etiketi + can barı: gölge bulanıklığı yerine kontur (çok daha ucuz), yuvarlatılmış rozet görünümü
+                drawTag(r) {
                     const G = (r.gf || 1) * (r.sm || 1), sx = r.x - camX, sy = r.y - camY - 58 * G - 10;
-                    const col = B.teamColor(r.id);
-                    ctx.save(); ctx.textAlign = 'center'; ctx.font = 'bold 15px Arial'; ctx.shadowBlur = 5; ctx.shadowColor = '#000';
-                    ctx.fillStyle = col; ctx.fillText(r.name || 'Ejderha', sx, sy); ctx.shadowBlur = 0;
-                    const w = 70, k = Math.max(0, Math.min(1, (r.hp || 0) / (r.mh || 1)));
-                    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(sx - w / 2, sy + 5, w, 6);
-                    ctx.fillStyle = B.hostile(r.id) ? '#ff3355' : '#33ff88'; ctx.fillRect(sx - w / 2, sy + 5, w * k, 6);
+                    const col = B.teamColor(r.id), hostile = B.hostile(r.id), name = r.name || 'Ejderha';
+                    const k = Math.max(0, Math.min(1, (r.hp || 0) / (r.mh || 1)));
+                    ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.font = 'bold 14px Arial';
+                    const tw = r._tw && r._tn === name ? r._tw : (r._tn = name, r._tw = ctx.measureText(name).width);
+                    const w = Math.max(64, tw + 22), x0 = sx - w / 2, y0 = sy - 15;
+                    ctx.globalAlpha = 0.72; ctx.fillStyle = '#07050a'; ctx.beginPath();
+                    if (ctx.roundRect) ctx.roundRect(x0, y0, w, 29, 8); else ctx.rect(x0, y0, w, 29); ctx.fill();
+                    ctx.globalAlpha = 1; ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.stroke();
+                    ctx.fillStyle = col; ctx.fillText((hostile ? '⚔ ' : '') + name, sx, sy + 1);
+                    const bw = w - 12; ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(sx - bw / 2, sy + 5, bw, 5);
+                    ctx.fillStyle = hostile ? '#ff3355' : (k < 0.3 ? '#ffb030' : '#33ff88'); ctx.fillRect(sx - bw / 2, sy + 5, bw * k, 5);
                     ctx.restore();
                 },
                 // ---- Uzak oyuncuların ALEVİ: kendi alevimizle aynı sprite'larla (kalite aynı), ama hasar vermez
@@ -13370,24 +13392,27 @@
                     return sp;
                 },
                 spawnRemoteFire(r) {
-                    if (RF.length > (isMobile ? 220 : 500)) return;
+                    const fq = (typeof FX !== 'undefined' && FX.q) || 1;
+                    if (RF.length > (isMobile ? 140 : 320) * fq) return;
                     const G = (r.gf || 1) * (r.sm || 1), a = r.a, m = 35 * G, mx = r.x + Math.cos(a) * m, my = r.y + Math.sin(a) * m;
-                    const vx = r.pvx || 0, vy = r.pvy || 0, spr = B.spriteFor(r.sk, r.r), q = (typeof FX !== 'undefined' && FX.q) || 1;
-                    const n = Math.max(2, Math.round((r.r ? 6 : 4) * q));
+                    const vx = r.pvx || 0, vy = r.pvy || 0, spr = B.spriteFor(r.sk, r.r), q = fq * (isMobile ? 0.7 : 1);
+                    const n = Math.max(2, Math.round((r.r ? 5 : 3) * q));
                     for (let i = 0; i < n; i++) {
                         const sp = (Math.random() - 0.5) * 0.4, v = (Math.random() * 6 + 6.8) * (1 + Math.max(0, G - 1.7) * 0.6), f0 = Math.random();
                         RF.push({ x: mx + Math.cos(a) * v * f0, y: my + Math.sin(a) * v * f0, vx: Math.cos(a + sp) * v + vx * 0.7, vy: Math.sin(a + sp) * v + vy * 0.7, life: 1, decay: 0.029, size: (Math.random() * 16 + 14) * G, growth: Math.random() * 2.5 + 1.5, spr });
                     }
                 },
-                drawRemoteFire() {
+                drawRemoteFire(vw, vh) {
                     if (!RF.length) return;
+                    vw = vw || canvas.width / viewScale; vh = vh || canvas.height / viewScale;
                     ctx.save(); ctx.globalCompositeOperation = 'lighter';
                     for (let i = RF.length - 1; i >= 0; i--) {
                         const p = RF[i]; p.x += p.vx; p.y += p.vy; p.life -= p.decay; p.size += p.growth;
-                        if (p.life <= 0) { RF.splice(i, 1); continue; }
-                        const sz = p.size * (p.life > 0.38 ? 1 : 1.08);
+                        if (p.life <= 0) { RF[i] = RF[RF.length - 1]; RF.pop(); continue; } // splice yerine takas: çöp ve kaydırma yok
+                        const sz = p.size * (p.life > 0.38 ? 1 : 1.08), px = p.x - camX, py = p.y - camY, h = sz / 2;
+                        if (px + h < 0 || py + h < 0 || px - h > vw || py - h > vh) continue; // ekran dışı: çizme
                         ctx.globalAlpha = p.life > 0.38 ? Math.min(1, (p.life - 0.3) * 1.15) : p.life * 1.9;
-                        ctx.drawImage(p.spr, p.x - camX - sz / 2, p.y - camY - sz / 2, sz, sz);
+                        ctx.drawImage(p.spr, px - h, py - h, sz, sz);
                     }
                     ctx.restore();
                 },
@@ -13539,7 +13564,7 @@
             playDeathSound = function (isBoss, x, y, type) { if (isBoss && B.matchActive) { cnt.bosses++; if (B.onBossKill) B.onBossKill(type); } return _pds.apply(this, arguments); };
         })();
     </script>
-    <script src="plus.js?v=1"></script>
-    <script src="mp.js?v=4" defer></script>
+    <script src="plus.js?v=2"></script>
+    <script src="mp.js?v=5" defer></script>
 </body>
 </html>
