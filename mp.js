@@ -835,6 +835,8 @@
     let toastT = null;
     function toast(t, c) { const el = $('#mpToast'); if (!el) return; el.textContent = t; el.style.borderColor = c || '#ffaa33'; el.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => el.style.display = 'none', 3200); }
     function feed(t, c) {
+        // Maç bildirimleri oyunun kenar bildirimlerine gider (ekranın ortasını kapatmaz, kısa görünür)
+        if (window.sideNote) { window.sideNote(t, c || '#fff', false); return; }
         const f = $('#mpFeed'); if (!f) return;
         const d = document.createElement('div'); d.textContent = t; d.style.color = c || '#fff'; f.prepend(d);
         while (f.children.length > 4) f.lastChild.remove();

@@ -482,6 +482,20 @@
         #ui, #levelIndicator, #territoryPanel, #leftHud, #questPanel, #objectivePanel, #loreCorner, #loreCounter, #killRow { display: none !important; }
         #goalHud { position: absolute; top: 70px; left: 20px; width: 300px; z-index: 12; pointer-events: none; display: none; background: rgba(12,5,2,0.86); border: 1px solid rgba(255,140,60,0.45); border-left: 3px solid #ff6a1a; border-radius: 8px; padding: 9px 12px; color: #f2e6da; font-size: 12.5px; box-shadow: 0 0 16px rgba(0,0,0,0.55); }
         body.in-game #goalHud { display: block; }
+        /* KENAR BİLDİRİMLERİ: boss yenildi, kovan alındı vb. duyurular ekranın ortasını kapatmaz; sol kenarda küçük ve kısa görünür */
+        #sideNotes { position: absolute; top: 150px; left: 20px; width: 300px; z-index: 13; pointer-events: none; display: flex; flex-direction: column; gap: 5px; }
+        #sideNotes .sn { align-self: flex-start; max-width: 100%; box-sizing: border-box; background: rgba(10,6,8,0.8); border: 1px solid rgba(255,255,255,0.1); border-left: 3px solid currentColor; border-radius: 8px; padding: 5px 10px; font: 700 12.5px/1.3 'Segoe UI', system-ui, Arial, sans-serif; letter-spacing: 0.3px; text-shadow: 0 1px 2px #000; box-shadow: 0 3px 10px rgba(0,0,0,0.35); animation: snIn 0.22s ease-out; transition: opacity 0.35s, transform 0.35s; }
+        #sideNotes .sn.big { font-size: 13.5px; background: rgba(24,6,10,0.88); }
+        #sideNotes .sn.out { opacity: 0; transform: translateX(-14px); }
+        #sideNotes .sn i { font-style: normal; color: #ddd; opacity: 0.7; font-size: 11px; margin-left: 5px; }
+        @keyframes snIn { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+        #sideNotes .sn b { font-weight: inherit; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; } /* uzun metin en fazla 2 satır */
+        body.m #sideNotes { top: calc(env(safe-area-inset-top, 0px) + 104px); left: calc(env(safe-area-inset-left, 0px) + 6px); width: 50vw; max-width: 230px; gap: 3px; }
+        body.m #sideNotes .sn { font-size: 10px; letter-spacing: 0; padding: 3px 7px; border-radius: 6px; border-left-width: 2px; }
+        body.m #sideNotes .sn.big { font-size: 10.5px; }
+        body.mp-match #sideNotes { top: 170px; }
+        body.m.mp-match #sideNotes { top: calc(env(safe-area-inset-top, 0px) + 232px); }
+        @media (orientation: landscape) and (max-height: 520px) { body.m #sideNotes, body.m.mp-match #sideNotes { top: calc(env(safe-area-inset-top, 0px) + 96px); width: 34vw; } }
         body.tut-on #goalHud { display: none !important; }
         #goalHud .g1 { font-weight: 800; letter-spacing: 0.5px; }
         #goalHud .g1 b { color: #ffcf6a; }
@@ -906,6 +920,7 @@
 
     <div id="screenOverlay" class="damage-vignette"></div>
     <div id="waveAnnouncer">DALGA 1</div>
+    <div id="sideNotes" aria-live="polite"></div>
 
     <button id="pauseBtnFixed" onclick="togglePause()" title="Durdur">⏸️</button>
 
@@ -6608,12 +6623,25 @@
         }
         window.triggerReinforcementCall = triggerReinforcementCall;
 
+        // Duyurular artık ekranın ortasında değil, sol kenarda küçük bir bildirim olarak kısa süre görünür
         function showWaveText(text, isBoss = false, color = null) {
-            const w = document.getElementById('waveAnnouncer');
-            w.innerText = text; w.style.opacity = '1'; w.style.color = color ? color : (isBoss ? '#ff0055' : 'white');
+            sideNote(text, color ? color : (isBoss ? '#ff3366' : '#ffffff'), isBoss);
             if (typeof mMenuOpen === 'function' && mMenuOpen()) { const mm = document.getElementById('mmMsg'); if (mm) { mm.textContent = text; mm.style.color = color || '#ffd27a'; } }
-            clearTimeout(w._t); w._t = setTimeout(() => { w.style.opacity = '0'; }, 1900);
         }
+        function sideNote(text, color, big) {
+            const box = document.getElementById('sideNotes'); if (!box || !text) return;
+            text = String(text);
+            // Aynı bildirim art arda gelirse yenisini eklemek yerine sayacını artır
+            const last = box.lastElementChild;
+            if (last && last._txt === text && !last.classList.contains('out')) { last._n = (last._n || 1) + 1; const b = last.firstChild; b.textContent = text; const c = document.createElement('i'); c.textContent = '×' + last._n; b.appendChild(c); snTimer(last, big); return; }
+            const el = document.createElement('div'); el.className = 'sn' + (big ? ' big' : ''); el._txt = text; el.style.color = color || '#fff';
+            const b = document.createElement('b'); b.textContent = text; el.appendChild(b);
+            box.appendChild(el);
+            while (box.children.length > 4) box.firstElementChild.remove();
+            snTimer(el, big);
+        }
+        function snTimer(el, big) { clearTimeout(el._t); el._t = setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 360); }, big ? 2600 : 1800); }
+        window.sideNote = sideNote;
 
         window.selectUpgrade = function(id) {
             buffLevels[id] = (buffLevels[id] || 0) + 1; 
@@ -13564,7 +13592,7 @@
             playDeathSound = function (isBoss, x, y, type) { if (isBoss && B.matchActive) { cnt.bosses++; if (B.onBossKill) B.onBossKill(type); } return _pds.apply(this, arguments); };
         })();
     </script>
-    <script src="plus.js?v=2"></script>
-    <script src="mp.js?v=5" defer></script>
+    <script src="plus.js?v=3"></script>
+    <script src="mp.js?v=6" defer></script>
 </body>
 </html>
