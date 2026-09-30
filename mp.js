@@ -384,6 +384,8 @@
             case 'dead': if (M) onRemoteDeath(m.from, m.by); break;
             case 'rev': if (M) { M.dead.delete(m.from); feed('✨ ' + nameOf(m.from) + ' yeniden doğdu', '#66ffcc'); } break;
             case 'note': if (M) feed(m.txt, m.c); break;
+            case 'pin': if (M && window.boruPins && isFinite(m.x) && isFinite(m.y)) window.boruPins.add({ id: String(m.id).slice(0, 24), x: +m.x, y: +m.y, k: m.k | 0, c: /^#[0-9a-f]{6}$/i.test(m.c) ? m.c : '#ffd24a', who: nameOf(m.from), from: m.from }); break;
+            case 'pind': if (window.boruPins) window.boruPins.del(String(m.id), m.from); break;
             case 'start': onStart(m); break;
             case 'end': onEnd(m); break;
             case 'vs': setRemoteSpeaking(m.from, m.on); break;
@@ -545,6 +547,15 @@
         B.onBhGo = (lvl) => { if (M.mode === 'coop') { sendAll({ t: 'bhgo', lvl }); feed('🕳️ Kara deliğe girdin — müttefiklerin de çekiliyor', '#b77bff'); } };
         B.onBhWin = (lvl) => { if (M.mode === 'coop') sendAll({ t: 'bhwin', lvl }); };
         B.onBossDmg = (d) => { const a = B.bhAuthId(); if (a && a !== me.id) sendTo(a, { t: 'bd', to: a, d }); };
+        const PP = window.boruPins;
+        if (PP) {
+            PP.hook = {
+                add: (q) => sendAll({ t: 'pin', id: q.id, x: q.x, y: q.y, k: q.k, c: q.c }),
+                del: (id) => sendAll({ t: 'pind', id }),
+                here: (q) => sendAll({ t: 'pin', id: q.id, x: q.x, y: q.y, k: q.k, c: q.c })
+            };
+            PP.clear();
+        }
         B.onBossKill = () => { const t = '👑 ' + me.name + ' bir bossu devirdi!'; feed(t, '#ff66ff'); sendAll({ t: 'note', txt: t, c: '#ff66ff' }); };
         try { B.startMatch({ name: me.name, skin: me.skin, x: sp.x, y: sp.y, mode: M.mode }); }
         catch (e) { console.error(e); toast('Maç başlatılamadı: ' + e.message, '#ff5555'); }
@@ -659,6 +670,7 @@
         const M = S.match; if (!M || M.mid !== m.mid || M.over) return;
         M.over = true; M.result = m;
         try { BORU.endMatch(); } catch (e) {}
+        if (window.boruPins) { window.boruPins.hook = null; window.boruPins.clear(); }
         const mine = m.board.find(b => b.id === me.id) || {};
         const r = M.roster.get(me.id);
         const won = m.winner.kind === 'player' ? m.winner.id === me.id : m.winner.kind === 'team' ? (r && r.team === m.winner.team) : false;
@@ -793,6 +805,7 @@
     let toastT = null;
     function toast(t, c) { const el = $('#mpToast'); if (!el) return; el.textContent = t; el.style.borderColor = c || '#ffaa33'; el.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => el.style.display = 'none', 3200); }
     function feed(t, c) {
+        if (document.body.classList.contains('m')) return; // mobilde ekran küçük: maç bildirimleri (boss yenildi, kovan fethedildi...) hiç gösterilmez
         const f = $('#mpFeed'); if (!f) return;
         const d = document.createElement('div'); d.textContent = t; d.style.color = c || '#fff'; f.prepend(d);
         while (f.children.length > 4) f.lastChild.remove();

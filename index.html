@@ -740,7 +740,7 @@
         .unmet { color: #ff6b8a !important; text-shadow: 0 0 8px rgba(255,51,102,0.8) !important; }
 
         #minimapCanvas { pointer-events: auto !important; cursor: zoom-in; }
-        #bigMap { position: fixed; inset: 0; z-index: 330; background: #020304; display: none; touch-action: none; }
+        #bigMap { position: fixed; inset: 0; z-index: 800; background: #020304; display: none; touch-action: none; }
         #bigMap.open { display: block; }
         #bigMapCanvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: none; }
         #bigMapCanvas.drag { cursor: grabbing; }
@@ -751,6 +751,14 @@
         .bm-x { pointer-events: auto; width: 44px; height: 44px; flex: 0 0 44px; border-radius: 50%; background: rgba(255,40,70,0.18); border: 2px solid #ff4466; color: #fff; font-size: 20px; font-weight: bold; cursor: pointer; }
         .bm-zoom { position: absolute; right: 12px; bottom: calc(env(safe-area-inset-bottom, 0px) + 74px); display: flex; flex-direction: column; gap: 8px; }
         .bm-zoom button { width: 48px; height: 48px; border-radius: 12px; background: rgba(0,0,0,0.7); border: 1.5px solid #5a8cff; color: #cfe0ff; font-size: 22px; font-weight: bold; cursor: pointer; }
+        body.map-open #mobileControls, body.map-open #mHud, body.map-open #sanctuaryBtn, body.map-open #potionBar, body.map-open #skillBtn, body.map-open #mpHud, body.map-open #minimapCanvas, body.map-open #bossUi, body.map-open #tutPanel, body.map-open #goalHud, body.map-open #rpBtn, body.map-open #mpToast { display: none !important; }
+        .bm-pinbar { position: absolute; left: 12px; right: 76px; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); display: none; flex-wrap: wrap; gap: 6px; align-items: center; background: rgba(8,10,16,0.88); border: 1px solid #ffd24a; border-radius: 12px; padding: 7px 8px; color: #eef; font-size: 12px; z-index: 3; }
+        .bm-pinbar.open { display: flex; }
+        .bm-pinbar button { min-width: 40px; height: 40px; border-radius: 10px; background: rgba(0,0,0,0.6); border: 1.5px solid #5a5a70; color: #fff; font-size: 18px; cursor: pointer; padding: 0 6px; touch-action: manipulation; }
+        .bm-pinbar button.on { border-color: #ffd24a; background: rgba(255,210,74,0.2); }
+        .bm-pinbar button.here { border-color: #4dd2ff; font-size: 13px; }
+        .bm-pinbar button.shr { font-size: 13px; }
+        .bm-pinbar .bp-t { flex: 1 1 100%; color: #ffd9a0; font-size: 11.5px; line-height: 1.3; }
         .bm-info { position: absolute; left: 12px; right: 76px; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); background: rgba(0,0,0,0.7); border: 1px solid rgba(138,180,255,0.35); border-radius: 12px; padding: 9px 12px; color: #e8ecff; font-size: 13px; line-height: 1.45; }
         .bm-info b { color: #fff; }
         @media (max-width: 600px) { .bm-legend { display: none; } }
@@ -1013,6 +1021,7 @@
         <div class="bm-sefer" id="bmSefer"></div>
         <div class="bm-sheet" id="bmSheet"></div>
         <div class="bm-info" id="bmInfo"></div>
+        <div class="bm-pinbar" id="bmPinBar"></div>
     </div>
     <div id="installHelp"><div class="ih-box" id="ihBox"></div></div>
 
@@ -8048,7 +8057,7 @@
             if (!inMirrorArena) for (const r of ROYALS) { const p = plot(r.throne.x, r.throne.y); const dead = royalDead(r.id); mctx.fillStyle = dead ? '#3aa0ff' : r.color; mctx.strokeStyle = '#000'; mctx.lineWidth = 1;
                 mctx.beginPath(); mctx.moveTo(p.x - 5, p.y + 3); mctx.lineTo(p.x - 5, p.y - 3); mctx.lineTo(p.x - 2.5, p.y); mctx.lineTo(p.x, p.y - 4); mctx.lineTo(p.x + 2.5, p.y); mctx.lineTo(p.x + 5, p.y - 3); mctx.lineTo(p.x + 5, p.y + 3); mctx.closePath(); mctx.fill(); mctx.stroke(); }
             if (!inMirrorArena) for (const ex of expeditions) { const q = plot(ex.x, ex.y); mctx.fillStyle = '#ffd24a'; mctx.strokeStyle = '#000'; mctx.lineWidth = 1; mctx.beginPath(); mctx.moveTo(q.x, q.y - 4); mctx.lineTo(q.x + 4, q.y); mctx.lineTo(q.x, q.y + 4); mctx.lineTo(q.x - 4, q.y); mctx.closePath(); mctx.fill(); mctx.stroke(); }
-            if (!inMirrorArena && typeof mapPins !== 'undefined') for (const q of mapPins) { const p = plot(q.x, q.y); mctx.fillStyle = q.c; mctx.strokeStyle = '#000'; mctx.lineWidth = 1; mctx.beginPath(); mctx.arc(p.x, p.y - 3, 3.5, 0, Math.PI * 2); mctx.fill(); mctx.stroke(); mctx.beginPath(); mctx.moveTo(p.x - 2.5, p.y - 1); mctx.lineTo(p.x, p.y + 3); mctx.lineTo(p.x + 2.5, p.y - 1); mctx.fill(); }
+            if (!inMirrorArena && typeof mapPins !== 'undefined') for (const q of pinsAll()) { const p = plot(q.x, q.y); mctx.fillStyle = q.c; mctx.strokeStyle = '#000'; mctx.lineWidth = 1; mctx.beginPath(); mctx.arc(p.x, p.y - 3, 3.5, 0, Math.PI * 2); mctx.fill(); mctx.stroke(); mctx.beginPath(); mctx.moveTo(p.x - 2.5, p.y - 1); mctx.lineTo(p.x, p.y + 3); mctx.lineTo(p.x + 2.5, p.y - 1); mctx.fill(); }
             // Aktif bosslar
             for (let b of activeBosses) {
                 let p = plot(b.x, b.y);
@@ -12822,41 +12831,87 @@
         const PIN_COLS = ['#ff4d6d', '#ffd24a', '#4dd2ff', '#7dff7a', '#c77dff', '#ff9a3c'];
         let mapPins = (() => { try { const a = JSON.parse(store.getItem('boruMapPins') || '[]'); return Array.isArray(a) ? a.filter(q => q && isFinite(q.x) && isFinite(q.y)).slice(0, 8) : []; } catch (_) { return []; } })();
         function saveMapPins() { try { store.setItem('boruMapPins', JSON.stringify(mapPins)); } catch (_) {} }
+        // Arkadaşlarla oynarken işaretler ortaktır: bırakınca müttefiklere gider, onların işaretleri de bizim haritada/ekranda çıkar.
+        const PIN_KINDS = [['📍', 'Konum'], ['⚠️', 'Tehlike'], ['🏰', 'Toplan'], ['⚔️', 'Saldır'], ['🐉', 'Buradayım']];
+        let pinKind = 0, pinShare = true, teamPins = [];
+        function pinsAll() { return teamPins.length ? mapPins.concat(teamPins) : mapPins; }
+        function pinGlyph(q) { return (PIN_KINDS[q.k | 0] || PIN_KINDS[0])[0]; }
+        function pinId() { return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+        window.boruPins = {
+            hook: null,
+            add(p) { p.t = Date.now(); teamPins = teamPins.filter(q => q.id !== p.id); teamPins.push(p); if (teamPins.length > 24) teamPins.shift();
+                if (gameActive) { hintToast(pinGlyph(p) + ' ' + p.who + ': ' + (PIN_KINDS[p.k | 0] || PIN_KINDS[0])[1] + ' işareti bıraktı' + (document.body.classList.contains('m') ? '' : ''), p.c, 2600); try { playTone(700, 'triangle', 0.08, 0.05); } catch (_) {} } },
+            del(id, from) { teamPins = teamPins.filter(q => !(q.id === id && (!from || q.from === from))); },
+            clear() { teamPins = []; }
+        };
+        function bmPinBar() {
+            const el = document.getElementById('bmPinBar'); if (!el) return;
+            el.classList.toggle('open', BM.mode === 'pin' && BM.open);
+            if (BM.mode !== 'pin') return;
+            const mp = !!(MP && MP.active && window.boruPins.hook);
+            el.innerHTML = PIN_KINDS.slice(0, 4).map((k, i) => `<button class="${i === pinKind ? 'on' : ''}" onclick="bmPinKind(${i})" title="${k[1]}" aria-label="${k[1]}">${k[0]}</button>`).join('')
+                + `<button class="here" onclick="bmPinHere()" title="Bulunduğun yere 'Buradayım' işareti koy">🐉 Buradayım</button>`
+                + (mp ? `<button class="shr ${pinShare ? 'on' : ''}" onclick="bmPinShare()" title="İşaretleri arkadaşlarla paylaş">📡 ${pinShare ? 'Paylaş: AÇIK' : 'Paylaş: KAPALI'}</button>` : '')
+                + `<div class="bp-t">${PIN_KINDS[pinKind][0]} ${PIN_KINDS[pinKind][1]}: haritaya dokun → işaret bırak. Kendi işaretine dokun → kaldır.${mp ? (pinShare ? ' İşaretler arkadaşlarına da görünür.' : ' Şu an sadece sen görürsün.') : ''}</div>`;
+        }
+        window.bmPinKind = function (i) { pinKind = i; bmPinBar(); };
+        window.bmPinShare = function () { pinShare = !pinShare; bmPinBar(); };
+        window.bmPinHere = function () {
+            const q = { x: Math.round(world.dragonX), y: Math.round(world.dragonY), n: 0, k: 4, c: '#4dd2ff', id: pinId(), sh: true, here: true, t: Date.now() };
+            if (MP.active && window.boruPins.hook) { window.boruPins.hook.here(q); hintToast('🐉 Konumun arkadaşlarına gönderildi', '#4dd2ff', 2200); }
+            else hintToast('🐉 Konum paylaşımı için arkadaşlarla bir maçta olmalısın', '#ff9a7a', 2400);
+        };
         window.bmPinToggle = function () {
-            if (BM.mode === 'pin') { BM.mode = null; } else { if (BM.mode === 'sefer') bmSeferReset(); BM.mode = 'pin'; hintToast('📍 Haritada bir yere dokun: işaret bırak. İşarete tekrar dokun: kaldır.', '#ffd24a', 3200); }
-            document.getElementById('bmPinBtn').classList.toggle('on', BM.mode === 'pin');
+            if (BM.mode === 'pin') { BM.mode = null; } else { if (BM.mode === 'sefer') bmSeferReset(); BM.mode = 'pin'; }
+            document.getElementById('bmPinBtn').classList.toggle('on', BM.mode === 'pin'); bmPinBar();
         };
         function bmPinTap(x, y) {
             let bi = -1, bd = 26; mapPins.forEach((q, i) => { const [sx, sy] = bmW2S(q.x, q.y); const d = Math.hypot(sx - x, sy - y); if (d < bd) { bd = d; bi = i; } });
-            if (bi >= 0) { mapPins.splice(bi, 1); saveMapPins(); hintToast('📍 İşaret kaldırıldı', '#cfe0ff', 1600); return; }
+            if (bi >= 0) { const gone = mapPins.splice(bi, 1)[0]; saveMapPins(); if (gone.sh && MP.active && window.boruPins.hook) window.boruPins.hook.del(gone.id); hintToast('📍 İşaret kaldırıldı', '#cfe0ff', 1600); return; }
+            for (const q of teamPins) { const [sx, sy] = bmW2S(q.x, q.y); if (Math.hypot(sx - x, sy - y) < 26) { hintToast(pinGlyph(q) + ' ' + q.who + ' bıraktı · ' + Math.round(Math.hypot(q.x - world.dragonX, q.y - world.dragonY) / 10) + ' m uzakta', q.c, 2200); return; } }
             if (mapPins.length >= 8) { hintToast('📍 En fazla 8 işaret bırakabilirsin. Birine dokunup kaldır.', '#ff9a7a', 2600); return; }
             const wx = BM.cx + (x - innerWidth / 2) / BM.scale, wy = BM.cy + (y - innerHeight / 2) / BM.scale;
             const used = new Set(mapPins.map(q => q.n)); let n = 1; while (used.has(n)) n++;
-            mapPins.push({ x: Math.round(wx), y: Math.round(wy), n, c: PIN_COLS[(n - 1) % PIN_COLS.length] }); saveMapPins();
+            const q = { x: Math.round(wx), y: Math.round(wy), n, k: pinKind, c: PIN_COLS[(n - 1) % PIN_COLS.length], id: pinId() };
+            if (MP.active && pinShare && window.boruPins.hook) { q.sh = true; window.boruPins.hook.add(q); }
+            mapPins.push(q); saveMapPins();
             try { playTone(900, 'triangle', 0.08, 0.05); } catch (_) {}
         }
+        function bmDrawAllies(c) {
+            if (!(MP.active && window.BORU)) return; const now = performance.now();
+            for (const r of BORU.remotes.values()) {
+                if (r.d || BORU.hostile(r.id) || now - r.seen > 6000) continue;
+                const [sx, sy] = bmW2S(r.x, r.y); c.save(); c.translate(sx, sy);
+                c.fillStyle = '#4dd2ff'; c.strokeStyle = '#fff'; c.lineWidth = 2; c.shadowBlur = 10; c.shadowColor = '#4dd2ff';
+                c.beginPath(); c.arc(0, 0, 7, 0, Math.PI * 2); c.fill(); c.stroke(); c.shadowBlur = 4; c.shadowColor = '#000';
+                c.fillStyle = '#fff'; c.font = 'bold 11px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.fillText('🐉 ' + (r.name || 'Ejderha'), 0, -10); c.restore();
+            }
+        }
         function bmDrawPins(c) {
-            for (const q of mapPins) { const [sx, sy] = bmW2S(q.x, q.y); const pu = 1 + Math.sin(performance.now() / 260 + q.n) * 0.18;
+            bmDrawAllies(c);
+            for (const q of pinsAll()) { const [sx, sy] = bmW2S(q.x, q.y); const pu = 1 + Math.sin(performance.now() / 260 + q.n) * 0.18;
                 c.save(); c.translate(sx, sy);
                 c.strokeStyle = hexA(q.c, 0.55); c.lineWidth = 2; c.beginPath(); c.arc(0, 0, 14 * pu, 0, Math.PI * 2); c.stroke();
                 c.fillStyle = q.c; c.strokeStyle = '#000'; c.lineWidth = 1.5; c.shadowBlur = 12; c.shadowColor = q.c;
                 c.beginPath(); c.moveTo(0, 0); c.bezierCurveTo(-11, -12, -9, -26, 0, -26); c.bezierCurveTo(9, -26, 11, -12, 0, 0); c.closePath(); c.fill(); c.stroke(); c.shadowBlur = 0;
-                c.fillStyle = '#000'; c.font = 'bold 11px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(String(q.n), 0, -16);
+                c.fillStyle = '#000'; c.font = (q.k | 0) ? '12px sans-serif' : 'bold 11px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText((q.k | 0) ? pinGlyph(q) : String(q.n), 0, -16);
+                if (q.who) { c.fillStyle = '#fff'; c.font = 'bold 10px sans-serif'; c.textBaseline = 'bottom'; c.shadowBlur = 4; c.shadowColor = '#000'; c.fillText(q.who, 0, -29); c.shadowBlur = 0; }
                 c.fillStyle = '#fff'; c.font = 'bold 10px sans-serif'; c.textBaseline = 'top'; c.shadowBlur = 4; c.shadowColor = '#000';
                 c.fillText(Math.round(Math.hypot(q.x - world.dragonX, q.y - world.dragonY) / 10) + ' m', 0, 6); c.restore(); }
         }
         function drawMapPins() {
-            if (inMirrorArena || !mapPins.length) return;
+            if (inMirrorArena) return; const PA = pinsAll(); if (!PA.length) return;
             const CW = canvas.width / viewScale, CH = canvas.height / viewScale; const T = tick;
-            for (const q of mapPins) {
+            for (const q of PA) {
+                if (q.t && Date.now() - q.t > 900000) { teamPins = teamPins.filter(z => z !== q); continue; }
                 const x = q.x - camX, y = q.y - camY, d = Math.hypot(q.x - world.dragonX, q.y - world.dragonY);
-                if (d < 90) { mapPins.splice(mapPins.indexOf(q), 1); saveMapPins(); showWaveText('📍 İŞARETE ULAŞTIN', false, q.c); break; }
+                if (d < 90 && !q.here) { if (teamPins.includes(q)) teamPins = teamPins.filter(z => z !== q); else { mapPins.splice(mapPins.indexOf(q), 1); saveMapPins(); if (q.sh && MP.active && window.boruPins.hook) window.boruPins.hook.del(q.id); } showWaveText(pinGlyph(q) + ' İŞARETE ULAŞTIN', false, q.c); break; }
                 if (x > -60 && y > -60 && x < CW + 60 && y < CH + 60) {
                     ctx.save(); ctx.globalCompositeOperation = 'lighter';
                     const g = ctx.createLinearGradient(x, y, x, y - 700); g.addColorStop(0, hexA(q.c, 0.55)); g.addColorStop(1, hexA(q.c, 0));
                     ctx.fillStyle = g; ctx.fillRect(x - 14, y - 700, 28, 700);
                     for (let k = 0; k < 3; k++) { const f = ((T * 0.6 + k / 3) % 1); ctx.strokeStyle = hexA(q.c, 0.7 * (1 - f)); ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(x, y, 20 + f * 90, (20 + f * 90) * 0.45, 0, 0, Math.PI * 2); ctx.stroke(); }
-                    ctx.restore(); ctx.save(); ctx.font = 'bold 20px Segoe UI'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.shadowBlur = 8; ctx.shadowColor = q.c; ctx.fillText('📍' + q.n, x, y - 30); ctx.restore();
+                    ctx.restore(); ctx.save(); ctx.font = 'bold 20px Segoe UI'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.shadowBlur = 8; ctx.shadowColor = q.c; ctx.fillText(pinGlyph(q) + (q.who || ((q.k | 0) ? '' : q.n)), x, y - 30); ctx.restore();
                 } else {
                     const a = Math.atan2(q.y - world.dragonY, q.x - world.dragonX), pad = 58;
                     let ax = CW / 2 + Math.cos(a) * (CW / 2 - pad), ay = CH / 2 + Math.sin(a) * (CH / 2 - pad);
@@ -12864,7 +12919,7 @@
                     ctx.save(); ctx.translate(ax, ay); ctx.rotate(a); ctx.fillStyle = q.c; ctx.shadowBlur = 12; ctx.shadowColor = q.c;
                     ctx.beginPath(); ctx.moveTo(16, 0); ctx.lineTo(-10, -11); ctx.lineTo(-4, 0); ctx.lineTo(-10, 11); ctx.closePath(); ctx.fill();
                     ctx.rotate(-a); ctx.shadowBlur = 4; ctx.shadowColor = '#000'; ctx.fillStyle = '#fff'; ctx.font = 'bold 11px Segoe UI'; ctx.textAlign = 'center';
-                    ctx.fillText('📍' + q.n + ' ' + Math.round(d / 10) + 'm', 0, -18); ctx.restore();
+                    ctx.fillText(pinGlyph(q) + (q.who || ((q.k | 0) ? '' : q.n)) + ' ' + Math.round(d / 10) + 'm', 0, -18); ctx.restore();
                 }
             }
         }
@@ -12872,8 +12927,8 @@
         window.bmFocusCmd = function (k) { const r = BM._cmdRows && BM._cmdRows[k]; if (!r) return; BM.cx = r.x; BM.cy = r.y; BM.scale = Math.max(BM.scale, 0.05); };
         function bmInfo(hs) {
             const el = document.getElementById('bmInfo');
-            el.style.display = BM.mode === 'sefer' ? 'none' : '';
-            if (BM.mode === 'sefer') return;
+            el.style.display = (BM.mode === 'sefer' || BM.mode === 'pin') ? 'none' : '';
+            if (BM.mode === 'sefer' || BM.mode === 'pin') return;
             const mine = hs.filter(h => h.status === 'friendly'), foes = hs.filter(h => h.status !== 'friendly');
             const sel = BM.sel && hs.find(h => h.id === BM.sel);
             if (sel) {
@@ -12892,13 +12947,13 @@
             if (inMirrorArena) { showWaveText('🕳️ KARA DELİKTE HARİTA ÇALIŞMAZ', false, '#b77bff'); return; }
             BM.open = true; BM.sel = null; BM.cx = world.dragonX; BM.cy = world.dragonY; bmSeferReset();
             BM.scale = Math.min(innerWidth, innerHeight) / 9000;
-            bmResize(); document.getElementById('bigMap').classList.add('open'); bmRenderCmds(true);
+            bmResize(); document.getElementById('bigMap').classList.add('open'); document.body.classList.add('map-open'); bmRenderCmds(true);
             if (!isPaused && !MP.active) { isPaused = true; BM.paused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
             if (typeof endJoystick === 'function') try { endJoystick(); } catch (e) {}
             bmLoop();
         };
         window.closeBigMap = function () {
-            BM.open = false; cancelAnimationFrame(BM.raf); document.getElementById('bigMap').classList.remove('open'); BM.ptrs.clear(); BM.pinch = null;
+            BM.open = false; cancelAnimationFrame(BM.raf); document.getElementById('bigMap').classList.remove('open'); document.body.classList.remove('map-open'); BM.ptrs.clear(); BM.pinch = null; { const pb = document.getElementById('bmPinBar'); if (pb) pb.classList.remove('open'); }
             if (BM.paused) { BM.paused = false; if (!mMenuOpen()) { isPaused = false; world.lastX = world.dragonX; world.lastY = world.dragonY; } }
         };
         function bmClampScale(sc) { return Math.max(0.006, Math.min(0.6, sc)); }
@@ -13201,7 +13256,7 @@
                     if (b && inMirrorArena) { b.hp = 0; b.lastHp = 0; return; } // bir sonraki karede yerel zafer akışı çalışır
                     const t = BH_TIERS[lvl % 3] || BH_TIERS[0];
                     blackHoleTier = lvl + 1; blackHolePortal = null; refreshBlackHolePortal();
-                    showWaveText('🏆 ' + t.bossName + ' YENİLDİ! (müttefiklerin kazandı)', true, t.bossColor);
+                    if (!document.body.classList.contains('m')) showWaveText('🏆 ' + t.bossName + ' YENİLDİ! (müttefiklerin kazandı)', true, t.bossColor);
                 },
                 // Boss durumu: kara delikteki "hakem" oyuncu gönderir, diğerleri kendi bossunu buna eşitler
                 bossState() {
@@ -13540,6 +13595,7 @@
         })();
     </script>
     <script src="plus.js?v=1"></script>
-    <script src="mp.js?v=4" defer></script>
+    <script src="ui.js?v=1" defer></script>
+    <script src="mp.js?v=5" defer></script>
 </body>
 </html>
