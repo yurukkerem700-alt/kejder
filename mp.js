@@ -185,10 +185,10 @@
 
     // ------------------------------------------------------------------ ODA BAĞLANTISI (lobi + sinyal)
     class SbRoom {
-        constructor(code) { this.code = code; }
-        async join(meta, onMsg, onSync) {
+        constructor(code, chan) { this.code = code; this.chan = chan; }
+        async join(meta, onMsg, onSync, noTrack) {
             await loadSb();
-            this.ch = sb.channel('boru-oda-' + this.code, { config: { presence: { key: me.id }, broadcast: { self: false, ack: false } } });
+            this.ch = sb.channel(this.chan || ('boru-oda-' + this.code), { config: { presence: { key: me.id }, broadcast: { self: false, ack: false } } });
             this.ch.on('presence', { event: 'sync' }, () => onSync(this.members()));
             this.ch.on('broadcast', { event: 'm' }, (e) => onMsg(e.payload));
             await new Promise((res, rej) => {
@@ -198,7 +198,7 @@
                     else if (st === 'CHANNEL_ERROR' || st === 'TIMED_OUT') { clearTimeout(to); rej(new Error('Odaya bağlanılamadı (' + st + ').')); }
                 });
             });
-            await this.ch.track(meta);
+            if (!noTrack) await this.ch.track(meta);
         }
         members() { const st = this.ch.presenceState(), out = []; for (const k in st) { const a = st[k]; if (a && a.length) out.push(a[a.length - 1]); } return out; }
         track(meta) { try { return this.ch.track(meta); } catch (e) {} }
@@ -513,6 +513,8 @@
             case 'dead': if (M) onRemoteDeath(m.from, m.by); break;
             case 'rev': if (M) { M.dead.delete(m.from); feed('✨ ' + nameOf(m.from) + ' yeniden doğdu', '#66ffcc'); } break;
             case 'note': if (M) feed(m.txt, m.c); break;
+            case 'pin': if (M && window.boruPins && isFinite(m.x) && isFinite(m.y)) window.boruPins.add({ id: String(m.id).slice(0, 24), x: +m.x, y: +m.y, k: m.k | 0, c: /^#[0-9a-f]{6}$/i.test(m.c) ? m.c : '#ffd24a', who: nameOf(m.from), from: m.from }); break;
+            case 'pind': if (window.boruPins) window.boruPins.del(String(m.id), m.from); break;
             case 'start': onStart(m); break;
             case 'end': onEnd(m); break;
             case 'vs': setRemoteSpeaking(m.from, m.on); break;
@@ -704,6 +706,15 @@
         B.onBhGo = (lvl) => { if (M.mode === 'coop') { sendAll({ t: 'bhgo', lvl }); feed('🕳️ Kara deliğe girdin — müttefiklerin de çekiliyor', '#b77bff'); } };
         B.onBhWin = (lvl) => { if (M.mode === 'coop') sendAll({ t: 'bhwin', lvl }); };
         B.onBossDmg = (d) => { const a = B.bhAuthId(); if (a && a !== me.id) sendTo(a, { t: 'bd', to: a, d }); };
+        const PP = window.boruPins;
+        if (PP) {
+            PP.hook = {
+                add: (q) => sendAll({ t: 'pin', id: q.id, x: q.x, y: q.y, k: q.k, c: q.c }),
+                del: (id) => sendAll({ t: 'pind', id }),
+                here: (q) => sendAll({ t: 'pin', id: q.id, x: q.x, y: q.y, k: q.k, c: q.c })
+            };
+            PP.clear();
+        }
         B.onBossKill = () => { const t = '👑 ' + me.name + ' bir bossu devirdi!'; feed(t, '#ff66ff'); sendAll({ t: 'note', txt: t, c: '#ff66ff' }); };
         try { B.startMatch({ name: me.name, skin: me.skin, x: sp.x, y: sp.y, mode: M.mode }); }
         catch (e) { console.error(e); toast('Maç başlatılamadı: ' + e.message, '#ff5555'); }
@@ -743,7 +754,7 @@
         if (window.BORU && M.startedAt && !M.over) BORU.setRemote(id, Object.assign({}, s, { name: r ? r.name : '?' }));
     }
     // Maç döngüsü: durumu gönder, sayaç, bitişi kontrol et
-    let lastSend = 0, lastRelay = 0, lastHud = 0, lastStats = 0, seq = 0;
+    let lastSend = 0, lastRelay = 0, lastHud = 0, lastStats = 0, seq = 0, lastSpec = 0;
     setInterval(() => {
         const M = S.match; if (!M || !M.startedAt || M.over || !window.BORU || !BORU.matchActive) return;
         const now = performance.now();
@@ -775,6 +786,7 @@
             const inRoom = S.members.some(m => m.id === id), st = M.states.get(id);
             if (!inRoom && (!st || now - st.t > 5000)) { M.left.add(id); BORU.removeRemote(id); feed('🚪 ' + nameOf(id) + ' oyundan ayrıldı', '#aaaaaa'); checkEnd(); }
         }
+        if (isHost() && S.room && now - lastSpec > 1000) { lastSpec = now; sendSpec(false); }
         if (now - lastHud > 250) { lastHud = now; renderHud(); checkEnd(); }
     }, 33);
     function isAlive(id) {
@@ -815,7 +827,9 @@
     function onEnd(m) {
         const M = S.match; if (!M || M.mid !== m.mid || M.over) return;
         M.over = true; M.result = m;
+        if (isHost()) sendSpec(true, m.winner.label);
         try { BORU.endMatch(); } catch (e) {}
+        if (window.boruPins) { window.boruPins.hook = null; window.boruPins.clear(); }
         const mine = m.board.find(b => b.id === me.id) || {};
         const r = M.roster.get(me.id);
         const won = m.winner.kind === 'player' ? m.winner.id === me.id : m.winner.kind === 'team' ? (r && r.team === m.winner.team) : false;
@@ -1099,7 +1113,8 @@
     let toastT = null;
     function toast(t, c) { const el = $('#mpToast'); if (!el) return; el.textContent = t; el.style.borderColor = c || '#ffaa33'; el.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => el.style.display = 'none', 3200); }
     function feed(t, c) {
-        // Maç bildirimleri oyunun kenar bildirimlerine gider (ekranın ortasını kapatmaz, kısa görünür)
+        if (document.body.classList.contains('m')) return; // mobilde maç bildirimleri hiç gösterilmez (ekranı bölmesin)
+        // Bilgisayarda oyunun kenar bildirimlerine gider (ekranın ortasını kapatmaz, kısa görünür)
         if (window.sideNote) { window.sideNote(t, c || '#fff', false); return; }
         const f = $('#mpFeed'); if (!f) return;
         const d = document.createElement('div'); d.textContent = t; d.style.color = c || '#fff'; f.prepend(d);
@@ -1176,9 +1191,10 @@
         <div class="mp-card"><h3>🔑 Kodla katıl</h3>
             <div class="mp-row"><input id="mpJoinCode" maxlength="6" placeholder="Oda kodu (ör. K7M2Q)" style="text-transform:uppercase" data-keep><button class="mp-btn blue" data-a="join" ${S.busy ? 'disabled' : ''}>🚪 KATIL</button></div>
         </div>
+        ${friendsHtml()}
         <div class="mp-card"><h3>🔎 Arkadaşını ID ile bul</h3>
             <div class="mp-row"><input id="mpFind" placeholder="BÖRÜ-1234" data-keep><button class="mp-btn" data-a="find">Ara</button></div>
-            ${S.lookup ? (S.lookup.none ? '<div class="mp-desc">Bu ID ile oyuncu bulunamadı.</div>' : `<div style="margin-top:8px">${profileMini(Object.assign({}, S.lookup), '<span class="mp-chev">›</span>').replace('data-a="profile"', 'data-a="viewp" data-id="' + esc(S.lookup.id) + '"')}</div><div class="mp-desc">Onu oyuna çağırmak için lobi kur ve oda kodunu gönder.</div>`) : ''}
+            ${S.lookup ? (S.lookup.none ? '<div class="mp-desc">Bu ID ile oyuncu bulunamadı.</div>' : `<div style="margin-top:8px">${profileMini(Object.assign({}, S.lookup), '<span class="mp-chev">›</span>').replace('data-a="profile"', 'data-a="viewp" data-id="' + esc(S.lookup.id) + '"')}</div>${isFriend(S.lookup.id) ? '<div class="mp-desc">✔ Zaten arkadaşın.</div>' : '<button class="mp-btn go" data-a="fadd" style="margin-top:8px">➕ ARKADAŞ EKLE</button>'}<div class="mp-desc">Arkadaş eklersen çevrimiçi olduğunda ve lobi kurduğunda görürsün; link beklemeden tek dokunuşla katılırsın.</div>`) : ''}
         </div>
         <div class="mp-desc">Ücretsiz. Telefon, tablet ve bilgisayardan aynı haritada birlikte oynayın. Maçlar kendi dünyandaki ilerlemeni değiştirmez.</div>`;
     }
@@ -1240,7 +1256,7 @@
                 <div class="mp-pl-t" data-a="viewp" data-id="${esc(m.id)}"><div class="nm">${m.id === S.hostId ? '👑 ' : ''}${esc(m.name)}${m.id === me.id ? ' <span class="you">SEN</span>' : ''}</div>
                 <div class="sub">${rk.r.ic} ${rk.r.name} · ⏱ ${fmtPlay(pp.play_seconds || 0)}</div>
                 <div class="sub"><span style="color:${sk.color}">${sk.icon} ${esc(sk.name)}</span>${S.mode === 'team' ? ' · <b style="color:' + tc + '">' + TEAMS[m.team === 1 ? 1 : 0].name + '</b>' : ''} ${net}</div></div>
-                <div class="rt">${spk}${m.id !== me.id && (voice.els.has(m.id) || voice.heard.has(m.id) || m.mic) ? `<button class="mp-btn" style="padding:4px 8px;font-size:13px" data-a="mute" data-id="${esc(m.id)}">${voice.muted.has(m.id) ? '🔇' : '🔈'}</button>` : ''}<span class="rdy ${m.ready ? 'y' : ''}">${m.ready ? 'HAZIR' : 'bekliyor'}</span></div></div>`;
+                <div class="rt">${spk}${m.id !== me.id && !isFriend(m.id) ? `<button class="mp-btn" style="padding:4px 8px;font-size:13px" data-a="fadd2" data-id="${esc(m.id)}" title="Arkadaş ekle">➕</button>` : ''}${m.id !== me.id && (voice.els.has(m.id) || voice.heard.has(m.id) || m.mic) ? `<button class="mp-btn" style="padding:4px 8px;font-size:13px" data-a="mute" data-id="${esc(m.id)}">${voice.muted.has(m.id) ? '🔇' : '🔈'}</button>` : ''}<span class="rdy ${m.ready ? 'y' : ''}">${m.ready ? 'HAZIR' : 'bekliyor'}</span></div></div>`;
         }).join('');
         const lm = S.lastMatch;
         const last = lm ? `<div class="mp-card"><h3>📜 Bu odadaki son maç · ${MODES[lm.mode] ? MODES[lm.mode].icon + ' ' + MODES[lm.mode].name : ''}</h3>
@@ -1362,6 +1378,13 @@
         else if (a === 'rematch') voteRematch();
         else if (a === 'menu') backToMenu();
         else if (a === 'copycode') { try { await navigator.clipboard.writeText(S.code); toast('Oda kodu kopyalandı: ' + S.code); } catch (er) {} }
+        else if (a === 'fadd') { if (S.lookup && !S.lookup.none) addFriend(S.lookup); }
+        else if (a === 'fadd2') { const m = member(b.dataset.id); if (m) addFriend({ id: m.id, code: m.code, name: m.name, skin: m.skin }); }
+        else if (a === 'fdel') delFriend(b.dataset.id);
+        else if (a === 'fjoin') joinRoom(b.dataset.room, false);
+        else if (a === 'fwatch') specStart(b.dataset.room);
+        else if (a === 'fvis') { LS.setItem('boruMpVis', vis() ? '0' : '1'); lobbyTrack(true); render(); }
+        else if (a === 'spstop') specStop();
         else if (a === 'copyid') { try { await navigator.clipboard.writeText(me.code); toast('ID kopyalandı: ' + me.code); } catch (er) {} }
         else if (a === 'share') {
             const u = new URL(location.href); u.search = ''; u.searchParams.set('oda', S.code); const link = u.toString();
@@ -1375,6 +1398,155 @@
             render();
         }
     }
+    // ------------------------------------------------------------------ ARKADAŞLAR · AKTİF ARKADAŞLAR · İZLE
+    // Arkadaş listesi cihazda tutulur. Çevrimiçi durumu, kurulan lobi ve maç bilgisi ortak bir "presence" kanalından (boru-lobi) gelir;
+    // böylece arkadaşın lobi kurunca link beklemeden tek dokunuşla katılırsın, maçtaysa izleyebilirsin.
+    const FR_KEY = 'boruMpFriends';
+    let friends = (() => { try { const a = JSON.parse(LS.getItem(FR_KEY) || '[]'); return Array.isArray(a) ? a.filter(f => f && f.id).slice(0, 50) : []; } catch (e) { return []; } })();
+    const saveFriends = () => { try { LS.setItem(FR_KEY, JSON.stringify(friends)); } catch (e) {} };
+    const isFriend = (id) => friends.some(f => f.id === id);
+    const vis = () => LS.getItem('boruMpVis') !== '0';
+    function addFriend(p) {
+        if (!p || !p.id || p.id === me.id || isFriend(p.id)) return;
+        friends.push({ id: p.id, code: p.code || '', name: p.name || 'Ejderha', skin: p.dragon || p.skin || 'magma' }); saveFriends();
+        toast('➕ ' + (p.name || 'Ejderha') + ' arkadaş eklendi', '#33ff99'); lobbyConnect(); render();
+    }
+    function delFriend(id) { friends = friends.filter(f => f.id !== id); saveFriends(); render(); }
+    const LB = { room: null, online: new Map(), last: '', connecting: false };
+    function lobbyMeta() {
+        const inMatch = S.match && !S.match.over;
+        return { id: me.id, code: me.code, name: me.name, skin: me.skin, room: (vis() && S.room) ? S.code : '', ph: inMatch ? 'playing' : 'lobby', mode: S.mode, n: S.members.length, max: MAX_PLAYERS };
+    }
+    async function lobbyConnect() {
+        if (LB.room || LB.connecting || !me.name || !me.code) return;
+        LB.connecting = true;
+        try {
+            const room = TEST ? new TestRoom('LOBI') : new SbRoom('LOBI', 'boru-lobi');
+            await room.join(lobbyMeta(), () => {}, (members) => {
+                const m = new Map(); for (const x of members) if (x && x.id && x.id !== me.id) m.set(x.id, x);
+                lobbyOnSync(m);
+            });
+            LB.room = room; LB.last = JSON.stringify(lobbyMeta());
+        } catch (e) { console.warn('Arkadaş bağlantısı kurulamadı', e); }
+        LB.connecting = false;
+    }
+    function lobbyTrack(force) {
+        if (!LB.room) return; const meta = lobbyMeta(), j = JSON.stringify(meta);
+        if (!force && j === LB.last) return; LB.last = j; LB.room.track(meta);
+    }
+    function lobbyOnSync(m) {
+        const prev = LB.online; LB.online = m; let ch = false;
+        for (const f of friends) {
+            const o = m.get(f.id); if (!o) continue;
+            if (o.name && o.name !== f.name) { f.name = o.name; ch = true; }
+            const was = prev.get(f.id);
+            if (o.room && o.ph === 'lobby' && !S.room && !S.match && (!was || was.room !== o.room)) toast('🏠 ' + o.name + ' lobi kurdu (' + o.n + '/' + o.max + ') — Arkadaşlar\'dan katıl', '#33ff99');
+            else if (!was && !S.room && !S.match && S.open) toast('🟢 ' + o.name + ' çevrimiçi', '#8dffcf');
+        }
+        if (ch) saveFriends(); render();
+    }
+    setInterval(() => { if (!LB.room) { if (friends.length || S.open) lobbyConnect(); } else lobbyTrack(); }, 2500);
+    function friendsHtml() {
+        const list = friends.slice().sort((a, b) => (LB.online.has(b.id) ? 1 : 0) - (LB.online.has(a.id) ? 1 : 0));
+        const onl = list.filter(f => LB.online.has(f.id)).length;
+        const rows = list.map(f => {
+            const o = LB.online.get(f.id), sk = skinCard(o ? o.skin : f.skin), md = o && MODES[o.mode] ? MODES[o.mode].icon + ' ' + MODES[o.mode].name : '';
+            let st = '<span class="sub">⚫ Çevrimdışı</span>', act = '';
+            if (o) {
+                if (o.room && o.ph === 'playing') { st = `<span class="sub" style="color:#ffd24a">⚔️ Maçta · ${esc(md)} · ${o.n} oyuncu</span>`; act = `<button class="mp-btn blue" data-a="fwatch" data-room="${esc(o.room)}">👁️ İZLE</button>`; }
+                else if (o.room) { st = `<span class="sub" style="color:#33ff99">🟢 Lobide · ${o.n}/${o.max} · ${esc(md)}</span>`; act = o.n >= o.max ? '<span class="sub">Dolu</span>' : `<button class="mp-btn go" data-a="fjoin" data-room="${esc(o.room)}" ${S.busy ? 'disabled' : ''}>🚪 KATIL</button>`; }
+                else st = '<span class="sub" style="color:#8dffcf">🟢 Çevrimiçi</span>';
+            }
+            return `<div class="mp-pl"><span class="ic">${sk.icon}</span><div><div class="nm">${esc(o ? o.name : f.name)} <span class="sub">${esc(f.code)}</span></div>${st}</div><div class="rt">${act}<button class="mp-btn" style="padding:4px 8px;font-size:13px" data-a="fdel" data-id="${esc(f.id)}" title="Arkadaşlıktan çıkar">✖</button></div></div>`;
+        }).join('');
+        return `<div class="mp-card"><h3>👥 Arkadaşların · ${onl} çevrimiçi</h3>${rows || '<div class="mp-desc">Henüz arkadaşın yok. Aşağıdan ID ile bulup ekle; lobide ➕ ile de ekleyebilirsin.</div>'}
+            <button class="mp-btn" style="margin-top:8px" data-a="fvis">${vis() ? '👁️ Odam arkadaşlarıma görünür' : '🙈 Odam gizli (dokun: göster)'}</button></div>`;
+    }
+    // --- İzleme: oda sahibi saniyede bir anlık görüntü yayınlar; izleyici odaya üye olmadan sadece dinler
+    const SP = { room: null, snap: null, at: 0, code: '', raf: 0, disp: new Map(), lastList: '' };
+    function sendSpec(over, win) {
+        const M = S.match; if (!M || !S.room || !window.BORU) return;
+        const pl = [];
+        for (const r of M.roster.values()) {
+            const st = r.id === me.id ? BORU.localState() : (M.states.get(r.id) || {}), sx = r.id === me.id ? BORU.stats() : (M.stats.get(r.id) || {});
+            pl.push({ id: r.id, n: r.name, sk: r.skin, tm: r.team || 0, x: st.x, y: st.y, hp: st.hp, mh: st.mh, d: (M.left.has(r.id) || st.d) ? 1 : 0, k: sx.k || 0, hv: sx.hv || 0, bs: sx.bs || 0 });
+        }
+        S.room.send({ t: 'spec', from: me.id, snap: { el: M.startedAt ? Date.now() - M.startedAt : 0, mode: M.mode, pl, over: !!over, win: win || '' } });
+    }
+    function specMount() {
+        if ($('#mpSpec')) return;
+        const st = document.createElement('style');
+        st.textContent = `#mpSpec{position:fixed;inset:0;z-index:640;background:#05070c;display:none;color:#fff;font-family:inherit;grid-template-columns:1fr minmax(190px,34%);grid-template-rows:auto 1fr}
+        #mpSpec.on{display:grid}
+        #mpSpec .sp-top{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 8px;background:rgba(0,0,0,.6);border-bottom:1px solid #334}
+        #mpSpec .sp-top b{flex:1;font-size:14px;letter-spacing:2px;color:#8ab4ff} #mpSpec .sp-top .tm{font-family:monospace;font-size:15px}
+        #mpSpec .sp-x{background:rgba(255,40,70,.18);border:2px solid #ff4466;color:#fff;border-radius:10px;padding:8px 12px;font-weight:bold;cursor:pointer;touch-action:manipulation}
+        #mpSpecCv{width:100%;height:100%;display:block;min-height:0}
+        #mpSpecList{overflow-y:auto;padding:8px;background:rgba(10,12,20,.9);border-left:1px solid #334;touch-action:pan-y;font-size:12px}
+        #mpSpecList .r{padding:6px 8px;margin-bottom:6px;border-radius:8px;background:rgba(255,255,255,.05);border-left:3px solid #888}
+        #mpSpecList .r.d{opacity:.45} #mpSpecList .hp{height:5px;background:#222;border-radius:3px;margin:4px 0;overflow:hidden} #mpSpecList .hp i{display:block;height:100%}
+        #mpSpecList .s{color:#bbc;font-size:11px}
+        #mpSpecMsg{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.8);border:1px solid #ffd24a;border-radius:12px;padding:10px 16px;text-align:center;max-width:60vw;display:none}
+        @media (orientation:portrait){#mpSpec{grid-template-columns:1fr;grid-template-rows:auto 1fr 38%}#mpSpecList{border-left:0;border-top:1px solid #334}}`;
+        document.head.appendChild(st);
+        const d = document.createElement('div'); d.id = 'mpSpec';
+        d.innerHTML = '<div class="sp-top"><b>👁️ CANLI İZLE</b><span class="tm" id="mpSpecTm">⏱ 00:00</span><button class="sp-x" data-a="spstop">✖ Çık</button></div><div style="position:relative;min-height:0"><canvas id="mpSpecCv"></canvas><div id="mpSpecMsg"></div></div><div id="mpSpecList"></div>';
+        document.body.appendChild(d); d.addEventListener('click', onClick);
+    }
+    async function specStart(code) {
+        if (S.room || SP.room) return;
+        if (TEST) { toast('Test modunda izleme yok', '#ff5555'); return; }
+        specMount(); SP.code = code; SP.snap = null; SP.at = 0; SP.disp.clear(); SP.lastList = '';
+        S.open = false; render(); $('#mpSpec').classList.add('on'); $('#mpSpecMsg').style.display = 'block'; $('#mpSpecMsg').textContent = '📡 Yayına bağlanılıyor…';
+        try {
+            const room = new SbRoom(code); SP.room = room;
+            await room.join(null, (m) => { if (m && m.t === 'spec' && m.snap) { SP.snap = m.snap; SP.at = performance.now(); } }, () => {}, true);
+            specLoop();
+        } catch (e) { toast(e.message || 'Bağlanılamadı', '#ff5555'); specStop(); }
+    }
+    function specStop() {
+        cancelAnimationFrame(SP.raf); if (SP.room) { try { SP.room.leave(); } catch (e) {} } SP.room = null; SP.code = '';
+        const el = $('#mpSpec'); if (el) el.classList.remove('on'); S.open = true; S.screen = 'home'; render();
+    }
+    function specLoop() {
+        SP.raf = requestAnimationFrame(specLoop);
+        const cv = $('#mpSpecCv'); if (!cv || !cv.clientWidth) return;
+        const dpr = Math.min(2, window.devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight;
+        if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+        const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.fillStyle = '#05070c'; c.fillRect(0, 0, W, H);
+        const sn = SP.snap, now = performance.now(), msg = $('#mpSpecMsg');
+        if (!sn) { msg.style.display = 'block'; msg.textContent = now - (SP.t0 || (SP.t0 = now)) > 8000 ? '⏳ Yayın henüz gelmedi… Maç bitmiş ya da oda sahibi bağlantıda olmayabilir.' : '📡 Yayına bağlanılıyor…'; return; }
+        SP.t0 = 0;
+        const stale = now - SP.at > 6000;
+        msg.style.display = (sn.over || stale) ? 'block' : 'none';
+        msg.innerHTML = sn.over ? '🏁 Maç bitti<br><b>' + esc(sn.win || '') + '</b>' : '⏳ Yayın bekleniyor…';
+        $('#mpSpecTm').textContent = '⏱ ' + fmtTime(sn.over ? sn.el : sn.el + (now - SP.at)) + ' · ' + (MODES[sn.mode] ? MODES[sn.mode].icon + ' ' + MODES[sn.mode].name : '');
+        const pts = sn.pl.filter(p => isFinite(p.x) && isFinite(p.y));
+        if (pts.length) {
+            for (const p of pts) { const d = SP.disp.get(p.id) || { x: p.x, y: p.y }; d.x += (p.x - d.x) * 0.15; d.y += (p.y - d.y) * 0.15; SP.disp.set(p.id, d); }
+            let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+            for (const p of pts) { x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+            const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, span = Math.max(1600, x1 - x0, y1 - y0), sc = Math.min(W, H) * 0.78 / span;
+            SP.sc = (SP.sc || sc) + (sc - (SP.sc || sc)) * 0.08; SP.cx = SP.cx == null ? cx : SP.cx + (cx - SP.cx) * 0.08; SP.cy = SP.cy == null ? cy : SP.cy + (cy - SP.cy) * 0.08;
+            const gs = 400 * SP.sc; c.strokeStyle = 'rgba(138,180,255,.08)'; c.lineWidth = 1;
+            const ox = (W / 2 - SP.cx * SP.sc) % gs, oy = (H / 2 - SP.cy * SP.sc) % gs;
+            for (let x = ox; x < W; x += gs) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke(); }
+            for (let y = oy; y < H; y += gs) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); }
+            for (const p of pts) {
+                const d = SP.disp.get(p.id), sx = W / 2 + (d.x - SP.cx) * SP.sc, sy = H / 2 + (d.y - SP.cy) * SP.sc, col = sn.mode === 'team' ? TEAMS[p.tm === 1 ? 1 : 0].color : skinCard(p.sk).color;
+                c.save(); c.translate(sx, sy); c.globalAlpha = p.d ? 0.4 : 1; c.shadowBlur = p.d ? 0 : 14; c.shadowColor = col; c.fillStyle = p.d ? '#666' : col; c.strokeStyle = '#fff'; c.lineWidth = 2;
+                c.beginPath(); c.arc(0, 0, 9, 0, Math.PI * 2); c.fill(); c.stroke(); c.shadowBlur = 0;
+                c.fillStyle = '#fff'; c.font = 'bold 12px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.fillText((p.d ? '💀 ' : '') + p.n, 0, -14);
+                if (!p.d && p.mh) { c.fillStyle = '#300'; c.fillRect(-18, 13, 36, 5); c.fillStyle = p.hp / p.mh > 0.4 ? '#4f8' : '#f55'; c.fillRect(-18, 13, 36 * Math.max(0, Math.min(1, p.hp / p.mh)), 5); }
+                c.restore();
+            }
+        }
+        const rows = sn.pl.slice().sort((a, b) => (a.d - b.d) || (b.k - a.k)).map(p => {
+            const col = sn.mode === 'team' ? TEAMS[p.tm === 1 ? 1 : 0].color : skinCard(p.sk).color, f = p.mh ? Math.max(0, Math.min(1, p.hp / p.mh)) : 0;
+            return `<div class="r ${p.d ? 'd' : ''}" style="border-left-color:${col}"><b>${skinCard(p.sk).icon} ${esc(p.n)}</b>${p.d ? ' 💀' : ''}<div class="hp"><i style="width:${(f * 100).toFixed(0)}%;background:${f > 0.4 ? '#4f8' : '#f55'}"></i></div><div class="s">🦇 ${p.k} · 🏰 ${p.hv} · 👑 ${p.bs}</div></div>`;
+        }).join('');
+        if (rows !== SP.lastList) { SP.lastList = rows; $('#mpSpecList').innerHTML = rows; }
+    }
     // Oyun dışında dokunulmaz: yalnızca menüden açılır
     window.MPUI = {
         open() {
@@ -1382,7 +1554,7 @@
             if (!me.name) me.name = (window.BORU && BORU.savedName()) || '';
             if (!me.skin && window.BORU) me.skin = BORU.activeSkin();
             if (S.screen !== 'lobby') S.screen = 'home';
-            render(); saveProfile().then(render); dirOpen();
+            render(); saveProfile().then(() => { render(); lobbyConnect(); }); dirOpen();
         },
         profile() {
             mount(); S.open = true;
@@ -1390,7 +1562,7 @@
             if (S.screen !== 'profile') S.back = (S.screen === 'lobby' || S.screen === 'end') ? S.screen : 'menu';
             S.viewId = null; S.screen = 'profile'; render(); saveProfile().then(render);
         },
-        _state: S, _me: me, _voice: voice, _peers: peers
+        _state: S, _me: me, _voice: voice, _peers: peers, _sp: { SP, specMount, specLoop }
     };
     // Davet linkiyle gelindiyse doğrudan odaya gir
     function boot() {
