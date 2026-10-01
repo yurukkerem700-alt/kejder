@@ -2,7 +2,7 @@
 // KOSTÜM VİTRİNİ: marketteki Kostümler sekmesi sıfırdan yeniden tasarlandı.
 // Emoji yerine her kostümün OYUNDAKİ GERÇEK ejderha çizimi (drawDragonBody) canlı olarak gösterilir:
 //  - havada asılı süzülür (kanat vuruşuna bağlı yay-sönüm sistemiyle iner çıkar, yere gölgesi düşer)
-//  - 360° kendi etrafında döner; kuyruk ve boyun atalet yüzünden dönüşe geç kalıp savrulur
+//  - 360° dönüş KALDIRILDI (üstten bakışta düz bir tur gibi duruyordu); ejderha olduğu yerde süzülür, çok başlılar başlarını bağımsız oynatır
 //  - alev püskürtür, süper plazmayı şarj edip ateşler (oyundaki aynı alev dokusu / ışın / şarj efektleri)
 // Ana betiğin çizim kodu değişmeden kullanılır: uzak oyuncuların çizildiği gibi global durum geçici
 // olarak değiştirilip her karede geri yüklenir. Oyunun kendi ejderhasına dokunulmaz.
@@ -16,9 +16,9 @@
     const NJ = 18;                       // omurga halka sayısı
     const SEG = 16 * spacingG(G);        // halkalar arası mesafe (oyundakiyle aynı formül)
     const FACE = -0.3;                   // alev / plazma atarken bakılan yön (sağa, hafif yukarı)
-    const SEQ = [['spin', 4.6], ['fire', 3.6], ['charge', 2.0], ['beam', 2.6], ['spinR', 4.6]];
+    const SEQ = [['idle', 3.6], ['fire', 4.2], ['charge', 2.0], ['beam', 2.6]];
     const SEQ_T = SEQ.reduce((a, s) => a + s[1], 0);
-    const PHASE_TXT = { spin: ['🌀', 'SÜZÜLÜYOR'], spinR: ['🌀', 'SÜZÜLÜYOR'], spinC: ['🌀', 'SÜZÜLÜYOR'], fire: ['🔥', 'ALEV'], charge: ['⚡', 'PLAZMA ŞARJ'], beam: ['⚡', 'SÜPER PLAZMA'] };
+    const PHASE_TXT = { idle: ['🪽', 'SÜZÜLÜYOR'], fire: ['🔥', 'ALEV'], charge: ['⚡', 'PLAZMA ŞARJ'], beam: ['⚡', 'SÜPER PLAZMA'] };
 
     // Boss ödülü kostümlerinin nasıl kazanıldığı
     const UNLOCK_NOTE = {
@@ -28,7 +28,6 @@
         mirrorbane: 'Vahşi Ayna Ejderha (Kara Delik I)'
     };
 
-    const smooth = (u) => u * u * u * (u * (u * 6 - 15) + 10);
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const num = (n) => Number(n).toLocaleString('tr-TR');
@@ -49,12 +48,12 @@
     }
 
     function phaseAt(mode, t) {
-        if (mode === 'spin') return { n: 'spinC', u: 0 };
-        if (mode === 'fire') return { n: 'fire', u: (t % 3.6) / 3.6 };
+        if (mode === 'idle') return { n: 'idle', u: 0 };
+        if (mode === 'fire') return { n: 'fire', u: (t % 4.2) / 4.2 };
         if (mode === 'plasma') { const k = t % 5.0; return k < 2.0 ? { n: 'charge', u: k / 2.0 } : { n: 'beam', u: (k - 2.0) / 3.0 }; }
         let k = t % SEQ_T;
         for (const [n, d] of SEQ) { if (k < d) return { n, u: k / d }; k -= d; }
-        return { n: 'spin', u: 0 };
+        return { n: 'idle', u: 0 };
     }
 
     // =====================================================================
@@ -71,7 +70,7 @@
         }
         setSkin(skin) {
             this.skin = skin; this.org = ORG_SKINS[skin.id] || null;
-            this.t = this.hero ? 0 : Math.random() * SEQ_T; this.tk = Math.random() * 6; this.spinT = 0;
+            this.t = this.hero ? 0 : Math.random() * SEQ_T; this.tk = Math.random() * 6;
             this.yaw = FACE + (Math.random() - 0.5) * 0.4; this.om = 0; this.al = 0;
             this.h = 0; this.hv = 0; this.f = 0; this.nextBeam = false;
             this.phi = new Float32Array(NJ); this.phv = new Float32Array(NJ);
@@ -83,7 +82,7 @@
             this.cs = 0; this.cw = 0; this.ch = 0; this.sc = 0.3;
             this.pose();
         }
-        setMode(m) { this.mode = m; this.t = 0; this.spinT = 0; this.strikes.length = 0; this.parts.length = 0; this.ph = phaseAt(m, 0); }
+        setMode(m) { this.mode = m; this.t = 0; this.strikes.length = 0; this.parts.length = 0; this.ph = phaseAt(m, 0); }
 
         // ---- FİZİK -------------------------------------------------------
         step(dt) {
@@ -92,9 +91,7 @@
             // 1) Baş yönü: yay-sönüm denetleyicisi hedef açıyı kovalar, böylece dönüş ivmelenir, fren yapar, hafif aşar
             let tgt;
             const near = (x) => x + TAU * Math.round((this.yaw - x) / TAU);
-            if (ph.n === 'spin') tgt = FACE + TAU * smooth(ph.u);
-            else if (ph.n === 'spinR') tgt = FACE - TAU * smooth(ph.u);
-            else if (ph.n === 'spinC') { this.spinT += dt * 1.15; tgt = FACE + this.spinT; if (this.spinT > 30) { this.spinT -= 20; this.yaw -= 20; } }
+            if (ph.n === 'idle') tgt = near(FACE) + 0.16 * Math.sin(this.t * 0.7);
             else if (ph.n === 'fire') tgt = near(FACE) + 0.32 * Math.sin(this.t * 0.9);
             else if (ph.n === 'beam') tgt = near(FACE) + 0.12 * Math.sin(this.t * 0.8);
             else tgt = near(FACE);
@@ -136,9 +133,24 @@
         }
         updateFire(dt, on) {
             const G2 = G, a = this.yaw, mx = Math.cos(a) * 35 * G2, my = Math.sin(a) * 35 * G2, spr = flameSprite(this.skin);
-            if (on) {
+            const multi = window.HEADFX && this.org && this.org.heads >= 2;
+            const cap = this.hero ? 260 : 120;
+            if (multi) {
+                // çok başlı kostüm: her baş kendi alevini / gazını püskürtür, HEADFX kombo mantığını yürütür
+                const k = dt * 60, self = this;
+                HEADFX.update(this.joints, this.org, {
+                    k, firing: on, beam: this.ph.n === 'charge' || this.ph.n === 'beam', G: G2, n: (this.hero ? 3 : 2.2) * k,
+                    fire(x, y, ang, spread, sizeMul) {
+                        if (self.fire.length >= cap) return;
+                        const v = Math.random() * 6 + 6.8, f0 = Math.random();
+                        self.fire.push({ x: x + Math.cos(ang) * v * f0, y: y + Math.sin(ang) * v * f0, vx: Math.cos(ang + spread) * v, vy: Math.sin(ang + spread) * v, life: 1, size: (Math.random() * 16 + 14) * G2 * (sizeMul || 1), grow: Math.random() * 2.5 + 1.5, spr });
+                    },
+                    nearFire(x, y, r) { for (const p of self.fire) if (p.life > 0.3 && (p.x - x) ** 2 + (p.y - y) ** 2 < (r + p.size * 0.4) ** 2) return true; return false; },
+                    boom(x, y) { for (let q = 0; q < 3 && self.fire.length < cap + 20; q++) { const an = q / 3 * TAU + Math.random(); self.fire.push({ x, y, vx: Math.cos(an) * 6, vy: Math.sin(an) * 6, life: 1, size: 22 * G2, grow: 2.4, spr }); } }
+                });
+            } else if (on) {
                 this.fAcc += dt * 60 * (this.hero ? 3 : 2.2);
-                while (this.fAcc >= 1 && this.fire.length < (this.hero ? 260 : 120)) {
+                while (this.fAcc >= 1 && this.fire.length < cap) {
                     this.fAcc -= 1;
                     const sp = (Math.random() - 0.5) * 0.4, v = Math.random() * 6 + 6.8, f0 = Math.random();
                     this.fire.push({ x: mx + Math.cos(a) * v * f0, y: my + Math.sin(a) * v * f0, vx: Math.cos(a + sp) * v, vy: Math.sin(a + sp) * v, life: 1, size: (Math.random() * 16 + 14) * G2, grow: Math.random() * 2.5 + 1.5, spr });
@@ -228,7 +240,8 @@
                     if (isSuperBeamCharging) drawChargeFx('front', 1, G);
                     if (isSuperBeamFiring) drawPlayerBeam(G, false);
                     this.drawFlames(c, hx, hy);
-                } finally { for (const j of J) { j.x -= hx; j.y -= hy; } }
+                    if (window.HEADFX && this.org && this.org.heads >= 2) HEADFX.draw(J, c, hx, hy, G);
+                } finally { for (const j of J) { j.x -= hx; j.y -= hy; } if (window.HEADFX) HEADFX.shift(J, -hx, -hy); }
                 this.err = 0;
             } catch (e) {
                 if (++this.err === 1) console.warn('Kostüm önizlemesi çizilemedi: ' + this.skin.id, e);
@@ -295,6 +308,8 @@
     .cs-need { display: flex; flex-direction: column; gap: 6px; padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); }
     .cs-need .row { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; color: #bbb; }
     .cs-need .ok { color: #33ff88; font-weight: bold; } .cs-need .no { color: #ff5577; font-weight: bold; }
+    .cs-atk { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 5px; font-size: 12.5px; line-height: 1.4; color: #c9bde6; }
+    .cs-atk b { color: var(--cs-col, #fff); }
     .cs-boss { color: #ff9ec4; font-weight: bold; font-size: 14px; line-height: 1.4; }
     .cs-act { margin-top: auto; padding: 14px; border-radius: 12px; border: 2px solid var(--cs-col, #00ffcc); background: color-mix(in srgb, var(--cs-col, #00ffcc) 18%, #0d0914); color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; letter-spacing: 0.5px; }
     .cs-act:hover:not(:disabled) { background: color-mix(in srgb, var(--cs-col, #00ffcc) 38%, #0d0914); }
@@ -344,7 +359,8 @@
     function state(sk) {
         const owned = unlockedSkins.includes(sk.id), eq = activeTheme.id === sk.id, prize = sk.reqLvl >= 999;
         const okL = maxLevelReached >= sk.reqLvl, okC = coins >= sk.reqCoin;
-        return { owned, eq, prize, okL, okC, canBuy: !owned && !prize && okL && okC };
+        const okP = !sk.parents || sk.parents.every(p => unlockedSkins.includes(p));
+        return { owned, eq, prize, okL, okC, okP, canBuy: !owned && !prize && okL && okC && okP };
     }
     function reqHtml(sk, s, compact) {
         if (s.owned) return compact ? '<span class="ok">Sahipsin</span>' : '<div class="row"><span>Durum</span><span class="ok">Sahipsin</span></div>';
@@ -353,8 +369,9 @@
             const txt = q ? ('5 görev tamamla (' + Math.min(5, questsCompletedLifetime) + '/5)') : ('Yenilmesi gereken boss: ' + (UNLOCK_NOTE[sk.id] || 'özel boss'));
             return compact ? '<span class="boss">🏆 ' + esc(txt) + '</span>' : '<div class="cs-boss">🏆 ' + esc(txt) + '</div><div class="row"><span>Satın alınamaz</span><span>özel ödül</span></div>';
         }
-        if (compact) return '<span>Seviye <b class="' + (s.okL ? 'ok' : 'no') + '">' + maxLevelReached + '/' + sk.reqLvl + '</b></span><span>Coin <b class="' + (s.okC ? 'ok' : 'no') + '">' + num(coins) + '/' + num(sk.reqCoin) + '</b></span>';
-        return '<div class="row"><span>Gerekli seviye</span><span class="' + (s.okL ? 'ok' : 'no') + '">' + maxLevelReached + ' / ' + sk.reqLvl + '</span></div>'
+        const par = sk.parents ? sk.parents.map(p => { const q = skinsDB.find(z => z.id === p); return (unlockedSkins.includes(p) ? '✔ ' : '✖ ') + (q ? q.name : p); }).join(' + ') : '';
+        if (compact) return (sk.parents ? '<span>🧬 <b class="' + (s.okP ? 'ok' : 'no') + '">' + esc(par) + '</b></span>' : '') + '<span>Seviye <b class="' + (s.okL ? 'ok' : 'no') + '">' + maxLevelReached + '/' + sk.reqLvl + '</b></span><span>Coin <b class="' + (s.okC ? 'ok' : 'no') + '">' + num(coins) + '/' + num(sk.reqCoin) + '</b></span>';
+        return (sk.parents ? '<div class="row"><span>🧬 Melez için gerekli</span><span class="' + (s.okP ? 'ok' : 'no') + '">' + esc(par) + '</span></div>' : '') + '<div class="row"><span>Gerekli seviye</span><span class="' + (s.okL ? 'ok' : 'no') + '">' + maxLevelReached + ' / ' + sk.reqLvl + '</span></div>'
             + '<div class="row"><span>Gerekli coin</span><span class="' + (s.okC ? 'ok' : 'no') + '">' + num(coins) + ' / ' + num(sk.reqCoin) + '</span></div>';
     }
     function actLabel(sk, s) {
@@ -362,6 +379,7 @@
         if (s.owned) return ['KUŞAN', '', false];
         if (s.prize) return ['🏆 ÖZEL ÖDÜL', '', true];
         if (s.canBuy) return ['SATIN AL (' + num(sk.reqCoin) + ' coin)', '', false];
+        if (!s.okP) return ['İKİ ATA DA GEREKLİ', '', true];
         if (!s.okL) return ['SEVİYE ' + sk.reqLvl + ' GEREKLİ', '', true];
         return ['YETERSİZ COIN', '', true];
     }
@@ -381,6 +399,7 @@
         return '<h2>' + esc(sk.name) + '</h2>'
             + '<span class="cs-tier">' + (sk.tier ? 'KADEME ' + sk.tier : 'BAŞLANGIÇ') + '</span>'
             + '<div class="cs-desc">' + esc(sk.desc || '') + '</div><div class="cs-bonus">' + bonus + '</div>'
+            + (sk.attacks ? '<ul class="cs-atk">' + sk.attacks.map(q => '<li><b>' + q[0] + ' ' + esc(q[1]) + ':</b> ' + esc(q[2]) + '</li>').join('') + '</ul>' : '')
             + '<div class="cs-need">' + reqHtml(sk, s, false) + '</div>'
             + '<button class="cs-act ' + a[1] + '" ' + (a[2] ? 'disabled' : '') + ' data-act="' + sk.id + '">' + a[0] + '</button>';
     }
@@ -412,7 +431,7 @@
         const sel = list.find(q => q.id === selId);
         const cnt = { all: list.length, own: 0, open: 0, lock: 0, prize: 0 };
         list.forEach(sk => { const s = state(sk); if (s.owned) cnt.own++; else if (s.prize) cnt.prize++; else if (s.okL) cnt.open++; else cnt.lock++; });
-        const MODES = [['auto', '🔄 Otomatik'], ['spin', '🌀 Süzül & Dön'], ['fire', '🔥 Alev'], ['plasma', '⚡ Süper Plazma']];
+        const MODES = [['auto', '🔄 Otomatik'], ['idle', '🪽 Süzül'], ['fire', '🔥 Alev'], ['plasma', '⚡ Süper Plazma']];
         let html = '<div class="cs-root"><div class="cs-hero"><div><div class="cs-stage"><canvas id="csHeroCv"></canvas></div><div class="cs-modes">'
             + MODES.map(m => '<button data-mode="' + m[0] + '" class="' + (heroMode === m[0] ? 'on' : '') + '">' + m[1] + '</button>').join('') + '</div></div><div class="cs-info"></div></div>'
             + '<div class="cs-filters">' + [['all', 'Hepsi'], ['own', 'Sahip olduklarım'], ['open', 'Açılabilir'], ['lock', 'Kilitli'], ['prize', '🏆 Boss ödülü']].map(f => '<button data-f="' + f[0] + '">' + f[1] + ' (' + cnt[f[0]] + ')</button>').join('') + '</div>'
@@ -439,7 +458,7 @@
         if (io) { heroPv.io = io; heroPv.visible = true; io.observe(hcv); }
         rootEl.querySelectorAll('.cs-card').forEach(el => {
             const sk = list.find(q => q.id === el.dataset.id), cv = el.querySelector('canvas'), ph = el.querySelector('.cs-phase');
-            const pv = new Preview(cv, sk, Object.assign(pvOpts(false), { onPhase: (n) => { const t = PHASE_TXT[n] || PHASE_TXT.spin; ph.textContent = t[0] + ' ' + t[1]; } }));
+            const pv = new Preview(cv, sk, Object.assign(pvOpts(false), { onPhase: (n) => { const t = PHASE_TXT[n] || PHASE_TXT.idle; ph.textContent = t[0] + ' ' + t[1]; } }));
             pv.visible = !io; pv.io = io; byCv.set(cv, pv); live.add(pv); if (io) io.observe(cv);
         });
 
