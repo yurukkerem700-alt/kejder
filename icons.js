@@ -313,6 +313,15 @@
         im = new Image(); im.decoding = 'async'; im.src = uri(k); IMG.set(k, im); return im;
     }
 
+    // SVG resmini her karede tuvale çizmek pahalı: ikon, ihtiyaç duyulan boyutta bir kez bitmap'e dökülür
+    const BMP = new Map(), BMP_SZ = [16, 24, 32, 48, 64, 96, 128];
+    function bmpFor(k, isz) {
+        const im = imgFor(k); if (!im || !im.complete || !im.naturalWidth) return null;
+        const need = Math.min(128, isz * 1.5); let s = 128; for (const q of BMP_SZ) if (q >= need) { s = q; break; }
+        const key = k + '@' + s; let b = BMP.get(key); if (b) return b;
+        try { b = document.createElement('canvas'); b.width = b.height = s; b.getContext('2d').drawImage(im, 0, 0, s, s); } catch (e) { b = im; }
+        BMP.set(key, b); return b;
+    }
     // ---- Canvas: ctx.fillText / strokeText / measureText içindeki emojiler de aynı ikonlarla çizilir
     const CRE = new RegExp(keys.map(k => esc(norm(k)) + '\\uFE0F?').join('|'), 'g');
     const parts = new Map();
@@ -327,23 +336,28 @@
         CP.__boruIcons = 1;
         const _fill = CP.fillText, _stroke = CP.strokeText, _meas = CP.measureText;
         const fpx = (cx) => { const m = /(\d+(?:\.\d+)?)px/.exec(cx.font); return m ? parseFloat(m[1]) : 16; };
+        // Her karede yüzlerce fillText çağrısı var: "simge içeriyor mu" ve yerleşim sonuçları önbellekten gelir
+        const hasC = new Map(), layC = new Map();
+        try { document.fonts.addEventListener('loadingdone', () => layC.clear()); } catch (e) {}
+        const hasIc = (t) => { let r = hasC.get(t); if (r === undefined) { if (hasC.size > 2000) hasC.clear(); r = TEST.test(t); hasC.set(t, r); } return r; };
         const lay = (cx, text) => {
+            const key = cx.font + '\u0001' + text; let o = layC.get(key); if (o) return o;
             const px = fpx(cx), isz = px * 1.12; let w = 0;
             const L = seg(text).map(pt => { const o2 = pt.i ? { i: pt.i, w: isz + px * .1 } : { t: pt.t, w: _meas.call(cx, pt.t).width }; w += o2.w; return o2; });
-            return { L, w, px, isz };
+            o = { L, w, px, isz }; if (layC.size > 800) layC.clear(); layC.set(key, o); return o;
         };
         const run = (cx, fn, text, x, y, mw) => {
-            if (typeof text !== 'string' || !TEST.test(text)) return fn.call(cx, text, x, y, mw);
+            if (typeof text !== 'string' || !hasIc(text)) return fn.call(cx, text, x, y, mw);
             const { L, w, px, isz } = lay(cx, text), al = cx.textAlign, bl = cx.textBaseline;
             let sx = al === 'center' ? x - w / 2 : (al === 'right' || al === 'end') ? x - w : x;
             const top = bl === 'middle' ? y - isz / 2 : (bl === 'top' || bl === 'hanging') ? y : bl === 'bottom' ? y - isz : y - isz * .84;
             cx.textAlign = 'left';
-            try { for (const o2 of L) { if (o2.t) fn.call(cx, o2.t, sx, y); else if (fn === _fill) { const im = imgFor(o2.i); if (im && im.complete && im.naturalWidth) cx.drawImage(im, sx, top, isz, isz); } sx += o2.w; } }
+            try { for (const o2 of L) { if (o2.t) fn.call(cx, o2.t, sx, y); else if (fn === _fill) { const im = bmpFor(o2.i, isz); if (im) cx.drawImage(im, sx, top, isz, isz); } sx += o2.w; } }
             finally { cx.textAlign = al; }
         };
         CP.fillText = function (t, x, y, mw) { return run(this, _fill, t, x, y, mw); };
         CP.strokeText = function (t, x, y, mw) { return run(this, _stroke, t, x, y, mw); };
-        CP.measureText = function (t) { if (typeof t !== 'string' || !TEST.test(t)) return _meas.call(this, t); const m = _meas.call(this, t.replace(CRE, '')), extra = lay(this, t).w - _meas.call(this, t.replace(CRE, '')).width; return { width: m.width + Math.max(0, extra), actualBoundingBoxLeft: 0, actualBoundingBoxRight: m.width + Math.max(0, extra), actualBoundingBoxAscent: m.actualBoundingBoxAscent || 0, actualBoundingBoxDescent: m.actualBoundingBoxDescent || 0 }; };
+        CP.measureText = function (t) { if (typeof t !== 'string' || !hasIc(t)) return _meas.call(this, t); const m = _meas.call(this, t.replace(CRE, '')), extra = lay(this, t).w - _meas.call(this, t.replace(CRE, '')).width; return { width: m.width + Math.max(0, extra), actualBoundingBoxLeft: 0, actualBoundingBoxRight: m.width + Math.max(0, extra), actualBoundingBoxAscent: m.actualBoundingBoxAscent || 0, actualBoundingBoxDescent: m.actualBoundingBoxDescent || 0 }; };
     }
     // ---- title / placeholder gibi özniteliklerde simge gösterilemez: oradaki emojiler temizlenir
     const PICT = /[\p{Extended_Pictographic}️‍]/gu, ATTRS = ['title', 'placeholder', 'aria-label', 'alt'];
