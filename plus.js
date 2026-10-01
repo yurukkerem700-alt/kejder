@@ -100,7 +100,7 @@
         const saved = store.getItem('boruActiveSkin');
         if (saved && saved !== activeTheme.id && skinsDB.some(q => q.id === saved)) { activeSkinId = saved; activeTheme = skinsDB.find(q => q.id === saved); applyThemeColors(); }
     });
-    const skinPassive = () => SKIN_PASSIVE[activeTheme && activeTheme.id] || null;
+    const skinPassive = () => (MP.noSkinBuffs ? null : SKIN_PASSIVE[activeTheme && activeTheme.id]) || null; // Birlikte modunda kostüm gücü yok
 
     // =====================================================================
     // 2) YENİ KARABORSA EŞYALARI ve İKSİRLER
@@ -218,7 +218,7 @@
         combo.n = 0; combo.t = 0; combo.last = score; combo.runBest = 0; runStart = Date.now(); runStartCoins = coins;
         if (!inMatch()) { PS.runs++; savePS(); }
         const r = _prep.apply(this, arguments);
-        setTimeout(() => safe(() => { if (!inMatch() && !store.getItem('boruPlusSeenV1')) { store.setItem('boruPlusSeenV1', '1'); hintToast('✨ YENİ: kombo zinciri, başarımlar, günlük ödül, 3 yeni iksir (5-6-7) ve 7 yeni kostüm!', '#ffd24a', 7000); } }), 6000);
+        const plusNews = (n) => safe(() => { if (inMatch() || store.getItem('boruPlusSeenV1')) return; if (document.body.classList.contains('tut-on') || document.body.classList.contains('m')) { if (n < 6 && !document.body.classList.contains('m')) setTimeout(() => plusNews(n + 1), 30000); return; } store.setItem('boruPlusSeenV1', '1'); hintToast('✨ YENİ: kombo zinciri, başarımlar, günlük ödül, 3 yeni iksir (5-6-7) ve 7 yeni kostüm!', '#ffd24a', 7000); }); setTimeout(() => plusNews(0), 6000);
         return r;
     };
     const _death = handlePlayerDeath;
@@ -563,10 +563,11 @@
         if (secTick % 10 === 0) savePS();
     }), 1000);
 
-    // Günlük ödül hazırsa ana menüde bir kez göster
+    // Günlük ödül hazırsa ana menüde küçük bir hatırlatma gösterir (ekranı kaplayan pencere açmaz)
     setTimeout(() => safe(() => {
         const so = $('storyOverlay');
-        if (!gameActive && dailyReady() && $('startScreen').style.display !== 'none' && !(so && getComputedStyle(so).display !== 'none') && !modal.classList.contains('open')) show('daily');
+        const mpOpen = new URLSearchParams(location.search).has('oda') || !!document.querySelector('#mpRoot.on'); // davet linkiyle / lobideyken araya girmesin
+        if (!gameActive && !inMatch() && !mpOpen && dailyReady() && $('startScreen').style.display !== 'none' && !(so && getComputedStyle(so).display !== 'none') && !modal.classList.contains('open')) { if (window.sideNote) window.sideNote('🎁 Günlük ödülün hazır — menüden al', '#ffcc33', false); else hintToast('🎁 Günlük ödülün hazır — menüden al', '#ffcc33', 3500); }
     }), 1500);
     safe(checkAchievements);
 })();

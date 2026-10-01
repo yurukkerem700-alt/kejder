@@ -507,6 +507,20 @@
         #ui, #levelIndicator, #territoryPanel, #leftHud, #questPanel, #objectivePanel, #loreCorner, #loreCounter, #killRow { display: none !important; }
         #goalHud { position: absolute; top: 70px; left: 20px; width: 300px; z-index: 12; pointer-events: none; display: none; background: rgba(12,5,2,0.86); border: 1px solid rgba(255,140,60,0.45); border-left: 3px solid #ff6a1a; border-radius: 8px; padding: 9px 12px; color: #f2e6da; font-size: 12.5px; box-shadow: 0 0 16px rgba(0,0,0,0.55); }
         body.in-game #goalHud { display: block; }
+        /* KENAR BİLDİRİMLERİ: boss yenildi, kovan alındı vb. duyurular ekranın ortasını kapatmaz; sol kenarda küçük ve kısa görünür */
+        #sideNotes { position: absolute; top: 150px; left: 20px; width: 300px; z-index: 13; pointer-events: none; display: flex; flex-direction: column; gap: 5px; }
+        #sideNotes .sn { align-self: flex-start; max-width: 100%; box-sizing: border-box; background: rgba(10,6,8,0.8); border: 1px solid rgba(255,255,255,0.1); border-left: 3px solid currentColor; border-radius: 8px; padding: 5px 10px; font: 700 12.5px/1.3 'Segoe UI', system-ui, Arial, sans-serif; letter-spacing: 0.3px; text-shadow: 0 1px 2px #000; box-shadow: 0 3px 10px rgba(0,0,0,0.35); animation: snIn 0.22s ease-out; transition: opacity 0.35s, transform 0.35s; }
+        #sideNotes .sn.big { font-size: 13.5px; background: rgba(24,6,10,0.88); }
+        #sideNotes .sn.out { opacity: 0; transform: translateX(-14px); }
+        #sideNotes .sn i { font-style: normal; color: #ddd; opacity: 0.7; font-size: 11px; margin-left: 5px; }
+        @keyframes snIn { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+        #sideNotes .sn b { font-weight: inherit; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; } /* uzun metin en fazla 2 satır */
+        body.m #sideNotes { top: calc(env(safe-area-inset-top, 0px) + 104px); left: calc(env(safe-area-inset-left, 0px) + 6px); width: 50vw; max-width: 230px; gap: 3px; }
+        body.m #sideNotes .sn { font-size: 10px; letter-spacing: 0; padding: 3px 7px; border-radius: 6px; border-left-width: 2px; }
+        body.m #sideNotes .sn.big { font-size: 10.5px; }
+        body.mp-match #sideNotes { top: 170px; }
+        body.m.mp-match #sideNotes { top: calc(env(safe-area-inset-top, 0px) + 232px); }
+        @media (orientation: landscape) and (max-height: 520px) { body.m #sideNotes, body.m.mp-match #sideNotes { top: calc(env(safe-area-inset-top, 0px) + 96px); width: 34vw; } }
         body.tut-on #goalHud { display: none !important; }
         #goalHud .g1 { font-weight: 800; letter-spacing: 0.5px; }
         #goalHud .g1 b { color: #ffcf6a; }
@@ -675,7 +689,17 @@
         #mMenu { display: none; position: fixed; inset: 0; z-index: 150; background: rgba(0,0,0,0.55); align-items: flex-end; justify-content: center; }
         #mMenu.open { display: flex; }
         .mm-sheet { width: 100%; max-width: 560px; background: linear-gradient(170deg, #1c0a06, #070304); border-top: 2px solid #ff5a1a; border-radius: 18px 18px 0 0; padding: 14px 14px calc(var(--sab, 0px) + 16px); touch-action: manipulation !important; }
-        .mm-sheet * { touch-action: manipulation !important; }
+        .mm-sheet { max-height: 100vh; max-height: 100dvh; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y !important; }
+        .mm-sheet * { touch-action: pan-y !important; }
+        @media (orientation: landscape) and (max-height: 560px) {
+            #mMenu { align-items: stretch; justify-content: center; }
+            .mm-sheet { max-width: min(760px, 96vw); border-radius: 14px; padding: 8px 12px calc(var(--sab, 0px) + 10px); margin: 0 auto; }
+            .mm-head { margin-bottom: 4px; }
+            .mm-grid { grid-template-columns: repeat(4, 1fr); gap: 7px; }
+            .mm-grid button { padding: 7px 3px; font-size: 11px; }
+            .mm-grid button span { font-size: 19px; }
+            .mm-close { margin-top: 8px; padding: 8px; }
+        }
         .mm-h { color: #ff9a5a; font-size: 11px; letter-spacing: 3px; text-align: center; margin-bottom: 10px; font-weight: bold; }
         .mm-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .mm-grid button { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,140,80,0.35); border-radius: 12px; color: #fff; padding: 12px 4px; font-size: 12px; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 3px; font-family: inherit; }
@@ -765,7 +789,7 @@
         .unmet { color: #ff6b8a !important; text-shadow: 0 0 8px rgba(255,51,102,0.8) !important; }
 
         #minimapCanvas { pointer-events: auto !important; cursor: zoom-in; }
-        #bigMap { position: fixed; inset: 0; z-index: 330; background: #020304; display: none; touch-action: none; }
+        #bigMap { position: fixed; inset: 0; z-index: 800; background: #020304; display: none; touch-action: none; }
         #bigMap.open { display: block; }
         #bigMapCanvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: none; }
         #bigMapCanvas.drag { cursor: grabbing; }
@@ -776,6 +800,23 @@
         .bm-x { pointer-events: auto; width: 44px; height: 44px; flex: 0 0 44px; border-radius: 50%; background: rgba(255,40,70,0.18); border: 2px solid #ff4466; color: #fff; font-size: 20px; font-weight: bold; cursor: pointer; }
         .bm-zoom { position: absolute; right: 12px; bottom: calc(env(safe-area-inset-bottom, 0px) + 74px); display: flex; flex-direction: column; gap: 8px; }
         .bm-zoom button { width: 48px; height: 48px; border-radius: 12px; background: rgba(0,0,0,0.7); border: 1.5px solid #5a8cff; color: #cfe0ff; font-size: 22px; font-weight: bold; cursor: pointer; }
+        body.map-open #mobileControls, body.map-open #mHud, body.map-open #sanctuaryBtn, body.map-open #potionBar, body.map-open #skillBtn, body.map-open #mpHud, body.map-open #minimapCanvas, body.map-open #bossUi, body.map-open #tutPanel, body.map-open #goalHud, body.map-open #rpBtn, body.map-open #mpToast { display: none !important; }
+        .bm-pinbar { position: absolute; left: 12px; right: 76px; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); display: none; flex-wrap: wrap; gap: 6px; align-items: center; background: rgba(8,10,16,0.88); border: 1px solid #ffd24a; border-radius: 12px; padding: 7px 8px; color: #eef; font-size: 12px; z-index: 3; }
+        .bm-pinbar.open { display: flex; }
+        .bm-pinbar button { min-width: 40px; height: 40px; border-radius: 10px; background: rgba(0,0,0,0.6); border: 1.5px solid #5a5a70; color: #fff; font-size: 18px; cursor: pointer; padding: 0 6px; touch-action: manipulation; }
+        .bm-pinbar button.on { border-color: #ffd24a; background: rgba(255,210,74,0.2); }
+        .bm-pinbar button.here { border-color: #4dd2ff; font-size: 13px; }
+        .bm-pinbar button.shr { font-size: 13px; }
+        .bm-pinbar .bp-t { flex: 1 1 100%; color: #ffd9a0; font-size: 11.5px; line-height: 1.3; }
+        @media (max-height: 600px) {
+            .bm-zoom { display: grid; grid-template-columns: repeat(3, 40px); gap: 6px; bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); right: calc(env(safe-area-inset-right, 0px) + 10px); }
+            .bm-zoom button { width: 40px; height: 40px; font-size: 18px; border-radius: 10px; }
+            .bm-info, .bm-sefer, .bm-pinbar { right: calc(env(safe-area-inset-right, 0px) + 152px) !important; bottom: calc(env(safe-area-inset-bottom, 0px) + 10px) !important; }
+            .bm-top { top: calc(env(safe-area-inset-top, 0px) + 6px); right: calc(env(safe-area-inset-right, 0px) + 10px); }
+            .bm-x { width: 40px; height: 40px; flex-basis: 40px; margin-left: auto; }
+            .bm-legend { display: none; }
+            .bm-cmds { top: calc(env(safe-area-inset-top, 0px) + 54px); max-height: 38vh; }
+        }
         .bm-info { position: absolute; left: 12px; right: 76px; bottom: calc(env(safe-area-inset-bottom, 0px) + 14px); background: rgba(0,0,0,0.7); border: 1px solid rgba(138,180,255,0.35); border-radius: 12px; padding: 9px 12px; color: #e8ecff; font-size: 13px; line-height: 1.45; }
         .bm-info b { color: #fff; }
         @media (max-width: 600px) { .bm-legend { display: none; } }
@@ -925,6 +966,45 @@
         #bhBanner .bh-t { font: 900 clamp(26px, 8vw, 58px) 'Segoe UI', sans-serif; letter-spacing: clamp(4px, 1.6vw, 14px); color: #fff; text-shadow: 0 0 18px var(--bc), 0 0 40px var(--bc); }
         #bhBanner .bh-s { margin-top: 6px; font: italic clamp(12px, 3.4vw, 17px) Georgia, serif; color: var(--bc); letter-spacing: 2px; }
         @keyframes bhIn { 0% { opacity: 0; transform: scaleY(0.2); filter: blur(12px); } 10% { opacity: 1; transform: scaleY(1); filter: blur(0); } 80% { opacity: 1; } 100% { opacity: 0; transform: scale(1.08); filter: blur(6px); } }
+
+        /* ---- Kadim Pazar ikonu + profil / menü tasarım cilası ---- */
+        .ic-market { display:inline-block; width:1.45em; height:1.45em; vertical-align:-0.38em; background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Cdefs%3E%3ClinearGradient id=%22w%22 x1=%220%22 y1=%220%22 x2=%220%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%238a3b12%22/%3E%3Cstop offset=%221%22 stop-color=%22%233a1206%22/%3E%3C/linearGradient%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%220%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23fff2a8%22/%3E%3Cstop offset=%22.5%22 stop-color=%22%23ffc21a%22/%3E%3Cstop offset=%221%22 stop-color=%22%23b86a00%22/%3E%3C/linearGradient%3E%3CradialGradient id=%22f%22 cx=%22.5%22 cy=%22.7%22 r=%22.6%22%3E%3Cstop offset=%220%22 stop-color=%22%23fff6c0%22/%3E%3Cstop offset=%22.45%22 stop-color=%22%23ff9a1a%22/%3E%3Cstop offset=%221%22 stop-color=%22%23ff2a00%22 stop-opacity=%220%22/%3E%3C/radialGradient%3E%3C/defs%3E%3Cellipse cx=%2232%22 cy=%2230%22 rx=%2224%22 ry=%2216%22 fill=%22url%28%23f%29%22/%3E%3Cpath d=%22M10 30 Q32 10 54 30 Z%22 fill=%22url%28%23w%29%22 stroke=%22%23ffc21a%22 stroke-width=%222.5%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M20 22 Q32 14 44 22%22 fill=%22none%22 stroke=%22%23ffe27a%22 stroke-width=%221.5%22 opacity=%22.7%22/%3E%3Ccircle cx=%2224%22 cy=%2227%22 r=%224%22 fill=%22url%28%23g%29%22 stroke=%22%237a4100%22 stroke-width=%221%22/%3E%3Ccircle cx=%2232%22 cy=%2225%22 r=%224.5%22 fill=%22url%28%23g%29%22 stroke=%22%237a4100%22 stroke-width=%221%22/%3E%3Ccircle cx=%2240%22 cy=%2227%22 r=%224%22 fill=%22url%28%23g%29%22 stroke=%22%237a4100%22 stroke-width=%221%22/%3E%3Cpath d=%22M29.5 25 l2.5-2 2.5 2 -2.5 2z%22 fill=%22%23b30000%22/%3E%3Crect x=%229%22 y=%2230%22 width=%2246%22 height=%2224%22 rx=%224%22 fill=%22url%28%23w%29%22 stroke=%22%23ffc21a%22 stroke-width=%222.5%22/%3E%3Cpath d=%22M9 38 H55%22 stroke=%22%23ffc21a%22 stroke-width=%222%22/%3E%3Cpath d=%22M21 30 V54 M43 30 V54%22 stroke=%22%23ffc21a%22 stroke-width=%222%22 opacity=%22.85%22/%3E%3Cpath d=%22M27 34 h10 v10 l-5 4 -5-4z%22 fill=%22url%28%23g%29%22 stroke=%22%237a4100%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%2232%22 cy=%2239.5%22 r=%222%22 fill=%22%233a1206%22/%3E%3Cpath d=%22M32 41 v3%22 stroke=%22%233a1206%22 stroke-width=%221.6%22/%3E%3Cpath d=%22M14 8 l1.6 4.4 4.4 1.6 -4.4 1.6 -1.6 4.4 -1.6-4.4 -4.4-1.6 4.4-1.6z M50 6 l1.2 3.3 3.3 1.2 -3.3 1.2 -1.2 3.3 -1.2-3.3 -3.3-1.2 3.3-1.2z%22 fill=%22%23fff2a8%22/%3E%3C/svg%3E%0A") center/contain no-repeat; filter: drop-shadow(0 0 4px rgba(255,170,0,.55)); }
+        .mm-grid button span .ic-market { width:30px; height:30px; vertical-align:middle; }
+        #topControls .ic-market { width:1.6em; height:1.6em; }
+        .market-title { display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 10px 10px; background:linear-gradient(180deg,#2a1207,#150f22); border-bottom:1px solid #3d2963; font-weight:900; letter-spacing:4px; font-size:20px; color:#ffd24a; text-shadow:0 0 12px rgba(255,140,0,.6); }
+        .market-title .ic-market { width:40px; height:40px; animation: mkBob 2.4s ease-in-out infinite; }
+        .market-title small { display:block; font-size:10px; letter-spacing:2px; color:#caa; font-weight:normal; text-shadow:none; }
+        @keyframes mkBob { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-3px) rotate(4deg); } }
+        body.m .market-title { padding:6px; font-size:14px; letter-spacing:2px; }
+        body.m .market-title .ic-market { width:26px; height:26px; }
+        .menu-profile { display:flex; align-items:center; gap:12px; background:linear-gradient(90deg,rgba(0,0,0,.65),rgba(40,12,4,.55)); border:1px solid var(--menuAccent); border-radius:40px; padding:6px 18px 6px 6px; margin-bottom:14px; cursor:pointer; color:#fff; font-family:inherit; text-align:left; box-shadow:0 0 14px rgba(0,0,0,.6); transition:.2s; }
+        .menu-profile:hover { box-shadow:0 0 18px var(--menuAccent); transform:translateY(-1px); }
+        .menu-profile .av { width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; background:radial-gradient(circle at 35% 30%,#3a1a0c,#0a0503); border:2px solid var(--pfc,#ff7a00); box-shadow:0 0 10px var(--pfc,#ff7a00); flex:0 0 auto; }
+        .menu-profile .nm { font-weight:bold; font-size:15px; letter-spacing:1px; }
+        .menu-profile .sb { font-size:11px; color:#ffcc99; opacity:.9; margin-top:2px; }
+        .menu-profile .go { margin-left:6px; font-size:11px; color:var(--menuAccent); font-weight:bold; letter-spacing:1px; }
+        body.m .menu-profile { margin-bottom:10px; padding:4px 14px 4px 4px; }
+        body.m .menu-profile .av { width:38px; height:38px; font-size:21px; }
+        .menu-btns .action-btn { position:relative; overflow:hidden; }
+        .menu-btns .action-btn::after { content:''; position:absolute; top:0; left:-60%; width:40%; height:100%; background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent); transform:skewX(-20deg); transition:left .6s; pointer-events:none; }
+        .menu-btns .action-btn:hover::after { left:120%; }
+        #mpMenuBtn { flex-basis:100%; position:relative; background:linear-gradient(90deg,rgba(255,51,0,.32),rgba(255,170,0,.18),rgba(0,170,255,.3)) !important; background-size:200% 100% !important; border-color:#ffaa00 !important; color:#fff !important; font-weight:900 !important; letter-spacing:2px; animation: mpBtnFlow 5s ease-in-out infinite, mpBtnGlow 2.4s ease-in-out infinite; }
+        #mpMenuBtn small { display:block; font-size:10px; letter-spacing:1px; color:#ffd9a8; font-weight:normal; margin-top:2px; }
+        @keyframes mpBtnFlow { 0%,100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
+        @keyframes mpBtnGlow { 0%,100% { box-shadow:0 0 8px rgba(255,140,0,.35); } 50% { box-shadow:0 0 22px rgba(255,140,0,.7); } }
+        body.m .menu-btns #mpMenuBtn { grid-column: 1 / -1; font-size:15px; padding:12px 6px; }
+
+        /* Telefon yatay: öğretici kartı kompakt, oyunu kapatmasın */
+        @media (max-height: 480px) and (orientation: landscape) {
+            body.m #tutPanel { top: calc(var(--sat) + 46px) !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; width: min(54vw, 440px) !important; padding: 4px 9px !important; background: rgba(20,6,3,0.76) !important; border-radius: 8px !important; }
+            body.m .tp-top { font-size: 8px !important; letter-spacing: 1px !important; }
+            body.m .tp-top button { padding: 1px 7px !important; font-size: 9px !important; }
+            body.m .tp-title { font-size: 11.5px !important; margin: 1px 0 !important; letter-spacing: .5px !important; }
+            body.m .tp-how { font-size: 10.5px !important; line-height: 1.3 !important; margin-top: 1px !important; }
+            body.m .tp-why { font-size: 10.5px !important; line-height: 1.3 !important; }
+            body.m .tp-why-t { padding: 1px 6px !important; font-size: 9px !important; }
+            body.m #hintToast { top: calc(var(--sat) + 40px) !important; max-width: 56vw; font-size: 11px !important; }
+        }
     </style>
 </head>
 <body>
@@ -932,12 +1012,13 @@
 
     <div id="screenOverlay" class="damage-vignette"></div>
     <div id="waveAnnouncer">DALGA 1</div>
+    <div id="sideNotes" aria-live="polite"></div>
 
     <button id="pauseBtnFixed" onclick="togglePause()" title="Durdur">⏸️</button>
 
     <div id="topControls" style="display:none;">
         <button class="action-btn" onclick="togglePause()" title="Durdur / Ayarlar (P)">⏸️</button>
-        <button class="action-btn" onclick="openMarket()" title="Market" style="border-color:#ffd700; color:#ffd700;">🛒</button>
+        <button class="action-btn" onclick="openMarket()" title="Market" style="border-color:#ffd700; color:#ffd700;"><i class="ic-market" aria-hidden="true"></i></button>
         <button class="action-btn" onclick="toggleJournal()" title="Günlük (J)" style="border-color:#ff9955; color:#ff9955;">📖</button>
     </div>
 
@@ -1039,6 +1120,7 @@
         <div class="bm-sefer" id="bmSefer"></div>
         <div class="bm-sheet" id="bmSheet"></div>
         <div class="bm-info" id="bmInfo"></div>
+        <div class="bm-pinbar" id="bmPinBar"></div>
     </div>
     <div id="installHelp"><div class="ih-box" id="ihBox"></div></div>
 
@@ -1055,6 +1137,7 @@
             <h1 id="titleText" style="color:#ff3300; text-shadow: 0 0 20px #ff3300;">BÖRÜ: SON KRAL</h1>
             <div class="menu-subtitle">— Gökten düşen son ejderhanın fetih destanı —</div>
 
+            <button class="menu-profile" id="menuProfile" onclick="MPUI.profile()" style="display:none"></button>
             <button class="world-badge" id="worldBadge" onclick="openWorlds()"></button>
             <div class="menu-stats" id="menuStats"></div>
 
@@ -1068,7 +1151,7 @@
                 </div>
                 <div class="starter-card" onclick="selectStarterTheme('ice', this)">
                     <h2 style="color:#00ffff; font-size:40px;">❄️</h2>
-                    <h3 style="color:#00ffff; margin-top:10px;">Buz Wyrm</h3>
+                    <h3 style="color:#00ffff; margin-top:10px;">Karakış</h3>
                     <div class="sc-desc">Kristal kanatlar, dondurucu mavi nefes.</div>
                 </div>
                 <div class="starter-card" onclick="selectStarterTheme('poison', this)">
@@ -1079,11 +1162,12 @@
             </div>
 
             <div class="menu-btns" style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 640px; margin-top:6px;">
-                <button class="action-btn" id="mpMenuBtn" onclick="MPUI.open()" style="flex-basis:100%; background:linear-gradient(90deg,rgba(255,51,0,.25),rgba(0,170,255,.25)); border-color:#ffaa00; color:#fff; font-weight:bold;">👥 ARKADAŞLARLA OYNA</button>
+                <button class="action-btn" id="mpMenuBtn" onclick="MPUI.open()">⚔️ ÇEVRİMİÇİ SAVAŞ<small>açık lobiler · arkadaşlarla oyna · sesli sohbet</small></button>
                 <button class="action-btn" id="continueBtn" style="display:none; background:#00aa55; border-color:#00ff88; color:#fff;">▶ KAYITTAN DEVAM ET</button>
                 <button class="action-btn menu-btn-primary" id="startBtn">⚔️ SIFIRDAN BAŞLA</button>
                 <button class="action-btn" id="installBtnMenu" onclick="doInstall()">📲 UYGULAMA OLARAK YÜKLE (TAM EKRAN)</button>
-                <button class="action-btn" onclick="openMarket()" style="background: rgba(153,0,255,0.2); border-color:#9900ff; color:#fff;">🛒 MARKET</button>
+                <button class="action-btn" onclick="openMarket()" style="background: rgba(153,0,255,0.2); border-color:#9900ff; color:#fff;"><i class="ic-market" aria-hidden="true"></i> MARKET</button>
+                <button class="action-btn" onclick="MPUI.profile()" style="background: rgba(255,210,74,0.1); border-color:#ffd24a; color:#ffe9a8;">🪪 PROFİL</button>
                 <button class="action-btn" onclick="openWorlds()" style="background: rgba(90,140,255,0.12); border-color:#5a8cff; color:#cfe0ff;">🌍 DÜNYALAR</button>
                 <button class="action-btn" onclick="playStory(null)" style="background: rgba(255,120,40,0.1); border-color:#ff7a2a; color:#ffcc99;">📜 HİKÂYE</button>
                 <button class="action-btn" onclick="openJournal()" style="background: rgba(255,150,80,0.08); border-color:#ff9955; color:#ffcc99;">📖 GÜNLÜK</button>
@@ -1226,13 +1310,15 @@
         <button class="action-btn" onclick="togglePause()">▶️ DEVAM ET</button>
         <button class="action-btn" onclick="openJournal()" style="border-color:#ff9955; color:#ff9955;">📖 GÜNLÜK · AMACIM</button>
         <button class="action-btn" onclick="openSettingsModal()" style="border-color:#00ffcc; color:#00ffcc;">⚙️ AYARLAR</button>
-        <button class="action-btn" onclick="openMarket()" style="border-color:#ffd700; color:#ffd700;">🛒 MARKET'E GİR</button>
+        <button class="action-btn" onclick="openMarket()" style="border-color:#ffd700; color:#ffd700;"><i class="ic-market" aria-hidden="true"></i> MARKET'E GİR</button>
+        <button class="action-btn" onclick="MPUI.profile()" style="border-color:#ffd24a; color:#ffe9a8;">🪪 PROFİLİM</button>
         <button class="action-btn" onclick="openCmd()" style="border-color:#66ccff; color:#66ccff;">👑 KOMUTANLAR</button>
         <button class="action-btn" onclick="location.reload()" style="border-color:#ff3366; color:#ff3366;">🔄 ANA MENÜYE DÖN</button>
     </div>
 
     <div id="marketModal">
         <div class="market-container">
+            <div class="market-title"><i class="ic-market" aria-hidden="true"></i><div>KADİM PAZAR<small>kostüm · karaborsa · ordu · iksir</small></div><i class="ic-market" style="transform:scaleX(-1)" aria-hidden="true"></i></div>
             <div class="market-header">
                 <button class="tab-btn active" onclick="switchMarketTab(this, 'skins')">🐉 KOSTÜMLER</button>
                 <button class="tab-btn" onclick="switchMarketTab(this, 'blackmarket')" style="color: #ff3366;">🏴‍☠️ KARABORSA (ÖZELLEŞTİR)</button>
@@ -1281,7 +1367,7 @@
 
     <div id="ui">
         <h3>BÖRÜ (<span id="uiThemeName">Magma</span>)</h3>
-        <p style="margin-top: 4px; margin-bottom: 4px;">Bölge: <span id="uiBiomeName" style="font-weight:bold; text-shadow: 0 0 8px currentColor;">Kadim Orman</span></p>
+        <p style="margin-top: 4px; margin-bottom: 4px;">Bölge: <span id="uiBiomeName" style="font-weight:bold; text-shadow: 0 0 8px currentColor;">Ulu Orman</span></p>
         <p>Ateş: <span class="highlight" id="uiFireText" style="color:#ff3300;">SOL TIK BASILI TUT</span></p>
         <p>Hayalet: <span style="color: #00ffff; font-weight: bold;">SPACE</span> | Kükreme: <span style="color: #ff9900; font-weight: bold;">E TUŞU</span></p>
         <p>Takviye Çağrısı: <span style="color: #00ffcc; font-weight: bold;">Q+S</span> | Köle: <span style="color:#66aaff; font-weight:bold;">Q+W</span></p>
@@ -1395,7 +1481,7 @@
         document.addEventListener('click', (e) => { try { if (e.target && e.target.closest && e.target.closest('button')) SND.play('click'); } catch (er) {} }, true);
         document.addEventListener('visibilitychange', () => { try { if (!audioCtx) return; if (document.hidden) audioCtx.suspend(); else audioCtx.resume(); } catch (e) {} });
         // MP: çok oyunculu mod Börü 1'den çıkarıldı; oyun kodunda kalan kontroller hep "kapalı" okur
-        const MP = { active: false, isHost: false, localDead: false, players: new Map(), ro: 0, nv: 0 };
+        const MP = { active: false, isHost: false, localDead: false, players: new Map(), ro: 0, nv: 0, noSkinBuffs: false, lite: false }; // noSkinBuffs: Birlikte modunda kostümler yalnızca görünüş
         const LP = { id: 'local', local: true, x: 0, y: 0, vx: 0, vy: 0, a: 0, ghost: false, safe: false, dead: false, sm: 1, name: '', maxHp: 2400, hp: 2400 };
         function getPlayer(id) { return id === LP.id ? LP : null; }
         function allPlayers() { return [LP]; }
@@ -1572,33 +1658,33 @@
         // 12 FARKLI VE ÖZEL TASARIMLI KOSTÜM & ALEV RENKLERİ
         const skinsDB = [
             { id: 'magma', name: 'Magma Börü', icon: '🔥', desc: 'Alevin saf hali. Geleneksel kanatlar.', reqLvl: 1, reqCoin: 0, mainColor: '#ff3300', uiColor: '#ff3300', fireColor1: '#ffff00', fireColor2: '#ff0000' },
-            { id: 'ice', name: 'Buz Wyrm', icon: '❄️', desc: 'Sivri buz kristalleri. Köşeli anatomi.', reqLvl: 1, reqCoin: 0, mainColor: '#00ffff', uiColor: '#00ffff', fireColor1: '#ffffff', fireColor2: '#0088ff' },
+            { id: 'ice', name: 'Karakış', icon: '❄️', desc: 'Sivri buz kristalleri. Köşeli anatomi.', reqLvl: 1, reqCoin: 0, mainColor: '#00ffff', uiColor: '#00ffff', fireColor1: '#ffffff', fireColor2: '#0088ff' },
             { id: 'poison', name: 'Zehir Engereği', icon: '🐍', desc: 'Kobra boynu ve iğneli kuyruk.', reqLvl: 1, reqCoin: 0, mainColor: '#33ff00', uiColor: '#33ff00', fireColor1: '#ccff00', fireColor2: '#11aa00' },
-            { id: 'void', name: 'Hiçlik Ejderi', icon: '🌌', desc: 'Karanlıktan doğan ayrı gövdeler.', reqLvl: 5, reqCoin: 50, mainColor: '#cc00ff', uiColor: '#cc00ff', fireColor1: '#440066', fireColor2: '#000000' }, // SİYAH ALEV
-            { id: 'terracotta', name: 'Toprak Kralı', icon: '⛰️', desc: 'Kare zırh plakaları ve küt kanatlar.', reqLvl: 10, reqCoin: 200, mainColor: '#FFD700', uiColor: '#FFD700', fireColor1: '#ffaa00', fireColor2: '#8b4513' },
-            { id: 'blood', name: 'Kan İblisi', icon: '🩸', desc: 'Yarasa kulakları ve kanlı tırpan kuyruk.', reqLvl: 15, reqCoin: 300, mainColor: '#ff0044', uiColor: '#ff0044', fireColor1: '#ff5555', fireColor2: '#660000' },
-            { id: 'nebula', name: 'Kozmik Bulutsu', icon: '🌠', desc: 'Neon galaksi sarmalları.', reqLvl: 20, reqCoin: 450, mainColor: '#ff00cc', uiColor: '#ff00cc', fireColor1: '#00ffff', fireColor2: '#ff00cc' },
-            { id: 'shadow', name: 'Gece Gölgesi', icon: '🌑', desc: 'Karanlık silüet ve dumanlı kanatlar.', reqLvl: 25, reqCoin: 800, mainColor: '#444444', uiColor: '#444444', fireColor1: '#666666', fireColor2: '#111111' }, // GRİ/SİYAH ALEV
-            { id: 'toxicWaste', name: 'Radyoaktif', icon: '☢️', desc: 'Asimetrik boynuzlar, delikli kanatlar.', reqLvl: 30, reqCoin: 1000, mainColor: '#33ff00', uiColor: '#33ff00', fireColor1: '#ffff00', fireColor2: '#00ff00' },
-            { id: 'abyss', name: 'Abis Dehşeti', icon: '🌊', desc: 'Fener balığı ışığı ve yüzgeç kanatlar.', reqLvl: 35, reqCoin: 1500, mainColor: '#0055ff', uiColor: '#0055ff', fireColor1: '#00ffff', fireColor2: '#000088' }, // LACİVERT ALEV
-            { id: 'ascended', name: 'Yüce Hakan', icon: '👑', desc: 'Tanrısal altın haleler ve çoklu kanat.', reqLvl: 40, reqCoin: 3000, mainColor: '#ffd700', uiColor: '#ffd700', fireColor1: '#ffffff', fireColor2: '#ffaa00' }, // ALTIN ALEV
-            { id: 'bone', name: 'Kemik Lordu', icon: '💀', desc: 'Açık kaburgalar, iskelet kanat ve kurukafa.', reqLvl: 45, reqCoin: 4000, mainColor: '#dddddd', uiColor: '#ffffff', fireColor1: '#ffffff', fireColor2: '#444444' },
-            { id: 'stormwyrm', name: 'Fırtına Ejderi', icon: '⚡', desc: 'Elektrikli pullar ve çatallı yıldırım kuyruk.', reqLvl: 50, reqCoin: 5000, mainColor: '#66ccff', uiColor: '#66ccff', fireColor1: '#ffffff', fireColor2: '#3366ff' },
-            { id: 'coral', name: 'Mercan Canavarı', icon: '🪸', desc: 'Canlı mercan dokusu ve fosforlu lekeler.', reqLvl: 55, reqCoin: 6000, mainColor: '#ff6699', uiColor: '#ff6699', fireColor1: '#ffccdd', fireColor2: '#cc3366' },
-            { id: 'ragingMagma', name: 'Öfkelenmiş Magma Ejderi', icon: '💢', desc: 'Çıldırmış ateşin son hali. Kapkara kül zırh, beyaz-sıcak öz.', reqLvl: 12, reqCoin: 260, mainColor: '#ff2200', uiColor: '#ff2200', fireColor1: '#ffee00', fireColor2: '#1a0000' },
-            { id: 'kingsbane', name: 'Kral Avcısı', icon: '👑', desc: 'Kadim Ejderha Kralı\'nı yenerek kazanılır.', reqLvl: 999, reqCoin: 999999, mainColor: '#ffaa00', uiColor: '#ffaa00', fireColor1: '#ffee88', fireColor2: '#aa4400' },
-            { id: 'questmaster', name: 'Görev Ustası', icon: '📜', desc: '5 görev tamamlayarak kazanılır.', reqLvl: 999, reqCoin: 999999, mainColor: '#ffd700', uiColor: '#ffd700', fireColor1: '#ffffff', fireColor2: '#cc9900' },
-            { id: 'auroraWyrm', name: 'Aurora Ejderi', icon: '🌈', desc: 'Kutup ışıklarından örülmüş, yarı saydam pullar.', reqLvl: 60, reqCoin: 7500, mainColor: '#66ffcc', uiColor: '#66ffcc', fireColor1: '#ffffff', fireColor2: '#3399ff' },
-            { id: 'infernoLord', name: 'Cehennem Efendisi', icon: '👹', desc: 'Sürekli közlenen, çatlaklarından ışık sızan zırh.', reqLvl: 65, reqCoin: 9000, mainColor: '#ff4400', uiColor: '#ff4400', fireColor1: '#ffcc00', fireColor2: '#330000' },
-            { id: 'celestialSerpent', name: 'Gökyüzü Serpenti', icon: '🔮', desc: 'Yıldız tozundan bir gövde, mor bir nefes.', reqLvl: 75, reqCoin: 12000, mainColor: '#9966ff', uiColor: '#9966ff', fireColor1: '#ccaaff', fireColor2: '#4400aa' },
-            { id: 'obsidianTitan', name: 'Obsidyen Titan', icon: '🗿', desc: 'Volkanik camdan zırh, içinde mavi enerji akıyor.', reqLvl: 85, reqCoin: 16000, mainColor: '#5566ff', uiColor: '#5566ff', fireColor1: '#aaaaff', fireColor2: '#0a0a1a' },
+            { id: 'void', name: 'Yutan', icon: '🌌', desc: 'Karanlıktan doğan ayrı gövdeler.', reqLvl: 5, reqCoin: 50, mainColor: '#cc00ff', uiColor: '#cc00ff', fireColor1: '#440066', fireColor2: '#000000' }, // SİYAH ALEV
+            { id: 'terracotta', name: 'Kerpiç Han', icon: '⛰️', desc: 'Kare zırh plakaları ve küt kanatlar.', reqLvl: 10, reqCoin: 200, mainColor: '#FFD700', uiColor: '#FFD700', fireColor1: '#ffaa00', fireColor2: '#8b4513' },
+            { id: 'blood', name: 'Albastı', icon: '🩸', desc: 'Yarasa kulakları ve kanlı tırpan kuyruk.', reqLvl: 15, reqCoin: 300, mainColor: '#ff0044', uiColor: '#ff0044', fireColor1: '#ff5555', fireColor2: '#660000' },
+            { id: 'nebula', name: 'Yıldız Tozu', icon: '🌠', desc: 'Neon galaksi sarmalları.', reqLvl: 20, reqCoin: 450, mainColor: '#ff00cc', uiColor: '#ff00cc', fireColor1: '#00ffff', fireColor2: '#ff00cc' },
+            { id: 'shadow', name: 'Karagece', icon: '🌑', desc: 'Karanlık silüet ve dumanlı kanatlar.', reqLvl: 25, reqCoin: 800, mainColor: '#444444', uiColor: '#444444', fireColor1: '#666666', fireColor2: '#111111' }, // GRİ/SİYAH ALEV
+            { id: 'toxicWaste', name: 'Çürük Yeşil', icon: '☢️', desc: 'Asimetrik boynuzlar, delikli kanatlar.', reqLvl: 30, reqCoin: 1000, mainColor: '#33ff00', uiColor: '#33ff00', fireColor1: '#ffff00', fireColor2: '#00ff00' },
+            { id: 'abyss', name: 'Dipsiz', icon: '🌊', desc: 'Fener balığı ışığı ve yüzgeç kanatlar.', reqLvl: 35, reqCoin: 1500, mainColor: '#0055ff', uiColor: '#0055ff', fireColor1: '#00ffff', fireColor2: '#000088' }, // LACİVERT ALEV
+            { id: 'ascended', name: 'Gök Hakan', icon: '👑', desc: 'Tanrısal altın haleler ve çoklu kanat.', reqLvl: 40, reqCoin: 3000, mainColor: '#ffd700', uiColor: '#ffd700', fireColor1: '#ffffff', fireColor2: '#ffaa00' }, // ALTIN ALEV
+            { id: 'bone', name: 'Kemikçi Bey', icon: '💀', desc: 'Açık kaburgalar, iskelet kanat ve kurukafa.', reqLvl: 45, reqCoin: 4000, mainColor: '#dddddd', uiColor: '#ffffff', fireColor1: '#ffffff', fireColor2: '#444444' },
+            { id: 'stormwyrm', name: 'Boran', icon: '⚡', desc: 'Elektrikli pullar ve çatallı yıldırım kuyruk.', reqLvl: 50, reqCoin: 5000, mainColor: '#66ccff', uiColor: '#66ccff', fireColor1: '#ffffff', fireColor2: '#3366ff' },
+            { id: 'coral', name: 'Mercan Baba', icon: '🪸', desc: 'Canlı mercan dokusu ve fosforlu lekeler.', reqLvl: 55, reqCoin: 6000, mainColor: '#ff6699', uiColor: '#ff6699', fireColor1: '#ffccdd', fireColor2: '#cc3366' },
+            { id: 'ragingMagma', name: 'Kızgın Kor', icon: '💢', desc: 'Çıldırmış ateşin son hali. Kapkara kül zırh, beyaz-sıcak öz.', reqLvl: 12, reqCoin: 260, mainColor: '#ff2200', uiColor: '#ff2200', fireColor1: '#ffee00', fireColor2: '#1a0000' },
+            { id: 'kingsbane', name: 'Kral Kesen', icon: '👑', desc: 'Kadim Ejderha Kralı\'nı yenerek kazanılır.', reqLvl: 999, reqCoin: 999999, mainColor: '#ffaa00', uiColor: '#ffaa00', fireColor1: '#ffee88', fireColor2: '#aa4400' },
+            { id: 'questmaster', name: 'Yol Bilen', icon: '📜', desc: '5 görev tamamlayarak kazanılır.', reqLvl: 999, reqCoin: 999999, mainColor: '#ffd700', uiColor: '#ffd700', fireColor1: '#ffffff', fireColor2: '#cc9900' },
+            { id: 'auroraWyrm', name: 'Kutup Işığı', icon: '🌈', desc: 'Kutup ışıklarından örülmüş, yarı saydam pullar.', reqLvl: 60, reqCoin: 7500, mainColor: '#66ffcc', uiColor: '#66ffcc', fireColor1: '#ffffff', fireColor2: '#3399ff' },
+            { id: 'infernoLord', name: 'Zebani', icon: '👹', desc: 'Sürekli közlenen, çatlaklarından ışık sızan zırh.', reqLvl: 65, reqCoin: 9000, mainColor: '#ff4400', uiColor: '#ff4400', fireColor1: '#ffcc00', fireColor2: '#330000' },
+            { id: 'celestialSerpent', name: 'Gök Yılanı', icon: '🔮', desc: 'Yıldız tozundan bir gövde, mor bir nefes.', reqLvl: 75, reqCoin: 12000, mainColor: '#9966ff', uiColor: '#9966ff', fireColor1: '#ccaaff', fireColor2: '#4400aa' },
+            { id: 'obsidianTitan', name: 'Kara Cam Dev', icon: '🗿', desc: 'Volkanik camdan zırh, içinde mavi enerji akıyor.', reqLvl: 85, reqCoin: 16000, mainColor: '#5566ff', uiColor: '#5566ff', fireColor1: '#aaaaff', fireColor2: '#0a0a1a' },
             { id: 'kiyametavcisi', name: 'Kıyamet Avcısı', icon: '🌌', desc: 'Üç Başlı Kıyamet\'in ta kendisi: üç boyun, üç baş, mor çatlaklı gövde ve göğsünde atan tek kalp. YETENEK: kalbi birkaç saniyede bir çevreyi yakan dalga yayar. (Kara Delik III\'ü yenerek kazanılır.)', reqLvl: 999, reqCoin: 999999, mainColor: '#b77bff', uiColor: '#b77bff', fireColor1: '#f0e0ff', fireColor2: '#5a1aa0' },
             { id: 'emberheir', name: 'Ateşyurt Varisi', icon: '🌋', desc: 'Sürü Ana\'nın küllerinden doğan ejderha: kor çatlaklı kül gövde, alev kanatlar, göğsünde Sürü Ana\'nın orak kolları. YETENEK: etrafında dönen kor arıları düşmanlara dalar. (Kara Delik II\'yi yenerek kazanılır.)', reqLvl: 999, reqCoin: 999999, mainColor: '#ff8a2a', uiColor: '#ff8a2a', fireColor1: '#fff2c0', fireColor2: '#c02000' },
-            { id: 'mirrorbane', name: 'Ayna Ejderi', icon: '🕳️', desc: 'Kara Delik I\'deki Vahşi Ayna Ejderha\'nın ta kendisi: kızıl çatlaklı kömür gövde, yanık delikli yırtık kanatlar, çatal bıçak kuyruk. YETENEK: gövdene gelen mermileri aynada parçalar. (Kara Delik I\'i yenerek kazanılır.)', reqLvl: 999, reqCoin: 999999, mainColor: '#c0c0ff', uiColor: '#c0c0ff', fireColor1: '#ffffff', fireColor2: '#222244' }
+            { id: 'mirrorbane', name: 'Aynalı', icon: '🕳️', desc: 'Kara Delik I\'deki Vahşi Ayna Ejderha\'nın ta kendisi: kızıl çatlaklı kömür gövde, yanık delikli yırtık kanatlar, çatal bıçak kuyruk. YETENEK: gövdene gelen mermileri aynada parçalar. (Kara Delik I\'i yenerek kazanılır.)', reqLvl: 999, reqCoin: 999999, mainColor: '#c0c0ff', uiColor: '#c0c0ff', fireColor1: '#ffffff', fireColor2: '#222244' }
         ];
         // KOSTÜM ÇEŞİTLİLİĞİ: her kostüme kendi gövde paleti (açık / orta / koyu), göz rengi ve gerekirse
         // yeni ana renk veriliyor. Böylece eskiden aynı kırmızı-siyah tonlara düşen kostümler artık
-        // gerçekten farklı görünüyor. (Mercan Canavarı bilerek değiştirilmedi.)
+        // gerçekten farklı görünüyor. (Mercan Baba bilerek değiştirilmedi.)
         const skinExtras = {
             magma:        { body: ['#ff8a3a', '#8a1a00', '#1a0300'], eyeColor: '#ffcc00' },
             ice:          { body: ['#f0ffff', '#48bfe6', '#062838'], eyeColor: '#e0ffff' },
@@ -1627,14 +1713,14 @@
         skinsDB.forEach(sk => Object.assign(sk, skinExtras[sk.id] || {}));
         // YENİ KOSTÜMLER: son kademeler
         [
-            { id: 'phoenixLord', name: 'Anka Ejderi', icon: '🦅', desc: 'Küllerinden doğan alev tüylü kanatlar ve yanan bir ibik.', reqLvl: 70, reqCoin: 10500, mainColor: '#ff7a1a', uiColor: '#ff7a1a', fireColor1: '#fff6a0', fireColor2: '#ff2a00', body: ['#ffb060', '#b83000', '#2a0600'], eyeColor: '#fff2a0' },
-            { id: 'crystalDrake', name: 'Kristal Drake', icon: '💎', desc: 'Işığı gökkuşağına bölen prizma kanatlar ve kristal boynuzlar.', reqLvl: 80, reqCoin: 14000, mainColor: '#7fe8ff', uiColor: '#7fe8ff', fireColor1: '#ffffff', fireColor2: '#b070ff', body: ['#e8fbff', '#5aa8c8', '#0a2030'], eyeColor: '#ffffff' },
-            { id: 'eclipse', name: 'Tutulma Ejderi', icon: '🌘', desc: 'Güneşi yutan kara gövde, kanatlarında altın taç ışığı.', reqLvl: 90, reqCoin: 20000, mainColor: '#ffcc44', uiColor: '#ffcc44', fireColor1: '#fff8d0', fireColor2: '#1a0a00', body: ['#2a2418', '#0a0806', '#000000'], eyeColor: '#ffe680' },
+            { id: 'phoenixLord', name: 'Anka Kağan', icon: '🦅', desc: 'Küllerinden doğan alev tüylü kanatlar ve yanan bir ibik.', reqLvl: 70, reqCoin: 10500, mainColor: '#ff7a1a', uiColor: '#ff7a1a', fireColor1: '#fff6a0', fireColor2: '#ff2a00', body: ['#ffb060', '#b83000', '#2a0600'], eyeColor: '#fff2a0' },
+            { id: 'crystalDrake', name: 'Billur', icon: '💎', desc: 'Işığı gökkuşağına bölen prizma kanatlar ve kristal boynuzlar.', reqLvl: 80, reqCoin: 14000, mainColor: '#7fe8ff', uiColor: '#7fe8ff', fireColor1: '#ffffff', fireColor2: '#b070ff', body: ['#e8fbff', '#5aa8c8', '#0a2030'], eyeColor: '#ffffff' },
+            { id: 'eclipse', name: 'Ay Yutan', icon: '🌘', desc: 'Güneşi yutan kara gövde, kanatlarında altın taç ışığı.', reqLvl: 90, reqCoin: 20000, mainColor: '#ffcc44', uiColor: '#ffcc44', fireColor1: '#fff8d0', fireColor2: '#1a0a00', body: ['#2a2418', '#0a0806', '#000000'], eyeColor: '#ffe680' },
             { id: 'kazuma', name: 'Kazuma', icon: '🐉', desc: 'Tek parça dolu gövde, bronz pullar, hilal boynuzlar ve orak kuyruk. Kanatları gövdesinden bir organ gibi büyür.', reqLvl: 95, reqCoin: 24000, mainColor: '#2fd3b0', uiColor: '#2fd3b0', fireColor1: '#ffe9a8', fireColor2: '#ff3b1f', body: ['#46e3c0', '#157060', '#03201a'], eyeColor: '#ffe45a' },
-            { id: 'stormbringer', name: 'Yıldırım Toplayıcı', icon: '⚡', desc: 'Lavanta-çivit pullu uzun gövde. Kanat çırptıkça bileklerinde yıldırım toplanır, parmak uçları arasında şimşek çakar. Dört süpürme boynuz, çatal yıldırım kuyruk.', reqLvl: 96, reqCoin: 25000, mainColor: '#c8ff3d', uiColor: '#c8ff3d', fireColor1: '#f6ffd0', fireColor2: '#6a3cff', body: ['#8e7cc3', '#3d2c6e', '#0d0620'], eyeColor: '#e6ff6a' },
+            { id: 'stormbringer', name: 'Şimşek Bekçisi', icon: '⚡', desc: 'Lavanta-çivit pullu uzun gövde. Kanat çırptıkça bileklerinde yıldırım toplanır, parmak uçları arasında şimşek çakar. Dört süpürme boynuz, çatal yıldırım kuyruk.', reqLvl: 96, reqCoin: 25000, mainColor: '#c8ff3d', uiColor: '#c8ff3d', fireColor1: '#f6ffd0', fireColor2: '#6a3cff', body: ['#8e7cc3', '#3d2c6e', '#0d0620'], eyeColor: '#e6ff6a' },
             { id: 'emberwing', name: 'Kor Kanat', icon: '🔥', desc: 'Şarap-gül derili gövde; kanatları deri değil, kömür kemiklerden fışkıran pembe-altın alev. Alevli boynuzlar ve ateş tüyü kuyruk.', reqLvl: 96, reqCoin: 26000, mainColor: '#ff4fa3', uiColor: '#ff4fa3', fireColor1: '#fff6c2', fireColor2: '#ff2d95', body: ['#b85a6e', '#5a1f33', '#16040b'], eyeColor: '#fff06a' },
             { id: 'sixhorn', name: 'Altı Boynuzlu Kağan', icon: '👑', desc: 'Adaçayı-zeytin iri gövde, bakır kenarlı pullar, leylak zarlı kanatlar. Başında altı boynuzlu taç, kürek kuyruk.', reqLvl: 97, reqCoin: 27000, mainColor: '#c7a6f0', uiColor: '#c7a6f0', fireColor1: '#fff0d8', fireColor2: '#e07a3a', body: ['#b7c48a', '#5c6b33', '#1a2008'], eyeColor: '#ff6a3d' },
-            { id: 'twinhead', name: 'İkiz Başlı Tiran', icon: '🐲', desc: 'Çelik mavisi tek gövdeden ayrılan iki boyun, iki baş. Mercan zarlı kanatlar, kıvrık koç boynuzları ve dönen gürz kuyruk.', reqLvl: 98, reqCoin: 28000, mainColor: '#ff7f6a', uiColor: '#ff7f6a', fireColor1: '#e0fff4', fireColor2: '#ff7f6a', body: ['#7fa7c9', '#2e4f73', '#08121f'], eyeColor: '#7dffd4' },
+            { id: 'twinhead', name: 'Çifte Baş', icon: '🐲', desc: 'Çelik mavisi tek gövdeden ayrılan iki boyun, iki baş. Mercan zarlı kanatlar, kıvrık koç boynuzları ve dönen gürz kuyruk.', reqLvl: 98, reqCoin: 28000, mainColor: '#ff7f6a', uiColor: '#ff7f6a', fireColor1: '#e0fff4', fireColor2: '#ff7f6a', body: ['#7fa7c9', '#2e4f73', '#08121f'], eyeColor: '#7dffd4' },
             { id: 'mistserpent', name: 'Sis Yılanı', icon: '🐍', desc: 'İnce uzun kuğu boynu, çok uzun kuyruk, renk değiştiren sedef pullar. Üç çift şeftali-turkuaz kanat, geyik boynuzları ve yelpaze yüzgeç kuyruk.', reqLvl: 99, reqCoin: 29000, mainColor: '#9fe8ff', uiColor: '#9fe8ff', fireColor1: '#ffffff', fireColor2: '#3fb3a8', body: ['#f1e6ff', '#9a86c4', '#261a3d'], eyeColor: '#7df9ff' },
             { id: 'kirkayak', name: 'Kırk Pençe', icon: '🐊', desc: 'Kanatsız, upuzun bir yer ejderi. Gövdesi boyunca dizilmiş pullu, dört pençeli bacaklarla sürünür; başının ardında dikenli yaka açılır, altı boynuzlu tacı var. YETENEK: gövdene değen her düşmanı pençeleriyle parçalar.', reqLvl: 99, reqCoin: 29200, mainColor: '#e0a040', uiColor: '#e0a040', fireColor1: '#fff6b0', fireColor2: '#ff7a1f', body: ['#d9b85a', '#6e5418', '#140e02'], eyeColor: '#ff5f1f' },
             { id: 'lesagzi', name: 'Leş Ağzı', icon: '💀', desc: 'Yarı çürümüş dev bir wyvern. Açıkta kalan kaburgalar, yırtık deri kanatlar, koç boynuzları ve iğne kuyruk. YETENEK: çürük nefesi yakınındaki düşmanları yavaşlatıp eritir.', reqLvl: 99, reqCoin: 29400, mainColor: '#c8e05a', uiColor: '#c8e05a', fireColor1: '#f4ffc8', fireColor2: '#4a2a3a', body: ['#a88a9a', '#4e3444', '#140810'], eyeColor: '#e8ff7a' },
@@ -1643,7 +1729,7 @@
             { id: 'buzmamut', name: 'Buzul Mamutu', icon: '🦣', desc: 'Dağ gibi iri, buz zırhlı ağır ejderha. Alt çenesinden öne uzanan dev dişler, koç boynuzları, sırtında buz sarkıtları, gürz kuyruk. YETENEK: gövdesine yaklaşan düşmanları dondurur.', reqLvl: 97, reqCoin: 26500, mainColor: '#8ff0ff', uiColor: '#8ff0ff', fireColor1: '#ffffff', fireColor2: '#3a8ab0', body: ['#e2f2f8', '#6f8fa0', '#142430'], eyeColor: '#8ff0ff' },
             { id: 'kumyelken', name: 'Kum Yelkeni', icon: '🏜️', desc: 'Çöl ejderi: kanat yerine kaburgalarından açılan kızıl çizgili yan yelkenlerle süzülür. Başında açılıp kapanan yaka, dört ayağı kum rengi pullu. YETENEK: kuyruğunun ardında düşman aşındıran kum hortumları bırakır.', reqLvl: 98, reqCoin: 27500, mainColor: '#ffd27a', uiColor: '#ffd27a', fireColor1: '#fff6dc', fireColor2: '#c84a1a', body: ['#f0d49a', '#a0703a', '#2a1808'], eyeColor: '#ffcc33' },
             { id: 'kanayi', name: 'Kan Ay Wyverni', icon: '🦇', desc: 'Kıpkızıl, yarasa kulaklı bir wyvern. Tek çift devasa zar kanat, hilal boynuzlar, iğne kuyruk. YETENEK: ateş püskürürken önündeki düşmanların kanını emer, canını doldurur.', reqLvl: 98, reqCoin: 28500, mainColor: '#ff2a3a', uiColor: '#ff2a3a', fireColor1: '#ffe0e0', fireColor2: '#6a0010', body: ['#c23a4a', '#5a0e1c', '#12020a'], eyeColor: '#ffea6a' },
-            { id: 'kadimorman', name: 'Kadim Orman', icon: '🌳', desc: 'Binlerce yıllık yaşlı ejderha: kabuk gibi pullar, üstünde yosun ve açan çiçekler, dal boynuzlar, yaprak kuyruk. YETENEK: yakındaki düşmanların altından dikenli kökler fışkırtır.', reqLvl: 99, reqCoin: 29000, mainColor: '#b8ff5a', uiColor: '#b8ff5a', fireColor1: '#f4ffd0', fireColor2: '#3a7a2a', body: ['#8a9a5a', '#3e4a22', '#0e1406'], eyeColor: '#ffd84a' },
+            { id: 'kadimorman', name: 'Ulu Orman', icon: '🌳', desc: 'Binlerce yıllık yaşlı ejderha: kabuk gibi pullar, üstünde yosun ve açan çiçekler, dal boynuzlar, yaprak kuyruk. YETENEK: yakındaki düşmanların altından dikenli kökler fışkırtır.', reqLvl: 99, reqCoin: 29000, mainColor: '#b8ff5a', uiColor: '#b8ff5a', fireColor1: '#f4ffd0', fireColor2: '#3a7a2a', body: ['#8a9a5a', '#3e4a22', '#0e1406'], eyeColor: '#ffd84a' },
             { id: 'volkansirt', name: 'Volkan Sırtı', icon: '🌋', desc: 'Bazalt pullu, çatlaklarından lav sızan ağır ejderha. Sırtında dumanı tüten volkan bacaları. YETENEK: bacalarından düşmanların üstüne lav bombası yağdırır.', reqLvl: 100, reqCoin: 29900, mainColor: '#ff6a00', uiColor: '#ff6a00', fireColor1: '#fff6c0', fireColor2: '#8a1a00', body: ['#4a4040', '#1a1414', '#050303'], eyeColor: '#ffcc00' },
             { id: 'golgesimsek', name: 'Gölge Şimşeği', icon: '🌑', desc: 'Gece karası, pürüzsüz pullu, çevik bir avcı. Boynuz yerine kulak yüzgeçleri, kuyruğunda ikinci bir kanat çifti; ışın öncesi sırt plakaları mavi yanar. YETENEK: hızla uçarken en yakın düşmana plazma topu fırlatır.', reqLvl: 100, reqCoin: 29950, mainColor: '#5ad0ff', uiColor: '#5ad0ff', fireColor1: '#e8fbff', fireColor2: '#3a2aff', body: ['#34344a', '#10101c', '#020206'], eyeColor: '#7dff6a' },
             { id: 'worldEater', name: 'Dünya Yiyen', icon: '🌍', desc: 'Son kademe. Kanatlarında ve gövdesinde gözler, başının çevresinde dönen dünyalar.', reqLvl: 100, reqCoin: 30000, mainColor: '#ff2a6a', uiColor: '#ff2a6a', fireColor1: '#ffffff', fireColor2: '#6a00ff', body: ['#5a1a3a', '#1a0414', '#000000'], eyeColor: '#ff9ad0' }
@@ -1654,7 +1740,7 @@
         skinsDB.sort((a, b) => SKIN_ORDER.indexOf(a.id) - SKIN_ORDER.indexOf(b.id));
         // Seviye şartları 100'lük ölçekten 15'lik ölçeğe, coin fiyatları yeni ekonomiye çekildi
         skinsDB.forEach(sk => { if (sk.reqLvl < 999) { sk.reqLvl = Math.max(1, Math.ceil(sk.reqLvl)); if (sk.reqCoin > 0) sk.reqCoin = Math.max(50, Math.round(sk.reqCoin * 0.4 / 50) * 50); } });
-        function skinBonus(sk) { const t = (sk && sk.tier) || 0; return { fire: t * 0.04, hp: t * 0.03 }; }
+        function skinBonus(sk) { const t = (MP.noSkinBuffs ? 0 : (sk && sk.tier)) || 0; return { fire: t * 0.04, hp: t * 0.03 }; }
 
         let shopUnlocks = safeParseJSON('boruShopUnlocks', { bigWings: false, demonHorns: false, dragonHeart: false, fireStorm: false, speedBoots: false, trailOfFire: false, vampireTooth: false, titanScales: false, plasmaCore: false, toxicBreath: false, ancientRoar: false, gemMagnet: false });
         
@@ -1668,17 +1754,17 @@
 
         const blackMarketDB = [
             { id: 'bigWings', name: 'Devasa Kanatlar', icon: '🦇', desc: 'Kanat açıklığını artırır.', cost: 300, color: '#ffd700' },
-            { id: 'speedBoots', name: 'Rüzgar Büyüsü', icon: '💨', desc: 'Süzülme hızını %25 artırır.', cost: 700, color: '#00ffff' },
-            { id: 'demonHorns', name: 'İblis Boynuzları', icon: '😈', desc: 'Halkalı, kor uçlu, öne kıvrılan kara boynuzlar.', cost: 400, color: '#ff5500' },
+            { id: 'speedBoots', name: 'Yel Kanadı', icon: '💨', desc: 'Süzülme hızını %25 artırır.', cost: 700, color: '#00ffff' },
+            { id: 'demonHorns', name: 'Kara Boynuz', icon: '😈', desc: 'Halkalı, kor uçlu, öne kıvrılan kara boynuzlar.', cost: 400, color: '#ff5500' },
             { id: 'dragonHeart', name: 'Ejderha Kalbi', icon: '❤️', desc: 'Max canı 1500 artırır.', cost: 900, color: '#ff3300' },
             { id: 'trailOfFire', name: 'Yakan İz', icon: '🌋', desc: 'Kuyruktan ateş dökülür.', cost: 900, color: '#ff8800' },
             { id: 'fireStorm', name: 'Ateş Fırtınası', icon: '🔥', desc: 'Alev hasarını x2 katlar.', cost: 1800, color: '#ffaa00' },
             { id: 'ancientRoar', name: 'Kadim Kükreme', icon: '🦁', desc: 'Kükreme süresini yarıya indirir.', cost: 1100, color: '#ffcc00' },
-            { id: 'vampireTooth', name: 'Vampir Dişi', icon: '🧛', desc: 'Can çalma şansını +%15 artırır.', cost: 1400, color: '#ff0044' },
-            { id: 'titanScales', name: 'Titan Pulları', icon: '🛡️', desc: 'Max canı devasa 3000 artırır.', cost: 1600, color: '#aaaaaa' },
+            { id: 'vampireTooth', name: 'Kan Emici Diş', icon: '🧛', desc: 'Can çalma şansını +%15 artırır.', cost: 1400, color: '#ff0044' },
+            { id: 'titanScales', name: 'Taş Pul', icon: '🛡️', desc: 'Max canı devasa 3000 artırır.', cost: 1600, color: '#aaaaaa' },
             { id: 'toxicBreath', name: 'Zehirli Nefes', icon: '🤢', desc: 'Alevler ekranda çok daha uzun kalır.', cost: 1200, color: '#33ff00' },
-            { id: 'plasmaCore', name: 'Plazma Çekirdeği', icon: '⚛️', desc: 'Süper Plazma (R) 2 kat hızlı dolar.', cost: 1500, color: '#00ffff' },
-            { id: 'gemMagnet', name: 'Cevher Mıknatısı', icon: '🧲', desc: 'XP cevherlerini çok uzaktan çeker.', cost: 1000, color: '#ff00ff' },
+            { id: 'plasmaCore', name: 'Kor Yürek', icon: '⚛️', desc: 'Süper Plazma (R) 2 kat hızlı dolar.', cost: 1500, color: '#00ffff' },
+            { id: 'gemMagnet', name: 'Taş Çeken', icon: '🧲', desc: 'XP cevherlerini çok uzaktan çeker.', cost: 1000, color: '#ff00ff' },
             { id: 'phoenixEmber', name: 'Anka Közü', icon: '🪶', desc: 'Can kritik seviyeye düşünce bir kerelik dev bir iyileşme patlaması tetikler.', cost: 1500, color: '#ff9955' },
             { id: 'stormCore', name: 'Fırtına Çekirdeği', icon: '⚡', desc: 'Kritik hasar şansını +%10 ve kükreme gücünü artırır.', cost: 1400, color: '#66ccff' }
         ];
@@ -1690,31 +1776,31 @@
             { id: 'slave_default', cat: 'slave', name: 'Mavi Muhafız', icon: '🛡️', cost: 0, pal: { main: '#2288ff', accent: '#ffd700', dark: '#0a2a28', glow: '#66ccff' }, buff: {}, desc: 'Standart muhafız zırhı.' },
             { id: 'slave_crimson', cat: 'slave', name: 'Kızıl Muhafız', icon: '🩸', cost: 400, pal: { main: '#ff2244', accent: '#ffcc66', dark: '#2a0508', glow: '#ff8899' }, buff: { dmg: 0.35 }, desc: 'Köle saldırı gücü +%35' },
             { id: 'slave_frost', cat: 'slave', name: 'Buz Nöbetçisi', icon: '❄️', cost: 450, pal: { main: '#88e8ff', accent: '#ffffff', dark: '#0a2030', glow: '#ccf6ff' }, buff: { hp: 0.2, slow: true }, desc: 'Vuruşları düşmanı yavaşlatır · Can +%20' },
-            { id: 'slave_shadow', cat: 'slave', name: 'Gölge Suikastçı', icon: '🌑', cost: 500, pal: { main: '#9a6bff', accent: '#c8b0ff', dark: '#0c0616', glow: '#e0d0ff' }, buff: { spd: 0.3, dmg: 0.15 }, desc: 'Hız +%30 · Saldırı +%15' },
-            { id: 'slave_bone', cat: 'slave', name: 'Kemik Şövalye', icon: '💀', cost: 650, pal: { main: '#d8d0b8', accent: '#ff4422', dark: '#1a1814', glow: '#ff6644' }, buff: { noRebel: true, dmg: 0.1 }, desc: 'Ölünce asla isyan etmez · Saldırı +%10' },
-            { id: 'slave_gold', cat: 'slave', name: 'Altın Lejyon', icon: '👑', cost: 800, pal: { main: '#ffc400', accent: '#fff2a0', dark: '#2a1e00', glow: '#fff6c0' }, buff: { hp: 0.6, regen: 1 }, desc: 'Can +%60 · İyileşme x2' },
+            { id: 'slave_shadow', cat: 'slave', name: 'Gölge Hançer', icon: '🌑', cost: 500, pal: { main: '#9a6bff', accent: '#c8b0ff', dark: '#0c0616', glow: '#e0d0ff' }, buff: { spd: 0.3, dmg: 0.15 }, desc: 'Hız +%30 · Saldırı +%15' },
+            { id: 'slave_bone', cat: 'slave', name: 'Kemik Sipahi', icon: '💀', cost: 650, pal: { main: '#d8d0b8', accent: '#ff4422', dark: '#1a1814', glow: '#ff6644' }, buff: { noRebel: true, dmg: 0.1 }, desc: 'Ölünce asla isyan etmez · Saldırı +%10' },
+            { id: 'slave_gold', cat: 'slave', name: 'Altın Bölük', icon: '👑', cost: 800, pal: { main: '#ffc400', accent: '#fff2a0', dark: '#2a1e00', glow: '#fff6c0' }, buff: { hp: 0.6, regen: 1 }, desc: 'Can +%60 · İyileşme x2' },
 
             { id: 'soldier_default', cat: 'soldier', name: 'Magma Yavrusu', icon: '🐲', cost: 0, pal: { main: '#ff4a0a', accent: '#ffcc00', dark: '#1a0300', glow: '#ffdd66' }, buff: {}, desc: 'Standart yavru ejderha.' },
             { id: 'soldier_fire', cat: 'soldier', name: 'Kor Yavrusu', icon: '🔥', cost: 350, pal: { main: '#ffb000', accent: '#fff0a0', dark: '#2a1400', glow: '#ffffff' }, buff: { dmg: 0.35 }, desc: 'Yavru saldırı gücü +%35' },
-            { id: 'soldier_crystal', cat: 'soldier', name: 'Kristal Yavru', icon: '💎', cost: 400, pal: { main: '#b070ff', accent: '#e8d8ff', dark: '#1a0a30', glow: '#f0e0ff' }, buff: { hp: 0.6 }, desc: 'Yavru canı +%60' },
+            { id: 'soldier_crystal', cat: 'soldier', name: 'Billur Yavru', icon: '💎', cost: 400, pal: { main: '#b070ff', accent: '#e8d8ff', dark: '#1a0a30', glow: '#f0e0ff' }, buff: { hp: 0.6 }, desc: 'Yavru canı +%60' },
             { id: 'soldier_wind', cat: 'soldier', name: 'Rüzgar Yavrusu', icon: '🌪️', cost: 380, pal: { main: '#44ffaa', accent: '#e0fff0', dark: '#03281a', glow: '#aaffdd' }, buff: { spd: 0.4 }, desc: 'Yavru hızı +%40' },
             { id: 'soldier_venom', cat: 'soldier', name: 'Zehir Yavrusu', icon: '🦂', cost: 420, pal: { main: '#88ff22', accent: '#d0ff60', dark: '#0e2004', glow: '#ccff88' }, buff: { dmg: 0.15, slow: true }, desc: 'Vuruşlar yavaşlatır · Saldırı +%15' },
             { id: 'soldier_royal', cat: 'soldier', name: 'Kraliyet Yavrusu', icon: '⚜️', cost: 700, pal: { main: '#ffffff', accent: '#ffd700', dark: '#1a1a2a', glow: '#fff6c0' }, buff: { dmg: 0.2, hp: 0.2, spd: 0.2 }, desc: 'Saldırı, can ve hız +%20' },
 
             { id: 'hive_default', cat: 'hive', name: 'Mavi Kovan', icon: '🏴', cost: 0, pal: { main: '#2288ff' }, buff: {}, desc: 'Standart fethedilmiş kovan.' },
-            { id: 'hive_obsidian', cat: 'hive', name: 'Obsidyen Kale', icon: '🗿', cost: 500, pal: { main: '#7a6aff' }, buff: { hpMult: 1, regen: 2, siegeResist: 0.3 }, desc: 'Kovan canı x2 · Onarım x3 · Kuşatma hasarı -%30' },
-            { id: 'hive_crystal', cat: 'hive', name: 'Kristal Kovan', icon: '🔮', cost: 550, pal: { main: '#dd66ff' }, buff: { auraMult: 1, auraRange: 0.4 }, desc: 'Muhafız aurası hasarı x2 · Menzil +%40' },
-            { id: 'hive_forest', cat: 'hive', name: 'Canlı Orman', icon: '🌳', cost: 450, pal: { main: '#44dd66' }, buff: { prodMult: 1, extraSoldier: 1 }, desc: 'Asker üretimi 2 kat hızlı · Her üretimde +1 asker' },
+            { id: 'hive_obsidian', cat: 'hive', name: 'Kara Cam Kale', icon: '🗿', cost: 500, pal: { main: '#7a6aff' }, buff: { hpMult: 1, regen: 2, siegeResist: 0.3 }, desc: 'Kovan canı x2 · Onarım x3 · Kuşatma hasarı -%30' },
+            { id: 'hive_crystal', cat: 'hive', name: 'Billur Kovan', icon: '🔮', cost: 550, pal: { main: '#dd66ff' }, buff: { auraMult: 1, auraRange: 0.4 }, desc: 'Muhafız aurası hasarı x2 · Menzil +%40' },
+            { id: 'hive_forest', cat: 'hive', name: 'Yeşil Orman', icon: '🌳', cost: 450, pal: { main: '#44dd66' }, buff: { prodMult: 1, extraSoldier: 1 }, desc: 'Asker üretimi 2 kat hızlı · Her üretimde +1 asker' },
             { id: 'hive_gold', cat: 'hive', name: 'Altın Kovan', icon: '💰', cost: 600, pal: { main: '#ffcc00' }, buff: { goldIncome: 20 }, desc: 'Her dost kovan 30 saniyede bir 20 coin üretir' },
             { id: 'hive_lava', cat: 'hive', name: 'Lav Kalesi', icon: '🌋', cost: 650, pal: { main: '#ff5a00' }, buff: { auraMult: 0.5, siegeResist: 0.5 }, desc: 'Aura hasarı +%50 · Kuşatma hasarı -%50' }
         ];
         // Yeni ordu kostümleri ve tasarım stilleri (her stilin kendi çizimi var)
         armyDB.push(
-            { id: 'slave_storm', cat: 'slave', name: 'Fırtına Muhafızı', icon: '⚡', cost: 900, style: 'storm', pal: { main: '#66ccff', accent: '#ffffff', dark: '#06142a', glow: '#d8f4ff' }, buff: { spd: 0.25, dmg: 0.25 }, desc: 'Şimşek ibikli zırh · Hız ve saldırı +%25' },
-            { id: 'slave_void', cat: 'slave', name: 'Hiçlik Bekçisi', icon: '🌌', cost: 1100, style: 'void', pal: { main: '#a64dff', accent: '#e0c8ff', dark: '#08000f', glow: '#f0e0ff' }, buff: { hp: 0.4, dmg: 0.3 }, desc: 'Dönen birikim halkaları · Can +%40 · Saldırı +%30' },
-            { id: 'slave_wyrm', cat: 'slave', name: 'Ejder Lejyoneri', icon: '🐉', cost: 1400, style: 'wyrm', pal: { main: '#ff5a1a', accent: '#ffd27a', dark: '#1a0400', glow: '#fff2a0' }, buff: { hp: 0.5, dmg: 0.4, spd: 0.15, noRebel: true }, desc: 'Boynuzlu ejder zırhı · Ölünce isyan etmez · Can +%50 · Saldırı +%40' },
+            { id: 'slave_storm', cat: 'slave', name: 'Boran Nöbetçisi', icon: '⚡', cost: 900, style: 'storm', pal: { main: '#66ccff', accent: '#ffffff', dark: '#06142a', glow: '#d8f4ff' }, buff: { spd: 0.25, dmg: 0.25 }, desc: 'Şimşek ibikli zırh · Hız ve saldırı +%25' },
+            { id: 'slave_void', cat: 'slave', name: 'Yutan Bekçi', icon: '🌌', cost: 1100, style: 'void', pal: { main: '#a64dff', accent: '#e0c8ff', dark: '#08000f', glow: '#f0e0ff' }, buff: { hp: 0.4, dmg: 0.3 }, desc: 'Dönen birikim halkaları · Can +%40 · Saldırı +%30' },
+            { id: 'slave_wyrm', cat: 'slave', name: 'Ejder Alp', icon: '🐉', cost: 1400, style: 'wyrm', pal: { main: '#ff5a1a', accent: '#ffd27a', dark: '#1a0400', glow: '#fff2a0' }, buff: { hp: 0.5, dmg: 0.4, spd: 0.15, noRebel: true }, desc: 'Boynuzlu ejder zırhı · Ölünce isyan etmez · Can +%50 · Saldırı +%40' },
             { id: 'soldier_storm', cat: 'soldier', name: 'Şimşek Yavrusu', icon: '⚡', cost: 800, style: 'storm', pal: { main: '#66ccff', accent: '#ffffff', dark: '#06142a', glow: '#e8f8ff' }, buff: { spd: 0.3, dmg: 0.25 }, desc: 'Yıldırım ibikli yavru · Hız +%30 · Saldırı +%25' },
-            { id: 'soldier_void', cat: 'soldier', name: 'Hiçlik Yavrusu', icon: '🌌', cost: 900, style: 'void', pal: { main: '#a64dff', accent: '#e0c8ff', dark: '#08000f', glow: '#f0e0ff' }, buff: { hp: 0.5, dmg: 0.3 }, desc: 'Halkalı karanlık yavru · Can +%50 · Saldırı +%30' },
+            { id: 'soldier_void', cat: 'soldier', name: 'Yutan Yavrusu', icon: '🌌', cost: 900, style: 'void', pal: { main: '#a64dff', accent: '#e0c8ff', dark: '#08000f', glow: '#f0e0ff' }, buff: { hp: 0.5, dmg: 0.3 }, desc: 'Halkalı karanlık yavru · Can +%50 · Saldırı +%30' },
             { id: 'soldier_bone', cat: 'soldier', name: 'Kemik Yavru', icon: '💀', cost: 750, style: 'bone', pal: { main: '#e8e0c8', accent: '#ff4422', dark: '#1a1814', glow: '#ff8866' }, buff: { hp: 0.3, dmg: 0.3 }, desc: 'Açık kaburgalı iskelet yavru · Can ve saldırı +%30' }
         );
         Object.entries({ slave_frost: 'frost', slave_gold: 'crown', slave_bone: 'bone', soldier_crystal: 'frost', soldier_royal: 'crown', soldier_fire: 'wyrm' }).forEach(([id, st]) => { const a = armyDB.find(x => x.id === id); if (a && !a.style) a.style = st; });
@@ -1811,10 +1897,10 @@
             } else if(code === 'HIZLIGELISIM') {
                 maxLevelReached = Math.max(maxLevelReached, 8); alert('KOD KABUL EDİLDİ: Max Seviye 8 Açıldı!'); success = true;
             } else if(code === 'VAMPIR') {
-                if(!shopUnlocks.vampireTooth) { shopUnlocks.vampireTooth = true; equippedBlackMarket.vampireTooth = true; alert('KOD KABUL EDİLDİ: Vampir Dişi Karaborsadan açıldı!'); success = true; }
+                if(!shopUnlocks.vampireTooth) { shopUnlocks.vampireTooth = true; equippedBlackMarket.vampireTooth = true; alert('KOD KABUL EDİLDİ: Kan Emici Diş Karaborsadan açıldı!'); success = true; }
                 else { alert('Bu özelliği zaten açmışsın. Sana 300 coin verelim!'); coins += 300; success = true; }
             } else if(code === 'TITAN') {
-                if(!unlockedSkins.includes('void')) { unlockedSkins.push('void'); alert('KOD KABUL EDİLDİ: Hiçlik Ejderi Kostümü Açıldı!'); success = true; }
+                if(!unlockedSkins.includes('void')) { unlockedSkins.push('void'); alert('KOD KABUL EDİLDİ: Yutan Kostümü Açıldı!'); success = true; }
                 else { alert('Bu kostümü zaten açmışsın. Sana 500 coin verelim!'); coins += 500; success = true; }
             } else {
                 alert('Geçersiz Kod!');
@@ -1916,7 +2002,7 @@
             } else if (currentMarketTab === 'quests') {
                 container.style.display = 'block';
                 let html = `<div style="max-width:700px; margin:0 auto;">
-                    <div style="text-align:center; color:#ffd700; margin-bottom:18px; font-size:14px; font-weight:bold;">Ömür Boyu Tamamlanan Görev: ${questsCompletedLifetime} &nbsp; (5 görev → 👑 Görev Ustası kostümü)</div>`;
+                    <div style="text-align:center; color:#ffd700; margin-bottom:18px; font-size:14px; font-weight:bold;">Ömür Boyu Tamamlanan Görev: ${questsCompletedLifetime} &nbsp; (5 görev → 👑 Yol Bilen kostümü)</div>`;
                 if (activeQuests && activeQuests.length > 0) {
                     activeQuests.forEach(q => {
                         let pct = Math.min(100, (q.progress / q.target) * 100);
@@ -2912,25 +2998,25 @@
         // KARA DELİKLER: kademeli geçitler. Her biri belirli sayıda kovan fethedilince açılır,
         // kendi arenasına ve kendi bossuna götürür. Boss yenilince ana haritaya dönülür ve ödül
         // ekranı belirir; ardından bir sonraki kara deliğin eşiği devreye girer.
-        //   I  · 100 kovan · Yansıma Uçurumu   · VAHŞİ AYNA EJDERHA (bizim 3 katımız)
-        //   II · 200 kovan · Yıkılmış Ateşyurt · SÜRÜ ANA (Ateşyurt'u yutan sürünün anası)
+        //   I  · 60 kovan · Yansıma Uçurumu   · VAHŞİ AYNA EJDERHA (bizim 3 katımız)
+        //   II · 120 kovan · Yıkılmış Ateşyurt · SÜRÜ ANA (Ateşyurt'u yutan sürünün anası)
         // =====================================================================
         const BH_TIERS = [
-            { req: 100, key: 'abyss', roman: 'I', bossName: 'VAHŞİ AYNA EJDERHA', arenaName: 'Yansıma Uçurumu',
+            { req: 60, key: 'abyss', roman: 'I', bossName: 'VAHŞİ AYNA EJDERHA', arenaName: 'Yansıma Uçurumu',
               portal: { x: 4400, y: -1200 }, center: { x: 40000, y: 40000 }, color: '#00e5ff', rgb: '120,230,255', bossColor: '#ff2a3a', bg: 'rgb(4,12,30)',
               enterText: '🕳️ KARA DELİĞE SÜRÜKLENİYORSUN...', exitText: '🌊 GERÇEK DÜNYAYA DÖNÜYORSUN...',
               enterLore: 'Karanlığın içinden bir yansıma çıktı... ama bu ben değilim. Bu, içimde büyüttüğüm öfkenin ta kendisi — üç kat büyümüş hali.',
               reward: { coins: 3000, xp: 1500, skin: 'mirrorbane', potions: 2 },
               winLore: 'Yansımanı parçaladın. Öfken artık seni yönetmiyor — sen onu yönetiyorsun.',
               teaser: 'Kara deliğin öbür ucunda başka bir şey kıpırdıyor... Bir zamanlar Ateşyurt\'u yutan o sürü — ve onu doğuran ANA — hâlâ yurdumuzun küllerinde yuvalanıyor. Üç Kovan Kalbi onu korurken ona dokunamazsın. Kalpler düşünce gökyüzünü karartacak, sürüsünü üstüne salacak. Geçit seni eve, Yıkılmış Ateşyurt\'a götürecek.' },
-            { req: 200, key: 'ashland', roman: 'II', bossName: 'SÜRÜ ANA', arenaName: 'Yıkılmış Ateşyurt',
+            { req: 120, key: 'ashland', roman: 'II', bossName: 'SÜRÜ ANA', arenaName: 'Yıkılmış Ateşyurt',
               portal: { x: -4600, y: 2400 }, center: { x: -40000, y: 40000 }, color: '#ff8a2a', rgb: '255,150,70', bossColor: '#c8ff3a', bg: 'rgb(30,9,5)',
               enterText: '🌋 ATEŞYURT\'UN KÜLLERİNE DÜŞÜYORSUN...', exitText: '🔥 İNTİKAM ALINDI, GERİ DÖNÜYORSUN...',
               enterLore: 'Burası... Ateşyurt. Annemin bana anlattığı yer. Şimdi sadece kül, kemik ve o sürünün yuvası var.',
               reward: { coins: 6000, xp: 4000, skin: 'emberheir', potions: 3 },
               winLore: 'Gökyüzünü karartan sürünün anası düştü. Ateşyurt\'un külleri ilk kez yeniden ısınıyor. Babam, annem... bu sizin için.',
               teaser: 'Sürü Ana ölürken son bir çığlıkla yıldızlara seslendi. Cevap veren şey onun efendisiydi: sönmüş yıldızların arasında bekleyen, üç başlı ve tek kalpli bir kıyamet. Başları yenilenir; kalbine ancak üçü birden düştüğünde ulaşabilirsin. Geçit seni Yıldızların Mezarlığı\'na götürecek.' },
-            { req: 300, key: 'graveyard', roman: 'III', bossName: 'ÜÇ BAŞLI KIYAMET', arenaName: 'Yıldızların Mezarlığı',
+            { req: 180, key: 'graveyard', roman: 'III', bossName: 'ÜÇ BAŞLI KIYAMET', arenaName: 'Yıldızların Mezarlığı',
               portal: { x: 1400, y: 5200 }, center: { x: 0, y: -40000 }, color: '#b77bff', rgb: '190,140,255', bossColor: '#b77bff', bg: 'rgb(9,5,20)',
               enterText: '🌌 YILDIZLARIN MEZARLIĞINA ÇEKİLİYORSUN...', exitText: '✨ KIYAMET SUSTU, EVE DÖNÜYORSUN...',
               enterLore: 'Sürü Ana sadece bir hizmetkârmış. Onu gönderen, sönmüş dünyaların arasında bekliyormuş: üç başı, tek bir kalbi olan bir kıyamet.',
@@ -2941,7 +3027,7 @@
         let blackHoleTier = parseInt(store.getItem('boruBlackHoleTier'));
         if (isNaN(blackHoleTier)) blackHoleTier = store.getItem('boruBlackHoleDefeated') === '1' ? 1 : 0;
         let portalBanReq = parseInt(store.getItem('boruPortalBanReq')) || 0;
-        if (!portalBanReq && blackHoleTier === 0 && store.getItem('boruPortalBanned') === '1') portalBanReq = 150;
+        if (!portalBanReq && blackHoleTier === 0 && store.getItem('boruPortalBanned') === '1') portalBanReq = 90;
         const ARENA_R = 3600; // kara delik savaş alanı genişletildi (eski 2100)
         let blackHolePortal = null;
         let inMirrorArena = false;
@@ -2955,7 +3041,8 @@
         function bhCycle() { return Math.floor(blackHoleTier / 3); }
         function bhLabel(lvl) { return BH_TIERS[lvl % 3].roman + (lvl >= 3 ? ' · YANKI ' + Math.floor(lvl / 3) : ''); }
         function nextBHTier() { if (MP.active && blackHoleTier >= 3) return null; return BH_TIERS[blackHoleTier % 3]; }
-        function nextBHReq() { const t = nextBHTier(); if (!t) return 0; return Math.max(t.req + bhCycle() * 300, portalBanReq); }
+        // Çok oyunculu maçta kara delikler yarı eşikte açılır (50 / 100 / 150) ve oyuncuların TOPLAM kovan sayısı sayılır
+        function nextBHReq() { const t = nextBHTier(); if (!t) return 0; if (MP.active) return Math.max(Math.round(t.req / 2), portalBanReq); return Math.max(t.req + bhCycle() * 180, portalBanReq); }
         function portalShouldExist() { const t = nextBHTier(); return !!t && totalHivesCapturedLifetime >= nextBHReq(); }
         function refreshBlackHolePortal() {
             if (portalShouldExist()) {
@@ -5485,6 +5572,7 @@
                 ['📜', loreFound.length + ' / ' + loreFragmentPoints.length, 'KADİM PARÇA']
             ];
             items.push(['🏰', sanctTotal() + ' / ' + sanctDB.length * SANCT_MAX, 'SIĞINAK']);
+            try { const ps = window.BORU_PLAY ? BORU_PLAY.total() : (+(JSON.parse(localStorage.getItem('boruProfX') || '{}').play) || 0); const h = Math.floor(ps / 3600), m = Math.floor(ps % 3600 / 60); items.unshift(['⏱', h ? h + ' sa ' + m + ' dk' : m + ' dk', 'OYNAMA SÜRESİ']); } catch (e) {}
             if (saved) items.unshift(['🌊', 'Dalga ' + (saved.currentWave || 1), 'KAYITLI OYUN · SV ' + (saved.level || 1)]);
             document.getElementById('menuStats').innerHTML = items.map(([ic, v, l]) => `<div class="menu-stat"><div class="ms-v">${ic} ${v}</div><div class="ms-l">${l}</div></div>`).join('');
         }
@@ -5582,7 +5670,7 @@
             '💡 E ile kükre: önündeki düşmanları geri savurur ve kısa süre yavaşlatır.',
             '💡 Sığınaktan uzaklaştıkça düşmanlar daha fazla coin bırakır.',
             '💡 Q + S ile bağlı kovanlarından asker çağırabilirsin.',
-            '💡 100 kovan fethedildiğinde haritada gizemli bir kara delik belirir...',
+            '💡 60 kovan fethedildiğinde haritada gizemli bir kara delik belirir...',
             '💡 Karaborsa eşyalarını marketten istediğin an kuşanıp çıkarabilirsin.',
             '💡 R ile Süper Plazma: dolduğunda önündeki her şeyi eritir.',
             '💡 Ayarlardan grafik kalitesini düşürerek zayıf cihazlarda akıcılığı artırabilirsin.',
@@ -6634,12 +6722,25 @@
         }
         window.triggerReinforcementCall = triggerReinforcementCall;
 
+        // Duyurular artık ekranın ortasında değil, sol kenarda küçük bir bildirim olarak kısa süre görünür
         function showWaveText(text, isBoss = false, color = null) {
-            const w = document.getElementById('waveAnnouncer');
-            w.innerText = text; w.style.opacity = '1'; w.style.color = color ? color : (isBoss ? '#ff0055' : 'white');
+            sideNote(text, color ? color : (isBoss ? '#ff3366' : '#ffffff'), isBoss);
             if (typeof mMenuOpen === 'function' && mMenuOpen()) { const mm = document.getElementById('mmMsg'); if (mm) { mm.textContent = text; mm.style.color = color || '#ffd27a'; } }
-            clearTimeout(w._t); w._t = setTimeout(() => { w.style.opacity = '0'; }, 1900);
         }
+        function sideNote(text, color, big) {
+            const box = document.getElementById('sideNotes'); if (!box || !text) return;
+            text = String(text);
+            // Aynı bildirim art arda gelirse yenisini eklemek yerine sayacını artır
+            const last = box.lastElementChild;
+            if (last && last._txt === text && !last.classList.contains('out')) { last._n = (last._n || 1) + 1; const b = last.firstChild; b.textContent = text; const c = document.createElement('i'); c.textContent = '×' + last._n; b.appendChild(c); snTimer(last, big); return; }
+            const el = document.createElement('div'); el.className = 'sn' + (big ? ' big' : ''); el._txt = text; el.style.color = color || '#fff';
+            const b = document.createElement('b'); b.textContent = text; el.appendChild(b);
+            box.appendChild(el);
+            while (box.children.length > 4) box.firstElementChild.remove();
+            snTimer(el, big);
+        }
+        function snTimer(el, big) { clearTimeout(el._t); el._t = setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 360); }, big ? 2600 : 1800); }
+        window.sideNote = sideNote;
 
         window.selectUpgrade = function(id) {
             buffLevels[id] = (buffLevels[id] || 0) + 1; 
@@ -7441,7 +7542,7 @@
                 ctx.fillStyle = '#ffff00'; ctx.beginPath(); ctx.arc(5*gFact, -5*gFact, 4*gFact, 0, Math.PI*2); ctx.arc(0*gFact, 8*gFact, 6*gFact, 0, Math.PI*2); ctx.arc(15*gFact, 5*gFact, 2*gFact, 0, Math.PI*2); ctx.fill(); // 3 göz
                 fierceFangs(ctx, 22*gFact, 0, gFact, 12);
             } else {
-                // STANDART (Magma, Ice, Nebula, Shadow, Ascended, Fırtına Ejderi, Mercan Canavarı, Kral Avcısı, Görev Ustası)
+                // STANDART (Magma, Ice, Nebula, Shadow, Ascended, Boran, Mercan Baba, Kral Kesen, Yol Bilen)
                 // Film ve destanlardaki ejderhalardan (Smaug, İskandinav/Çin ejderhaları) ilham alan,
                 // keskin hatlı, öfkeli kaş çıkıntılı, sivri dişli yırtıcı kafatası.
                 if (equippedBlackMarket.demonHorns && isMain) { drawDemonHorns(ctx, gFact); ctx.fillStyle = armorColor; ctx.strokeStyle = glowColor; ctx.lineWidth = 2.5 * gFact; }
@@ -7474,14 +7575,14 @@
                     ctx.beginPath(); ctx.moveTo(-8*gFact, -12*gFact); ctx.quadraticCurveTo(-35*gFact, -20*gFact, -40*gFact, -42*gFact); ctx.quadraticCurveTo(-42*gFact, -55*gFact, -28*gFact, -50*gFact); ctx.quadraticCurveTo(-32*gFact, -38*gFact, -18*gFact, -34*gFact); ctx.quadraticCurveTo(-15*gFact, -22*gFact, -18*gFact, -14*gFact); ctx.fill(); ctx.stroke();
                     ctx.beginPath(); ctx.moveTo(-8*gFact, 12*gFact); ctx.quadraticCurveTo(-35*gFact, 20*gFact, -40*gFact, 42*gFact); ctx.quadraticCurveTo(-42*gFact, 55*gFact, -28*gFact, 50*gFact); ctx.quadraticCurveTo(-32*gFact, 38*gFact, -18*gFact, 34*gFact); ctx.quadraticCurveTo(-15*gFact, 22*gFact, -18*gFact, 14*gFact); ctx.fill(); ctx.stroke();
                 } else if (activeTheme.id === 'ascended') {
-                    // Yüce Hakan: başın arkasında dönen altın hale + ışın taçlı boynuzlar
+                    // Gök Hakan: başın arkasında dönen altın hale + ışın taçlı boynuzlar
                     ctx.save(); ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 3*gFact; ctx.shadowBlur = 18*gFact; ctx.shadowColor = '#ffd700';
                     ctx.beginPath(); ctx.ellipse(-22*gFact, 0, 16*gFact, 42*gFact, 0, 0, Math.PI*2); ctx.stroke();
                     ctx.fillStyle = '#fff6b0';
                     for (let k = -3; k <= 3; k++) { const y = k * 12 * gFact; ctx.beginPath(); ctx.moveTo(-18*gFact, y - 3*gFact); ctx.lineTo(-40*gFact - (3 - Math.abs(k)) * 6*gFact, y); ctx.lineTo(-18*gFact, y + 3*gFact); ctx.fill(); }
                     ctx.restore();
                 } else if (activeTheme.id === 'shadow') {
-                    // Gece Gölgesi: boynuz yerine kıvrılan duman telleri
+                    // Karagece: boynuz yerine kıvrılan duman telleri
                     ctx.save(); ctx.lineCap = 'round';
                     for (let k = 0; k < 4; k++) {
                         const sd = k % 2 ? 1 : -1; const ph = tick * 2 + k;
@@ -7490,7 +7591,7 @@
                     }
                     ctx.restore();
                 } else if (activeTheme.id === 'nebula') {
-                    // Kozmik Bulutsu: başın üstünde yörüngede dönen yıldız tacı
+                    // Yıldız Tozu: başın üstünde yörüngede dönen yıldız tacı
                     ctx.save(); ctx.globalCompositeOperation = 'lighter';
                     for (let k = 0; k < 6; k++) { const a = tick * 1.2 + k * Math.PI / 3; const x = -18*gFact + Math.cos(a) * 26*gFact, y = Math.sin(a) * 34*gFact;
                         ctx.fillStyle = `hsla(${(k*60 + tick*40) % 360}, 100%, 70%, 0.9)`; ctx.beginPath(); ctx.arc(x, y, 3.2*gFact, 0, Math.PI*2); ctx.fill(); }
@@ -7505,7 +7606,7 @@
                         ctx.beginPath(); ctx.moveTo(-18*gFact, 18*gFact*sd); ctx.lineTo(-32*gFact, 36*gFact*sd); ctx.lineTo(-44*gFact, 56*gFact*sd); ctx.stroke(); ctx.restore();
                     }
                 } else if (activeTheme.id === 'infernoLord') {
-                    // Cehennem Efendisi: öne kıvrılan devasa koç boynuzları + titreşen alev ibik
+                    // Zebani: öne kıvrılan devasa koç boynuzları + titreşen alev ibik
                     ctx.save(); ctx.lineCap = 'round';
                     for (const sd of [-1, 1]) {
                         ctx.strokeStyle = '#2a0804'; ctx.lineWidth = 9*gFact;
@@ -7524,13 +7625,13 @@
                     }
                     ctx.restore();
                 } else if (activeTheme.id === 'celestialSerpent') {
-                    // Gökyüzü Serpenti: hilal ay armağı + yüzen iki yıldız
+                    // Gök Yılanı: hilal ay armağı + yüzen iki yıldız
                     ctx.save(); ctx.fillStyle = '#e8dcff'; ctx.shadowBlur = 16*gFact; ctx.shadowColor = '#a88cff';
                     ctx.beginPath(); ctx.arc(-26*gFact, 0, 22*gFact, Math.PI*0.5, Math.PI*1.5); ctx.arc(-18*gFact, 0, 17*gFact, Math.PI*1.5, Math.PI*0.5, true); ctx.fill();
                     for (const sd of [-1, 1]) { const x = -30*gFact, y = (36 + Math.sin(tick*2)*4)*gFact*sd; ctx.beginPath(); for (let p = 0; p < 8; p++) { const r = (p % 2 ? 2 : 6)*gFact, a = p*Math.PI/4 + tick; ctx.lineTo(x + Math.cos(a)*r, y + Math.sin(a)*r); } ctx.closePath(); ctx.fill(); }
                     ctx.restore();
                 } else if (activeTheme.id === 'obsidianTitan') {
-                    // Obsidyen Titan: kafatasından fışkıran volkanik cam kristalleri
+                    // Kara Cam Dev: kafatasından fışkıran volkanik cam kristalleri
                     for (const sd of [-1, 1]) for (let k = 0; k < 3; k++) {
                         const bx = -(8 + k*12)*gFact, by = (12 + k*3)*gFact*sd, len = (30 - k*6)*gFact, ang = (0.9 + k*0.25) * sd;
                         const tx = bx - len*(0.5 + k*0.15), ty = by + len*(0.85 - k*0.1)*sd;
@@ -7539,7 +7640,7 @@
                         ctx.save(); ctx.strokeStyle = 'rgba(120,220,255,0.8)'; ctx.lineWidth = 1*gFact; ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(tx, ty); ctx.stroke(); ctx.restore();
                     }
                 } else if (activeTheme.id === 'mirrorbane') {
-                    // Ayna Ejderi: gökkuşağı kenarlı ayna bıçakları
+                    // Aynalı: gökkuşağı kenarlı ayna bıçakları
                     for (const sd of [-1, 1]) {
                         let mg = ctx.createLinearGradient(-10*gFact, 10*gFact*sd, -60*gFact, 60*gFact*sd); mg.addColorStop(0, '#ffffff'); mg.addColorStop(0.5, '#9a9ad0'); mg.addColorStop(1, '#ffffff');
                         ctx.fillStyle = mg; ctx.strokeStyle = `hsl(${(tick*60) % 360}, 100%, 75%)`; ctx.lineWidth = 1.8*gFact;
@@ -8075,7 +8176,7 @@
             if (!inMirrorArena) for (const r of ROYALS) { const p = plot(r.throne.x, r.throne.y); const dead = royalDead(r.id); mctx.fillStyle = dead ? '#3aa0ff' : r.color; mctx.strokeStyle = '#000'; mctx.lineWidth = 1;
                 mctx.beginPath(); mctx.moveTo(p.x - 5, p.y + 3); mctx.lineTo(p.x - 5, p.y - 3); mctx.lineTo(p.x - 2.5, p.y); mctx.lineTo(p.x, p.y - 4); mctx.lineTo(p.x + 2.5, p.y); mctx.lineTo(p.x + 5, p.y - 3); mctx.lineTo(p.x + 5, p.y + 3); mctx.closePath(); mctx.fill(); mctx.stroke(); }
             if (!inMirrorArena) for (const ex of expeditions) { const q = plot(ex.x, ex.y); mctx.fillStyle = '#ffd24a'; mctx.strokeStyle = '#000'; mctx.lineWidth = 1; mctx.beginPath(); mctx.moveTo(q.x, q.y - 4); mctx.lineTo(q.x + 4, q.y); mctx.lineTo(q.x, q.y + 4); mctx.lineTo(q.x - 4, q.y); mctx.closePath(); mctx.fill(); mctx.stroke(); }
-            if (!inMirrorArena && typeof mapPins !== 'undefined') for (const q of mapPins) { const p = plot(q.x, q.y); mctx.fillStyle = q.c; mctx.strokeStyle = '#000'; mctx.lineWidth = 1; mctx.beginPath(); mctx.arc(p.x, p.y - 3, 3.5, 0, Math.PI * 2); mctx.fill(); mctx.stroke(); mctx.beginPath(); mctx.moveTo(p.x - 2.5, p.y - 1); mctx.lineTo(p.x, p.y + 3); mctx.lineTo(p.x + 2.5, p.y - 1); mctx.fill(); }
+            if (!inMirrorArena && typeof mapPins !== 'undefined') for (const q of pinsAll()) { const p = plot(q.x, q.y); mctx.fillStyle = q.c; mctx.strokeStyle = '#000'; mctx.lineWidth = 1; mctx.beginPath(); mctx.arc(p.x, p.y - 3, 3.5, 0, Math.PI * 2); mctx.fill(); mctx.stroke(); mctx.beginPath(); mctx.moveTo(p.x - 2.5, p.y - 1); mctx.lineTo(p.x, p.y + 3); mctx.lineTo(p.x + 2.5, p.y - 1); mctx.fill(); }
             // Aktif bosslar
             for (let b of activeBosses) {
                 let p = plot(b.x, b.y);
@@ -8361,7 +8462,7 @@
             if (inMirrorArena) {
                 // KARA DELİKTE YENİLDİK: geçit ancak +50 kovan daha fethedilince yeniden açılır.
                 const t = arenaTier();
-                portalBanReq = nextBHReq() + 50; store.setItem('boruPortalBanReq', portalBanReq); inMirrorArena = false;
+                portalBanReq = nextBHReq() + 30; store.setItem('boruPortalBanReq', portalBanReq); inMirrorArena = false;
                 activeBosses = []; clearArenaState(); blackHolePortal = null; document.getElementById('bossUi').style.display = 'none';
                 gon.innerText = '🕳️ ' + t.bossName + ' seni yuttu. Kara Delik ' + t.roman + ' ancak ' + portalBanReq + ' kovanda yeniden açılacak.'; gon.style.display = 'block';
             } else { gon.innerText = pick(DEATH_LINES); gon.style.display = 'block'; }
@@ -9319,7 +9420,7 @@
         function abFx(o) { if (ABIL.fx.length < 80) ABIL.fx.push(Object.assign({ t: 0 }, o)); }
         function orgAbilityTick(S, G) {
             const id = activeTheme.id; const n = joints.length; if (n < 4) return;
-            const live = !isPaused && gameActive && !(MP.active && MP.localDead) && !spacePressed;
+            const live = !isPaused && gameActive && !(MP.active && MP.localDead) && !spacePressed && !MP.noSkinBuffs;
             const D = Math.max(6, stats.fireDamage || 10); const H = joints[0], ha = H.angle;
             const mouth = { x: H.x + Math.cos(ha) * 50 * G * S, y: H.y + Math.sin(ha) * 50 * G * S };
             const hiQ = gfxQuality !== 'low'; const P = (ORG_SKINS[id] || {}).pal || { vein: activeTheme.mainColor, body: ['#fff', '#888', '#000'], bone: '#fff', scaleEdge: '#fff', membrane: ['#fff', '#888', '#000'] };
@@ -9394,7 +9495,7 @@
                     for (let k = 0; k < 3; k++) { const e = abNearest(mouth.x, mouth.y, 420 * G, got); if (!e) break; got.add(e); abHit(e, D * 3.5); dragonHp = Math.min(maxHp, dragonHp + maxHp * 0.006); abFx({ k: 'blood', x: e.x, y: e.y, life: 24 }); }
                     if (got.size) updateUI(); }
             }
-            // --- Kadim Orman: diken kökleri ---
+            // --- Ulu Orman: diken kökleri ---
             else if (id === 'kadimorman') {
                 if (live && ABIL.cd <= 0) { const got = new Set();
                     for (let k = 0; k < 3; k++) { const e = abNearest(H.x, H.y, 520 * G, got); if (!e) break; got.add(e); abFx({ k: 'thorn', x: e.x, y: e.y, life: 34, tgt: e, dmg: D * 9, seed: Math.random() * 6 }); }
@@ -9419,7 +9520,7 @@
                     ctx.save(); ctx.globalCompositeOperation = 'lighter'; const x = b.x - camX, y = b.y - camY; const g = ctx.createRadialGradient(x, y, 0, x, y, 22 * G); g.addColorStop(0, '#ffffff'); g.addColorStop(0.35, P.vein); g.addColorStop(1, 'rgba(40,0,120,0)');
                     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 22 * G, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = hexA(P.vein, 0.5); ctx.lineWidth = 8 * G; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - b.vx * 2.5, y - b.vy * 2.5); ctx.stroke(); ctx.restore(); }
             }
-            // --- Ayna Ejderi: mermi kıran ayna kalkanı ---
+            // --- Aynalı: mermi kıran ayna kalkanı ---
             else if (id === 'mirrorbane') {
                 if (live && ABIL.cd <= 0) { let br = 0; const R = 230 * G * S;
                     for (let i = projectiles.length - 1; i >= 0; i--) { const p = projectiles[i]; for (let k = 0; k < n; k += 4) { const j = joints[k]; if ((p.x - j.x) ** 2 + (p.y - j.y) ** 2 < R * R) { abFx({ k: 'shard', x: p.x, y: p.y, life: 22 }); projectiles.splice(i, 1); br++; break; } } }
@@ -9815,7 +9916,7 @@
 
             // Spiral çizince üstten geçen halkaların altına gölge: gövde yılan gibi kendi üstüne çıkar
             const crossJ = new Uint8Array(joints.length);
-            { const nJ = joints.length; const rad = (i) => Math.max(3, 20 * (1 - i / nJ)) * growthFactor * sizeMultiplier;
+            if (!MP.lite) { const nJ = joints.length; const rad = (i) => Math.max(3, 20 * (1 - i / nJ)) * growthFactor * sizeMultiplier;
               for (let i = 1; i < nJ; i++) for (let k = i + 6; k < nJ; k++) { const rr = (rad(i) + rad(k)) * 0.95; const dx = joints[i].x - joints[k].x, dy = joints[i].y - joints[k].y; if (dx * dx + dy * dy < rr * rr) { crossJ[i] = 1; break; } } }
             for (let i = joints.length - 1; i >= 0; i--) {
                 const j = joints[i]; const scrX = j.x - camX; const scrY = j.y - camY;
@@ -10761,7 +10862,7 @@
             const req = nextBHReq();
             return { t: '🏴 Kovan fethet: ' + Math.min(totalHivesCapturedLifetime, req) + ' / ' + req, w: 'Sonra Kara Delik ' + bhLabel(blackHoleTier) + ' açılacak — ' + bhWhy() };
         }
-        // AMAÇ PANELİ: yeni başlayan oyuncu tek bakışta ne yapacağını görsün - önce 100 kovan, sonra kara delik bossu
+        // AMAÇ PANELİ: yeni başlayan oyuncu tek bakışta ne yapacağını görsün - önce 60 kovan, sonra kara delik bossu
         function renderGoal() {
             const el = document.getElementById('goalHud'); if (!el) return; let h;
             const bt = nextBHTier();
@@ -10770,7 +10871,7 @@
             else {
                 const req = nextBHReq(), n = Math.min(totalHivesCapturedLifetime, req);
                 if (blackHolePortal) h = `<div class="g1">🕳️ Kara deliğe gir</div><div class="g2">bossu yen: <b>${bt.bossName}</b></div>`;
-                else h = `<div class="g1">🎯 <b>${n}/${req}</b> kovan</div><div class="gbar"><i style="width:${Math.min(100, n / req * 100)}%"></i></div><div class="g2">sonra 🕳️ kara delik bossu</div>`;
+                else h = `<div class="g1">🎯 <b>${n}/${req}</b> kovan${MP.active ? ' <small>(ekip toplamı)</small>' : ''}</div><div class="gbar"><i style="width:${Math.min(100, n / req * 100)}%"></i></div><div class="g2">sonra 🕳️ kara delik bossu</div>`;
             }
             // Mobil: tek satırlık kısa amaç
             let m; if (inMirrorArena) m = '🕳️ Bossu yen: ' + arenaTier().bossName; else if (!bt) m = '👑 Sefer tamam'; else if (blackHolePortal) m = '🕳️ Kara deliğe gir'; else m = '🎯 ' + Math.min(totalHivesCapturedLifetime, nextBHReq()) + '/' + nextBHReq() + ' kovan';
@@ -10795,7 +10896,7 @@
             { t: 'VII · İlk Diz Çöken', req: () => totalHivesCapturedLifetime >= 1, hint: 'İlk kovanı fethet.', x: 'İlk kral önümde eğildi, halkı yüzünü toprağa gömdü. Artık kovanı benim adıma yönetiyor, benim için asker yetiştiriyor. İstediğim buydu. …Değil mi?' },
             { t: 'VIII · Gökteki Kıyamet', req: () => totalHivesCapturedLifetime >= 25, hint: '25 kovan fethet.', x: 'Yerliler bana bir ad taktı: Gökteki Kıyamet. Yavrularını benim adımla korkutuyorlar. Tapınaklarında bana dua ediyorlar — sevgiden değil, dehşetten.' },
             { t: 'IX · Yarısı', req: () => totalHivesCapturedLifetime >= 50, hint: '50 kovan fethet.', x: 'Bulutsu\'nun yarısı artık benim. Geceleri yıldızların arasında bir yırtık görüyorum. Bir şey bana sesleniyor.' },
-            { t: 'X · Geçit', req: () => blackHoleTier >= 1 || totalHivesCapturedLifetime >= 100, hint: '100 kovan fethet.', x: 'Yüzüncü kovan düştüğünde gök yırtıldı. Kara deliğin içinden bana bakan şey… bendim. Ya da öfkemin üç kat büyümüş hali.' },
+            { t: 'X · Geçit', req: () => blackHoleTier >= 1 || totalHivesCapturedLifetime >= 60, hint: '60 kovan fethet.', x: 'Altmışıncı kovan düştüğünde gök yırtıldı. Kara deliğin içinden bana bakan şey… bendim. Ya da öfkemin üç kat büyümüş hali.' },
             { t: 'XI · Yansıma', req: () => blackHoleTier >= 1, hint: 'Kara Delik I\'i fethet.', x: 'Yansımamı parçaladım. Öfke artık beni yönetmiyor; ben onu yönetiyorum. Ama geçidin öbür ucunda tanıdık bir koku var: kül ve kemik. Ateşyurt.' },
             { t: 'XII · Eve Dönüş', req: () => blackHoleTier >= 2, hint: 'Kara Delik II\'yi fethet.', x: 'Ateşyurt\'un küllerinde yurdumu yutan sürünün anasını buldum ve yaktım. Babam, annem… bu sizin içindi. Ama ölürken yıldızlara seslendi. Ve bir şey cevap verdi.' },
             { t: 'XIII · Kıyametin Sonu', req: () => blackHoleTier >= 3, hint: 'Kara Delik III\'ü fethet.', x: 'Üç başlı kıyamet sustu. Sürüyü gönderen, yurdumu yakan güç artık yok. Yıldızların mezarlığında yanan tek ışık benim ateşim. Gökyüzünün tek sahibi benim. …Ve hâlâ yalnızım.' }
@@ -10840,9 +10941,9 @@
                 <div class="gl-lore">Ateşyurt'u bir sürü yuttu. Bulutsu'nun yerlileri babamı yaktı, annemi sığınağın kapısında öldürdü. Ben hayatta kaldım — ve büyüdüm.<br>Şimdi bu dünyaya yıkım getiren en büyük güç benim. Ama yıkım amaç değil, yol.</div>
                 <div class="gl-road">
                     <div class="gl-step"><div class="gl-n">1</div><div><b>Kovanları fethet.</b> Her kovan bir yerli kalesidir. Yak, hükümdarını yen, halkı diz çöksün. Fethedilen kovan benim adıma asker yetiştirir ve beni korur.</div></div>
-                    <div class="gl-step"><div class="gl-n">2</div><div><b>100 kovan → Kara Delik I · Yansıma Uçurumu.</b> Gök yırtılır. İçinde öfkemin üç kat büyümüş yansıması bekler. Kendi öfkemi yenmeden intikam alamam.</div></div>
-                    <div class="gl-step"><div class="gl-n">3</div><div><b>200 kovan → Kara Delik II · Yıkılmış Ateşyurt.</b> Yurdumun küllerine dönüş. Onu yutan sürünün anası orada yuvalanmış.</div></div>
-                    <div class="gl-step"><div class="gl-n">4</div><div><b>300 kovan → Kara Delik III · Yıldızların Mezarlığı.</b> Sürüyü gönderen, her şeyin arkasındaki üç başlı kıyamet.</div></div>
+                    <div class="gl-step"><div class="gl-n">2</div><div><b>60 kovan → Kara Delik I · Yansıma Uçurumu.</b> Gök yırtılır. İçinde öfkemin üç kat büyümüş yansıması bekler. Kendi öfkemi yenmeden intikam alamam.</div></div>
+                    <div class="gl-step"><div class="gl-n">3</div><div><b>120 kovan → Kara Delik II · Yıkılmış Ateşyurt.</b> Yurdumun küllerine dönüş. Onu yutan sürünün anası orada yuvalanmış.</div></div>
+                    <div class="gl-step"><div class="gl-n">4</div><div><b>180 kovan → Kara Delik III · Yıldızların Mezarlığı.</b> Sürüyü gönderen, her şeyin arkasındaki üç başlı kıyamet.</div></div>
                 </div>
                 <div class="gl-how"><b>Yol boyunca:</b> Dalgalar büyüdükçe devler gelir; 25 ruh yaktıktan sonra dalganın bossu çıkar. Sığınakta yaralarını sar ve onu büyüt (${kk('B', 'SIĞINAK butonu')}). Köle topla (${kk('Q+W', '☰ → Köle')}), fethettiğin kovanlardan takviye çağır (${kk('Q+S', '☰ → Takviye')}). Ne kadar uzağa gidersen düşmanların o kadar çok coin bırakır.<br><br>Amacını unutursan: <b>📖 Günlüğe (${kk('J', '☰ → Günlük')})</b> bak.</div>
                 <button class="action-btn menu-btn-primary" onclick="closeGoal()">🔥 YEMİNİMİ HATIRLIYORUM</button>`;
@@ -11232,7 +11333,7 @@
                 // SÜREKLİ ALEV: eskiden parçacık sınırı dolunca ağız birkaç kare tamamen susuyordu (kesik kesik alev).
                 // Artık sınır aşılacaksa daha az ama daha büyük/güçlü parçacık çıkar: akış hiç kesilmez, hasar aynı kalır.
                 const want = Math.max(1, Math.ceil(stats.fireVolume * (isRageActive ? 2 : 1)));
-                const cap = Math.max(50, (isRageActive ? 300 : 150) * gfxMultMap[gfxQuality] * FX.q) + (MP.active ? (isMobile ? 60 : 200) : 0);
+                const cap = Math.max(50, (isRageActive ? 300 : 150) * gfxMultMap[gfxQuality] * FX.q) + (MP.active ? (isMobile ? 40 : 120) * FX.q : 0); // maçta ek parçacık payı kasma varsa küçülür (hasar aynı kalır)
                 const n = Math.max(2, Math.min(want, Math.floor(cap / (1 / currentDecay))));
                 const k = want / n, sK = Math.min(1.7, Math.sqrt(k));
                 const pw = k > 1.01 ? stats.fireDamage * (isRageActive ? 3 : 1) * k : undefined;
@@ -11530,7 +11631,7 @@
                     let auraR2 = (250 * (1 + AB('hive', 'auraRange'))) ** 2;
                     for (let e of enemies) { if ((h.x-e.x)**2 + (h.y-e.y)**2 < auraR2) { e.hp -= auraDmg; } }
                     if (AB('hive', 'goldIncome')) { h.goldTimer = (h.goldTimer || 0) + 1; if (h.goldTimer >= 1800) { h.goldTimer = 0; coins += AB('hive', 'goldIncome'); document.getElementById('coinCount').innerText = coins; h.goldPop = 60; } }
-                    // GARNİZON: kovan her dakika bir asker yetiştirir ve en fazla 4 (Canlı Orman ile 5) asker biriktirir.
+                    // GARNİZON: kovan her dakika bir asker yetiştirir ve en fazla 4 (Yeşil Orman ile 5) asker biriktirir.
                     // Takviye çağrısı (Q+S) biriken askerleri sana getirir.
                     if (h.pendingGarrison) { for (let g = 0; g < h.pendingGarrison; g++) spawnHiveSoldier(h); h.pendingGarrison = 0; }
                     h.garrisonCap = 4 + AB('hive', 'extraSoldier') + Math.floor(Math.min(level, MAX_LEVEL) / 20);
@@ -12849,41 +12950,87 @@
         const PIN_COLS = ['#ff4d6d', '#ffd24a', '#4dd2ff', '#7dff7a', '#c77dff', '#ff9a3c'];
         let mapPins = (() => { try { const a = JSON.parse(store.getItem('boruMapPins') || '[]'); return Array.isArray(a) ? a.filter(q => q && isFinite(q.x) && isFinite(q.y)).slice(0, 8) : []; } catch (_) { return []; } })();
         function saveMapPins() { try { store.setItem('boruMapPins', JSON.stringify(mapPins)); } catch (_) {} }
+        // Arkadaşlarla oynarken işaretler ortaktır: bırakınca müttefiklere gider, onların işaretleri de bizim haritada/ekranda çıkar.
+        const PIN_KINDS = [['📍', 'Konum'], ['⚠️', 'Tehlike'], ['🏰', 'Toplan'], ['⚔️', 'Saldır'], ['🐉', 'Buradayım']];
+        let pinKind = 0, pinShare = true, teamPins = [];
+        function pinsAll() { return teamPins.length ? mapPins.concat(teamPins) : mapPins; }
+        function pinGlyph(q) { return (PIN_KINDS[q.k | 0] || PIN_KINDS[0])[0]; }
+        function pinId() { return 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+        window.boruPins = {
+            hook: null,
+            add(p) { p.t = Date.now(); teamPins = teamPins.filter(q => q.id !== p.id); teamPins.push(p); if (teamPins.length > 24) teamPins.shift();
+                if (gameActive) { hintToast(pinGlyph(p) + ' ' + p.who + ': ' + (PIN_KINDS[p.k | 0] || PIN_KINDS[0])[1] + ' işareti bıraktı' + (document.body.classList.contains('m') ? '' : ''), p.c, 2600); try { playTone(700, 'triangle', 0.08, 0.05); } catch (_) {} } },
+            del(id, from) { teamPins = teamPins.filter(q => !(q.id === id && (!from || q.from === from))); },
+            clear() { teamPins = []; }
+        };
+        function bmPinBar() {
+            const el = document.getElementById('bmPinBar'); if (!el) return;
+            el.classList.toggle('open', BM.mode === 'pin' && BM.open);
+            if (BM.mode !== 'pin') return;
+            const mp = !!(MP && MP.active && window.boruPins.hook);
+            el.innerHTML = PIN_KINDS.slice(0, 4).map((k, i) => `<button class="${i === pinKind ? 'on' : ''}" onclick="bmPinKind(${i})" title="${k[1]}" aria-label="${k[1]}">${k[0]}</button>`).join('')
+                + `<button class="here" onclick="bmPinHere()" title="Bulunduğun yere 'Buradayım' işareti koy">🐉 Buradayım</button>`
+                + (mp ? `<button class="shr ${pinShare ? 'on' : ''}" onclick="bmPinShare()" title="İşaretleri arkadaşlarla paylaş">📡 ${pinShare ? 'Paylaş: AÇIK' : 'Paylaş: KAPALI'}</button>` : '')
+                + `<div class="bp-t">${PIN_KINDS[pinKind][0]} ${PIN_KINDS[pinKind][1]}: haritaya dokun → işaret bırak. Kendi işaretine dokun → kaldır.${mp ? (pinShare ? ' İşaretler arkadaşlarına da görünür.' : ' Şu an sadece sen görürsün.') : ''}</div>`;
+        }
+        window.bmPinKind = function (i) { pinKind = i; bmPinBar(); };
+        window.bmPinShare = function () { pinShare = !pinShare; bmPinBar(); };
+        window.bmPinHere = function () {
+            const q = { x: Math.round(world.dragonX), y: Math.round(world.dragonY), n: 0, k: 4, c: '#4dd2ff', id: pinId(), sh: true, here: true, t: Date.now() };
+            if (MP.active && window.boruPins.hook) { window.boruPins.hook.here(q); hintToast('🐉 Konumun arkadaşlarına gönderildi', '#4dd2ff', 2200); }
+            else hintToast('🐉 Konum paylaşımı için arkadaşlarla bir maçta olmalısın', '#ff9a7a', 2400);
+        };
         window.bmPinToggle = function () {
-            if (BM.mode === 'pin') { BM.mode = null; } else { if (BM.mode === 'sefer') bmSeferReset(); BM.mode = 'pin'; hintToast('📍 Haritada bir yere dokun: işaret bırak. İşarete tekrar dokun: kaldır.', '#ffd24a', 3200); }
-            document.getElementById('bmPinBtn').classList.toggle('on', BM.mode === 'pin');
+            if (BM.mode === 'pin') { BM.mode = null; } else { if (BM.mode === 'sefer') bmSeferReset(); BM.mode = 'pin'; }
+            document.getElementById('bmPinBtn').classList.toggle('on', BM.mode === 'pin'); bmPinBar();
         };
         function bmPinTap(x, y) {
             let bi = -1, bd = 26; mapPins.forEach((q, i) => { const [sx, sy] = bmW2S(q.x, q.y); const d = Math.hypot(sx - x, sy - y); if (d < bd) { bd = d; bi = i; } });
-            if (bi >= 0) { mapPins.splice(bi, 1); saveMapPins(); hintToast('📍 İşaret kaldırıldı', '#cfe0ff', 1600); return; }
+            if (bi >= 0) { const gone = mapPins.splice(bi, 1)[0]; saveMapPins(); if (gone.sh && MP.active && window.boruPins.hook) window.boruPins.hook.del(gone.id); hintToast('📍 İşaret kaldırıldı', '#cfe0ff', 1600); return; }
+            for (const q of teamPins) { const [sx, sy] = bmW2S(q.x, q.y); if (Math.hypot(sx - x, sy - y) < 26) { hintToast(pinGlyph(q) + ' ' + q.who + ' bıraktı · ' + Math.round(Math.hypot(q.x - world.dragonX, q.y - world.dragonY) / 10) + ' m uzakta', q.c, 2200); return; } }
             if (mapPins.length >= 8) { hintToast('📍 En fazla 8 işaret bırakabilirsin. Birine dokunup kaldır.', '#ff9a7a', 2600); return; }
             const wx = BM.cx + (x - innerWidth / 2) / BM.scale, wy = BM.cy + (y - innerHeight / 2) / BM.scale;
             const used = new Set(mapPins.map(q => q.n)); let n = 1; while (used.has(n)) n++;
-            mapPins.push({ x: Math.round(wx), y: Math.round(wy), n, c: PIN_COLS[(n - 1) % PIN_COLS.length] }); saveMapPins();
+            const q = { x: Math.round(wx), y: Math.round(wy), n, k: pinKind, c: PIN_COLS[(n - 1) % PIN_COLS.length], id: pinId() };
+            if (MP.active && pinShare && window.boruPins.hook) { q.sh = true; window.boruPins.hook.add(q); }
+            mapPins.push(q); saveMapPins();
             try { playTone(900, 'triangle', 0.08, 0.05); } catch (_) {}
         }
+        function bmDrawAllies(c) {
+            if (!(MP.active && window.BORU)) return; const now = performance.now();
+            for (const r of BORU.remotes.values()) {
+                if (r.d || BORU.hostile(r.id) || now - r.seen > 6000) continue;
+                const [sx, sy] = bmW2S(r.x, r.y); c.save(); c.translate(sx, sy);
+                c.fillStyle = '#4dd2ff'; c.strokeStyle = '#fff'; c.lineWidth = 2; c.shadowBlur = 10; c.shadowColor = '#4dd2ff';
+                c.beginPath(); c.arc(0, 0, 7, 0, Math.PI * 2); c.fill(); c.stroke(); c.shadowBlur = 4; c.shadowColor = '#000';
+                c.fillStyle = '#fff'; c.font = 'bold 11px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'bottom'; c.fillText('🐉 ' + (r.name || 'Ejderha'), 0, -10); c.restore();
+            }
+        }
         function bmDrawPins(c) {
-            for (const q of mapPins) { const [sx, sy] = bmW2S(q.x, q.y); const pu = 1 + Math.sin(performance.now() / 260 + q.n) * 0.18;
+            bmDrawAllies(c);
+            for (const q of pinsAll()) { const [sx, sy] = bmW2S(q.x, q.y); const pu = 1 + Math.sin(performance.now() / 260 + q.n) * 0.18;
                 c.save(); c.translate(sx, sy);
                 c.strokeStyle = hexA(q.c, 0.55); c.lineWidth = 2; c.beginPath(); c.arc(0, 0, 14 * pu, 0, Math.PI * 2); c.stroke();
                 c.fillStyle = q.c; c.strokeStyle = '#000'; c.lineWidth = 1.5; c.shadowBlur = 12; c.shadowColor = q.c;
                 c.beginPath(); c.moveTo(0, 0); c.bezierCurveTo(-11, -12, -9, -26, 0, -26); c.bezierCurveTo(9, -26, 11, -12, 0, 0); c.closePath(); c.fill(); c.stroke(); c.shadowBlur = 0;
-                c.fillStyle = '#000'; c.font = 'bold 11px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(String(q.n), 0, -16);
+                c.fillStyle = '#000'; c.font = (q.k | 0) ? '12px sans-serif' : 'bold 11px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText((q.k | 0) ? pinGlyph(q) : String(q.n), 0, -16);
+                if (q.who) { c.fillStyle = '#fff'; c.font = 'bold 10px sans-serif'; c.textBaseline = 'bottom'; c.shadowBlur = 4; c.shadowColor = '#000'; c.fillText(q.who, 0, -29); c.shadowBlur = 0; }
                 c.fillStyle = '#fff'; c.font = 'bold 10px sans-serif'; c.textBaseline = 'top'; c.shadowBlur = 4; c.shadowColor = '#000';
                 c.fillText(Math.round(Math.hypot(q.x - world.dragonX, q.y - world.dragonY) / 10) + ' m', 0, 6); c.restore(); }
         }
         function drawMapPins() {
-            if (inMirrorArena || !mapPins.length) return;
+            if (inMirrorArena) return; const PA = pinsAll(); if (!PA.length) return;
             const CW = canvas.width / viewScale, CH = canvas.height / viewScale; const T = tick;
-            for (const q of mapPins) {
+            for (const q of PA) {
+                if (q.t && Date.now() - q.t > 900000) { teamPins = teamPins.filter(z => z !== q); continue; }
                 const x = q.x - camX, y = q.y - camY, d = Math.hypot(q.x - world.dragonX, q.y - world.dragonY);
-                if (d < 90) { mapPins.splice(mapPins.indexOf(q), 1); saveMapPins(); showWaveText('📍 İŞARETE ULAŞTIN', false, q.c); break; }
+                if (d < 90 && !q.here) { if (teamPins.includes(q)) teamPins = teamPins.filter(z => z !== q); else { mapPins.splice(mapPins.indexOf(q), 1); saveMapPins(); if (q.sh && MP.active && window.boruPins.hook) window.boruPins.hook.del(q.id); } showWaveText(pinGlyph(q) + ' İŞARETE ULAŞTIN', false, q.c); break; }
                 if (x > -60 && y > -60 && x < CW + 60 && y < CH + 60) {
                     ctx.save(); ctx.globalCompositeOperation = 'lighter';
                     const g = ctx.createLinearGradient(x, y, x, y - 700); g.addColorStop(0, hexA(q.c, 0.55)); g.addColorStop(1, hexA(q.c, 0));
                     ctx.fillStyle = g; ctx.fillRect(x - 14, y - 700, 28, 700);
                     for (let k = 0; k < 3; k++) { const f = ((T * 0.6 + k / 3) % 1); ctx.strokeStyle = hexA(q.c, 0.7 * (1 - f)); ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(x, y, 20 + f * 90, (20 + f * 90) * 0.45, 0, 0, Math.PI * 2); ctx.stroke(); }
-                    ctx.restore(); ctx.save(); ctx.font = 'bold 20px Segoe UI'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.shadowBlur = 8; ctx.shadowColor = q.c; ctx.fillText('📍' + q.n, x, y - 30); ctx.restore();
+                    ctx.restore(); ctx.save(); ctx.font = 'bold 20px Segoe UI'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.shadowBlur = 8; ctx.shadowColor = q.c; ctx.fillText(pinGlyph(q) + (q.who || ((q.k | 0) ? '' : q.n)), x, y - 30); ctx.restore();
                 } else {
                     const a = Math.atan2(q.y - world.dragonY, q.x - world.dragonX), pad = 58;
                     let ax = CW / 2 + Math.cos(a) * (CW / 2 - pad), ay = CH / 2 + Math.sin(a) * (CH / 2 - pad);
@@ -12891,7 +13038,7 @@
                     ctx.save(); ctx.translate(ax, ay); ctx.rotate(a); ctx.fillStyle = q.c; ctx.shadowBlur = 12; ctx.shadowColor = q.c;
                     ctx.beginPath(); ctx.moveTo(16, 0); ctx.lineTo(-10, -11); ctx.lineTo(-4, 0); ctx.lineTo(-10, 11); ctx.closePath(); ctx.fill();
                     ctx.rotate(-a); ctx.shadowBlur = 4; ctx.shadowColor = '#000'; ctx.fillStyle = '#fff'; ctx.font = 'bold 11px Segoe UI'; ctx.textAlign = 'center';
-                    ctx.fillText('📍' + q.n + ' ' + Math.round(d / 10) + 'm', 0, -18); ctx.restore();
+                    ctx.fillText(pinGlyph(q) + (q.who || ((q.k | 0) ? '' : q.n)) + ' ' + Math.round(d / 10) + 'm', 0, -18); ctx.restore();
                 }
             }
         }
@@ -12899,8 +13046,8 @@
         window.bmFocusCmd = function (k) { const r = BM._cmdRows && BM._cmdRows[k]; if (!r) return; BM.cx = r.x; BM.cy = r.y; BM.scale = Math.max(BM.scale, 0.05); };
         function bmInfo(hs) {
             const el = document.getElementById('bmInfo');
-            el.style.display = BM.mode === 'sefer' ? 'none' : '';
-            if (BM.mode === 'sefer') return;
+            el.style.display = (BM.mode === 'sefer' || BM.mode === 'pin') ? 'none' : '';
+            if (BM.mode === 'sefer' || BM.mode === 'pin') return;
             const mine = hs.filter(h => h.status === 'friendly'), foes = hs.filter(h => h.status !== 'friendly');
             const sel = BM.sel && hs.find(h => h.id === BM.sel);
             if (sel) {
@@ -12919,13 +13066,13 @@
             if (inMirrorArena) { showWaveText('🕳️ KARA DELİKTE HARİTA ÇALIŞMAZ', false, '#b77bff'); return; }
             BM.open = true; BM.sel = null; BM.cx = world.dragonX; BM.cy = world.dragonY; bmSeferReset();
             BM.scale = Math.min(innerWidth, innerHeight) / 9000;
-            bmResize(); document.getElementById('bigMap').classList.add('open'); bmRenderCmds(true);
+            bmResize(); document.getElementById('bigMap').classList.add('open'); document.body.classList.add('map-open'); bmRenderCmds(true);
             if (!isPaused && !MP.active) { isPaused = true; BM.paused = true; isBreathingFire = false; if (fireGain) fireGain.gain.value = 0; }
             if (typeof endJoystick === 'function') try { endJoystick(); } catch (e) {}
             bmLoop();
         };
         window.closeBigMap = function () {
-            BM.open = false; cancelAnimationFrame(BM.raf); document.getElementById('bigMap').classList.remove('open'); BM.ptrs.clear(); BM.pinch = null;
+            BM.open = false; cancelAnimationFrame(BM.raf); document.getElementById('bigMap').classList.remove('open'); document.body.classList.remove('map-open'); BM.ptrs.clear(); BM.pinch = null; { const pb = document.getElementById('bmPinBar'); if (pb) pb.classList.remove('open'); }
             if (BM.paused) { BM.paused = false; if (!mMenuOpen()) { isPaused = false; world.lastX = world.dragonX; world.lastY = world.dragonY; } }
         };
         function bmClampScale(sc) { return Math.max(0.006, Math.min(0.6, sc)); }
@@ -13052,7 +13199,8 @@
                 ['skills', '🌳', 'Yetenekler', skillPoints > 0 ? skillPoints + ' puan hazır' : 'yetenek ağacı', false],
                 ['journal', '📖', 'Günlük', 'hikâye · amaç', false],
                 ['reports', '📜', 'Raporlar', rpUnread() ? rpUnread() + ' yeni mektup' : 'ulak mektupları', !rpReports.length],
-                ['market', '🛒', 'Market', 'kostüm · iksir', false],
+                ['market', '<i class="ic-market" aria-hidden="true"></i>', 'Market', 'kostüm · iksir', false],
+                ['profile', '🪪', 'Profil', 'süre · istatistik', false],
                 ['settings', '⚙️', 'Ayarlar', 'ses · görüntü', false],
                 ['map', '🗺️', 'Harita', 'kovanlarını gör', inMirrorArena],
                 ['install', '📲', 'Tam Ekran', isStandaloneApp() ? 'uygulama modu' : 'uygulama olarak yükle', isStandaloneApp()]
@@ -13076,6 +13224,7 @@
             else if (a === 'journal') openJournal();
             else if (a === 'skills') { closeMMenu(); openSkillTree(); return; }
             else if (a === 'market') openMarket();
+            else if (a === 'profile') { if (window.MPUI) MPUI.profile(); }
             else if (a === 'settings') openSettingsModal();
             else if (a === 'map') openBigMap();
             else if (a === 'cmds') { openCmd(); return; }
@@ -13115,12 +13264,16 @@
                 remotes: R, matchActive: false,
                 onLocalDeath: null, onHiveCaptured: null, onBossKill: null, onHit: null,
                 hostile: () => false, teamColor: () => '#ffffff',
-                skins() { return skinsDB.filter(s => unlockedSkins.includes(s.id)).map(s => ({ id: s.id, name: s.name, icon: s.icon || '🐉', color: s.mainColor })); },
+                // Birlikte modunda tüm kostümler açıktır (yalnızca görünüş, güç vermez)
+                skins(mode) { return skinsDB.filter(s => mode === 'coop' || unlockedSkins.includes(s.id)).map(s => ({ id: s.id, name: s.name, icon: s.icon || '🐉', color: s.mainColor })); },
                 skinInfo(id) { const s = skinsDB.find(q => q.id === id) || skinsDB[0]; return { id: s.id, name: s.name, icon: s.icon || '🐉', color: s.mainColor }; },
                 activeSkin() { return activeTheme.id; },
+                playState() { return { active: !!gameActive, paused: !!isPaused, mp: !!B.matchActive }; },
+                profileStats() { let w = 1; try { w = worldsMeta.list.length; } catch (e) {} return { maxLevel: maxLevelReached, skins: unlockedSkins.length, skinTotal: skinsDB.length, worlds: w, coins: coins, level: level }; },
                 savedName() { return (dragonName && dragonName !== 'İsimsiz Börü') ? dragonName : (store.getItem('boruDragonName') || ''); },
                 startMatch(o) {
                     store.mem = new Map();
+                    MP.noSkinBuffs = o.mode === 'coop';
                     MP.active = true; MP.isHost = true; MP.localDead = false; MP.pendingPicks = 0;
                     startingNewGame = false; waveBossPending = false; scorches.length = 0;
                     level = 1; currentWave = 1; score = 0; currentXp = 0; maxXp = 18; killsInCurrentWave = 0; expeditions.length = 0; rpReports.length = 0;
@@ -13138,6 +13291,7 @@
                     POOL.by.clear(); POOL.added = 0; POOL.allyIds.clear(); BS.pkt = null; BS.won = false; BS.out = null; BS.inc = null;
                     inMirrorArena = false; isArenaTransitioning = false; arenaStash = null; blackHolePortal = null; clearArenaState();
                     document.getElementById('gameOverScreen').style.display = 'none';
+                    { const pm = document.getElementById('pxModal'); if (pm) pm.classList.remove('open'); } // menü pencereleri maçı kapatmasın
                     R.clear(); B.matchActive = true; B.mode = o.mode || 'coop'; document.body.classList.add('mp-match');
                     prepGameStart();
                     dragonName = o.name || dragonName;
@@ -13150,7 +13304,7 @@
                     camX = x - (canvas.width / viewScale) / 2; camY = y - (canvas.height / viewScale) / 2;
                 },
                 endMatch() {
-                    B.matchActive = false; gameActive = false; MP.players.clear(); RF.length = 0; isBreathingFire = false; spacePressed = false;
+                    B.matchActive = false; gameActive = false; MP.players.clear(); MP.noSkinBuffs = false; RF.length = 0; isBreathingFire = false; spacePressed = false;
                     try { inMirrorArena = false; isArenaTransitioning = false; activeBosses = []; clearArenaState(); document.getElementById('bossUi').style.display = 'none'; const ov = document.getElementById('arenaTransitionOverlay'); if (ov) ov.style.display = 'none'; } catch (e) {}
                     try { if (fireGain) fireGain.gain.value = 0; } catch (e) {}
                     document.getElementById('pauseMenu').style.display = 'none';
@@ -13183,8 +13337,9 @@
                 },
                 // ---------------- ORTAK KOVAN SAYISI
                 ownHives() { return Math.max(0, totalHivesCapturedLifetime - POOL.added); },
+                // Kara delik eşiği için oyuncuların kovanları toplanır (Birlikte/Herkes Tek: herkes, Takım: takım arkadaşları)
                 setAllyHives(id, n) {
-                    if (!coop() || !(n >= 0)) return;
+                    if (!B.matchActive || !(n >= 0)) return;
                     const prev = POOL.by.get(id) || 0; if (n <= prev) return;
                     POOL.by.set(id, n);
                     let sum = 0; for (const v of POOL.by.values()) sum += v;
@@ -13228,7 +13383,7 @@
                     if (b && inMirrorArena) { b.hp = 0; b.lastHp = 0; return; } // bir sonraki karede yerel zafer akışı çalışır
                     const t = BH_TIERS[lvl % 3] || BH_TIERS[0];
                     blackHoleTier = lvl + 1; blackHolePortal = null; refreshBlackHolePortal();
-                    showWaveText('🏆 ' + t.bossName + ' YENİLDİ! (müttefiklerin kazandı)', true, t.bossColor);
+                    if (!document.body.classList.contains('m')) showWaveText('🏆 ' + t.bossName + ' YENİLDİ! (müttefiklerin kazandı)', true, t.bossColor);
                 },
                 // Boss durumu: kara delikteki "hakem" oyuncu gönderir, diğerleri kendi bossunu buna eşitler
                 bossState() {
@@ -13348,6 +13503,8 @@
                     try { B.bossSync(performance.now()); } catch (e) { if (!B._bsw) { B._bsw = true; console.warn('Boss eşitlenemedi', e); } }
                     if (R.size === 0) return;
                     const now = performance.now(), vw = canvas.width / viewScale, vh = canvas.height / viewScale;
+                    // Yetişme adımlarında (ekran çizilmiyorken) uzak ejderhaları boşuna çizme: yalnızca konum/hasar işlenir
+                    const drawing = !Object.prototype.hasOwnProperty.call(ctx, 'fill');
                     for (const r of R.values()) {
                         if (now - r.seen > 6000) continue;
                         B.sampleRemote(r, now);
@@ -13361,33 +13518,48 @@
                         // Kükreme: karşı taraftaki sayaç arttıysa dalgayı burada da oynat
                         if (r.ro != null) { if (r.roSeen == null) r.roSeen = r.ro; else if (r.ro > r.roSeen) { r.roSeen = r.ro; roars.push({ owner: r.id, x: r.x, y: r.y, angle: r.a, radius: 20, life: 1.0, seed: Math.random() * 100, vis: 1 }); } }
                         const onScreen = r.x > camX - 900 && r.x < camX + vw + 900 && r.y > camY - 900 && r.y < camY + vh + 900;
-                        if (r.f && !r.g && !r.bc && !r.bf) B.spawnRemoteFire(r);
-                        // Işın ekrana uzaktan da girebilir (3200 birim): çizimi ekrana göre değil ışına göre yap
-                        if (r.bf && !r.g) B.drawRemoteBeam(r);
-                        if (onScreen) { if (r.bc > 0 && !r.g) B.drawRemoteCharge(r); B.drawRemote(r); }
-                        else if (!B.hostile(r.id)) B.drawArrow(r, vw, vh); // düşmanın yeri gösterilmez
+                        // Ekran dışındaki oyuncunun alevi görünmez: parçacık üretme (en büyük FPS kaybı buydu)
+                        if (onScreen && r.f && !r.g && !r.bc && !r.bf) B.spawnRemoteFire(r);
+                        if (drawing) {
+                            // Işın ekrana uzaktan da girebilir (3200 birim): çizimi ekrana göre değil ışına göre yap
+                            if (r.bf && !r.g) B.drawRemoteBeam(r);
+                            if (onScreen) { if (r.bc > 0 && !r.g) B.drawRemoteCharge(r); B.drawRemote(r); }
+                            else if (!B.hostile(r.id)) B.drawArrow(r, vw, vh); // düşmanın yeri gösterilmez
+                        }
                         B.pvpFire(r); B.pvpBeam(r);
                     }
-                    B.drawRemoteFire();
+                    B.drawRemoteFire(vw, vh);
                     const tNow = performance.now();
                     if (hitAcc.size && tNow - lastHitFlush > 120) { lastHitFlush = tNow; for (const [id, d] of hitAcc) { if (B.onHit) B.onHit(id, Math.round(d * 10) / 10); } hitAcc.clear(); }
                 },
                 drawRemote(r) {
                     const theme = skinsDB.find(s => s.id === r.sk) || skinsDB[0];
-                    const sv = [joints, activeTheme, spacePressed, isRageActive, isBreathingFire, isSuperBeamCharging, isSuperBeamFiring];
+                    // PERFORMANS: uzak ejderhalar daha hafif kalitede çizilir (gölge bulanıklığı yok, kesişim gölgesi yok,
+                    // telefonda ve kasan cihazda düşük detay). Kendi ejderhan her zaman seçtiğin kalitede kalır.
+                    const sv = [joints, activeTheme, spacePressed, isRageActive, isBreathingFire, isSuperBeamCharging, isSuperBeamFiring, gfxQuality, ctx._sbMax, ORG_TAIL];
                     try {
                         joints = r.joints; activeTheme = theme; spacePressed = !!r.g; isRageActive = !!r.r; isBreathingFire = !!r.f; isSuperBeamCharging = false; isSuperBeamFiring = false;
+                        gfxQuality = (isMobile || FX.q < 1 || R.size > 2) ? 'low' : (gfxQuality === 'high' ? 'mid' : gfxQuality);
+                        ctx._sbMax = 0; MP.lite = true; ORG_TAIL = r.tail || (r.tail = []); // kuyruk uzantısı her oyuncuda ayrı (eskiden kendi kuyruğumuzu bozuyordu)
                         drawDragonBody(r.sm || 1, r.gf || 1, 1);
                     } catch (e) { if (!B._warned) { B._warned = true; console.warn('Uzak ejderha çizilemedi', e); } }
-                    finally { [joints, activeTheme, spacePressed, isRageActive, isBreathingFire, isSuperBeamCharging, isSuperBeamFiring] = sv; }
-                    // İsim + can barı
+                    finally { [joints, activeTheme, spacePressed, isRageActive, isBreathingFire, isSuperBeamCharging, isSuperBeamFiring, gfxQuality, ctx._sbMax, ORG_TAIL] = sv; MP.lite = false; }
+                    B.drawTag(r);
+                },
+                // İsim etiketi + can barı: gölge bulanıklığı yerine kontur (çok daha ucuz), yuvarlatılmış rozet görünümü
+                drawTag(r) {
                     const G = (r.gf || 1) * (r.sm || 1), sx = r.x - camX, sy = r.y - camY - 58 * G - 10;
-                    const col = B.teamColor(r.id);
-                    ctx.save(); ctx.textAlign = 'center'; ctx.font = 'bold 15px Arial'; ctx.shadowBlur = 5; ctx.shadowColor = '#000';
-                    ctx.fillStyle = col; ctx.fillText(r.name || 'Ejderha', sx, sy); ctx.shadowBlur = 0;
-                    const w = 70, k = Math.max(0, Math.min(1, (r.hp || 0) / (r.mh || 1)));
-                    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(sx - w / 2, sy + 5, w, 6);
-                    ctx.fillStyle = B.hostile(r.id) ? '#ff3355' : '#33ff88'; ctx.fillRect(sx - w / 2, sy + 5, w * k, 6);
+                    const col = B.teamColor(r.id), hostile = B.hostile(r.id), name = r.name || 'Ejderha';
+                    const k = Math.max(0, Math.min(1, (r.hp || 0) / (r.mh || 1)));
+                    ctx.save(); ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; ctx.font = 'bold 14px Arial';
+                    const tw = r._tw && r._tn === name ? r._tw : (r._tn = name, r._tw = ctx.measureText(name).width);
+                    const w = Math.max(64, tw + 22), x0 = sx - w / 2, y0 = sy - 15;
+                    ctx.globalAlpha = 0.72; ctx.fillStyle = '#07050a'; ctx.beginPath();
+                    if (ctx.roundRect) ctx.roundRect(x0, y0, w, 29, 8); else ctx.rect(x0, y0, w, 29); ctx.fill();
+                    ctx.globalAlpha = 1; ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.stroke();
+                    ctx.fillStyle = col; ctx.fillText((hostile ? '⚔ ' : '') + name, sx, sy + 1);
+                    const bw = w - 12; ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(sx - bw / 2, sy + 5, bw, 5);
+                    ctx.fillStyle = hostile ? '#ff3355' : (k < 0.3 ? '#ffb030' : '#33ff88'); ctx.fillRect(sx - bw / 2, sy + 5, bw * k, 5);
                     ctx.restore();
                 },
                 // ---- Uzak oyuncuların ALEVİ: kendi alevimizle aynı sprite'larla (kalite aynı), ama hasar vermez
@@ -13397,24 +13569,27 @@
                     return sp;
                 },
                 spawnRemoteFire(r) {
-                    if (RF.length > (isMobile ? 220 : 500)) return;
+                    const fq = (typeof FX !== 'undefined' && FX.q) || 1;
+                    if (RF.length > (isMobile ? 140 : 320) * fq) return;
                     const G = (r.gf || 1) * (r.sm || 1), a = r.a, m = 35 * G, mx = r.x + Math.cos(a) * m, my = r.y + Math.sin(a) * m;
-                    const vx = r.pvx || 0, vy = r.pvy || 0, spr = B.spriteFor(r.sk, r.r), q = (typeof FX !== 'undefined' && FX.q) || 1;
-                    const n = Math.max(2, Math.round((r.r ? 6 : 4) * q));
+                    const vx = r.pvx || 0, vy = r.pvy || 0, spr = B.spriteFor(r.sk, r.r), q = fq * (isMobile ? 0.7 : 1);
+                    const n = Math.max(2, Math.round((r.r ? 5 : 3) * q));
                     for (let i = 0; i < n; i++) {
                         const sp = (Math.random() - 0.5) * 0.4, v = (Math.random() * 6 + 6.8) * (1 + Math.max(0, G - 1.7) * 0.6), f0 = Math.random();
                         RF.push({ x: mx + Math.cos(a) * v * f0, y: my + Math.sin(a) * v * f0, vx: Math.cos(a + sp) * v + vx * 0.7, vy: Math.sin(a + sp) * v + vy * 0.7, life: 1, decay: 0.029, size: (Math.random() * 16 + 14) * G, growth: Math.random() * 2.5 + 1.5, spr });
                     }
                 },
-                drawRemoteFire() {
+                drawRemoteFire(vw, vh) {
                     if (!RF.length) return;
+                    vw = vw || canvas.width / viewScale; vh = vh || canvas.height / viewScale;
                     ctx.save(); ctx.globalCompositeOperation = 'lighter';
                     for (let i = RF.length - 1; i >= 0; i--) {
                         const p = RF[i]; p.x += p.vx; p.y += p.vy; p.life -= p.decay; p.size += p.growth;
-                        if (p.life <= 0) { RF.splice(i, 1); continue; }
-                        const sz = p.size * (p.life > 0.38 ? 1 : 1.08);
+                        if (p.life <= 0) { RF[i] = RF[RF.length - 1]; RF.pop(); continue; } // splice yerine takas: çöp ve kaydırma yok
+                        const sz = p.size * (p.life > 0.38 ? 1 : 1.08), px = p.x - camX, py = p.y - camY, h = sz / 2;
+                        if (px + h < 0 || py + h < 0 || px - h > vw || py - h > vh) continue; // ekran dışı: çizme
                         ctx.globalAlpha = p.life > 0.38 ? Math.min(1, (p.life - 0.3) * 1.15) : p.life * 1.9;
-                        ctx.drawImage(p.spr, p.x - camX - sz / 2, p.y - camY - sz / 2, sz, sz);
+                        ctx.drawImage(p.spr, px - h, py - h, sz, sz);
                     }
                     ctx.restore();
                 },
@@ -13566,7 +13741,9 @@
             playDeathSound = function (isBoss, x, y, type) { if (isBoss && B.matchActive) { cnt.bosses++; if (B.onBossKill) B.onBossKill(type); } return _pds.apply(this, arguments); };
         })();
     </script>
-    <script src="plus.js?v=1"></script>
-    <script src="mp.js?v=4" defer></script>
+    <script src="plus.js?v=3"></script>
+    <script src="ui.js?v=1" defer></script>
+    <script src="mp.js?v=6" defer></script>
+    <script src="icons.js?v=1" defer></script>
 </body>
 </html>
