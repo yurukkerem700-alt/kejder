@@ -1261,6 +1261,16 @@
                 <div class="settings-hint">Düşük kalite; parçacık sayısını azaltır, zayıf cihazlarda akıcılığı artırır.</div>
             </div>
             <div class="settings-row">
+                <label>Çözünürlük</label>
+                <div class="opt-group" id="resSelector">
+                    <button class="opt-btn" data-v="auto" onclick="setResMode('auto')">OTO</button>
+                    <button class="opt-btn" data-v="1" onclick="setResMode('1')">%100</button>
+                    <button class="opt-btn" data-v="0.85" onclick="setResMode('0.85')">%85</button>
+                    <button class="opt-btn" data-v="0.7" onclick="setResMode('0.7')">%70</button>
+                </div>
+                <div class="settings-hint">Kasma varsa düşür: ekran kartı çok daha az piksel boyar, görüntü biraz yumuşar. OTO: cihaz kasınca kendisi düşürür.</div>
+            </div>
+            <div class="settings-row">
                 <label>Kare Hızı (FPS)</label>
                 <div class="opt-group" id="fpsSelector">
                     <button class="opt-btn" data-v="30" onclick="setFpsCap(30)">30 · SERİN</button>
@@ -1498,10 +1508,25 @@
         function readWorld(id, key) { return localStorage.getItem(worldPrefix(id) + key); }
 
         const canvas = document.getElementById('dragonCanvas');
-        let ctx = canvas.getContext('2d'); // let: kostüm vitrini (kostum.js) önizleme tuvaline geçici olarak yönlendirir
+        let ctx = canvas.getContext('2d', { alpha: false }); // alpha:false: oyun her karede tüm arka planı boyar; opak tuval tarayıcıda daha ucuz birleştirilir.
+        // let: kostüm vitrini (kostum.js) önizleme tuvaline geçici olarak yönlendirir
         // GÖLGE SINIRI: düşük/orta grafik kalitesinde pahalı shadowBlur değerleri kısılır
         (function () { const d = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'shadowBlur'); if (!d || !d.set) return; ctx._sbMax = 999;
-            Object.defineProperty(ctx, 'shadowBlur', { configurable: true, get() { return d.get.call(this); }, set(v) { d.set.call(this, Math.min(v, this._sbMax)); } }); })();
+            Object.defineProperty(ctx, 'shadowBlur', { configurable: true, get() { return d.get.call(this) / (this._rs || 1); }, set(v) { d.set.call(this, Math.min(v, this._sbMax) * (this._rs || 1)); } }); })();
+        // ÇÖZÜNÜRLÜK ÖLÇEĞİ: tuval arka planda daha az pikselle çizilip ekrana büyütülür (telefon ekran kartının asıl
+        // yükü boyanan piksel sayısıdır). Oyun kodu canvas.width/height'ı hep ekran (CSS piksel) boyutu olarak görür;
+        // aradaki fark tek bir taban ölçek dönüşümüyle kapatılır, böylece hiçbir çizim/dokunma hesabı değişmez.
+        let renderScale = 1;
+        (function () {
+            const P = HTMLCanvasElement.prototype, dW = Object.getOwnPropertyDescriptor(P, 'width'), dH = Object.getOwnPropertyDescriptor(P, 'height');
+            if (!dW || !dH) return;
+            let lw = dW.get.call(canvas), lh = dH.get.call(canvas);
+            const apply = () => { dW.set.call(canvas, Math.max(1, Math.round(lw * renderScale))); dH.set.call(canvas, Math.max(1, Math.round(lh * renderScale)));
+                ctx._rs = renderScale; CanvasRenderingContext2D.prototype.setTransform.call(ctx, renderScale, 0, 0, renderScale, 0, 0); };
+            Object.defineProperty(canvas, 'width', { configurable: true, get() { return lw; }, set(v) { lw = +v; apply(); } });
+            Object.defineProperty(canvas, 'height', { configurable: true, get() { return lh; }, set(v) { lh = +v; apply(); } });
+            window.setRenderScale = function (r) { r = Math.max(0.5, Math.min(1, +r || 1)); if (r === renderScale) return; renderScale = r; apply(); };
+        })();
         const minimapCanvas = document.getElementById('minimapCanvas');
         const mctx = minimapCanvas.getContext('2d');
         // =====================================================================
@@ -1608,6 +1633,11 @@
         window.setFpsCap = function (v) { fpsCap = v === 30 ? 30 : 60; store.setItem('boruFps', fpsCap); applyUiSettings(); };
         window.toggleSetting = function(key) { uiSettings[key] = !uiSettings[key]; store.setItem('boruUiSettings', JSON.stringify(uiSettings)); applyUiSettings(); };
         window.setGfxQuality = function(q) { gfxQuality = q; store.setItem('boruGfx', q); applyUiSettings(); };
+        // ÇÖZÜNÜRLÜK: 'auto' = tam çözünürlükle başlar, cihaz kasarsa kendiliğinden düşürür
+        let resMode = store.getItem('boruRes') || 'auto';
+        function applyResMode() { setRenderScale(resMode === 'auto' ? 1 : (+resMode || 1)); document.querySelectorAll('#resSelector .opt-btn').forEach(b => b.classList.toggle('active', b.dataset.v === resMode)); }
+        window.setResMode = function (v) { resMode = v; store.setItem('boruRes', v); applyResMode(); };
+        applyResMode();
         window.resetTutorial = function() { store.removeItem('boruTutorialSeen'); alert('Oynanarak öğretilen eğitim, bir sonraki SIFIRDAN BAŞLA\'da tekrar oynatılacak.'); };
         window.resetAllProgress = function() {
             if (!confirm('Bu dünyadaki (' + currentWorld().name + ') TÜM ilerleme kalıcı olarak silinecek: coin, marketten alınan her şey (kostümler, karaborsa eşyaları, ordu, iksirler), komutanlar, kovanlar, sığınak, görevler ve kayıt. Diğer dünyaların etkilenmez. Emin misin?')) return;
@@ -4981,8 +5011,8 @@
             let portalPct = bhT ? Math.min(100, Math.round((totalHivesCapturedLifetime / bhReq) * 100)) : 100;
             let fill = document.getElementById('territoryBarFill'); let label = document.getElementById('territoryLabel'); let h4 = document.querySelector('#territoryPanel h4');
             if (fill) fill.style.width = portalPct + '%';
-            if (h4) h4.innerText = bhT ? '🕳️ KARA DELİK ' + bhLabel(blackHoleTier) + ': ' + Math.min(totalHivesCapturedLifetime, bhReq) + '/' + bhReq : '🌌 TÜM KARA DELİKLER KAPANDI';
-            if (label) { let rv = ''; try { if (typeof activeRival === 'function' && !MP.active) { rivalInit(); rv = activeRival() ? ' · 🐉 RAKİP UYANIK' : (rivalsSlain ? ' · 🐉 ?' : ' · 🐉 ' + Math.max(0, rivalNextAt - totalHivesCapturedLifetime)); } } catch (e) {} label.innerText = '👑 ' + totalHivesCapturedLifetime + ' · 🐍 Komutan ' + armySlotsUsed() + '/' + slaveCap() + ' · ⚔️ Asker ' + hiveSoldiers.length + rv; }
+            if (h4) setTextIfChanged(h4, bhT ? '🕳️ KARA DELİK ' + bhLabel(blackHoleTier) + ': ' + Math.min(totalHivesCapturedLifetime, bhReq) + '/' + bhReq : '🌌 TÜM KARA DELİKLER KAPANDI');
+            if (label) { let rv = ''; try { if (typeof activeRival === 'function' && !MP.active) { rivalInit(); rv = activeRival() ? ' · 🐉 RAKİP UYANIK' : (rivalsSlain ? ' · 🐉 ?' : ' · 🐉 ' + Math.max(0, rivalNextAt - totalHivesCapturedLifetime)); } } catch (e) {} setTextIfChanged(label, '👑 ' + totalHivesCapturedLifetime + ' · 🐍 Komutan ' + armySlotsUsed() + '/' + slaveCap() + ' · ⚔️ Asker ' + hiveSoldiers.length + rv); }
         }
         let hiveSoldiers = []; // Dost kovanların ürettiği küçük askerler
         let assaultHive = null, gFrame = 0; // birliklerin kuşattığı kovan / kare sayacı
@@ -5518,7 +5548,7 @@
                 let pct = Math.min(100, (q.progress / q.target) * 100);
                 html += `<div class="quest-item ${q.done ? 'done' : ''}"><div class="quest-title"><span>${q.icon} ${q.label}</span><span>${Math.min(q.progress, q.target)}/${q.target}</span></div><div class="quest-bar-bg"><div class="quest-bar-fill" style="width:${pct}%"></div></div></div>`;
             }
-            panel.innerHTML = html;
+            if (panel._h !== html) { panel._h = html; panel.innerHTML = html; }
         }
 
         // --- İKSİR (POTION) SİSTEMİ ---
@@ -7378,12 +7408,28 @@
             }
             return h;
         }
+        // GRADYAN ÖNBELLEĞİ: gövde halkaları her karede ~20 yeni radyal gradyan üretiyordu; boyut 0.5'e yuvarlanıp
+        // aynı gradyan tekrar kullanılır (görünüm aynı, çöp toplayıcı ve işlemci yükü belirgin az)
+        const BODY_GRAD = new Map();
+        function cachedBodyGrad(ctx, key, make) {
+            let g = BODY_GRAD.get(key); if (g) return g;
+            g = make(); if (g !== CTX_DUMMY_GRAD) { // ara adımın sahte gradyanı önbelleğe girmesin
+                if (BODY_GRAD.size > 600) BODY_GRAD.clear(); BODY_GRAD.set(key, g); } return g;
+        }
         function skinBodyGradient(ctx, size, pal) {
+            size = Math.round(size * 2) / 2;
+            return cachedBodyGrad(ctx, 's' + size + pal[0] + pal[1] + pal[2], () => skinBodyGradientRaw(ctx, size, pal));
+        }
+        function skinBodyGradientRaw(ctx, size, pal) {
             const g = ctx.createRadialGradient(-size*0.4, -size*0.4, size*0.05, 0, 0, Math.max(size*1.3, 1));
             g.addColorStop(0, pal[0]); g.addColorStop(0.55, pal[1]); g.addColorStop(1, pal[2]);
             return g;
         }
         function bodyScaleGradient(ctx, size, hue, saturation) {
+            size = Math.round(size * 2) / 2;
+            return cachedBodyGrad(ctx, 'b' + size + '|' + hue + saturation, () => bodyScaleGradientRaw(ctx, size, hue, saturation));
+        }
+        function bodyScaleGradientRaw(ctx, size, hue, saturation) {
             const g = ctx.createRadialGradient(-size*0.4, -size*0.4, size*0.05, 0, 0, Math.max(size*1.3, 1));
             g.addColorStop(0, `hsla(${hue}, ${saturation}, 32%, 0.95)`);
             g.addColorStop(0.55, `hsla(${hue}, ${saturation}, 13%, 0.95)`);
@@ -10455,8 +10501,15 @@
             FX.ema = FX.ema * 0.95 + Math.min(dt, 100) * 0.05;
             // Yavaşlık eşiği seçilen kare hızına göre (30 FPS'te 33 ms normaldir, yavaşlık sayılmaz)
             if (FX.ema > (fpsCap === 30 ? 44 : 24)) FX.slowT++; else if (FX.slowT > 0) FX.slowT--;
-            if (FX.slowT > 150 && FX.q > 0.55) { FX.q = 0.55; ctx._sbMax = Math.min(ctx._sbMax, 4); FX.slowT = 0; }
-            else if (FX.slowT > 150 && FX.q > 0.4) { FX.q = 0.4; ctx._sbMax = 0; FX.slowT = 0; }
+            if (FX.slowT > 90 && FX.q > 0.55) { FX.q = 0.55; ctx._sbMax = Math.min(ctx._sbMax, 4); FX.slowT = 0; }
+            else if (FX.slowT > 90 && FX.q > 0.4) { FX.q = 0.4; ctx._sbMax = 0; FX.slowT = 0; }
+            // Efektler kısıldığı hâlde hâlâ kasıyorsa (OTO çözünürlükte) çizim çözünürlüğü kademeli düşer: %100 → %85 → %70
+            else if (FX.slowT > 90 && resMode === 'auto' && renderScale > 0.7) { setRenderScale(renderScale > 0.86 ? 0.85 : 0.7); FX.slowT = 0; FX.fastT = 0; }
+            // Uzun süre rahat akıyorsa çözünürlük bir kademe geri yükselir (titreşmesin diye eşik çok daha düşük)
+            if (resMode === 'auto' && renderScale < 1) {
+                const budget = 1000 / fpsCap; if (FX.ema < budget * 1.15 && (FX.work || 0) < budget * 0.35) FX.fastT = (FX.fastT || 0) + 1; else FX.fastT = 0;
+                if (FX.fastT > 900) { setRenderScale(renderScale < 0.8 ? 0.85 : 1); FX.fastT = 0; }
+            }
         }
         let worldEdgeHintCd = 0;
         function drawWorldEdge() {
@@ -10535,8 +10588,18 @@
         // (gerektiğinde bir karede en fazla 3 adım yetişir). Büyük darbelerde kısa bir "an donması" (hitStop) var.
         // =====================================================================
         const STEP_MS = 1000 / 60;
-        const CTX_DRAW_OPS = ['fill', 'stroke', 'fillRect', 'strokeRect', 'clearRect', 'drawImage', 'fillText', 'strokeText', 'putImageData'];
-        function ctxMute(on) { const nop = () => {}; for (const k of CTX_DRAW_OPS) { if (on) ctx[k] = nop; else delete ctx[k]; } }
+        // Ara adımlarda sadece boyama değil yol kurma, dönüşüm ve gradyan üretimi de atlanır (eskiden çizilmeyen
+        // bir adım, çizilen adımın ~%60'ı kadar işlemci yiyordu). Durum değişiklikleri gerçek save/restore ile geri alınır.
+        const CTX_DRAW_OPS = ['fill', 'stroke', 'fillRect', 'strokeRect', 'clearRect', 'drawImage', 'fillText', 'strokeText', 'putImageData',
+            'beginPath', 'closePath', 'moveTo', 'lineTo', 'arc', 'arcTo', 'ellipse', 'rect', 'roundRect', 'quadraticCurveTo', 'bezierCurveTo', 'clip',
+            'save', 'restore', 'translate', 'rotate', 'scale', 'transform', 'setTransform', 'resetTransform', 'setLineDash'];
+        const CTX_NOP = () => {}, CTX_DUMMY_GRAD = { addColorStop: CTX_NOP, setTransform: CTX_NOP }, CTX_GRAD = () => CTX_DUMMY_GRAD;
+        const CTX_GRAD_OPS = ['createRadialGradient', 'createLinearGradient', 'createConicGradient', 'createPattern'];
+        let ctxMuted = null;
+        function ctxMute(on) {
+            if (on) { if (ctxMuted) return; ctxMuted = ctx; ctx.save(); for (const k of CTX_DRAW_OPS) ctx[k] = CTX_NOP; for (const k of CTX_GRAD_OPS) ctx[k] = CTX_GRAD; }
+            else { const c = ctxMuted; if (!c) return; ctxMuted = null; for (const k of CTX_DRAW_OPS) delete c[k]; for (const k of CTX_GRAD_OPS) delete c[k]; c.restore(); }
+        }
         let loopRunning = false, loopLast = 0, loopAcc = 0, hitStop = 0;
         function animate() {
             if (loopRunning) return;
@@ -10560,6 +10623,7 @@
                 try { gameStep(); } finally { if (more) ctxMute(false); }
                 loopAcc -= STEP_MS; n++; if (!gameActive) break;
             }
+            FX.work = (FX.work || 0) * 0.95 + (performance.now() - now) * 0.05; // bu karede oyun mantığı + çizim komutlarına giden süre
             if (loopAcc > STEP_MS * 3) loopAcc = 0;
             if (loopAcc < -STEP_MS) loopAcc = -STEP_MS;
             if (!gameActive) { loopRunning = false; return; }
@@ -10573,6 +10637,8 @@
         let startingNewGame = false;
         let waveBossPending = false;
         function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+        // HUD metni: değişmediyse DOM'a yazma (her yazım ikon yenileme + yeniden yerleşim maliyeti getirir)
+        function setTextIfChanged(el, t) { if (el._t !== t) { el._t = t; el.innerText = t; } }
         function tryGhost() {
             if (!gameActive || isPaused || (MP.active && MP.localDead)) return;
             if (ghostEnergy < 15) { showWaveTextLocal('👻 HAYALET ENERJİSİ YETERSİZ', false, '#88aaaa'); return; }
@@ -10926,7 +10992,8 @@
             const o = objectiveInfo();
             const bt = bossTypeForWave(currentWave);
             const waveLine = inMirrorArena ? '' : `<div class="ob-w">🌊 Dalga ${currentWave} · ${Math.min(killsInCurrentWave, killsNeededForNextWave)}/${killsNeededForNextWave} ruh ${bt ? (waveBossPending ? '· ⚠️ BOSS SAVAŞI' : '· ardından BOSS gelir') : '· ardından yeni dalga'}</div>`;
-            el.innerHTML = `<div class="ob-h">🎯 AMACIM</div><div class="ob-t">${o.t}</div><div class="ob-y">${o.w}</div>${waveLine}<div class="ob-k">📖 Hikâye ve amacın: ${isTouchUI ? '☰ → Günlük' : 'J tuşu'}</div>`;
+            const h = `<div class="ob-h">🎯 AMACIM</div><div class="ob-t">${o.t}</div><div class="ob-y">${o.w}</div>${waveLine}<div class="ob-k">📖 Hikâye ve amacın: ${isTouchUI ? '☰ → Günlük' : 'J tuşu'}</div>`;
+            if (el._h !== h) { el._h = h; el.innerHTML = h; } // içerik değişmediyse DOM'a dokunma (ikonlar her seferinde yeniden kurulmasın)
         }
         const JOURNAL = [
             { t: 'I · Ateşyurt', x: 'Bir zamanlar ejderhaların yurdu Ateşyurt, yıldızların en sıcak ışığıydı. Sonra gökyüzünü karartan o sürü geldi ve yurdumuzu bir gecede yuttu.' },
@@ -13811,6 +13878,6 @@
     <script src="kostum.js?v=2"></script>
     <script src="ui.js?v=1" defer></script>
     <script src="mp.js?v=7" defer></script>
-    <script src="icons.js?v=2" defer></script>
+    <script src="icons.js?v=3" defer></script>
 </body>
 </html>
