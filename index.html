@@ -993,6 +993,18 @@
         @keyframes mpBtnFlow { 0%,100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
         @keyframes mpBtnGlow { 0%,100% { box-shadow:0 0 8px rgba(255,140,0,.35); } 50% { box-shadow:0 0 22px rgba(255,140,0,.7); } }
         body.m .menu-btns #mpMenuBtn { grid-column: 1 / -1; font-size:15px; padding:12px 6px; }
+
+        /* Telefon yatay: öğretici kartı kompakt, oyunu kapatmasın */
+        @media (max-height: 480px) and (orientation: landscape) {
+            body.m #tutPanel { top: calc(var(--sat) + 46px) !important; left: 50% !important; right: auto !important; transform: translateX(-50%) !important; width: min(54vw, 440px) !important; padding: 4px 9px !important; background: rgba(20,6,3,0.76) !important; border-radius: 8px !important; }
+            body.m .tp-top { font-size: 8px !important; letter-spacing: 1px !important; }
+            body.m .tp-top button { padding: 1px 7px !important; font-size: 9px !important; }
+            body.m .tp-title { font-size: 11.5px !important; margin: 1px 0 !important; letter-spacing: .5px !important; }
+            body.m .tp-how { font-size: 10.5px !important; line-height: 1.3 !important; margin-top: 1px !important; }
+            body.m .tp-why { font-size: 10.5px !important; line-height: 1.3 !important; }
+            body.m .tp-why-t { padding: 1px 6px !important; font-size: 9px !important; }
+            body.m #hintToast { top: calc(var(--sat) + 40px) !important; max-width: 56vw; font-size: 11px !important; }
+        }
     </style>
 </head>
 <body>
@@ -1139,7 +1151,7 @@
                 </div>
                 <div class="starter-card" onclick="selectStarterTheme('ice', this)">
                     <h2 style="color:#00ffff; font-size:40px;">❄️</h2>
-                    <h3 style="color:#00ffff; margin-top:10px;">Buz Wyrm</h3>
+                    <h3 style="color:#00ffff; margin-top:10px;">Karakış</h3>
                     <div class="sc-desc">Kristal kanatlar, dondurucu mavi nefes.</div>
                 </div>
                 <div class="starter-card" onclick="selectStarterTheme('poison', this)">
@@ -1355,7 +1367,7 @@
 
     <div id="ui">
         <h3>BÖRÜ (<span id="uiThemeName">Magma</span>)</h3>
-        <p style="margin-top: 4px; margin-bottom: 4px;">Bölge: <span id="uiBiomeName" style="font-weight:bold; text-shadow: 0 0 8px currentColor;">Kadim Orman</span></p>
+        <p style="margin-top: 4px; margin-bottom: 4px;">Bölge: <span id="uiBiomeName" style="font-weight:bold; text-shadow: 0 0 8px currentColor;">Ulu Orman</span></p>
         <p>Ateş: <span class="highlight" id="uiFireText" style="color:#ff3300;">SOL TIK BASILI TUT</span></p>
         <p>Hayalet: <span style="color: #00ffff; font-weight: bold;">SPACE</span> | Kükreme: <span style="color: #ff9900; font-weight: bold;">E TUŞU</span></p>
         <p>Takviye Çağrısı: <span style="color: #00ffcc; font-weight: bold;">Q+S</span> | Köle: <span style="color:#66aaff; font-weight:bold;">Q+W</span></p>
@@ -1646,33 +1658,33 @@
         // 12 FARKLI VE ÖZEL TASARIMLI KOSTÜM & ALEV RENKLERİ
         const skinsDB = [
             { id: 'magma', name: 'Magma Börü', icon: '🔥', desc: 'Alevin saf hali. Geleneksel kanatlar.', reqLvl: 1, reqCoin: 0, mainColor: '#ff3300', uiColor: '#ff3300', fireColor1: '#ffff00', fireColor2: '#ff0000' },
-            { id: 'ice', name: 'Buz Wyrm', icon: '❄️', desc: 'Sivri buz kristalleri. Köşeli anatomi.', reqLvl: 1, reqCoin: 0, mainColor: '#00ffff', uiColor: '#00ffff', fireColor1: '#ffffff', fireColor2: '#0088ff' },
+            { id: 'ice', name: 'Karakış', icon: '❄️', desc: 'Sivri buz kristalleri. Köşeli anatomi.', reqLvl: 1, reqCoin: 0, mainColor: '#00ffff', uiColor: '#00ffff', fireColor1: '#ffffff', fireColor2: '#0088ff' },
             { id: 'poison', name: 'Zehir Engereği', icon: '🐍', desc: 'Kobra boynu ve iğneli kuyruk.', reqLvl: 1, reqCoin: 0, mainColor: '#33ff00', uiColor: '#33ff00', fireColor1: '#ccff00', fireColor2: '#11aa00' },
-            { id: 'void', name: 'Hiçlik Ejderi', icon: '🌌', desc: 'Karanlıktan doğan ayrı gövdeler.', reqLvl: 5, reqCoin: 50, mainColor: '#cc00ff', uiColor: '#cc00ff', fireColor1: '#440066', fireColor2: '#000000' }, // SİYAH ALEV
-            { id: 'terracotta', name: 'Toprak Kralı', icon: '⛰️', desc: 'Kare zırh plakaları ve küt kanatlar.', reqLvl: 10, reqCoin: 200, mainColor: '#FFD700', uiColor: '#FFD700', fireColor1: '#ffaa00', fireColor2: '#8b4513' },
-            { id: 'blood', name: 'Kan İblisi', icon: '🩸', desc: 'Yarasa kulakları ve kanlı tırpan kuyruk.', reqLvl: 15, reqCoin: 300, mainColor: '#ff0044', uiColor: '#ff0044', fireColor1: '#ff5555', fireColor2: '#660000' },
-            { id: 'nebula', name: 'Kozmik Bulutsu', icon: '🌠', desc: 'Neon galaksi sarmalları.', reqLvl: 20, reqCoin: 450, mainColor: '#ff00cc', uiColor: '#ff00cc', fireColor1: '#00ffff', fireColor2: '#ff00cc' },
-            { id: 'shadow', name: 'Gece Gölgesi', icon: '🌑', desc: 'Karanlık silüet ve dumanlı kanatlar.', reqLvl: 25, reqCoin: 800, mainColor: '#444444', uiColor: '#444444', fireColor1: '#666666', fireColor2: '#111111' }, // GRİ/SİYAH ALEV
-            { id: 'toxicWaste', name: 'Radyoaktif', icon: '☢️', desc: 'Asimetrik boynuzlar, delikli kanatlar.', reqLvl: 30, reqCoin: 1000, mainColor: '#33ff00', uiColor: '#33ff00', fireColor1: '#ffff00', fireColor2: '#00ff00' },
-            { id: 'abyss', name: 'Abis Dehşeti', icon: '🌊', desc: 'Fener balığı ışığı ve yüzgeç kanatlar.', reqLvl: 35, reqCoin: 1500, mainColor: '#0055ff', uiColor: '#0055ff', fireColor1: '#00ffff', fireColor2: '#000088' }, // LACİVERT ALEV
-            { id: 'ascended', name: 'Yüce Hakan', icon: '👑', desc: 'Tanrısal altın haleler ve çoklu kanat.', reqLvl: 40, reqCoin: 3000, mainColor: '#ffd700', uiColor: '#ffd700', fireColor1: '#ffffff', fireColor2: '#ffaa00' }, // ALTIN ALEV
-            { id: 'bone', name: 'Kemik Lordu', icon: '💀', desc: 'Açık kaburgalar, iskelet kanat ve kurukafa.', reqLvl: 45, reqCoin: 4000, mainColor: '#dddddd', uiColor: '#ffffff', fireColor1: '#ffffff', fireColor2: '#444444' },
-            { id: 'stormwyrm', name: 'Fırtına Ejderi', icon: '⚡', desc: 'Elektrikli pullar ve çatallı yıldırım kuyruk.', reqLvl: 50, reqCoin: 5000, mainColor: '#66ccff', uiColor: '#66ccff', fireColor1: '#ffffff', fireColor2: '#3366ff' },
-            { id: 'coral', name: 'Mercan Canavarı', icon: '🪸', desc: 'Canlı mercan dokusu ve fosforlu lekeler.', reqLvl: 55, reqCoin: 6000, mainColor: '#ff6699', uiColor: '#ff6699', fireColor1: '#ffccdd', fireColor2: '#cc3366' },
-            { id: 'ragingMagma', name: 'Öfkelenmiş Magma Ejderi', icon: '💢', desc: 'Çıldırmış ateşin son hali. Kapkara kül zırh, beyaz-sıcak öz.', reqLvl: 12, reqCoin: 260, mainColor: '#ff2200', uiColor: '#ff2200', fireColor1: '#ffee00', fireColor2: '#1a0000' },
-            { id: 'kingsbane', name: 'Kral Avcısı', icon: '👑', desc: 'Kadim Ejderha Kralı\'nı yenerek kazanılır.', reqLvl: 999, reqCoin: 999999, mainColor: '#ffaa00', uiColor: '#ffaa00', fireColor1: '#ffee88', fireColor2: '#aa4400' },
-            { id: 'questmaster', name: 'Görev Ustası', icon: '📜', desc: '5 görev tamamlayarak kazanılır.', reqLvl: 999, reqCoin: 999999, mainColor: '#ffd700', uiColor: '#ffd700', fireColor1: '#ffffff', fireColor2: '#cc9900' },
-            { id: 'auroraWyrm', name: 'Aurora Ejderi', icon: '🌈', desc: 'Kutup ışıklarından örülmüş, yarı saydam pullar.', reqLvl: 60, reqCoin: 7500, mainColor: '#66ffcc', uiColor: '#66ffcc', fireColor1: '#ffffff', fireColor2: '#3399ff' },
-            { id: 'infernoLord', name: 'Cehennem Efendisi', icon: '👹', desc: 'Sürekli közlenen, çatlaklarından ışık sızan zırh.', reqLvl: 65, reqCoin: 9000, mainColor: '#ff4400', uiColor: '#ff4400', fireColor1: '#ffcc00', fireColor2: '#330000' },
-            { id: 'celestialSerpent', name: 'Gökyüzü Serpenti', icon: '🔮', desc: 'Yıldız tozundan bir gövde, mor bir nefes.', reqLvl: 75, reqCoin: 12000, mainColor: '#9966ff', uiColor: '#9966ff', fireColor1: '#ccaaff', fireColor2: '#4400aa' },
-            { id: 'obsidianTitan', name: 'Obsidyen Titan', icon: '🗿', desc: 'Volkanik camdan zırh, içinde mavi enerji akıyor.', reqLvl: 85, reqCoin: 16000, mainColor: '#5566ff', uiColor: '#5566ff', fireColor1: '#aaaaff', fireColor2: '#0a0a1a' },
+            { id: 'void', name: 'Yutan', icon: '🌌', desc: 'Karanlıktan doğan ayrı gövdeler.', reqLvl: 5, reqCoin: 50, mainColor: '#cc00ff', uiColor: '#cc00ff', fireColor1: '#440066', fireColor2: '#000000' }, // SİYAH ALEV
+            { id: 'terracotta', name: 'Kerpiç Han', icon: '⛰️', desc: 'Kare zırh plakaları ve küt kanatlar.', reqLvl: 10, reqCoin: 200, mainColor: '#FFD700', uiColor: '#FFD700', fireColor1: '#ffaa00', fireColor2: '#8b4513' },
+            { id: 'blood', name: 'Albastı', icon: '🩸', desc: 'Yarasa kulakları ve kanlı tırpan kuyruk.', reqLvl: 15, reqCoin: 300, mainColor: '#ff0044', uiColor: '#ff0044', fireColor1: '#ff5555', fireColor2: '#660000' },
+            { id: 'nebula', name: 'Yıldız Tozu', icon: '🌠', desc: 'Neon galaksi sarmalları.', reqLvl: 20, reqCoin: 450, mainColor: '#ff00cc', uiColor: '#ff00cc', fireColor1: '#00ffff', fireColor2: '#ff00cc' },
+            { id: 'shadow', name: 'Karagece', icon: '🌑', desc: 'Karanlık silüet ve dumanlı kanatlar.', reqLvl: 25, reqCoin: 800, mainColor: '#444444', uiColor: '#444444', fireColor1: '#666666', fireColor2: '#111111' }, // GRİ/SİYAH ALEV
+            { id: 'toxicWaste', name: 'Çürük Yeşil', icon: '☢️', desc: 'Asimetrik boynuzlar, delikli kanatlar.', reqLvl: 30, reqCoin: 1000, mainColor: '#33ff00', uiColor: '#33ff00', fireColor1: '#ffff00', fireColor2: '#00ff00' },
+            { id: 'abyss', name: 'Dipsiz', icon: '🌊', desc: 'Fener balığı ışığı ve yüzgeç kanatlar.', reqLvl: 35, reqCoin: 1500, mainColor: '#0055ff', uiColor: '#0055ff', fireColor1: '#00ffff', fireColor2: '#000088' }, // LACİVERT ALEV
+            { id: 'ascended', name: 'Gök Hakan', icon: '👑', desc: 'Tanrısal altın haleler ve çoklu kanat.', reqLvl: 40, reqCoin: 3000, mainColor: '#ffd700', uiColor: '#ffd700', fireColor1: '#ffffff', fireColor2: '#ffaa00' }, // ALTIN ALEV
+            { id: 'bone', name: 'Kemikçi Bey', icon: '💀', desc: 'Açık kaburgalar, iskelet kanat ve kurukafa.', reqLvl: 45, reqCoin: 4000, mainColor: '#dddddd', uiColor: '#ffffff', fireColor1: '#ffffff', fireColor2: '#444444' },
+            { id: 'stormwyrm', name: 'Boran', icon: '⚡', desc: 'Elektrikli pullar ve çatallı yıldırım kuyruk.', reqLvl: 50, reqCoin: 5000, mainColor: '#66ccff', uiColor: '#66ccff', fireColor1: '#ffffff', fireColor2: '#3366ff' },
+            { id: 'coral', name: 'Mercan Baba', icon: '🪸', desc: 'Canlı mercan dokusu ve fosforlu lekeler.', reqLvl: 55, reqCoin: 6000, mainColor: '#ff6699', uiColor: '#ff6699', fireColor1: '#ffccdd', fireColor2: '#cc3366' },
+            { id: 'ragingMagma', name: 'Kızgın Kor', icon: '💢', desc: 'Çıldırmış ateşin son hali. Kapkara kül zırh, beyaz-sıcak öz.', reqLvl: 12, reqCoin: 260, mainColor: '#ff2200', uiColor: '#ff2200', fireColor1: '#ffee00', fireColor2: '#1a0000' },
+            { id: 'kingsbane', name: 'Kral Kesen', icon: '👑', desc: 'Kadim Ejderha Kralı\'nı yenerek kazanılır.', reqLvl: 999, reqCoin: 999999, mainColor: '#ffaa00', uiColor: '#ffaa00', fireColor1: '#ffee88', fireColor2: '#aa4400' },
+            { id: 'questmaster', name: 'Yol Bilen', icon: '📜', desc: '5 görev tamamlayarak kazanılır.', reqLvl: 999, reqCoin: 999999, mainColor: '#ffd700', uiColor: '#ffd700', fireColor1: '#ffffff', fireColor2: '#cc9900' },
+            { id: 'auroraWyrm', name: 'Kutup Işığı', icon: '🌈', desc: 'Kutup ışıklarından örülmüş, yarı saydam pullar.', reqLvl: 60, reqCoin: 7500, mainColor: '#66ffcc', uiColor: '#66ffcc', fireColor1: '#ffffff', fireColor2: '#3399ff' },
+            { id: 'infernoLord', name: 'Zebani', icon: '👹', desc: 'Sürekli közlenen, çatlaklarından ışık sızan zırh.', reqLvl: 65, reqCoin: 9000, mainColor: '#ff4400', uiColor: '#ff4400', fireColor1: '#ffcc00', fireColor2: '#330000' },
+            { id: 'celestialSerpent', name: 'Gök Yılanı', icon: '🔮', desc: 'Yıldız tozundan bir gövde, mor bir nefes.', reqLvl: 75, reqCoin: 12000, mainColor: '#9966ff', uiColor: '#9966ff', fireColor1: '#ccaaff', fireColor2: '#4400aa' },
+            { id: 'obsidianTitan', name: 'Kara Cam Dev', icon: '🗿', desc: 'Volkanik camdan zırh, içinde mavi enerji akıyor.', reqLvl: 85, reqCoin: 16000, mainColor: '#5566ff', uiColor: '#5566ff', fireColor1: '#aaaaff', fireColor2: '#0a0a1a' },
             { id: 'kiyametavcisi', name: 'Kıyamet Avcısı', icon: '🌌', desc: 'Üç Başlı Kıyamet\'in ta kendisi: üç boyun, üç baş, mor çatlaklı gövde ve göğsünde atan tek kalp. YETENEK: kalbi birkaç saniyede bir çevreyi yakan dalga yayar. (Kara Delik III\'ü yenerek kazanılır.)', reqLvl: 999, reqCoin: 999999, mainColor: '#b77bff', uiColor: '#b77bff', fireColor1: '#f0e0ff', fireColor2: '#5a1aa0' },
             { id: 'emberheir', name: 'Ateşyurt Varisi', icon: '🌋', desc: 'Sürü Ana\'nın küllerinden doğan ejderha: kor çatlaklı kül gövde, alev kanatlar, göğsünde Sürü Ana\'nın orak kolları. YETENEK: etrafında dönen kor arıları düşmanlara dalar. (Kara Delik II\'yi yenerek kazanılır.)', reqLvl: 999, reqCoin: 999999, mainColor: '#ff8a2a', uiColor: '#ff8a2a', fireColor1: '#fff2c0', fireColor2: '#c02000' },
-            { id: 'mirrorbane', name: 'Ayna Ejderi', icon: '🕳️', desc: 'Kara Delik I\'deki Vahşi Ayna Ejderha\'nın ta kendisi: kızıl çatlaklı kömür gövde, yanık delikli yırtık kanatlar, çatal bıçak kuyruk. YETENEK: gövdene gelen mermileri aynada parçalar. (Kara Delik I\'i yenerek kazanılır.)', reqLvl: 999, reqCoin: 999999, mainColor: '#c0c0ff', uiColor: '#c0c0ff', fireColor1: '#ffffff', fireColor2: '#222244' }
+            { id: 'mirrorbane', name: 'Aynalı', icon: '🕳️', desc: 'Kara Delik I\'deki Vahşi Ayna Ejderha\'nın ta kendisi: kızıl çatlaklı kömür gövde, yanık delikli yırtık kanatlar, çatal bıçak kuyruk. YETENEK: gövdene gelen mermileri aynada parçalar. (Kara Delik I\'i yenerek kazanılır.)', reqLvl: 999, reqCoin: 999999, mainColor: '#c0c0ff', uiColor: '#c0c0ff', fireColor1: '#ffffff', fireColor2: '#222244' }
         ];
         // KOSTÜM ÇEŞİTLİLİĞİ: her kostüme kendi gövde paleti (açık / orta / koyu), göz rengi ve gerekirse
         // yeni ana renk veriliyor. Böylece eskiden aynı kırmızı-siyah tonlara düşen kostümler artık
-        // gerçekten farklı görünüyor. (Mercan Canavarı bilerek değiştirilmedi.)
+        // gerçekten farklı görünüyor. (Mercan Baba bilerek değiştirilmedi.)
         const skinExtras = {
             magma:        { body: ['#ff8a3a', '#8a1a00', '#1a0300'], eyeColor: '#ffcc00' },
             ice:          { body: ['#f0ffff', '#48bfe6', '#062838'], eyeColor: '#e0ffff' },
@@ -1701,14 +1713,14 @@
         skinsDB.forEach(sk => Object.assign(sk, skinExtras[sk.id] || {}));
         // YENİ KOSTÜMLER: son kademeler
         [
-            { id: 'phoenixLord', name: 'Anka Ejderi', icon: '🦅', desc: 'Küllerinden doğan alev tüylü kanatlar ve yanan bir ibik.', reqLvl: 70, reqCoin: 10500, mainColor: '#ff7a1a', uiColor: '#ff7a1a', fireColor1: '#fff6a0', fireColor2: '#ff2a00', body: ['#ffb060', '#b83000', '#2a0600'], eyeColor: '#fff2a0' },
-            { id: 'crystalDrake', name: 'Kristal Drake', icon: '💎', desc: 'Işığı gökkuşağına bölen prizma kanatlar ve kristal boynuzlar.', reqLvl: 80, reqCoin: 14000, mainColor: '#7fe8ff', uiColor: '#7fe8ff', fireColor1: '#ffffff', fireColor2: '#b070ff', body: ['#e8fbff', '#5aa8c8', '#0a2030'], eyeColor: '#ffffff' },
-            { id: 'eclipse', name: 'Tutulma Ejderi', icon: '🌘', desc: 'Güneşi yutan kara gövde, kanatlarında altın taç ışığı.', reqLvl: 90, reqCoin: 20000, mainColor: '#ffcc44', uiColor: '#ffcc44', fireColor1: '#fff8d0', fireColor2: '#1a0a00', body: ['#2a2418', '#0a0806', '#000000'], eyeColor: '#ffe680' },
+            { id: 'phoenixLord', name: 'Anka Kağan', icon: '🦅', desc: 'Küllerinden doğan alev tüylü kanatlar ve yanan bir ibik.', reqLvl: 70, reqCoin: 10500, mainColor: '#ff7a1a', uiColor: '#ff7a1a', fireColor1: '#fff6a0', fireColor2: '#ff2a00', body: ['#ffb060', '#b83000', '#2a0600'], eyeColor: '#fff2a0' },
+            { id: 'crystalDrake', name: 'Billur', icon: '💎', desc: 'Işığı gökkuşağına bölen prizma kanatlar ve kristal boynuzlar.', reqLvl: 80, reqCoin: 14000, mainColor: '#7fe8ff', uiColor: '#7fe8ff', fireColor1: '#ffffff', fireColor2: '#b070ff', body: ['#e8fbff', '#5aa8c8', '#0a2030'], eyeColor: '#ffffff' },
+            { id: 'eclipse', name: 'Ay Yutan', icon: '🌘', desc: 'Güneşi yutan kara gövde, kanatlarında altın taç ışığı.', reqLvl: 90, reqCoin: 20000, mainColor: '#ffcc44', uiColor: '#ffcc44', fireColor1: '#fff8d0', fireColor2: '#1a0a00', body: ['#2a2418', '#0a0806', '#000000'], eyeColor: '#ffe680' },
             { id: 'kazuma', name: 'Kazuma', icon: '🐉', desc: 'Tek parça dolu gövde, bronz pullar, hilal boynuzlar ve orak kuyruk. Kanatları gövdesinden bir organ gibi büyür.', reqLvl: 95, reqCoin: 24000, mainColor: '#2fd3b0', uiColor: '#2fd3b0', fireColor1: '#ffe9a8', fireColor2: '#ff3b1f', body: ['#46e3c0', '#157060', '#03201a'], eyeColor: '#ffe45a' },
-            { id: 'stormbringer', name: 'Yıldırım Toplayıcı', icon: '⚡', desc: 'Lavanta-çivit pullu uzun gövde. Kanat çırptıkça bileklerinde yıldırım toplanır, parmak uçları arasında şimşek çakar. Dört süpürme boynuz, çatal yıldırım kuyruk.', reqLvl: 96, reqCoin: 25000, mainColor: '#c8ff3d', uiColor: '#c8ff3d', fireColor1: '#f6ffd0', fireColor2: '#6a3cff', body: ['#8e7cc3', '#3d2c6e', '#0d0620'], eyeColor: '#e6ff6a' },
+            { id: 'stormbringer', name: 'Şimşek Bekçisi', icon: '⚡', desc: 'Lavanta-çivit pullu uzun gövde. Kanat çırptıkça bileklerinde yıldırım toplanır, parmak uçları arasında şimşek çakar. Dört süpürme boynuz, çatal yıldırım kuyruk.', reqLvl: 96, reqCoin: 25000, mainColor: '#c8ff3d', uiColor: '#c8ff3d', fireColor1: '#f6ffd0', fireColor2: '#6a3cff', body: ['#8e7cc3', '#3d2c6e', '#0d0620'], eyeColor: '#e6ff6a' },
             { id: 'emberwing', name: 'Kor Kanat', icon: '🔥', desc: 'Şarap-gül derili gövde; kanatları deri değil, kömür kemiklerden fışkıran pembe-altın alev. Alevli boynuzlar ve ateş tüyü kuyruk.', reqLvl: 96, reqCoin: 26000, mainColor: '#ff4fa3', uiColor: '#ff4fa3', fireColor1: '#fff6c2', fireColor2: '#ff2d95', body: ['#b85a6e', '#5a1f33', '#16040b'], eyeColor: '#fff06a' },
             { id: 'sixhorn', name: 'Altı Boynuzlu Kağan', icon: '👑', desc: 'Adaçayı-zeytin iri gövde, bakır kenarlı pullar, leylak zarlı kanatlar. Başında altı boynuzlu taç, kürek kuyruk.', reqLvl: 97, reqCoin: 27000, mainColor: '#c7a6f0', uiColor: '#c7a6f0', fireColor1: '#fff0d8', fireColor2: '#e07a3a', body: ['#b7c48a', '#5c6b33', '#1a2008'], eyeColor: '#ff6a3d' },
-            { id: 'twinhead', name: 'İkiz Başlı Tiran', icon: '🐲', desc: 'Çelik mavisi tek gövdeden ayrılan iki boyun, iki baş. Mercan zarlı kanatlar, kıvrık koç boynuzları ve dönen gürz kuyruk.', reqLvl: 98, reqCoin: 28000, mainColor: '#ff7f6a', uiColor: '#ff7f6a', fireColor1: '#e0fff4', fireColor2: '#ff7f6a', body: ['#7fa7c9', '#2e4f73', '#08121f'], eyeColor: '#7dffd4' },
+            { id: 'twinhead', name: 'Çifte Baş', icon: '🐲', desc: 'Çelik mavisi tek gövdeden ayrılan iki boyun, iki baş. Mercan zarlı kanatlar, kıvrık koç boynuzları ve dönen gürz kuyruk.', reqLvl: 98, reqCoin: 28000, mainColor: '#ff7f6a', uiColor: '#ff7f6a', fireColor1: '#e0fff4', fireColor2: '#ff7f6a', body: ['#7fa7c9', '#2e4f73', '#08121f'], eyeColor: '#7dffd4' },
             { id: 'mistserpent', name: 'Sis Yılanı', icon: '🐍', desc: 'İnce uzun kuğu boynu, çok uzun kuyruk, renk değiştiren sedef pullar. Üç çift şeftali-turkuaz kanat, geyik boynuzları ve yelpaze yüzgeç kuyruk.', reqLvl: 99, reqCoin: 29000, mainColor: '#9fe8ff', uiColor: '#9fe8ff', fireColor1: '#ffffff', fireColor2: '#3fb3a8', body: ['#f1e6ff', '#9a86c4', '#261a3d'], eyeColor: '#7df9ff' },
             { id: 'kirkayak', name: 'Kırk Pençe', icon: '🐊', desc: 'Kanatsız, upuzun bir yer ejderi. Gövdesi boyunca dizilmiş pullu, dört pençeli bacaklarla sürünür; başının ardında dikenli yaka açılır, altı boynuzlu tacı var. YETENEK: gövdene değen her düşmanı pençeleriyle parçalar.', reqLvl: 99, reqCoin: 29200, mainColor: '#e0a040', uiColor: '#e0a040', fireColor1: '#fff6b0', fireColor2: '#ff7a1f', body: ['#d9b85a', '#6e5418', '#140e02'], eyeColor: '#ff5f1f' },
             { id: 'lesagzi', name: 'Leş Ağzı', icon: '💀', desc: 'Yarı çürümüş dev bir wyvern. Açıkta kalan kaburgalar, yırtık deri kanatlar, koç boynuzları ve iğne kuyruk. YETENEK: çürük nefesi yakınındaki düşmanları yavaşlatıp eritir.', reqLvl: 99, reqCoin: 29400, mainColor: '#c8e05a', uiColor: '#c8e05a', fireColor1: '#f4ffc8', fireColor2: '#4a2a3a', body: ['#a88a9a', '#4e3444', '#140810'], eyeColor: '#e8ff7a' },
@@ -1717,7 +1729,7 @@
             { id: 'buzmamut', name: 'Buzul Mamutu', icon: '🦣', desc: 'Dağ gibi iri, buz zırhlı ağır ejderha. Alt çenesinden öne uzanan dev dişler, koç boynuzları, sırtında buz sarkıtları, gürz kuyruk. YETENEK: gövdesine yaklaşan düşmanları dondurur.', reqLvl: 97, reqCoin: 26500, mainColor: '#8ff0ff', uiColor: '#8ff0ff', fireColor1: '#ffffff', fireColor2: '#3a8ab0', body: ['#e2f2f8', '#6f8fa0', '#142430'], eyeColor: '#8ff0ff' },
             { id: 'kumyelken', name: 'Kum Yelkeni', icon: '🏜️', desc: 'Çöl ejderi: kanat yerine kaburgalarından açılan kızıl çizgili yan yelkenlerle süzülür. Başında açılıp kapanan yaka, dört ayağı kum rengi pullu. YETENEK: kuyruğunun ardında düşman aşındıran kum hortumları bırakır.', reqLvl: 98, reqCoin: 27500, mainColor: '#ffd27a', uiColor: '#ffd27a', fireColor1: '#fff6dc', fireColor2: '#c84a1a', body: ['#f0d49a', '#a0703a', '#2a1808'], eyeColor: '#ffcc33' },
             { id: 'kanayi', name: 'Kan Ay Wyverni', icon: '🦇', desc: 'Kıpkızıl, yarasa kulaklı bir wyvern. Tek çift devasa zar kanat, hilal boynuzlar, iğne kuyruk. YETENEK: ateş püskürürken önündeki düşmanların kanını emer, canını doldurur.', reqLvl: 98, reqCoin: 28500, mainColor: '#ff2a3a', uiColor: '#ff2a3a', fireColor1: '#ffe0e0', fireColor2: '#6a0010', body: ['#c23a4a', '#5a0e1c', '#12020a'], eyeColor: '#ffea6a' },
-            { id: 'kadimorman', name: 'Kadim Orman', icon: '🌳', desc: 'Binlerce yıllık yaşlı ejderha: kabuk gibi pullar, üstünde yosun ve açan çiçekler, dal boynuzlar, yaprak kuyruk. YETENEK: yakındaki düşmanların altından dikenli kökler fışkırtır.', reqLvl: 99, reqCoin: 29000, mainColor: '#b8ff5a', uiColor: '#b8ff5a', fireColor1: '#f4ffd0', fireColor2: '#3a7a2a', body: ['#8a9a5a', '#3e4a22', '#0e1406'], eyeColor: '#ffd84a' },
+            { id: 'kadimorman', name: 'Ulu Orman', icon: '🌳', desc: 'Binlerce yıllık yaşlı ejderha: kabuk gibi pullar, üstünde yosun ve açan çiçekler, dal boynuzlar, yaprak kuyruk. YETENEK: yakındaki düşmanların altından dikenli kökler fışkırtır.', reqLvl: 99, reqCoin: 29000, mainColor: '#b8ff5a', uiColor: '#b8ff5a', fireColor1: '#f4ffd0', fireColor2: '#3a7a2a', body: ['#8a9a5a', '#3e4a22', '#0e1406'], eyeColor: '#ffd84a' },
             { id: 'volkansirt', name: 'Volkan Sırtı', icon: '🌋', desc: 'Bazalt pullu, çatlaklarından lav sızan ağır ejderha. Sırtında dumanı tüten volkan bacaları. YETENEK: bacalarından düşmanların üstüne lav bombası yağdırır.', reqLvl: 100, reqCoin: 29900, mainColor: '#ff6a00', uiColor: '#ff6a00', fireColor1: '#fff6c0', fireColor2: '#8a1a00', body: ['#4a4040', '#1a1414', '#050303'], eyeColor: '#ffcc00' },
             { id: 'golgesimsek', name: 'Gölge Şimşeği', icon: '🌑', desc: 'Gece karası, pürüzsüz pullu, çevik bir avcı. Boynuz yerine kulak yüzgeçleri, kuyruğunda ikinci bir kanat çifti; ışın öncesi sırt plakaları mavi yanar. YETENEK: hızla uçarken en yakın düşmana plazma topu fırlatır.', reqLvl: 100, reqCoin: 29950, mainColor: '#5ad0ff', uiColor: '#5ad0ff', fireColor1: '#e8fbff', fireColor2: '#3a2aff', body: ['#34344a', '#10101c', '#020206'], eyeColor: '#7dff6a' },
             { id: 'worldEater', name: 'Dünya Yiyen', icon: '🌍', desc: 'Son kademe. Kanatlarında ve gövdesinde gözler, başının çevresinde dönen dünyalar.', reqLvl: 100, reqCoin: 30000, mainColor: '#ff2a6a', uiColor: '#ff2a6a', fireColor1: '#ffffff', fireColor2: '#6a00ff', body: ['#5a1a3a', '#1a0414', '#000000'], eyeColor: '#ff9ad0' }
@@ -1742,17 +1754,17 @@
 
         const blackMarketDB = [
             { id: 'bigWings', name: 'Devasa Kanatlar', icon: '🦇', desc: 'Kanat açıklığını artırır.', cost: 300, color: '#ffd700' },
-            { id: 'speedBoots', name: 'Rüzgar Büyüsü', icon: '💨', desc: 'Süzülme hızını %25 artırır.', cost: 700, color: '#00ffff' },
-            { id: 'demonHorns', name: 'İblis Boynuzları', icon: '😈', desc: 'Halkalı, kor uçlu, öne kıvrılan kara boynuzlar.', cost: 400, color: '#ff5500' },
+            { id: 'speedBoots', name: 'Yel Kanadı', icon: '💨', desc: 'Süzülme hızını %25 artırır.', cost: 700, color: '#00ffff' },
+            { id: 'demonHorns', name: 'Kara Boynuz', icon: '😈', desc: 'Halkalı, kor uçlu, öne kıvrılan kara boynuzlar.', cost: 400, color: '#ff5500' },
             { id: 'dragonHeart', name: 'Ejderha Kalbi', icon: '❤️', desc: 'Max canı 1500 artırır.', cost: 900, color: '#ff3300' },
             { id: 'trailOfFire', name: 'Yakan İz', icon: '🌋', desc: 'Kuyruktan ateş dökülür.', cost: 900, color: '#ff8800' },
             { id: 'fireStorm', name: 'Ateş Fırtınası', icon: '🔥', desc: 'Alev hasarını x2 katlar.', cost: 1800, color: '#ffaa00' },
             { id: 'ancientRoar', name: 'Kadim Kükreme', icon: '🦁', desc: 'Kükreme süresini yarıya indirir.', cost: 1100, color: '#ffcc00' },
-            { id: 'vampireTooth', name: 'Vampir Dişi', icon: '🧛', desc: 'Can çalma şansını +%15 artırır.', cost: 1400, color: '#ff0044' },
-            { id: 'titanScales', name: 'Titan Pulları', icon: '🛡️', desc: 'Max canı devasa 3000 artırır.', cost: 1600, color: '#aaaaaa' },
+            { id: 'vampireTooth', name: 'Kan Emici Diş', icon: '🧛', desc: 'Can çalma şansını +%15 artırır.', cost: 1400, color: '#ff0044' },
+            { id: 'titanScales', name: 'Taş Pul', icon: '🛡️', desc: 'Max canı devasa 3000 artırır.', cost: 1600, color: '#aaaaaa' },
             { id: 'toxicBreath', name: 'Zehirli Nefes', icon: '🤢', desc: 'Alevler ekranda çok daha uzun kalır.', cost: 1200, color: '#33ff00' },
-            { id: 'plasmaCore', name: 'Plazma Çekirdeği', icon: '⚛️', desc: 'Süper Plazma (R) 2 kat hızlı dolar.', cost: 1500, color: '#00ffff' },
-            { id: 'gemMagnet', name: 'Cevher Mıknatısı', icon: '🧲', desc: 'XP cevherlerini çok uzaktan çeker.', cost: 1000, color: '#ff00ff' },
+            { id: 'plasmaCore', name: 'Kor Yürek', icon: '⚛️', desc: 'Süper Plazma (R) 2 kat hızlı dolar.', cost: 1500, color: '#00ffff' },
+            { id: 'gemMagnet', name: 'Taş Çeken', icon: '🧲', desc: 'XP cevherlerini çok uzaktan çeker.', cost: 1000, color: '#ff00ff' },
             { id: 'phoenixEmber', name: 'Anka Közü', icon: '🪶', desc: 'Can kritik seviyeye düşünce bir kerelik dev bir iyileşme patlaması tetikler.', cost: 1500, color: '#ff9955' },
             { id: 'stormCore', name: 'Fırtına Çekirdeği', icon: '⚡', desc: 'Kritik hasar şansını +%10 ve kükreme gücünü artırır.', cost: 1400, color: '#66ccff' }
         ];
@@ -1764,31 +1776,31 @@
             { id: 'slave_default', cat: 'slave', name: 'Mavi Muhafız', icon: '🛡️', cost: 0, pal: { main: '#2288ff', accent: '#ffd700', dark: '#0a2a28', glow: '#66ccff' }, buff: {}, desc: 'Standart muhafız zırhı.' },
             { id: 'slave_crimson', cat: 'slave', name: 'Kızıl Muhafız', icon: '🩸', cost: 400, pal: { main: '#ff2244', accent: '#ffcc66', dark: '#2a0508', glow: '#ff8899' }, buff: { dmg: 0.35 }, desc: 'Köle saldırı gücü +%35' },
             { id: 'slave_frost', cat: 'slave', name: 'Buz Nöbetçisi', icon: '❄️', cost: 450, pal: { main: '#88e8ff', accent: '#ffffff', dark: '#0a2030', glow: '#ccf6ff' }, buff: { hp: 0.2, slow: true }, desc: 'Vuruşları düşmanı yavaşlatır · Can +%20' },
-            { id: 'slave_shadow', cat: 'slave', name: 'Gölge Suikastçı', icon: '🌑', cost: 500, pal: { main: '#9a6bff', accent: '#c8b0ff', dark: '#0c0616', glow: '#e0d0ff' }, buff: { spd: 0.3, dmg: 0.15 }, desc: 'Hız +%30 · Saldırı +%15' },
-            { id: 'slave_bone', cat: 'slave', name: 'Kemik Şövalye', icon: '💀', cost: 650, pal: { main: '#d8d0b8', accent: '#ff4422', dark: '#1a1814', glow: '#ff6644' }, buff: { noRebel: true, dmg: 0.1 }, desc: 'Ölünce asla isyan etmez · Saldırı +%10' },
-            { id: 'slave_gold', cat: 'slave', name: 'Altın Lejyon', icon: '👑', cost: 800, pal: { main: '#ffc400', accent: '#fff2a0', dark: '#2a1e00', glow: '#fff6c0' }, buff: { hp: 0.6, regen: 1 }, desc: 'Can +%60 · İyileşme x2' },
+            { id: 'slave_shadow', cat: 'slave', name: 'Gölge Hançer', icon: '🌑', cost: 500, pal: { main: '#9a6bff', accent: '#c8b0ff', dark: '#0c0616', glow: '#e0d0ff' }, buff: { spd: 0.3, dmg: 0.15 }, desc: 'Hız +%30 · Saldırı +%15' },
+            { id: 'slave_bone', cat: 'slave', name: 'Kemik Sipahi', icon: '💀', cost: 650, pal: { main: '#d8d0b8', accent: '#ff4422', dark: '#1a1814', glow: '#ff6644' }, buff: { noRebel: true, dmg: 0.1 }, desc: 'Ölünce asla isyan etmez · Saldırı +%10' },
+            { id: 'slave_gold', cat: 'slave', name: 'Altın Bölük', icon: '👑', cost: 800, pal: { main: '#ffc400', accent: '#fff2a0', dark: '#2a1e00', glow: '#fff6c0' }, buff: { hp: 0.6, regen: 1 }, desc: 'Can +%60 · İyileşme x2' },
 
             { id: 'soldier_default', cat: 'soldier', name: 'Magma Yavrusu', icon: '🐲', cost: 0, pal: { main: '#ff4a0a', accent: '#ffcc00', dark: '#1a0300', glow: '#ffdd66' }, buff: {}, desc: 'Standart yavru ejderha.' },
             { id: 'soldier_fire', cat: 'soldier', name: 'Kor Yavrusu', icon: '🔥', cost: 350, pal: { main: '#ffb000', accent: '#fff0a0', dark: '#2a1400', glow: '#ffffff' }, buff: { dmg: 0.35 }, desc: 'Yavru saldırı gücü +%35' },
-            { id: 'soldier_crystal', cat: 'soldier', name: 'Kristal Yavru', icon: '💎', cost: 400, pal: { main: '#b070ff', accent: '#e8d8ff', dark: '#1a0a30', glow: '#f0e0ff' }, buff: { hp: 0.6 }, desc: 'Yavru canı +%60' },
+            { id: 'soldier_crystal', cat: 'soldier', name: 'Billur Yavru', icon: '💎', cost: 400, pal: { main: '#b070ff', accent: '#e8d8ff', dark: '#1a0a30', glow: '#f0e0ff' }, buff: { hp: 0.6 }, desc: 'Yavru canı +%60' },
             { id: 'soldier_wind', cat: 'soldier', name: 'Rüzgar Yavrusu', icon: '🌪️', cost: 380, pal: { main: '#44ffaa', accent: '#e0fff0', dark: '#03281a', glow: '#aaffdd' }, buff: { spd: 0.4 }, desc: 'Yavru hızı +%40' },
             { id: 'soldier_venom', cat: 'soldier', name: 'Zehir Yavrusu', icon: '🦂', cost: 420, pal: { main: '#88ff22', accent: '#d0ff60', dark: '#0e2004', glow: '#ccff88' }, buff: { dmg: 0.15, slow: true }, desc: 'Vuruşlar yavaşlatır · Saldırı +%15' },
             { id: 'soldier_royal', cat: 'soldier', name: 'Kraliyet Yavrusu', icon: '⚜️', cost: 700, pal: { main: '#ffffff', accent: '#ffd700', dark: '#1a1a2a', glow: '#fff6c0' }, buff: { dmg: 0.2, hp: 0.2, spd: 0.2 }, desc: 'Saldırı, can ve hız +%20' },
 
             { id: 'hive_default', cat: 'hive', name: 'Mavi Kovan', icon: '🏴', cost: 0, pal: { main: '#2288ff' }, buff: {}, desc: 'Standart fethedilmiş kovan.' },
-            { id: 'hive_obsidian', cat: 'hive', name: 'Obsidyen Kale', icon: '🗿', cost: 500, pal: { main: '#7a6aff' }, buff: { hpMult: 1, regen: 2, siegeResist: 0.3 }, desc: 'Kovan canı x2 · Onarım x3 · Kuşatma hasarı -%30' },
-            { id: 'hive_crystal', cat: 'hive', name: 'Kristal Kovan', icon: '🔮', cost: 550, pal: { main: '#dd66ff' }, buff: { auraMult: 1, auraRange: 0.4 }, desc: 'Muhafız aurası hasarı x2 · Menzil +%40' },
-            { id: 'hive_forest', cat: 'hive', name: 'Canlı Orman', icon: '🌳', cost: 450, pal: { main: '#44dd66' }, buff: { prodMult: 1, extraSoldier: 1 }, desc: 'Asker üretimi 2 kat hızlı · Her üretimde +1 asker' },
+            { id: 'hive_obsidian', cat: 'hive', name: 'Kara Cam Kale', icon: '🗿', cost: 500, pal: { main: '#7a6aff' }, buff: { hpMult: 1, regen: 2, siegeResist: 0.3 }, desc: 'Kovan canı x2 · Onarım x3 · Kuşatma hasarı -%30' },
+            { id: 'hive_crystal', cat: 'hive', name: 'Billur Kovan', icon: '🔮', cost: 550, pal: { main: '#dd66ff' }, buff: { auraMult: 1, auraRange: 0.4 }, desc: 'Muhafız aurası hasarı x2 · Menzil +%40' },
+            { id: 'hive_forest', cat: 'hive', name: 'Yeşil Orman', icon: '🌳', cost: 450, pal: { main: '#44dd66' }, buff: { prodMult: 1, extraSoldier: 1 }, desc: 'Asker üretimi 2 kat hızlı · Her üretimde +1 asker' },
             { id: 'hive_gold', cat: 'hive', name: 'Altın Kovan', icon: '💰', cost: 600, pal: { main: '#ffcc00' }, buff: { goldIncome: 20 }, desc: 'Her dost kovan 30 saniyede bir 20 coin üretir' },
             { id: 'hive_lava', cat: 'hive', name: 'Lav Kalesi', icon: '🌋', cost: 650, pal: { main: '#ff5a00' }, buff: { auraMult: 0.5, siegeResist: 0.5 }, desc: 'Aura hasarı +%50 · Kuşatma hasarı -%50' }
         ];
         // Yeni ordu kostümleri ve tasarım stilleri (her stilin kendi çizimi var)
         armyDB.push(
-            { id: 'slave_storm', cat: 'slave', name: 'Fırtına Muhafızı', icon: '⚡', cost: 900, style: 'storm', pal: { main: '#66ccff', accent: '#ffffff', dark: '#06142a', glow: '#d8f4ff' }, buff: { spd: 0.25, dmg: 0.25 }, desc: 'Şimşek ibikli zırh · Hız ve saldırı +%25' },
-            { id: 'slave_void', cat: 'slave', name: 'Hiçlik Bekçisi', icon: '🌌', cost: 1100, style: 'void', pal: { main: '#a64dff', accent: '#e0c8ff', dark: '#08000f', glow: '#f0e0ff' }, buff: { hp: 0.4, dmg: 0.3 }, desc: 'Dönen birikim halkaları · Can +%40 · Saldırı +%30' },
-            { id: 'slave_wyrm', cat: 'slave', name: 'Ejder Lejyoneri', icon: '🐉', cost: 1400, style: 'wyrm', pal: { main: '#ff5a1a', accent: '#ffd27a', dark: '#1a0400', glow: '#fff2a0' }, buff: { hp: 0.5, dmg: 0.4, spd: 0.15, noRebel: true }, desc: 'Boynuzlu ejder zırhı · Ölünce isyan etmez · Can +%50 · Saldırı +%40' },
+            { id: 'slave_storm', cat: 'slave', name: 'Boran Nöbetçisi', icon: '⚡', cost: 900, style: 'storm', pal: { main: '#66ccff', accent: '#ffffff', dark: '#06142a', glow: '#d8f4ff' }, buff: { spd: 0.25, dmg: 0.25 }, desc: 'Şimşek ibikli zırh · Hız ve saldırı +%25' },
+            { id: 'slave_void', cat: 'slave', name: 'Yutan Bekçi', icon: '🌌', cost: 1100, style: 'void', pal: { main: '#a64dff', accent: '#e0c8ff', dark: '#08000f', glow: '#f0e0ff' }, buff: { hp: 0.4, dmg: 0.3 }, desc: 'Dönen birikim halkaları · Can +%40 · Saldırı +%30' },
+            { id: 'slave_wyrm', cat: 'slave', name: 'Ejder Alp', icon: '🐉', cost: 1400, style: 'wyrm', pal: { main: '#ff5a1a', accent: '#ffd27a', dark: '#1a0400', glow: '#fff2a0' }, buff: { hp: 0.5, dmg: 0.4, spd: 0.15, noRebel: true }, desc: 'Boynuzlu ejder zırhı · Ölünce isyan etmez · Can +%50 · Saldırı +%40' },
             { id: 'soldier_storm', cat: 'soldier', name: 'Şimşek Yavrusu', icon: '⚡', cost: 800, style: 'storm', pal: { main: '#66ccff', accent: '#ffffff', dark: '#06142a', glow: '#e8f8ff' }, buff: { spd: 0.3, dmg: 0.25 }, desc: 'Yıldırım ibikli yavru · Hız +%30 · Saldırı +%25' },
-            { id: 'soldier_void', cat: 'soldier', name: 'Hiçlik Yavrusu', icon: '🌌', cost: 900, style: 'void', pal: { main: '#a64dff', accent: '#e0c8ff', dark: '#08000f', glow: '#f0e0ff' }, buff: { hp: 0.5, dmg: 0.3 }, desc: 'Halkalı karanlık yavru · Can +%50 · Saldırı +%30' },
+            { id: 'soldier_void', cat: 'soldier', name: 'Yutan Yavrusu', icon: '🌌', cost: 900, style: 'void', pal: { main: '#a64dff', accent: '#e0c8ff', dark: '#08000f', glow: '#f0e0ff' }, buff: { hp: 0.5, dmg: 0.3 }, desc: 'Halkalı karanlık yavru · Can +%50 · Saldırı +%30' },
             { id: 'soldier_bone', cat: 'soldier', name: 'Kemik Yavru', icon: '💀', cost: 750, style: 'bone', pal: { main: '#e8e0c8', accent: '#ff4422', dark: '#1a1814', glow: '#ff8866' }, buff: { hp: 0.3, dmg: 0.3 }, desc: 'Açık kaburgalı iskelet yavru · Can ve saldırı +%30' }
         );
         Object.entries({ slave_frost: 'frost', slave_gold: 'crown', slave_bone: 'bone', soldier_crystal: 'frost', soldier_royal: 'crown', soldier_fire: 'wyrm' }).forEach(([id, st]) => { const a = armyDB.find(x => x.id === id); if (a && !a.style) a.style = st; });
@@ -1885,10 +1897,10 @@
             } else if(code === 'HIZLIGELISIM') {
                 maxLevelReached = Math.max(maxLevelReached, 8); alert('KOD KABUL EDİLDİ: Max Seviye 8 Açıldı!'); success = true;
             } else if(code === 'VAMPIR') {
-                if(!shopUnlocks.vampireTooth) { shopUnlocks.vampireTooth = true; equippedBlackMarket.vampireTooth = true; alert('KOD KABUL EDİLDİ: Vampir Dişi Karaborsadan açıldı!'); success = true; }
+                if(!shopUnlocks.vampireTooth) { shopUnlocks.vampireTooth = true; equippedBlackMarket.vampireTooth = true; alert('KOD KABUL EDİLDİ: Kan Emici Diş Karaborsadan açıldı!'); success = true; }
                 else { alert('Bu özelliği zaten açmışsın. Sana 300 coin verelim!'); coins += 300; success = true; }
             } else if(code === 'TITAN') {
-                if(!unlockedSkins.includes('void')) { unlockedSkins.push('void'); alert('KOD KABUL EDİLDİ: Hiçlik Ejderi Kostümü Açıldı!'); success = true; }
+                if(!unlockedSkins.includes('void')) { unlockedSkins.push('void'); alert('KOD KABUL EDİLDİ: Yutan Kostümü Açıldı!'); success = true; }
                 else { alert('Bu kostümü zaten açmışsın. Sana 500 coin verelim!'); coins += 500; success = true; }
             } else {
                 alert('Geçersiz Kod!');
@@ -1990,7 +2002,7 @@
             } else if (currentMarketTab === 'quests') {
                 container.style.display = 'block';
                 let html = `<div style="max-width:700px; margin:0 auto;">
-                    <div style="text-align:center; color:#ffd700; margin-bottom:18px; font-size:14px; font-weight:bold;">Ömür Boyu Tamamlanan Görev: ${questsCompletedLifetime} &nbsp; (5 görev → 👑 Görev Ustası kostümü)</div>`;
+                    <div style="text-align:center; color:#ffd700; margin-bottom:18px; font-size:14px; font-weight:bold;">Ömür Boyu Tamamlanan Görev: ${questsCompletedLifetime} &nbsp; (5 görev → 👑 Yol Bilen kostümü)</div>`;
                 if (activeQuests && activeQuests.length > 0) {
                     activeQuests.forEach(q => {
                         let pct = Math.min(100, (q.progress / q.target) * 100);
@@ -7530,7 +7542,7 @@
                 ctx.fillStyle = '#ffff00'; ctx.beginPath(); ctx.arc(5*gFact, -5*gFact, 4*gFact, 0, Math.PI*2); ctx.arc(0*gFact, 8*gFact, 6*gFact, 0, Math.PI*2); ctx.arc(15*gFact, 5*gFact, 2*gFact, 0, Math.PI*2); ctx.fill(); // 3 göz
                 fierceFangs(ctx, 22*gFact, 0, gFact, 12);
             } else {
-                // STANDART (Magma, Ice, Nebula, Shadow, Ascended, Fırtına Ejderi, Mercan Canavarı, Kral Avcısı, Görev Ustası)
+                // STANDART (Magma, Ice, Nebula, Shadow, Ascended, Boran, Mercan Baba, Kral Kesen, Yol Bilen)
                 // Film ve destanlardaki ejderhalardan (Smaug, İskandinav/Çin ejderhaları) ilham alan,
                 // keskin hatlı, öfkeli kaş çıkıntılı, sivri dişli yırtıcı kafatası.
                 if (equippedBlackMarket.demonHorns && isMain) { drawDemonHorns(ctx, gFact); ctx.fillStyle = armorColor; ctx.strokeStyle = glowColor; ctx.lineWidth = 2.5 * gFact; }
@@ -7563,14 +7575,14 @@
                     ctx.beginPath(); ctx.moveTo(-8*gFact, -12*gFact); ctx.quadraticCurveTo(-35*gFact, -20*gFact, -40*gFact, -42*gFact); ctx.quadraticCurveTo(-42*gFact, -55*gFact, -28*gFact, -50*gFact); ctx.quadraticCurveTo(-32*gFact, -38*gFact, -18*gFact, -34*gFact); ctx.quadraticCurveTo(-15*gFact, -22*gFact, -18*gFact, -14*gFact); ctx.fill(); ctx.stroke();
                     ctx.beginPath(); ctx.moveTo(-8*gFact, 12*gFact); ctx.quadraticCurveTo(-35*gFact, 20*gFact, -40*gFact, 42*gFact); ctx.quadraticCurveTo(-42*gFact, 55*gFact, -28*gFact, 50*gFact); ctx.quadraticCurveTo(-32*gFact, 38*gFact, -18*gFact, 34*gFact); ctx.quadraticCurveTo(-15*gFact, 22*gFact, -18*gFact, 14*gFact); ctx.fill(); ctx.stroke();
                 } else if (activeTheme.id === 'ascended') {
-                    // Yüce Hakan: başın arkasında dönen altın hale + ışın taçlı boynuzlar
+                    // Gök Hakan: başın arkasında dönen altın hale + ışın taçlı boynuzlar
                     ctx.save(); ctx.strokeStyle = '#ffd700'; ctx.lineWidth = 3*gFact; ctx.shadowBlur = 18*gFact; ctx.shadowColor = '#ffd700';
                     ctx.beginPath(); ctx.ellipse(-22*gFact, 0, 16*gFact, 42*gFact, 0, 0, Math.PI*2); ctx.stroke();
                     ctx.fillStyle = '#fff6b0';
                     for (let k = -3; k <= 3; k++) { const y = k * 12 * gFact; ctx.beginPath(); ctx.moveTo(-18*gFact, y - 3*gFact); ctx.lineTo(-40*gFact - (3 - Math.abs(k)) * 6*gFact, y); ctx.lineTo(-18*gFact, y + 3*gFact); ctx.fill(); }
                     ctx.restore();
                 } else if (activeTheme.id === 'shadow') {
-                    // Gece Gölgesi: boynuz yerine kıvrılan duman telleri
+                    // Karagece: boynuz yerine kıvrılan duman telleri
                     ctx.save(); ctx.lineCap = 'round';
                     for (let k = 0; k < 4; k++) {
                         const sd = k % 2 ? 1 : -1; const ph = tick * 2 + k;
@@ -7579,7 +7591,7 @@
                     }
                     ctx.restore();
                 } else if (activeTheme.id === 'nebula') {
-                    // Kozmik Bulutsu: başın üstünde yörüngede dönen yıldız tacı
+                    // Yıldız Tozu: başın üstünde yörüngede dönen yıldız tacı
                     ctx.save(); ctx.globalCompositeOperation = 'lighter';
                     for (let k = 0; k < 6; k++) { const a = tick * 1.2 + k * Math.PI / 3; const x = -18*gFact + Math.cos(a) * 26*gFact, y = Math.sin(a) * 34*gFact;
                         ctx.fillStyle = `hsla(${(k*60 + tick*40) % 360}, 100%, 70%, 0.9)`; ctx.beginPath(); ctx.arc(x, y, 3.2*gFact, 0, Math.PI*2); ctx.fill(); }
@@ -7594,7 +7606,7 @@
                         ctx.beginPath(); ctx.moveTo(-18*gFact, 18*gFact*sd); ctx.lineTo(-32*gFact, 36*gFact*sd); ctx.lineTo(-44*gFact, 56*gFact*sd); ctx.stroke(); ctx.restore();
                     }
                 } else if (activeTheme.id === 'infernoLord') {
-                    // Cehennem Efendisi: öne kıvrılan devasa koç boynuzları + titreşen alev ibik
+                    // Zebani: öne kıvrılan devasa koç boynuzları + titreşen alev ibik
                     ctx.save(); ctx.lineCap = 'round';
                     for (const sd of [-1, 1]) {
                         ctx.strokeStyle = '#2a0804'; ctx.lineWidth = 9*gFact;
@@ -7613,13 +7625,13 @@
                     }
                     ctx.restore();
                 } else if (activeTheme.id === 'celestialSerpent') {
-                    // Gökyüzü Serpenti: hilal ay armağı + yüzen iki yıldız
+                    // Gök Yılanı: hilal ay armağı + yüzen iki yıldız
                     ctx.save(); ctx.fillStyle = '#e8dcff'; ctx.shadowBlur = 16*gFact; ctx.shadowColor = '#a88cff';
                     ctx.beginPath(); ctx.arc(-26*gFact, 0, 22*gFact, Math.PI*0.5, Math.PI*1.5); ctx.arc(-18*gFact, 0, 17*gFact, Math.PI*1.5, Math.PI*0.5, true); ctx.fill();
                     for (const sd of [-1, 1]) { const x = -30*gFact, y = (36 + Math.sin(tick*2)*4)*gFact*sd; ctx.beginPath(); for (let p = 0; p < 8; p++) { const r = (p % 2 ? 2 : 6)*gFact, a = p*Math.PI/4 + tick; ctx.lineTo(x + Math.cos(a)*r, y + Math.sin(a)*r); } ctx.closePath(); ctx.fill(); }
                     ctx.restore();
                 } else if (activeTheme.id === 'obsidianTitan') {
-                    // Obsidyen Titan: kafatasından fışkıran volkanik cam kristalleri
+                    // Kara Cam Dev: kafatasından fışkıran volkanik cam kristalleri
                     for (const sd of [-1, 1]) for (let k = 0; k < 3; k++) {
                         const bx = -(8 + k*12)*gFact, by = (12 + k*3)*gFact*sd, len = (30 - k*6)*gFact, ang = (0.9 + k*0.25) * sd;
                         const tx = bx - len*(0.5 + k*0.15), ty = by + len*(0.85 - k*0.1)*sd;
@@ -7628,7 +7640,7 @@
                         ctx.save(); ctx.strokeStyle = 'rgba(120,220,255,0.8)'; ctx.lineWidth = 1*gFact; ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(tx, ty); ctx.stroke(); ctx.restore();
                     }
                 } else if (activeTheme.id === 'mirrorbane') {
-                    // Ayna Ejderi: gökkuşağı kenarlı ayna bıçakları
+                    // Aynalı: gökkuşağı kenarlı ayna bıçakları
                     for (const sd of [-1, 1]) {
                         let mg = ctx.createLinearGradient(-10*gFact, 10*gFact*sd, -60*gFact, 60*gFact*sd); mg.addColorStop(0, '#ffffff'); mg.addColorStop(0.5, '#9a9ad0'); mg.addColorStop(1, '#ffffff');
                         ctx.fillStyle = mg; ctx.strokeStyle = `hsl(${(tick*60) % 360}, 100%, 75%)`; ctx.lineWidth = 1.8*gFact;
@@ -9483,7 +9495,7 @@
                     for (let k = 0; k < 3; k++) { const e = abNearest(mouth.x, mouth.y, 420 * G, got); if (!e) break; got.add(e); abHit(e, D * 3.5); dragonHp = Math.min(maxHp, dragonHp + maxHp * 0.006); abFx({ k: 'blood', x: e.x, y: e.y, life: 24 }); }
                     if (got.size) updateUI(); }
             }
-            // --- Kadim Orman: diken kökleri ---
+            // --- Ulu Orman: diken kökleri ---
             else if (id === 'kadimorman') {
                 if (live && ABIL.cd <= 0) { const got = new Set();
                     for (let k = 0; k < 3; k++) { const e = abNearest(H.x, H.y, 520 * G, got); if (!e) break; got.add(e); abFx({ k: 'thorn', x: e.x, y: e.y, life: 34, tgt: e, dmg: D * 9, seed: Math.random() * 6 }); }
@@ -9508,7 +9520,7 @@
                     ctx.save(); ctx.globalCompositeOperation = 'lighter'; const x = b.x - camX, y = b.y - camY; const g = ctx.createRadialGradient(x, y, 0, x, y, 22 * G); g.addColorStop(0, '#ffffff'); g.addColorStop(0.35, P.vein); g.addColorStop(1, 'rgba(40,0,120,0)');
                     ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, 22 * G, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = hexA(P.vein, 0.5); ctx.lineWidth = 8 * G; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - b.vx * 2.5, y - b.vy * 2.5); ctx.stroke(); ctx.restore(); }
             }
-            // --- Ayna Ejderi: mermi kıran ayna kalkanı ---
+            // --- Aynalı: mermi kıran ayna kalkanı ---
             else if (id === 'mirrorbane') {
                 if (live && ABIL.cd <= 0) { let br = 0; const R = 230 * G * S;
                     for (let i = projectiles.length - 1; i >= 0; i--) { const p = projectiles[i]; for (let k = 0; k < n; k += 4) { const j = joints[k]; if ((p.x - j.x) ** 2 + (p.y - j.y) ** 2 < R * R) { abFx({ k: 'shard', x: p.x, y: p.y, life: 22 }); projectiles.splice(i, 1); br++; break; } } }
@@ -11619,7 +11631,7 @@
                     let auraR2 = (250 * (1 + AB('hive', 'auraRange'))) ** 2;
                     for (let e of enemies) { if ((h.x-e.x)**2 + (h.y-e.y)**2 < auraR2) { e.hp -= auraDmg; } }
                     if (AB('hive', 'goldIncome')) { h.goldTimer = (h.goldTimer || 0) + 1; if (h.goldTimer >= 1800) { h.goldTimer = 0; coins += AB('hive', 'goldIncome'); document.getElementById('coinCount').innerText = coins; h.goldPop = 60; } }
-                    // GARNİZON: kovan her dakika bir asker yetiştirir ve en fazla 4 (Canlı Orman ile 5) asker biriktirir.
+                    // GARNİZON: kovan her dakika bir asker yetiştirir ve en fazla 4 (Yeşil Orman ile 5) asker biriktirir.
                     // Takviye çağrısı (Q+S) biriken askerleri sana getirir.
                     if (h.pendingGarrison) { for (let g = 0; g < h.pendingGarrison; g++) spawnHiveSoldier(h); h.pendingGarrison = 0; }
                     h.garrisonCap = 4 + AB('hive', 'extraSoldier') + Math.floor(Math.min(level, MAX_LEVEL) / 20);
@@ -13732,5 +13744,6 @@
     <script src="plus.js?v=3"></script>
     <script src="ui.js?v=1" defer></script>
     <script src="mp.js?v=6" defer></script>
+    <script src="icons.js?v=1" defer></script>
 </body>
 </html>

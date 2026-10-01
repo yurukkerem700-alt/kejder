@@ -117,8 +117,8 @@
         gokkusak: { name: 'Ejder Işığı', a: '#ff3c3c', b: '#3cf0ff', h: 50, rb: 1 }
     };
     const RANKS = [
-        { h: 0, name: 'Yumurta', ic: '🥚' }, { h: 1, name: 'Yavru Ejder', ic: '🐣' }, { h: 3, name: 'Genç Ejder', ic: '🦎' },
-        { h: 8, name: 'Savaşçı Ejder', ic: '🐉' }, { h: 20, name: 'Kadim Ejder', ic: '🐲' }, { h: 50, name: 'Ejder Lordu', ic: '🔥' }, { h: 100, name: 'SON KRAL', ic: '👑' }
+        { h: 0, name: 'Yumurta', ic: '🥚' }, { h: 1, name: 'Yavru', ic: '🐣' }, { h: 3, name: 'Delikanlı', ic: '🦎' },
+        { h: 8, name: 'Alp', ic: '🐉' }, { h: 20, name: 'Bey', ic: '🐲' }, { h: 50, name: 'Han', ic: '🔥' }, { h: 100, name: 'SON KRAL', ic: '👑' }
     ];
     const PF = (() => { let o = {}; try { o = JSON.parse(LS.getItem('boruProfX') || '{}') || {}; } catch (e) {} return { avatar: o.avatar || '🐉', frame: FRAMES[o.frame] ? o.frame : 'ates', bio: o.bio || '', play: Math.max(0, +o.play || 0), sess: 0, days: o.days || {} }; })();
     function savePF() { try { LS.setItem('boruProfX', JSON.stringify({ avatar: PF.avatar, frame: PF.frame, bio: PF.bio, play: Math.floor(PF.play), days: PF.days })); } catch (e) {} }
