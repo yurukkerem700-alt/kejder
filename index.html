@@ -9868,15 +9868,24 @@
                 for (const wg of wings) if (wg.k >= lo && wg.k < hi) drawWingRoot(wg);
                 if (cfg.scythes) { const ks = i0 + 2; if (ks >= lo && ks < hi) { const p = pts[ks]; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); orgScythes(ctx, p.r, G * S, P, body, hiQ); ctx.restore(); } }
             }
-            // 2) İkiz boyunlar
+            // 2) Çok başlı boyunlar: her boyun kendi yay-sönüm durumuyla (HEADFX, melez.js) ayrı hareket eder;
+            //    HEADFX yoksa eski sabit düzen kullanılır. Baş sayısı 2-4 olabilir.
             const heads = [];
             if (twin) {
-                for (const side of (cfg.heads === 3 ? [1, 0, -1] : [1, -1])) { const br = []; const spread = cfg.heads === 3 ? 30 : 22;
-                    for (let i = 0; i <= kN + 1; i++) { const p = pts[i]; const off = side * spread * G * S * Math.pow(Math.max(0, 1 - i / (kN + 1)), 1.2) + (side === 0 ? Math.sin(tick * 2.2 + i * 0.4) * 4 * G * S * (1 - i / (kN + 1)) : 0);
-                        br.push({ x: p.x - p.sa * off, y: p.y + p.ca * off, r: p.r * 0.85, ca: p.ca, sa: p.sa, a: p.a }); }
+                const HN = Math.max(2, Math.min(4, cfg.heads | 0)); const sidesL = HN === 3 ? [1, 0, -1] : HN === 2 ? [1, -1] : [1, 1 / 3, -1 / 3, -1];
+                const spread = HN >= 4 ? 64 : HN === 3 ? 30 : 22;
+                for (let hi = 0; hi < HN; hi++) { const side = sidesL[hi]; const br = [];
+                    const HF = window.HEADFX ? HEADFX.pose(joints, cfg, hi, HN) : null;
+                    for (let i = 0; i <= kN + 1; i++) { const p = pts[i]; const fr = Math.pow(Math.max(0, 1 - i / (kN + 1)), 1.2);
+                        let off = side * spread * (HF ? HF.lat : 1) * G * S * fr + (side === 0 ? Math.sin(tick * 2.2 + i * 0.4) * 4 * G * S * (1 - i / (kN + 1)) : 0);
+                        let fw = 0;
+                        if (HF) { off += (HF.sw * fr + HF.bend * Math.sin(Math.PI * (1 - i / (kN + 1)))) * G * S; fw = HF.fw * G * S * fr; }
+                        br.push({ x: p.x - p.sa * off + p.ca * fw, y: p.y + p.ca * off + p.sa * fw, r: p.r * 0.85, ca: p.ca, sa: p.sa, a: p.a }); }
                     ctx.fillStyle = body[2]; ctx.strokeStyle = '#010406'; ctx.lineWidth = 2 * G * S; kzBodyPath(ctx, br, 1, br[br.length - 1]); ctx.fill(); ctx.stroke();
                     ctx.fillStyle = body[1]; kzBodyPath(ctx, br, 0.7, br[br.length - 1]); ctx.fill();
-                    heads.push({ x: br[0].x, y: br[0].y, a: pts[0].a + side * 0.2 + Math.sin(tick * 1.7 + side) * 0.08 }); }
+                    const hAng = pts[0].a + side * 0.2 + Math.sin(tick * 1.7 + side) * 0.08 + (HF ? HF.ang : 0);
+                    if (HF) HEADFX.rec(joints, hi, HN, br[0].x + camX, br[0].y + camY, hAng, G * S);
+                    heads.push({ x: br[0].x, y: br[0].y, a: hAng }); }
             } else heads.push({ x: pts[0].x, y: pts[0].y, a: pts[0].a });
             // 3) Baş(lar)
             const hs = cfg.headScale || 1;
@@ -11371,7 +11380,8 @@
                 const k = want / n, sK = Math.min(1.7, Math.sqrt(k));
                 const pw = k > 1.01 ? stats.fireDamage * (isRageActive ? 3 : 1) * k : undefined;
                 const mouth = 35 * sizeMultiplier * growthFactor, mx = head.x + Math.cos(head.angle) * mouth, my = head.y + Math.sin(head.angle) * mouth;
-                for (let i = 0; i < n; i++) {
+                const headsOwn = window.HEADFX && HEADFX.owns(joints, activeTheme.id); // çok başlı kostümde alevi her baş kendisi püskürtür (melez.js)
+                for (let i = 0; i < (headsOwn ? 0 : n); i++) {
                     const spread = (Math.random() - 0.5) * 0.40;
                     const fSpeed = (Math.random() * 6 + 6.8) * (1 + Math.max(0, growthFactor - 1.7) * 0.6);
                     const f0 = Math.random();
@@ -13797,7 +13807,8 @@
         })();
     </script>
     <script src="plus.js?v=3"></script>
-    <script src="kostum.js?v=1"></script>
+    <script src="melez.js?v=1"></script>
+    <script src="kostum.js?v=2"></script>
     <script src="ui.js?v=1" defer></script>
     <script src="mp.js?v=7" defer></script>
     <script src="icons.js?v=2" defer></script>
