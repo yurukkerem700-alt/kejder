@@ -518,6 +518,8 @@
         body.m #sideNotes { top: calc(env(safe-area-inset-top, 0px) + 104px); left: calc(env(safe-area-inset-left, 0px) + 6px); width: 50vw; max-width: 230px; gap: 3px; }
         body.m #sideNotes .sn { font-size: 10px; letter-spacing: 0; padding: 3px 7px; border-radius: 6px; border-left-width: 2px; }
         body.m #sideNotes .sn.big { font-size: 10.5px; }
+        body.mp-arena #objectivePanel { display: none !important; }
+        body.m.mp-arena #mpChips { display: none !important; }
         body.mp-match #sideNotes { top: 170px; }
         body.m.mp-match #sideNotes { top: calc(env(safe-area-inset-top, 0px) + 232px); }
         @media (orientation: landscape) and (max-height: 520px) { body.m #sideNotes, body.m.mp-match #sideNotes { top: calc(env(safe-area-inset-top, 0px) + 96px); width: 34vw; } }
@@ -4272,7 +4274,7 @@
         // =====================================================================
         // SINIRLI DÜNYA: harita artık sonsuz değil, merkezden WORLD_R yarıçaplı dev bir daire. Krallar, en uzak
         // görünümde her biyomun kapladığı alanın tam ortasında (biyom ağırlık merkezi) oturur.
-        const WORLD_R = 30000;
+        let WORLD_R = 30000; // Arena maçında daralan bir halka olarak değişir (BORU.setWorldR)
         const ROYALS = [
             { id: 'kar', biome: 'kar', name: 'DAĞ KAĞANI BUZTEPE', short: 'Buztepe', title: 'Ebedi Kar Dağlarının Kağanı', hive: 'Buztepe Tahtı',
               throne: { x: 12800, y: -12800 }, color: '#dfeaff', glow: '#7fb0ff', rgb: '200,222,255', size: 118, weather: 'tipi', roar: 'b_mega', touch: 70,
@@ -10866,7 +10868,8 @@
         function renderGoal() {
             const el = document.getElementById('goalHud'); if (!el) return; let h;
             const bt = nextBHTier();
-            if (inMirrorArena) { const t = arenaTier(); h = `<div class="g1">🕳️ AMAÇ: bossu yen · <b>${t.bossName}</b></div><div class="g2">Kara delikten ancak onu yenerek çıkabilirsin.</div>`; }
+            if (window.BORU && BORU.seeAll) h = '<div class="g1">⚔️ AMAÇ: son ejderha kal</div><div class="g2">Harita daralıyor · herkes haritada görünür</div>';
+            else if (inMirrorArena) { const t = arenaTier(); h = `<div class="g1">🕳️ AMAÇ: bossu yen · <b>${t.bossName}</b></div><div class="g2">Kara delikten ancak onu yenerek çıkabilirsin.</div>`; }
             else if (!bt) h = `<div class="g1">👑 Tüm kara delikler kapandı</div><div class="g2">Gökyüzü artık senin.</div>`;
             else {
                 const req = nextBHReq(), n = Math.min(totalHivesCapturedLifetime, req);
@@ -10874,7 +10877,7 @@
                 else h = `<div class="g1">🎯 <b>${n}/${req}</b> kovan${MP.active ? ' <small>(ekip toplamı)</small>' : ''}</div><div class="gbar"><i style="width:${Math.min(100, n / req * 100)}%"></i></div><div class="g2">sonra 🕳️ kara delik bossu</div>`;
             }
             // Mobil: tek satırlık kısa amaç
-            let m; if (inMirrorArena) m = '🕳️ Bossu yen: ' + arenaTier().bossName; else if (!bt) m = '👑 Sefer tamam'; else if (blackHolePortal) m = '🕳️ Kara deliğe gir'; else m = '🎯 ' + Math.min(totalHivesCapturedLifetime, nextBHReq()) + '/' + nextBHReq() + ' kovan';
+            let m; if (window.BORU && BORU.seeAll) m = '⚔️ Son ejderha kal'; else if (inMirrorArena) m = '🕳️ Bossu yen: ' + arenaTier().bossName; else if (!bt) m = '👑 Sefer tamam'; else if (blackHolePortal) m = '🕳️ Kara deliğe gir'; else m = '🎯 ' + Math.min(totalHivesCapturedLifetime, nextBHReq()) + '/' + nextBHReq() + ' kovan';
             h += '<span class="gmob">' + m + '</span>';
             if (el._h !== h) { el._h = h; el.innerHTML = h; el.classList.toggle('ok', !!blackHolePortal); }
         }
@@ -13265,7 +13268,7 @@
                 onLocalDeath: null, onHiveCaptured: null, onBossKill: null, onHit: null,
                 hostile: () => false, teamColor: () => '#ffffff',
                 // Birlikte modunda tüm kostümler açıktır (yalnızca görünüş, güç vermez)
-                skins(mode) { return skinsDB.filter(s => mode === 'coop' || unlockedSkins.includes(s.id)).map(s => ({ id: s.id, name: s.name, icon: s.icon || '🐉', color: s.mainColor })); },
+                skins(mode) { return skinsDB.filter(s => mode === 'coop' || mode === 'arena' || unlockedSkins.includes(s.id)).map(s => ({ id: s.id, name: s.name, icon: s.icon || '🐉', color: s.mainColor })); },
                 skinInfo(id) { const s = skinsDB.find(q => q.id === id) || skinsDB[0]; return { id: s.id, name: s.name, icon: s.icon || '🐉', color: s.mainColor }; },
                 activeSkin() { return activeTheme.id; },
                 playState() { return { active: !!gameActive, paused: !!isPaused, mp: !!B.matchActive }; },
@@ -13273,7 +13276,8 @@
                 savedName() { return (dragonName && dragonName !== 'İsimsiz Börü') ? dragonName : (store.getItem('boruDragonName') || ''); },
                 startMatch(o) {
                     store.mem = new Map();
-                    MP.noSkinBuffs = o.mode === 'coop';
+                    MP.noSkinBuffs = o.mode === 'coop' || o.mode === 'arena';
+                    B.seeAll = o.mode === 'arena'; if (o.worldR) WORLD_R = o.worldR;
                     MP.active = true; MP.isHost = true; MP.localDead = false; MP.pendingPicks = 0;
                     startingNewGame = false; waveBossPending = false; scorches.length = 0;
                     level = 1; currentWave = 1; score = 0; currentXp = 0; maxXp = 18; killsInCurrentWave = 0; expeditions.length = 0; rpReports.length = 0;
@@ -13292,19 +13296,23 @@
                     inMirrorArena = false; isArenaTransitioning = false; arenaStash = null; blackHolePortal = null; clearArenaState();
                     document.getElementById('gameOverScreen').style.display = 'none';
                     { const pm = document.getElementById('pxModal'); if (pm) pm.classList.remove('open'); } // menü pencereleri maçı kapatmasın
-                    R.clear(); B.matchActive = true; B.mode = o.mode || 'coop'; document.body.classList.add('mp-match');
+                    R.clear(); B.matchActive = true; B.mode = o.mode || 'coop'; document.body.classList.add('mp-match'); document.body.classList.toggle('mp-arena', o.mode === 'arena');
                     prepGameStart();
                     dragonName = o.name || dragonName;
                     B.teleport(o.x || 0, o.y || 0);
                     baseFire = stats.fireDamage || 1.5;
                 },
+                // ARENA: daralan harita halkası ve botların isabet testi için yerel ejderha gövdesi
+                setWorldR(r) { if (B.seeAll && r > 300) WORLD_R = r; },
+                worldR() { return WORLD_R; },
+                localBody() { return { joints, G: LP.sm * playerGrowth(), x: world.dragonX, y: world.dragonY, alive: !MP.localDead && !spacePressed }; },
                 teleport(x, y) {
                     world.dragonX = x; world.dragonY = y; world.lastX = x; world.lastY = y;
                     for (const j of joints) { j.x = x; j.y = y; }
                     camX = x - (canvas.width / viewScale) / 2; camY = y - (canvas.height / viewScale) / 2;
                 },
                 endMatch() {
-                    B.matchActive = false; gameActive = false; MP.players.clear(); MP.noSkinBuffs = false; RF.length = 0; isBreathingFire = false; spacePressed = false;
+                    B.matchActive = false; B.seeAll = false; WORLD_R = 30000; document.body.classList.remove('mp-arena'); gameActive = false; MP.players.clear(); MP.noSkinBuffs = false; RF.length = 0; isBreathingFire = false; spacePressed = false;
                     try { inMirrorArena = false; isArenaTransitioning = false; activeBosses = []; clearArenaState(); document.getElementById('bossUi').style.display = 'none'; const ov = document.getElementById('arenaTransitionOverlay'); if (ov) ov.style.display = 'none'; } catch (e) {}
                     try { if (fireGain) fireGain.gain.value = 0; } catch (e) {}
                     document.getElementById('pauseMenu').style.display = 'none';
@@ -13524,7 +13532,7 @@
                             // Işın ekrana uzaktan da girebilir (3200 birim): çizimi ekrana göre değil ışına göre yap
                             if (r.bf && !r.g) B.drawRemoteBeam(r);
                             if (onScreen) { if (r.bc > 0 && !r.g) B.drawRemoteCharge(r); B.drawRemote(r); }
-                            else if (!B.hostile(r.id)) B.drawArrow(r, vw, vh); // düşmanın yeri gösterilmez
+                            else if (!B.hostile(r.id) || B.seeAll) B.drawArrow(r, vw, vh); // düşmanın yeri gösterilmez (Arena'da herkes haritada görünür)
                         }
                         B.pvpFire(r); B.pvpBeam(r);
                     }
@@ -13557,7 +13565,7 @@
                     ctx.globalAlpha = 0.72; ctx.fillStyle = '#07050a'; ctx.beginPath();
                     if (ctx.roundRect) ctx.roundRect(x0, y0, w, 29, 8); else ctx.rect(x0, y0, w, 29); ctx.fill();
                     ctx.globalAlpha = 1; ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.stroke();
-                    ctx.fillStyle = col; ctx.fillText((hostile ? '⚔ ' : '') + name, sx, sy + 1);
+                    ctx.fillStyle = col; ctx.fillText(name, sx, sy + 1);
                     const bw = w - 12; ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(sx - bw / 2, sy + 5, bw, 5);
                     ctx.fillStyle = hostile ? '#ff3355' : (k < 0.3 ? '#ffb030' : '#33ff88'); ctx.fillRect(sx - bw / 2, sy + 5, bw * k, 5);
                     ctx.restore();
@@ -13631,6 +13639,7 @@
                 },
                 drawArrow(r, vw, vh) {
                     const cx = camX + vw / 2, cy = camY + vh / 2, ang = Math.atan2(r.y - cy, r.x - cx);
+                    if (B.seeAll && Math.hypot(r.x - cx, r.y - cy) > 3400) return; // Arena: yalnızca yakındakiler için kenar oku
                     const px = vw / 2 + Math.cos(ang) * (vw / 2 - 34), py = vh / 2 + Math.sin(ang) * (vh / 2 - 34);
                     const ex = Math.max(28, Math.min(vw - 28, px)), ey = Math.max(150, Math.min(vh - 28, py));
                     ctx.save(); ctx.translate(ex, ey); ctx.rotate(ang); ctx.fillStyle = B.teamColor(r.id); ctx.globalAlpha = 0.85;
@@ -13672,10 +13681,12 @@
             const _hc = onHiveCaptured;
             onHiveCaptured = function (h) { _hc(h); if (B.matchActive) { cnt.hives++; if (B.onHiveCaptured) B.onHiveCaptured(h); } };
             // Birlikte modunda asker yok; hiçbir modda köle/komutan yok
+            // Arena'da kara delik yok: herkes aynı haritada kalır (savaş dışına çekilen ejderha olmaz)
+            if (typeof refreshBlackHolePortal === 'function') { const _rbp = refreshBlackHolePortal; refreshBlackHolePortal = function () { if (B.seeAll) { blackHolePortal = null; return; } return _rbp.apply(this, arguments); }; }
             const _shs = spawnHiveSoldier;
             spawnHiveSoldier = function (h) { if (B.matchActive && B.mode === 'coop') return; return _shs.apply(this, arguments); };
             // HARİTADA MÜTTEFİKLER: Birlikte modunda herkes, Takım modunda takım arkadaşları görünür; düşmanlar asla.
-            const allies = () => { const o = []; if (!B.matchActive) return o; for (const r of R.values()) if (!r.d && !B.hostile(r.id) && performance.now() - r.seen < 6000) o.push(r); return o; };
+            const allies = () => { const o = []; if (!B.matchActive) return o; for (const r of R.values()) if (!r.d && (B.seeAll || !B.hostile(r.id)) && performance.now() - r.seen < 6000) o.push(r); return o; };
             const _mm = drawMinimap;
             drawMinimap = function () {
                 _mm();
@@ -13743,7 +13754,7 @@
     </script>
     <script src="plus.js?v=3"></script>
     <script src="ui.js?v=1" defer></script>
-    <script src="mp.js?v=6" defer></script>
-    <script src="icons.js?v=1" defer></script>
+    <script src="mp.js?v=7" defer></script>
+    <script src="icons.js?v=2" defer></script>
 </body>
 </html>
