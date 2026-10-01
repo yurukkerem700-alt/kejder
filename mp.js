@@ -175,7 +175,7 @@
     }
     function avatarHtml(av, fr, size, extra) {
         const f = FRAMES[fr] || FRAMES.ates;
-        return `<span class="mp-av ${f.rb ? 'rb' : ''} ${extra || ''}" style="--fa:${f.a};--fb:${f.b};--sz:${size || 44}px"><i>${esc(av || '🐉')}</i></span>`;
+        return `<span class="mp-av ${f.rb ? 'rb' : ''} ${extra || ''}" style="--fa:${f.a};--fb:${f.b};--sz:${size || 44}px"><i data-noicon>${esc(av || '🐉')}</i></span>`;
     }
     function renderMenuProfile() {
         const el = document.getElementById('menuProfile'); if (!el) return;
@@ -1570,7 +1570,7 @@
         </div>
         <div class="mp-tiles">${tiles.map(([i, v, l]) => `<div class="mp-tl"><div class="v">${i} ${v}</div><div class="l">${l}</div></div>`).join('')}</div>
         <div class="mp-card"><h3>🎖️ Rütbe yolu</h3><div class="mp-ranks">${RANKS.map(r => `<div class="${hoursOf(ps) >= r.h ? 'got' : ''} ${r === rk.r ? 'cur' : ''}"><span>${r.ic}</span><b>${r.name}</b><small>${r.h} sa</small></div>`).join('')}</div></div>
-        ${own ? `<div class="mp-card"><h3>🖼️ Avatar</h3><div class="mp-avs">${AVATARS.map(a => `<button class="${PF.avatar === a ? 'sel' : ''}" data-a="setav" data-v="${a}">${a}</button>`).join('')}</div></div>
+        ${own ? `<div class="mp-card"><h3>🖼️ Avatar</h3><div class="mp-avs">${AVATARS.map(a => `<button class="${PF.avatar === a ? 'sel' : ''}" data-a="setav" data-v="${a}" data-noicon>${a}</button>`).join('')}</div></div>
         <div class="mp-card"><h3>💠 Çerçeve <small style="color:#999;font-weight:normal">oynadıkça açılır</small></h3><div class="mp-frs">${Object.keys(FRAMES).map(k => { const fr = FRAMES[k], ok = frameOk(k, ps); return `<button class="${PF.frame === k ? 'sel' : ''} ${ok ? '' : 'lock'}" data-a="setfr" data-v="${k}" ${ok ? '' : 'disabled'}>${avatarHtml(PF.avatar, k, 46)}<b>${fr.name}</b><small>${ok ? (PF.frame === k ? '✔ takılı' : 'seç') : '🔒 ' + fr.h + ' saat'}</small></button>`; }).join('')}</div></div>
         <div class="mp-card"><h3>✍️ Hakkımda</h3><div class="mp-row"><input id="mpBio" maxlength="80" placeholder="Ör. Kara deliklerin efendisi. Takıma katıl!" value="${esc(PF.bio)}" data-keep></div></div>
         <div class="mp-card"><h3>🐉 Ejderha adı</h3><div class="mp-row"><input id="mpName" maxlength="14" placeholder="Ejderhanın adı" value="${esc(me.name)}" data-keep></div></div>` : ''}
