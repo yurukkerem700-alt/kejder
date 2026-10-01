@@ -900,6 +900,33 @@
         #bhBanner .bh-t { font: 900 clamp(26px, 8vw, 58px) 'Segoe UI', sans-serif; letter-spacing: clamp(4px, 1.6vw, 14px); color: #fff; text-shadow: 0 0 18px var(--bc), 0 0 40px var(--bc); }
         #bhBanner .bh-s { margin-top: 6px; font: italic clamp(12px, 3.4vw, 17px) Georgia, serif; color: var(--bc); letter-spacing: 2px; }
         @keyframes bhIn { 0% { opacity: 0; transform: scaleY(0.2); filter: blur(12px); } 10% { opacity: 1; transform: scaleY(1); filter: blur(0); } 80% { opacity: 1; } 100% { opacity: 0; transform: scale(1.08); filter: blur(6px); } }
+
+        /* ---- Kadim Pazar ikonu + profil / menü tasarım cilası ---- */
+        .ic-market { display:inline-block; width:1.45em; height:1.45em; vertical-align:-0.38em; background:url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Cdefs%3E%3ClinearGradient id=%22w%22 x1=%220%22 y1=%220%22 x2=%220%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%238a3b12%22/%3E%3Cstop offset=%221%22 stop-color=%22%233a1206%22/%3E%3C/linearGradient%3E%3ClinearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%220%22 y2=%221%22%3E%3Cstop offset=%220%22 stop-color=%22%23fff2a8%22/%3E%3Cstop offset=%22.5%22 stop-color=%22%23ffc21a%22/%3E%3Cstop offset=%221%22 stop-color=%22%23b86a00%22/%3E%3C/linearGradient%3E%3CradialGradient id=%22f%22 cx=%22.5%22 cy=%22.7%22 r=%22.6%22%3E%3Cstop offset=%220%22 stop-color=%22%23fff6c0%22/%3E%3Cstop offset=%22.45%22 stop-color=%22%23ff9a1a%22/%3E%3Cstop offset=%221%22 stop-color=%22%23ff2a00%22 stop-opacity=%220%22/%3E%3C/radialGradient%3E%3C/defs%3E%3Cellipse cx=%2232%22 cy=%2230%22 rx=%2224%22 ry=%2216%22 fill=%22url%28%23f%29%22/%3E%3Cpath d=%22M10 30 Q32 10 54 30 Z%22 fill=%22url%28%23w%29%22 stroke=%22%23ffc21a%22 stroke-width=%222.5%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M20 22 Q32 14 44 22%22 fill=%22none%22 stroke=%22%23ffe27a%22 stroke-width=%221.5%22 opacity=%22.7%22/%3E%3Ccircle cx=%2224%22 cy=%2227%22 r=%224%22 fill=%22url%28%23g%29%22 stroke=%22%237a4100%22 stroke-width=%221%22/%3E%3Ccircle cx=%2232%22 cy=%2225%22 r=%224.5%22 fill=%22url%28%23g%29%22 stroke=%22%237a4100%22 stroke-width=%221%22/%3E%3Ccircle cx=%2240%22 cy=%2227%22 r=%224%22 fill=%22url%28%23g%29%22 stroke=%22%237a4100%22 stroke-width=%221%22/%3E%3Cpath d=%22M29.5 25 l2.5-2 2.5 2 -2.5 2z%22 fill=%22%23b30000%22/%3E%3Crect x=%229%22 y=%2230%22 width=%2246%22 height=%2224%22 rx=%224%22 fill=%22url%28%23w%29%22 stroke=%22%23ffc21a%22 stroke-width=%222.5%22/%3E%3Cpath d=%22M9 38 H55%22 stroke=%22%23ffc21a%22 stroke-width=%222%22/%3E%3Cpath d=%22M21 30 V54 M43 30 V54%22 stroke=%22%23ffc21a%22 stroke-width=%222%22 opacity=%22.85%22/%3E%3Cpath d=%22M27 34 h10 v10 l-5 4 -5-4z%22 fill=%22url%28%23g%29%22 stroke=%22%237a4100%22 stroke-width=%221.2%22/%3E%3Ccircle cx=%2232%22 cy=%2239.5%22 r=%222%22 fill=%22%233a1206%22/%3E%3Cpath d=%22M32 41 v3%22 stroke=%22%233a1206%22 stroke-width=%221.6%22/%3E%3Cpath d=%22M14 8 l1.6 4.4 4.4 1.6 -4.4 1.6 -1.6 4.4 -1.6-4.4 -4.4-1.6 4.4-1.6z M50 6 l1.2 3.3 3.3 1.2 -3.3 1.2 -1.2 3.3 -1.2-3.3 -3.3-1.2 3.3-1.2z%22 fill=%22%23fff2a8%22/%3E%3C/svg%3E%0A") center/contain no-repeat; filter: drop-shadow(0 0 4px rgba(255,170,0,.55)); }
+        .mm-grid button span .ic-market { width:30px; height:30px; vertical-align:middle; }
+        #topControls .ic-market { width:1.6em; height:1.6em; }
+        .market-title { display:flex; align-items:center; justify-content:center; gap:10px; padding:12px 10px 10px; background:linear-gradient(180deg,#2a1207,#150f22); border-bottom:1px solid #3d2963; font-weight:900; letter-spacing:4px; font-size:20px; color:#ffd24a; text-shadow:0 0 12px rgba(255,140,0,.6); }
+        .market-title .ic-market { width:40px; height:40px; animation: mkBob 2.4s ease-in-out infinite; }
+        .market-title small { display:block; font-size:10px; letter-spacing:2px; color:#caa; font-weight:normal; text-shadow:none; }
+        @keyframes mkBob { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-3px) rotate(4deg); } }
+        body.m .market-title { padding:6px; font-size:14px; letter-spacing:2px; }
+        body.m .market-title .ic-market { width:26px; height:26px; }
+        .menu-profile { display:flex; align-items:center; gap:12px; background:linear-gradient(90deg,rgba(0,0,0,.65),rgba(40,12,4,.55)); border:1px solid var(--menuAccent); border-radius:40px; padding:6px 18px 6px 6px; margin-bottom:14px; cursor:pointer; color:#fff; font-family:inherit; text-align:left; box-shadow:0 0 14px rgba(0,0,0,.6); transition:.2s; }
+        .menu-profile:hover { box-shadow:0 0 18px var(--menuAccent); transform:translateY(-1px); }
+        .menu-profile .av { width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:26px; background:radial-gradient(circle at 35% 30%,#3a1a0c,#0a0503); border:2px solid var(--pfc,#ff7a00); box-shadow:0 0 10px var(--pfc,#ff7a00); flex:0 0 auto; }
+        .menu-profile .nm { font-weight:bold; font-size:15px; letter-spacing:1px; }
+        .menu-profile .sb { font-size:11px; color:#ffcc99; opacity:.9; margin-top:2px; }
+        .menu-profile .go { margin-left:6px; font-size:11px; color:var(--menuAccent); font-weight:bold; letter-spacing:1px; }
+        body.m .menu-profile { margin-bottom:10px; padding:4px 14px 4px 4px; }
+        body.m .menu-profile .av { width:38px; height:38px; font-size:21px; }
+        .menu-btns .action-btn { position:relative; overflow:hidden; }
+        .menu-btns .action-btn::after { content:''; position:absolute; top:0; left:-60%; width:40%; height:100%; background:linear-gradient(100deg,transparent,rgba(255,255,255,.18),transparent); transform:skewX(-20deg); transition:left .6s; pointer-events:none; }
+        .menu-btns .action-btn:hover::after { left:120%; }
+        #mpMenuBtn { flex-basis:100%; position:relative; background:linear-gradient(90deg,rgba(255,51,0,.32),rgba(255,170,0,.18),rgba(0,170,255,.3)) !important; background-size:200% 100% !important; border-color:#ffaa00 !important; color:#fff !important; font-weight:900 !important; letter-spacing:2px; animation: mpBtnFlow 5s ease-in-out infinite, mpBtnGlow 2.4s ease-in-out infinite; }
+        #mpMenuBtn small { display:block; font-size:10px; letter-spacing:1px; color:#ffd9a8; font-weight:normal; margin-top:2px; }
+        @keyframes mpBtnFlow { 0%,100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
+        @keyframes mpBtnGlow { 0%,100% { box-shadow:0 0 8px rgba(255,140,0,.35); } 50% { box-shadow:0 0 22px rgba(255,140,0,.7); } }
+        body.m .menu-btns #mpMenuBtn { grid-column: 1 / -1; font-size:15px; padding:12px 6px; }
     </style>
 </head>
 <body>
@@ -911,7 +938,7 @@
 
     <div id="topControls" style="display:none;">
         <button class="action-btn" onclick="togglePause()" title="Durdur / Ayarlar (P)">⏸️</button>
-        <button class="action-btn" onclick="openMarket()" title="Market" style="border-color:#ffd700; color:#ffd700;">🛒</button>
+        <button class="action-btn" onclick="openMarket()" title="Market" style="border-color:#ffd700; color:#ffd700;"><i class="ic-market" aria-hidden="true"></i></button>
         <button class="action-btn" onclick="toggleJournal()" title="Günlük (J)" style="border-color:#ff9955; color:#ff9955;">📖</button>
     </div>
 
@@ -1029,6 +1056,7 @@
             <h1 id="titleText" style="color:#ff3300; text-shadow: 0 0 20px #ff3300;">BÖRÜ: SON KRAL</h1>
             <div class="menu-subtitle">— Gökten düşen son ejderhanın fetih destanı —</div>
 
+            <button class="menu-profile" id="menuProfile" onclick="MPUI.profile()" style="display:none"></button>
             <button class="world-badge" id="worldBadge" onclick="openWorlds()"></button>
             <div class="menu-stats" id="menuStats"></div>
 
@@ -1053,11 +1081,12 @@
             </div>
 
             <div class="menu-btns" style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 640px; margin-top:6px;">
-                <button class="action-btn" id="mpMenuBtn" onclick="MPUI.open()" style="flex-basis:100%; background:linear-gradient(90deg,rgba(255,51,0,.25),rgba(0,170,255,.25)); border-color:#ffaa00; color:#fff; font-weight:bold;">👥 ARKADAŞLARLA OYNA</button>
+                <button class="action-btn" id="mpMenuBtn" onclick="MPUI.open()">⚔️ ÇEVRİMİÇİ SAVAŞ<small>açık lobiler · arkadaşlarla oyna · sesli sohbet</small></button>
                 <button class="action-btn" id="continueBtn" style="display:none; background:#00aa55; border-color:#00ff88; color:#fff;">▶ KAYITTAN DEVAM ET</button>
                 <button class="action-btn menu-btn-primary" id="startBtn">⚔️ SIFIRDAN BAŞLA</button>
                 <button class="action-btn" id="installBtnMenu" onclick="doInstall()">📲 UYGULAMA OLARAK YÜKLE (TAM EKRAN)</button>
-                <button class="action-btn" onclick="openMarket()" style="background: rgba(153,0,255,0.2); border-color:#9900ff; color:#fff;">🛒 MARKET</button>
+                <button class="action-btn" onclick="openMarket()" style="background: rgba(153,0,255,0.2); border-color:#9900ff; color:#fff;"><i class="ic-market" aria-hidden="true"></i> MARKET</button>
+                <button class="action-btn" onclick="MPUI.profile()" style="background: rgba(255,210,74,0.1); border-color:#ffd24a; color:#ffe9a8;">🪪 PROFİL</button>
                 <button class="action-btn" onclick="openWorlds()" style="background: rgba(90,140,255,0.12); border-color:#5a8cff; color:#cfe0ff;">🌍 DÜNYALAR</button>
                 <button class="action-btn" onclick="playStory(null)" style="background: rgba(255,120,40,0.1); border-color:#ff7a2a; color:#ffcc99;">📜 HİKÂYE</button>
                 <button class="action-btn" onclick="openJournal()" style="background: rgba(255,150,80,0.08); border-color:#ff9955; color:#ffcc99;">📖 GÜNLÜK</button>
@@ -1199,13 +1228,15 @@
         <button class="action-btn" onclick="togglePause()">▶️ DEVAM ET</button>
         <button class="action-btn" onclick="openJournal()" style="border-color:#ff9955; color:#ff9955;">📖 GÜNLÜK · AMACIM</button>
         <button class="action-btn" onclick="openSettingsModal()" style="border-color:#00ffcc; color:#00ffcc;">⚙️ AYARLAR</button>
-        <button class="action-btn" onclick="openMarket()" style="border-color:#ffd700; color:#ffd700;">🛒 MARKET'E GİR</button>
+        <button class="action-btn" onclick="openMarket()" style="border-color:#ffd700; color:#ffd700;"><i class="ic-market" aria-hidden="true"></i> MARKET'E GİR</button>
+        <button class="action-btn" onclick="MPUI.profile()" style="border-color:#ffd24a; color:#ffe9a8;">🪪 PROFİLİM</button>
         <button class="action-btn" onclick="openCmd()" style="border-color:#66ccff; color:#66ccff;">👑 KOMUTANLAR</button>
         <button class="action-btn" onclick="location.reload()" style="border-color:#ff3366; color:#ff3366;">🔄 ANA MENÜYE DÖN</button>
     </div>
 
     <div id="marketModal">
         <div class="market-container">
+            <div class="market-title"><i class="ic-market" aria-hidden="true"></i><div>KADİM PAZAR<small>kostüm · karaborsa · ordu · iksir</small></div><i class="ic-market" style="transform:scaleX(-1)" aria-hidden="true"></i></div>
             <div class="market-header">
                 <button class="tab-btn active" onclick="switchMarketTab(this, 'skins')">🐉 KOSTÜMLER</button>
                 <button class="tab-btn" onclick="switchMarketTab(this, 'blackmarket')" style="color: #ff3366;">🏴‍☠️ KARABORSA (ÖZELLEŞTİR)</button>
@@ -5458,6 +5489,7 @@
                 ['📜', loreFound.length + ' / ' + loreFragmentPoints.length, 'KADİM PARÇA']
             ];
             items.push(['🏰', sanctTotal() + ' / ' + sanctDB.length * SANCT_MAX, 'SIĞINAK']);
+            try { const ps = window.BORU_PLAY ? BORU_PLAY.total() : (+(JSON.parse(localStorage.getItem('boruProfX') || '{}').play) || 0); const h = Math.floor(ps / 3600), m = Math.floor(ps % 3600 / 60); items.unshift(['⏱', h ? h + ' sa ' + m + ' dk' : m + ' dk', 'OYNAMA SÜRESİ']); } catch (e) {}
             if (saved) items.unshift(['🌊', 'Dalga ' + (saved.currentWave || 1), 'KAYITLI OYUN · SV ' + (saved.level || 1)]);
             document.getElementById('menuStats').innerHTML = items.map(([ic, v, l]) => `<div class="menu-stat"><div class="ms-v">${ic} ${v}</div><div class="ms-l">${l}</div></div>`).join('');
         }
@@ -13025,7 +13057,8 @@
                 ['skills', '🌳', 'Yetenekler', skillPoints > 0 ? skillPoints + ' puan hazır' : 'yetenek ağacı', false],
                 ['journal', '📖', 'Günlük', 'hikâye · amaç', false],
                 ['reports', '📜', 'Raporlar', rpUnread() ? rpUnread() + ' yeni mektup' : 'ulak mektupları', !rpReports.length],
-                ['market', '🛒', 'Market', 'kostüm · iksir', false],
+                ['market', '<i class="ic-market" aria-hidden="true"></i>', 'Market', 'kostüm · iksir', false],
+                ['profile', '🪪', 'Profil', 'süre · istatistik', false],
                 ['settings', '⚙️', 'Ayarlar', 'ses · görüntü', false],
                 ['map', '🗺️', 'Harita', 'kovanlarını gör', inMirrorArena],
                 ['install', '📲', 'Tam Ekran', isStandaloneApp() ? 'uygulama modu' : 'uygulama olarak yükle', isStandaloneApp()]
@@ -13049,6 +13082,7 @@
             else if (a === 'journal') openJournal();
             else if (a === 'skills') { closeMMenu(); openSkillTree(); return; }
             else if (a === 'market') openMarket();
+            else if (a === 'profile') { if (window.MPUI) MPUI.profile(); }
             else if (a === 'settings') openSettingsModal();
             else if (a === 'map') openBigMap();
             else if (a === 'cmds') { openCmd(); return; }
@@ -13091,6 +13125,8 @@
                 skins() { return skinsDB.filter(s => unlockedSkins.includes(s.id)).map(s => ({ id: s.id, name: s.name, icon: s.icon || '🐉', color: s.mainColor })); },
                 skinInfo(id) { const s = skinsDB.find(q => q.id === id) || skinsDB[0]; return { id: s.id, name: s.name, icon: s.icon || '🐉', color: s.mainColor }; },
                 activeSkin() { return activeTheme.id; },
+                playState() { return { active: !!gameActive, paused: !!isPaused, mp: !!B.matchActive }; },
+                profileStats() { let w = 1; try { w = worldsMeta.list.length; } catch (e) {} return { maxLevel: maxLevelReached, skins: unlockedSkins.length, skinTotal: skinsDB.length, worlds: w, coins: coins, level: level }; },
                 savedName() { return (dragonName && dragonName !== 'İsimsiz Börü') ? dragonName : (store.getItem('boruDragonName') || ''); },
                 startMatch(o) {
                     store.mem = new Map();
@@ -13539,6 +13575,6 @@
             playDeathSound = function (isBoss, x, y, type) { if (isBoss && B.matchActive) { cnt.bosses++; if (B.onBossKill) B.onBossKill(type); } return _pds.apply(this, arguments); };
         })();
     </script>
-    <script src="mp.js?v=4" defer></script>
+    <script src="mp.js?v=6" defer></script>
 </body>
 </html>

@@ -82,10 +82,11 @@
             const { data, error } = await sb.rpc('boru_upsert_profile', { p_id: me.id, p_secret: me.secret, p_name: me.name, p_dragon: me.skin });
             if (error) throw error;
             const row = Array.isArray(data) ? data[0] : data;
-            if (row) { me.code = row.code; LS.setItem('boruMpCode', me.code); S.profiles[me.id] = row; }
+            if (row) { me.code = row.code; LS.setItem('boruMpCode', me.code); S.profiles[me.id] = row; if (+row.play_seconds > PF.play) PF.play = +row.play_seconds; if (row.avatar && !LS.getItem('boruProfX')) { PF.avatar = row.avatar; PF.frame = FRAMES[row.frame] ? row.frame : PF.frame; PF.bio = row.bio || ''; } renderMenuProfile(); }
+            syncExtras(true);
         } catch (e) { console.warn('Profil kaydedilemedi', e); }
     }
-    const PROFILE_COLS = 'id,code,name,dragon,matches,wins,kills,boss_kills,hives,damage';
+    const PROFILE_COLS = 'id,code,name,dragon,matches,wins,kills,boss_kills,hives,damage,play_seconds,avatar,frame,max_level,bio';
     async function fetchProfiles(ids) {
         if (TEST || !ids.length) return;
         try { await loadSb(); const { data } = await sb.from('boru_profiles').select(PROFILE_COLS).in('id', ids); (data || []).forEach(r => { S.profiles[r.id] = r; }); render(); } catch (e) {}
@@ -99,6 +100,85 @@
         if (TEST) return;
         try { await loadSb(); const { data } = await sb.from('boru_matches').select('mode,duration_s,winner,results,created_at').eq('room', room).order('created_at', { ascending: false }).limit(1); S.lastMatch = data && data[0]; render(); } catch (e) {}
     }
+
+    // ------------------------------------------------------------------ PROFİL EKSTRALARI + OYNAMA SÜRESİ
+    // Süre yalnızca oyun gerçekten oynanırken (ekran açık, oyun duraklatılmamış) sayılır; tek oyunculu + çok oyunculu birlikte.
+    const AVATARS = ['🐉', '🐲', '🔥', '❄️', '🐍', '⚡', '🌑', '💀', '👑', '🦇', '🌋', '🌪️', '☄️', '🗡️', '🛡️', '🐺', '🦅', '🌙', '🧿', '👁️', '🦂', '🕷️', '🌊', '🪐'];
+    const FRAMES = {
+        ates: { name: 'Kor', a: '#ff7a00', b: '#ff2200', h: 0 },
+        buz: { name: 'Buzul', a: '#9ff3ff', b: '#0077ff', h: 1 },
+        zehir: { name: 'Zehir', a: '#b6ff3a', b: '#118800', h: 3 },
+        kan: { name: 'Kan Ayı', a: '#ff4466', b: '#5a0010', h: 6 },
+        altin: { name: 'Altın Taht', a: '#fff1a0', b: '#c98a00', h: 12 },
+        hiclik: { name: 'Hiçlik', a: '#d08bff', b: '#2a0066', h: 25 },
+        gokkusak: { name: 'Ejder Işığı', a: '#ff3c3c', b: '#3cf0ff', h: 50, rb: 1 }
+    };
+    const RANKS = [
+        { h: 0, name: 'Yumurta', ic: '🥚' }, { h: 1, name: 'Yavru Ejder', ic: '🐣' }, { h: 3, name: 'Genç Ejder', ic: '🦎' },
+        { h: 8, name: 'Savaşçı Ejder', ic: '🐉' }, { h: 20, name: 'Kadim Ejder', ic: '🐲' }, { h: 50, name: 'Ejder Lordu', ic: '🔥' }, { h: 100, name: 'SON KRAL', ic: '👑' }
+    ];
+    const PF = (() => { let o = {}; try { o = JSON.parse(LS.getItem('boruProfX') || '{}') || {}; } catch (e) {} return { avatar: o.avatar || '🐉', frame: FRAMES[o.frame] ? o.frame : 'ates', bio: o.bio || '', play: Math.max(0, +o.play || 0), sess: 0, days: o.days || {} }; })();
+    function savePF() { try { LS.setItem('boruProfX', JSON.stringify({ avatar: PF.avatar, frame: PF.frame, bio: PF.bio, play: Math.floor(PF.play), days: PF.days })); } catch (e) {} }
+    const hoursOf = (s) => s / 3600;
+    function rankOf(s) { const h = hoursOf(s); let r = RANKS[0], nx = null; for (let i = 0; i < RANKS.length; i++) { if (h >= RANKS[i].h) { r = RANKS[i]; nx = RANKS[i + 1] || null; } } return { r, nx, p: nx ? Math.min(1, (h - r.h) / (nx.h - r.h)) : 1 }; }
+    function frameOk(id, s) { const f = FRAMES[id]; return !!f && hoursOf(s) >= f.h; }
+    function fmtPlay(s) { s = Math.max(0, Math.floor(s || 0)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); if (!h) return m ? m + ' dk' : (s % 60) + ' sn'; return h + ' sa ' + m + ' dk'; }
+    function fmtPlayBig(s) { s = Math.max(0, Math.floor(s || 0)); return { h: Math.floor(s / 3600), m: Math.floor(s % 3600 / 60), s: s % 60 }; }
+    const todayKey = () => { const d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); };
+    function myPlay() { const p = S.profiles[me.id]; return Math.max(PF.play, (p && +p.play_seconds) || 0); }
+    function isPlaying() {
+        if (document.visibilityState !== 'visible') return false;
+        if (S.match && !S.match.over && S.screen === 'hud') return true;
+        try { const st = window.BORU && BORU.playState && BORU.playState(); return !!(st && st.active && !st.paused); } catch (e) { return false; }
+    }
+    let lastTick = performance.now(), saveCnt = 0;
+    setInterval(() => {
+        const now = performance.now(), dt = Math.min(5, (now - lastTick) / 1000); lastTick = now;
+        if (!isPlaying()) return;
+        const before = rankOf(PF.play).r;
+        PF.play += dt; PF.sess += dt;
+        const k = todayKey(); PF.days[k] = (PF.days[k] || 0) + dt;
+        const ks = Object.keys(PF.days); if (ks.length > 14) delete PF.days[ks[0]];
+        if (rankOf(PF.play).r !== before) { const r = rankOf(PF.play).r; toast(r.ic + ' Yeni rütbe: ' + r.name + '!', '#ffd24a'); }
+        if (++saveCnt % 10 === 0) savePF();
+        if (saveCnt % 120 === 0) syncExtras();
+        if (saveCnt % 30 === 0) renderMenuProfile();
+    }, 1000);
+    document.addEventListener('visibilitychange', () => { lastTick = performance.now(); if (document.visibilityState === 'hidden') { savePF(); syncExtras(true); } });
+    window.addEventListener('pagehide', savePF);
+    let syncT = 0, syncing = false;
+    async function syncExtras(force) {
+        savePF();
+        if (TEST || !me.code || syncing) return;
+        if (!force && Date.now() - syncT < 60000) return;
+        syncT = Date.now(); syncing = true;
+        let lvl = 1; try { lvl = BORU.profileStats().maxLevel || 1; } catch (e) {}
+        try {
+            await loadSb();
+            await sb.rpc('boru_sync_profile', { p_id: me.id, p_secret: me.secret, p_play_seconds: Math.floor(PF.play), p_avatar: PF.avatar, p_frame: PF.frame, p_level: lvl, p_bio: PF.bio });
+            const p = S.profiles[me.id]; if (p) { p.play_seconds = Math.max(+p.play_seconds || 0, Math.floor(PF.play)); p.avatar = PF.avatar; p.frame = PF.frame; p.bio = PF.bio; p.max_level = Math.max(p.max_level || 1, lvl); }
+        } catch (e) { console.warn('Profil eşitlenemedi', e); }
+        syncing = false;
+    }
+    // Profil satırı yoksa (test modu / henüz kayıt yok) yerel değerlerle göster
+    function localProfile() {
+        const p = S.profiles[me.id] || {}; let st = {}; try { st = BORU.profileStats(); } catch (e) {}
+        return Object.assign({ matches: 0, wins: 0, kills: 0, boss_kills: 0, hives: 0, damage: 0 }, p, {
+            id: me.id, name: me.name || p.name || 'İsimsiz Ejder', code: me.code || p.code || '', avatar: PF.avatar, frame: PF.frame, bio: PF.bio,
+            play_seconds: myPlay(), max_level: Math.max(p.max_level || 1, st.maxLevel || 1)
+        });
+    }
+    function avatarHtml(av, fr, size, extra) {
+        const f = FRAMES[fr] || FRAMES.ates;
+        return `<span class="mp-av ${f.rb ? 'rb' : ''} ${extra || ''}" style="--fa:${f.a};--fb:${f.b};--sz:${size || 44}px"><i>${esc(av || '🐉')}</i></span>`;
+    }
+    function renderMenuProfile() {
+        const el = document.getElementById('menuProfile'); if (!el) return;
+        const p = localProfile(), rk = rankOf(p.play_seconds);
+        el.style.display = 'flex';
+        el.innerHTML = `${avatarHtml(p.avatar, p.frame, 46)}<div><div class="nm">${esc(p.name)}</div><div class="sb">${rk.r.ic} ${rk.r.name} · ⏱ ${fmtPlay(p.play_seconds)}</div></div><span class="go">PROFİL ›</span>`;
+    }
+    window.BORU_PLAY = { total: () => myPlay(), fmt: fmtPlay };
 
     // ------------------------------------------------------------------ ODA BAĞLANTISI (lobi + sinyal)
     class SbRoom {
@@ -145,10 +225,55 @@
         leave() { clearInterval(this.iv); try { this.bc.postMessage({ __p: 1, id: me.id, bye: 1 }); this.bc.close(); } catch (e) {} }
     }
 
+    // ------------------------------------------------------------------ AÇIK LOBİ LİSTESİ
+    // Herkese açık lobiler tek bir Supabase Realtime "presence" kanalında duyurulur (veritabanı yok, ücretsiz).
+    // Lobiyi yalnızca oda sahibi duyurur; oda kapanınca / sahibi çıkınca liste kendiliğinden temizlenir.
+    const DIR = { ch: null, ready: false, list: [], last: null, opening: null };
+    function dirFlatten(st) { const out = []; for (const k in st) { const a = st[k]; if (a && a.length) { const v = a[a.length - 1]; if (v && v.code) out.push(v); } } return out; }
+    function dirSet(list) {
+        DIR.list = list.filter(l => l && l.code && l.code !== S.code).sort((a, b) => (a.phase === 'playing') - (b.phase === 'playing') || (b.n - a.n) || (b.t - a.t));
+        if (S.screen === 'home') render();
+    }
+    function dirOpen() {
+        if (DIR.ch || DIR.opening) return DIR.opening;
+        if (TEST) {
+            const bc = new BroadcastChannel('boru-test-dir'), seen = new Map();
+            const pub = () => { if (DIR.mine) bc.postMessage({ id: me.id, info: DIR.mine }); };
+            bc.onmessage = (e) => { const m = e.data; if (!m || !m.id) return; if (m.bye || !m.info) seen.delete(m.id); else seen.set(m.id, { info: m.info, t: Date.now() }); dirSet([...seen.values()].map(v => v.info)); };
+            setInterval(() => { pub(); const now = Date.now(); let ch = false; for (const [k, v] of seen) if (now - v.t > 4000) { seen.delete(k); ch = true; } if (ch) dirSet([...seen.values()].map(v => v.info)); }, 1000);
+            DIR.ch = { track(i) { DIR.mine = i; pub(); }, untrack() { DIR.mine = null; bc.postMessage({ id: me.id, bye: 1 }); } };
+            DIR.ready = true; dirUpdate(); return Promise.resolve();
+        }
+        DIR.opening = (async () => {
+            try {
+                await loadSb();
+                const ch = sb.channel('boru-lobiler', { config: { presence: { key: me.id } } });
+                ch.on('presence', { event: 'sync' }, () => dirSet(dirFlatten(ch.presenceState())));
+                DIR.ch = ch;
+                ch.subscribe((st) => { if (st === 'SUBSCRIBED') { DIR.ready = true; DIR.last = null; dirUpdate(); dirSet(dirFlatten(ch.presenceState())); } });
+            } catch (e) { DIR.opening = null; }
+        })();
+        return DIR.opening;
+    }
+    function dirUpdate() {
+        if (!DIR.ch || !DIR.ready) { if (S.room && S.pub && isHost()) dirOpen(); return; }
+        const want = S.room && S.pub && isHost() && S.members.length > 0;
+        if (want) {
+            const info = { code: S.code, lname: S.lname || ((me.name || 'Ejderha') + "'in lobisi"), mode: S.mode, n: S.members.length, max: MAX_PLAYERS, host: me.name, av: PF.avatar, fr: PF.frame,
+                phase: S.match && !S.match.over ? 'playing' : 'lobby', t: S.joinedAt || Date.now() };
+            const k = JSON.stringify(info); if (k === DIR.last) return; DIR.last = k;
+            try { DIR.ch.track(info); } catch (e) {}
+        } else if (DIR.last) { DIR.last = null; try { DIR.ch.untrack(); } catch (e) {} }
+    }
+    function quickJoin() {
+        const l = DIR.list.find(x => x.phase !== 'playing' && x.n < (x.max || MAX_PLAYERS));
+        if (l) joinRoom(l.code, false); else { S.create = true; S.err = 'Şu an boş yeri olan açık lobi yok — hemen bir tane kur, başkaları da katılsın!'; render(); }
+    }
+
     // ------------------------------------------------------------------ DURUM
     const S = {
         screen: 'home', room: null, code: '', members: [], hostId: null, mode: 'coop', ready: false, team: 0, joinedAt: 0,
-        profiles: {}, lastMatch: null, err: '', busy: false, match: null, lookup: null, seenEid: new Set()
+        profiles: {}, lastMatch: null, err: '', busy: false, match: null, lookup: null, seenEid: new Set(), pub: true, lname: '', chat: [], create: false, cMode: 'coop', cPriv: false, viewId: null, back: 'home'
     };
     const peers = new Map();
     const isHost = () => S.hostId === me.id;
@@ -156,10 +281,11 @@
     const nameOf = (id) => { if (id === me.id) return me.name; const r = S.match && S.match.roster.get(id); if (r) return r.name; const m = member(id); return m ? m.name : 'Ejderha'; };
     function myMeta() {
         return { id: me.id, code: me.code, name: me.name, skin: me.skin, ready: S.ready, team: S.team, joinedAt: S.joinedAt, mode: S.mode,
-            phase: S.match && !S.match.over ? 'playing' : 'lobby', mic: voice.on ? 1 : 0, rm: S.rmVote ? 1 : 0 };
+            phase: S.match && !S.match.over ? 'playing' : 'lobby', mic: voice.on ? 1 : 0, rm: S.rmVote ? 1 : 0,
+            pub: S.pub ? 1 : 0, lname: S.lname || '', av: PF.avatar, fr: PF.frame, ps: Math.floor(myPlay()) };
     }
     let trackT = null;
-    function pushMeta() { clearTimeout(trackT); trackT = setTimeout(() => { if (S.room) S.room.track(myMeta()); }, 60); }
+    function pushMeta() { clearTimeout(trackT); trackT = setTimeout(() => { if (S.room) S.room.track(myMeta()); dirUpdate(); }, 60); }
 
     // ------------------------------------------------------------------ SES
     // İki yol: (1) doğrudan WebRTC ses kanalı (en iyi kalite, en az gecikme). (2) Doğrudan bağlantı kurulamayan
@@ -393,6 +519,7 @@
             case 'bhgo': if (M && M.mode === 'coop' && window.BORU && M.startedAt && !M.over) { feed('🕳️ ' + nameOf(m.from) + ' kara deliğe girdi — herkes içeri çekiliyor!', '#b77bff'); BORU.netEnterBH(m.lvl); } break;
             case 'bhwin': if (M && M.mode === 'coop' && window.BORU) { feed('🏆 Kara delik bossu yenildi!', '#ffd24a'); BORU.netBhWin(m.lvl); } break;
             case 'bd': if (M && M.mode === 'coop' && window.BORU && BORU.bhIsAuth()) BORU.bossDamageIn(m.d); break;
+            case 'chat': addChat(m.from, m.txt); break;
             case 'rm': if (M && M.over) { M.rm.add(m.from); if (isHost()) toast('🔁 ' + nameOf(m.from) + ' yeniden oynamak istiyor', '#ffd24a'); render(); checkRematchVotes(); } break;
         }
     }
@@ -400,7 +527,7 @@
     // ------------------------------------------------------------------ ODA GİRİŞ / ÇIKIŞ
     const CODE_CH = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     function newCode() { let s = ''; for (let i = 0; i < 5; i++) s += CODE_CH[Math.floor(Math.random() * CODE_CH.length)]; return s; }
-    async function joinRoom(code, creating) {
+    async function joinRoom(code, creating, opts) {
         code = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
         if (code.length < 4) { S.err = 'Oda kodu en az 4 karakter olmalı.'; render(); return; }
         if (!me.name.trim()) { S.err = 'Önce ejderhana bir isim ver.'; render(); return; }
@@ -408,7 +535,10 @@
         try {
             await Promise.all([saveProfile(), prepTurn()]);
             const room = TEST ? new TestRoom(code) : new SbRoom(code);
-            S.code = code; S.joinedAt = Date.now(); S.ready = false; S.mode = 'coop'; S.team = 0;
+            S.code = code; S.joinedAt = Date.now(); S.ready = false; S.mode = opts && opts.mode && MODES[opts.mode] ? opts.mode : 'coop'; S.team = 0;
+            if (creating) { S.pub = !(opts && opts.priv); S.lname = ((opts && opts.lname) || '').slice(0, 24); try { sessionStorage.setItem('boruLobby_' + code, JSON.stringify({ pub: S.pub, lname: S.lname })); } catch (e) {} }
+            else { let o = null; try { o = JSON.parse(sessionStorage.getItem('boruLobby_' + code) || 'null'); } catch (e) {} S.pub = !!(o && o.pub); S.lname = (o && o.lname) || ''; }
+            S.chat = [];
             S.room = room;
             let first = true;
             await room.join(myMeta(), onRoomMsg, (members) => {
@@ -421,32 +551,56 @@
             });
             S.screen = 'lobby'; S.busy = false;
             try { const u = new URL(location.href); u.searchParams.set('oda', code); history.replaceState(null, '', u.toString()); } catch (e) {}
-            fetchLastMatch(code); render();
+            fetchLastMatch(code); dirUpdate(); render();
         } catch (e) { S.busy = false; S.room = null; S.err = e.message || 'Bağlanılamadı.'; render(); }
     }
     function leaveRoom() {
         if (S.room) S.room.leave(); S.room = null;
         for (const p of peers.values()) p.close(); peers.clear();
-        S.members = []; S.screen = 'home'; S.hostId = null;
+        S.members = []; S.screen = 'home'; S.hostId = null; dirUpdate();
         try { const u = new URL(location.href); u.searchParams.delete('oda'); history.replaceState(null, '', u.toString()); } catch (e) {}
         render();
     }
     window.addEventListener('pagehide', () => { if (S.room) S.room.leave(); });
     function onSync(members) {
         const uniq = new Map(); for (const m of members) if (m && m.id) uniq.set(m.id, m);
+        const prevIds = new Set(S.members.map(m => m.id));
         S.members = [...uniq.values()].sort((a, b) => (a.joinedAt - b.joinedAt) || (a.id < b.id ? -1 : 1));
+        if (S.screen === 'lobby' && prevIds.size) {
+            for (const m of S.members) if (!prevIds.has(m.id) && m.id !== me.id) { sysChat('➕ ' + m.name + ' lobiye katıldı'); beep(660); }
+            const now = new Set(S.members.map(m => m.id)); for (const id of prevIds) if (!now.has(id)) { const pm = S.profiles[id]; sysChat('➖ ' + ((pm && pm.name) || 'Bir oyuncu') + ' ayrıldı'); }
+        }
         const host = S.members[0]; S.hostId = host ? host.id : me.id;
         if (host && host.id !== me.id && host.mode && host.mode !== S.mode) { S.mode = host.mode; if (S.mode !== 'team') S.team = 0; else autoTeam(); }
+        if (host && host.id !== me.id) { S.pub = !!host.pub; S.lname = host.lname || ''; }
         syncPeers();
         const need = S.members.map(m => m.id).filter(id => !S.profiles[id]); if (need.length) fetchProfiles(need);
         if (S.match && !S.match.over) checkEnd();
         if (S.match && S.match.over) checkRematchVotes();
-        render();
+        dirUpdate(); render();
     }
     function autoTeam() {
         const c = [0, 0]; for (const m of S.members) if (m.id !== me.id) c[m.team === 1 ? 1 : 0]++;
         S.team = c[1] < c[0] ? 1 : 0;
     }
+
+    // ------------------------------------------------------------------ LOBİ SOHBETİ
+    function addChat(from, txt) {
+        txt = String(txt || '').replace(/\s+/g, ' ').trim().slice(0, 140); if (!txt) return;
+        S.chat.push({ from, name: from === me.id ? me.name : nameOf(from), txt, ts: Date.now() });
+        if (S.chat.length > 40) S.chat.shift();
+        if (from !== me.id) { S.unread = (S.unread || 0) + 1; beep(880); }
+        render(); setTimeout(scrollChat, 0);
+    }
+    function sysChat(txt) { S.chat.push({ sys: 1, txt, ts: Date.now() }); if (S.chat.length > 40) S.chat.shift(); setTimeout(scrollChat, 0); }
+    function scrollChat() { const c = $('#mpChatLog'); if (c) c.scrollTop = c.scrollHeight; }
+    function sendChat(txt) {
+        txt = String(txt || '').trim().slice(0, 140); if (!txt || !S.room) return;
+        const now = Date.now(); if (now - (S.chatT || 0) < 600) return; S.chatT = now;
+        const msg = { t: 'chat', txt, eid: uid().slice(0, 12) };
+        S.room.send(Object.assign({ from: me.id }, msg)); addChat(me.id, txt);
+    }
+    function beep(f) { try { const ac = getAC(); if (!ac) return; const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = f; o.type = 'sine'; g.gain.setValueAtTime(0.0001, ac.currentTime); g.gain.exponentialRampToValueAtTime(0.08, ac.currentTime + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.18); o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + 0.2); } catch (e) {} }
 
     // ------------------------------------------------------------------ LOBİ KONTROLLERİ
     function setMode(mode) { if (!isHost() || !MODES[mode]) return; S.mode = mode; if (mode === 'team') autoTeam(); pushMeta(); render(); }
@@ -765,6 +919,115 @@
     body.m #mpChips{gap:8px;max-width:68vw}
     body.m #mpChips .c{padding:4px 8px;font-size:11px}
     @media (orientation:landscape) and (max-height:520px){body.m #mpHud{top:calc(env(safe-area-inset-top,0px) + 50px)}body.m #mpChips{max-width:50vw}}
+    /* ---- v6: profil, açık lobiler, sohbet ---- */
+    #mpRoot .mp-scr{background:radial-gradient(ellipse 120% 60% at 50% -10%,#3a1306 0%,#170806 45%,#070508 80%)}
+    #mpRoot .mp-scr::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:.5;background-image:radial-gradient(2px 2px at 12% 80%,#ff7a2a,transparent),radial-gradient(1.5px 1.5px at 30% 60%,#ffb14a,transparent),radial-gradient(2px 2px at 70% 90%,#ff5a00,transparent),radial-gradient(1px 1px at 85% 50%,#ffd27a,transparent),radial-gradient(1.5px 1.5px at 50% 75%,#ff8a3a,transparent);background-size:100% 100%;animation:mpEmb 9s linear infinite}
+    @keyframes mpEmb{from{transform:translateY(0)}to{transform:translateY(-60px);opacity:.15}}
+    #mpRoot .mp-wrap{position:relative}
+    #mpRoot h2 .mp-h2i{display:inline-block;filter:drop-shadow(0 0 8px #ff6a00);animation:mkBob 2.6s ease-in-out infinite}
+    #mpRoot .mp-card{backdrop-filter:blur(2px);background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025))}
+    #mpRoot .mp-card.glow{border-color:rgba(255,170,51,.5);box-shadow:0 0 22px rgba(255,90,0,.15),inset 0 1px 0 rgba(255,255,255,.06)}
+    #mpRoot .mp-card h3{display:flex;align-items:center;gap:8px}
+    .mp-av{--sz:44px;position:relative;width:var(--sz);height:var(--sz);flex:0 0 auto;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:conic-gradient(from 0deg,var(--fa),var(--fb),var(--fa),var(--fb),var(--fa));padding:3px;box-sizing:border-box;box-shadow:0 0 12px color-mix(in srgb,var(--fa) 55%,transparent)}
+    .mp-av i{font-style:normal;width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 30%,#3a1a0c,#0a0503 75%);font-size:calc(var(--sz) * .52);line-height:1}
+    .mp-av.rb{background:conic-gradient(#ff3c3c,#ffb43c,#f4ff3c,#3cff7a,#3cf0ff,#7a3cff,#ff3cc8,#ff3c3c);animation:mpSpin 4s linear infinite}
+    .mp-av.rb i{animation:mpSpin 4s linear infinite reverse}
+    .mp-av.big{box-shadow:0 0 30px var(--fa),0 0 60px color-mix(in srgb,var(--fb) 50%,transparent);padding:5px}
+    .mp-av.empty{background:rgba(255,255,255,.08);box-shadow:none}
+    .mp-av.empty i{background:rgba(0,0,0,.4);color:#666;font-size:22px}
+    @keyframes mpSpin{to{transform:rotate(360deg)}}
+    #mpRoot .mp-me{display:flex;align-items:center;gap:12px;cursor:pointer}
+    #mpRoot .mp-me-t{flex:1;min-width:0}
+    #mpRoot .mp-me .nm{font-weight:bold;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #mpRoot .mp-me .rk{font-size:12px;color:#ffd24a;font-weight:bold;margin-top:1px}
+    #mpRoot .mp-me .sub{font-size:11px;color:#aaa;margin-top:3px}
+    #mpRoot .mp-chev{font-size:28px;color:#ffaa33;opacity:.8}
+    #mpRoot .mp-xp{height:6px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:5px}
+    #mpRoot .mp-xp i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,#ff5a00,#ffd24a);box-shadow:0 0 8px #ff8a00}
+    #mpRoot .mp-xp.big{height:10px;margin:10px 0 6px}
+    #mpRoot .mp-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+    #mpRoot .mp-tile{border-radius:14px;padding:14px 8px;border:1px solid;color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:inherit;transition:transform .15s,box-shadow .2s;-webkit-tap-highlight-color:transparent}
+    #mpRoot .mp-tile:active{transform:scale(.97)}
+    #mpRoot .mp-tile .i{font-size:30px;filter:drop-shadow(0 0 8px currentColor)}
+    #mpRoot .mp-tile b{font-size:15px;letter-spacing:1px}
+    #mpRoot .mp-tile small{font-size:11px;color:#ccc}
+    #mpRoot .mp-tile:disabled{opacity:.5}
+    #mpRoot .t-quick{background:linear-gradient(160deg,rgba(255,200,0,.25),rgba(120,40,0,.35));border-color:#ffcc33;color:#ffe9a8}
+    #mpRoot .t-new{background:linear-gradient(160deg,rgba(255,80,0,.28),rgba(80,0,0,.35));border-color:#ff6a1a;color:#ffd0b0}
+    #mpRoot .mp-tile.sel{box-shadow:0 0 18px rgba(255,106,26,.6)}
+    #mpRoot .mp-create{animation:mpIn .2s ease-out}
+    #mpRoot .mp-seg{display:flex;gap:6px;flex-wrap:wrap}
+    #mpRoot .mp-seg button{flex:1;min-width:90px;background:rgba(0,0,0,.35);border:1px solid #553311;color:#ddd;border-radius:9px;padding:9px 6px;font-size:13px;font-weight:bold;cursor:pointer;font-family:inherit}
+    #mpRoot .mp-seg button.sel{border-color:#ffaa33;background:rgba(255,120,0,.22);color:#fff;box-shadow:0 0 10px rgba(255,120,0,.35)}
+    #mpRoot .mp-btn.sm{padding:8px 14px;font-size:13px}
+    #mpRoot .mp-lob{display:flex;align-items:center;gap:10px;padding:9px;border-radius:12px;background:rgba(0,0,0,.32);margin-bottom:7px;border:1px solid rgba(255,255,255,.06);animation:mpIn .25s ease-out}
+    #mpRoot .mp-lob.off{opacity:.55}
+    #mpRoot .mp-lob-t{flex:1;min-width:0}
+    #mpRoot .mp-lob .nm{font-weight:bold;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    #mpRoot .mp-lob .sub{font-size:11px;color:#aaa;margin-top:2px}
+    #mpRoot .mtag{display:inline-block;border-radius:6px;padding:1px 6px;margin-right:4px;font-weight:bold;color:#fff;background:#444}
+    #mpRoot .mtag.m-coop{background:#0a5a3a}#mpRoot .mtag.m-ffa{background:#7a1a10}#mpRoot .mtag.m-team{background:#1a3a7a}
+    #mpRoot .mp-dots{display:flex;gap:3px;align-items:center;margin-top:5px}
+    #mpRoot .mp-dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.12)}
+    #mpRoot .mp-dots i.on{background:#ffaa33;box-shadow:0 0 6px #ff8800}
+    #mpRoot .mp-dots b{font-size:11px;color:#ccc;margin-left:4px}
+    #mpRoot .mp-pill{font-size:11px;font-weight:bold;padding:5px 9px;border-radius:8px;background:#333;color:#bbb;white-space:nowrap}
+    #mpRoot .mp-pill.warn{background:#5a3a00;color:#ffd24a}
+    #mpRoot .mp-live{margin-left:auto;font-size:10px;color:#33ff99;font-weight:bold;letter-spacing:1px;animation:mpBlink 1.6s ease-in-out infinite}
+    @keyframes mpBlink{50%{opacity:.4}}
+    #mpRoot .mp-empty{text-align:center;color:#aaa;font-size:13px;padding:14px 6px;line-height:1.6}
+    #mpRoot .mp-spin{display:inline-block;width:12px;height:12px;border:2px solid #ffaa33;border-right-color:transparent;border-radius:50%;animation:mpSpin .8s linear infinite;vertical-align:-2px}
+    #mpRoot .mp-pl{transition:box-shadow .2s}
+    #mpRoot .mp-pl.isr{box-shadow:inset 0 0 0 1px rgba(51,255,153,.35),0 0 12px rgba(51,255,153,.12)}
+    #mpRoot .mp-pl.ghost{opacity:.45;border-left-style:dashed}
+    #mpRoot .mp-pl-t{cursor:pointer;min-width:0}
+    #mpRoot .mp-pl .you{font-size:10px;background:#ffd24a;color:#000;border-radius:5px;padding:1px 5px;vertical-align:2px}
+    #mpRoot .mp-code{cursor:pointer}
+    #mpRoot .mp-hero{position:relative;text-align:center;padding:26px 10px 16px;margin:-6px 0 12px;border-radius:16px;overflow:hidden;border:1px solid color-mix(in srgb,var(--fa) 45%,transparent)}
+    #mpRoot .mp-hero-bg{position:absolute;inset:0;background:radial-gradient(circle at 50% 35%,color-mix(in srgb,var(--fa) 35%,transparent),transparent 60%),radial-gradient(circle at 50% 120%,color-mix(in srgb,var(--fb) 45%,transparent),transparent 60%),#0c0606;z-index:-1}
+    #mpRoot .mp-hero-n{font-size:26px;font-weight:900;letter-spacing:1px;margin-top:12px;text-shadow:0 0 14px var(--fa)}
+    #mpRoot .mp-hero-r{font-size:14px;color:#ffd24a;font-weight:bold;margin:2px 0 8px;letter-spacing:1px}
+    #mpRoot .mp-bio{font-style:italic;color:#ddd;font-size:13px;margin-top:10px;font-family:Georgia,serif}
+    #mpRoot .mp-time{text-align:center;border-color:rgba(255,210,74,.45)}
+    #mpRoot .mp-time .lbl{font-size:11px;letter-spacing:2px;color:#ffcc88;font-weight:bold}
+    #mpRoot .mp-time .big{display:flex;justify-content:center;align-items:baseline;gap:4px;margin-top:4px}
+    #mpRoot .mp-time .big b{font-size:44px;font-family:monospace;color:#fff;text-shadow:0 0 16px #ff8800}
+    #mpRoot .mp-time .big b.sec{font-size:26px;color:#ffcc88}
+    #mpRoot .mp-time .big small{font-size:12px;color:#aaa;margin-right:8px}
+    #mpRoot .mp-time .sub{font-size:12px;color:#ccc}
+    #mpRoot .mp-week{display:flex;justify-content:space-between;align-items:flex-end;height:66px;margin-top:12px;gap:6px}
+    #mpRoot .mp-week div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px}
+    #mpRoot .mp-week i{width:100%;max-width:26px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,#ffd24a,#ff5a00)}
+    #mpRoot .mp-week span{font-size:10px;color:#999}
+    #mpRoot .mp-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+    #mpRoot .mp-tl{background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:9px 4px;text-align:center}
+    #mpRoot .mp-tl .v{font-size:16px;font-weight:bold;white-space:nowrap}
+    #mpRoot .mp-tl .l{font-size:9px;color:#aaa;letter-spacing:1px;margin-top:3px}
+    #mpRoot .mp-ranks{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;touch-action:pan-x!important}
+    #mpRoot .mp-ranks div{flex:0 0 auto;min-width:74px;text-align:center;border-radius:10px;padding:8px 4px;background:rgba(0,0,0,.35);border:1px solid #333;opacity:.45;touch-action:pan-x!important}
+    #mpRoot .mp-ranks div.got{opacity:1;border-color:#664422}
+    #mpRoot .mp-ranks div.cur{border-color:#ffd24a;box-shadow:0 0 12px rgba(255,210,74,.4);background:rgba(255,170,0,.12)}
+    #mpRoot .mp-ranks span{font-size:24px;display:block}
+    #mpRoot .mp-ranks b{display:block;font-size:11px;margin-top:2px}
+    #mpRoot .mp-ranks small{font-size:10px;color:#999}
+    #mpRoot .mp-avs{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+    #mpRoot .mp-avs button{aspect-ratio:1;font-size:22px;border-radius:10px;background:rgba(0,0,0,.35);border:1px solid #333;cursor:pointer;padding:0}
+    #mpRoot .mp-avs button.sel{border-color:#ffaa33;background:rgba(255,120,0,.25);box-shadow:0 0 10px rgba(255,120,0,.5)}
+    #mpRoot .mp-frs{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+    #mpRoot .mp-frs button{display:flex;flex-direction:column;align-items:center;gap:4px;background:rgba(0,0,0,.35);border:1px solid #333;border-radius:12px;padding:10px 4px;color:#fff;cursor:pointer;font-family:inherit}
+    #mpRoot .mp-frs button b{font-size:12px}
+    #mpRoot .mp-frs button small{font-size:10px;color:#aaa}
+    #mpRoot .mp-frs button.sel{border-color:#ffd24a;background:rgba(255,170,0,.15)}
+    #mpRoot .mp-frs button.lock{opacity:.5;filter:grayscale(.7);cursor:default}
+    #mpRoot .mp-chat{height:150px;overflow-y:auto;background:rgba(0,0,0,.4);border-radius:10px;padding:8px;font-size:13px;line-height:1.45;touch-action:pan-y!important}
+    #mpRoot .mp-chat div{margin-bottom:3px;word-wrap:break-word}
+    #mpRoot .mp-chat b{color:#ffcc88}
+    #mpRoot .mp-chat .me b{color:#8dffcf}
+    #mpRoot .mp-chat .sys{color:#888;font-size:12px;font-style:italic}
+    #mpRoot .mp-quick{display:flex;gap:5px;overflow-x:auto;margin-top:6px;touch-action:pan-x!important}
+    #mpRoot .mp-quick button{flex:0 0 auto;background:rgba(255,255,255,.07);border:1px solid #444;color:#ddd;border-radius:14px;padding:5px 10px;font-size:12px;cursor:pointer;touch-action:pan-x!important}
+    @media (max-width:520px){#mpRoot .mp-tiles{grid-template-columns:repeat(2,1fr)}#mpRoot .mp-avs{grid-template-columns:repeat(6,1fr)}#mpRoot .mp-time .big b{font-size:36px}}
+    @keyframes mkBob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-3px) rotate(4deg)}}
     @media (max-width:520px){#mpRoot .mp-modes{grid-template-columns:1fr}#mpRoot .mp-mode{display:flex;align-items:center;gap:10px;text-align:left}#mpRoot .mp-mode b{margin:0}#mpRoot .mp-code{font-size:30px}}
     `;
     let touchDown = false, scrollT = null;
@@ -783,6 +1046,7 @@
         $('#mpChips').addEventListener('click', (e) => { const c = e.target.closest('.c'); if (c && c.dataset.id) toggleMute(c.dataset.id); });
         $('#mpRoot').addEventListener('click', onClick);
         $('#mpRoot').addEventListener('input', onInput);
+        $('#mpRoot').addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.id === 'mpChatIn') { e.preventDefault(); sendChat(e.target.value); e.target.value = ''; } else if (e.key === 'Enter' && e.target.id === 'mpJoinCode') joinRoom(e.target.value, false); });
         const rt = $('#mpRoot');
         rt.addEventListener('pointerdown', () => { touchDown = true; }, { passive: true });
         const up = () => { if (!touchDown) return; touchDown = false; if (render.pending) setTimeout(render, 60); };
@@ -800,46 +1064,123 @@
     }
     function statsLine(p) {
         if (!p) return '<div class="mp-stats"><span>Skor yükleniyor…</span></div>';
-        return `<div class="mp-stats"><span>🎮 ${p.matches} maç</span><span>🏆 ${p.wins} galibiyet</span><span>🔥 ${p.kills} öldürme</span><span>👑 ${p.boss_kills} boss</span><span>🏰 ${p.hives} kovan</span></div>`;
+        return `<div class="mp-stats"><span>⏱ ${fmtPlay(p.play_seconds || 0)}</span><span>🎮 ${p.matches || 0} maç</span><span>🏆 ${p.wins || 0} galibiyet</span><span>🔥 ${p.kills || 0} öldürme</span><span>👑 ${p.boss_kills || 0} boss</span><span>🏰 ${p.hives || 0} kovan</span></div>`;
     }
     function skinCard(id) { return window.BORU ? BORU.skinInfo(id || 'magma') : { icon: '🐉', name: id, color: '#fff' }; }
+    function profOf(id) { if (id === me.id) return localProfile(); const p = S.profiles[id], m = member(id); if (!p && !m) return null; return Object.assign({ name: m ? m.name : 'Ejderha', code: m ? m.code : '', avatar: m && m.av, frame: m && m.fr, play_seconds: m && m.ps, matches: 0, wins: 0, kills: 0, boss_kills: 0, hives: 0, damage: 0, max_level: 1 }, p || {}); }
 
     function render() {
         if (!$('#mpRoot')) return;
         const root = $('#mpRoot'), body = $('#mpBody');
-        root.classList.toggle('on', ['home', 'lobby', 'end'].includes(S.screen) && S.open);
+        root.classList.toggle('on', ['home', 'lobby', 'end', 'profile'].includes(S.screen) && S.open);
         $('#mpCount').classList.toggle('on', S.screen === 'count');
         $('#mpHud').classList.toggle('on', S.screen === 'hud');
         if (S.screen === 'count') { $('#mpCountLbl').textContent = MODES[S.mode].icon + ' ' + MODES[S.mode].name; }
         if (S.screen === 'hud') { renderHud(); return; }
         if (!S.open) return;
         const focus = document.activeElement && document.activeElement.id;
-        const html = S.screen === 'home' ? homeHtml() : S.screen === 'lobby' ? lobbyHtml() : S.screen === 'end' ? endHtml() : '';
+        const html = S.screen === 'home' ? homeHtml() : S.screen === 'lobby' ? lobbyHtml() : S.screen === 'end' ? endHtml() : S.screen === 'profile' ? profileHtml() : '';
         if (html === render.last) return; // aynıysa DOM'a dokunma: dokunuşlar kaybolmasın
         if (touchDown) { render.pending = true; return; } // parmak ekrandayken butonları değiştirme: dokunuş kaybolmasın
         render.pending = false;
+        const keep = {}; body.querySelectorAll('input,textarea').forEach(i => { if (i.id) keep[i.id] = i.value; });
+        const chatAtEnd = (() => { const c = $('#mpChatLog'); return !c || c.scrollHeight - c.scrollTop - c.clientHeight < 40; })();
         render.last = html; body.innerHTML = html;
-        if (focus) { const el = document.getElementById(focus); if (el && el.tagName === 'INPUT') { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {} } }
+        for (const id in keep) { const el = document.getElementById(id); if (el && el.dataset.keep !== undefined) el.value = keep[id]; }
+        if (chatAtEnd) scrollChat();
+        if (focus) { const el = document.getElementById(focus); if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {} } }
+    }
+    function profileMini(p, extra) {
+        const rk = rankOf(p.play_seconds || 0);
+        return `<div class="mp-me" data-a="profile">${avatarHtml(p.avatar, p.frame, 58)}
+            <div class="mp-me-t"><div class="nm">${esc(p.name)}</div><div class="rk">${rk.r.ic} ${rk.r.name}</div>
+            <div class="mp-xp"><i style="width:${Math.round(rk.p * 100)}%"></i></div><div class="sub">⏱ ${fmtPlay(p.play_seconds)} oynandı${rk.nx ? ' · ' + rk.nx.ic + ' ' + rk.nx.name + ': ' + rk.nx.h + ' saat' : ''}</div></div>
+            ${extra || '<span class="mp-chev">›</span>'}</div>`;
+    }
+    function lobbyRow(l) {
+        const md = MODES[l.mode] || MODES.coop, full = l.n >= (l.max || MAX_PLAYERS), play = l.phase === 'playing';
+        const dots = Array.from({ length: l.max || MAX_PLAYERS }, (_, i) => `<i class="${i < l.n ? 'on' : ''}"></i>`).join('');
+        return `<div class="mp-lob ${play || full ? 'off' : ''}">
+            ${avatarHtml(l.av, l.fr, 40)}
+            <div class="mp-lob-t"><div class="nm">${esc(l.lname)}</div><div class="sub"><span class="mtag m-${esc(l.mode)}">${md.icon} ${md.name}</span> 👑 ${esc(l.host || '')}</div><div class="mp-dots">${dots}<b>${l.n}/${l.max || MAX_PLAYERS}</b></div></div>
+            ${play ? '<span class="mp-pill warn">⚔️ MAÇTA</span>' : full ? '<span class="mp-pill">DOLU</span>' : `<button class="mp-btn go sm" data-a="joinc" data-c="${esc(l.code)}" ${S.busy ? 'disabled' : ''}>KATIL</button>`}</div>`;
     }
     function homeHtml() {
-        const p = S.profiles[me.id];
+        const p = localProfile();
+        const open = DIR.list.filter(l => l.phase !== 'playing' && l.n < (l.max || MAX_PLAYERS)).length;
+        const list = !DIR.ready ? '<div class="mp-empty"><span class="mp-spin"></span> Lobiler yükleniyor…</div>'
+            : DIR.list.length ? DIR.list.slice(0, 20).map(lobbyRow).join('') : '<div class="mp-empty">🌙 Şu an açık lobi yok.<br><b>İlk lobiyi sen kur</b>, diğer oyuncular buradan görüp katılsın!</div>';
+        const cm = S.cMode;
         return `<button class="mp-x" data-a="close">✖</button>
-        <h2>👥 ARKADAŞLARLA OYNA</h2>
-        <div class="mp-card"><h3>🐉 Profilin</h3>
-            <div class="mp-row"><input id="mpName" maxlength="14" placeholder="Ejderhanın adı" value="${esc(me.name)}"><span class="mp-id" data-a="copyid" title="Kopyala">${esc(me.code || 'ID alınıyor…')}</span></div>
-            ${statsLine(p)}
+        <h2><span class="mp-h2i">⚔️</span> ÇEVRİMİÇİ SAVAŞ</h2>
+        <div class="mp-card glow">${profileMini(p)}
+            <div class="mp-row" style="margin-top:10px"><input id="mpName" maxlength="14" placeholder="Ejderhanın adı" value="${esc(me.name)}" data-keep><span class="mp-id" data-a="copyid" title="Kopyala">${esc(me.code || (TEST ? 'TEST' : 'ID alınıyor…'))}</span></div>
         </div>
-        <div class="mp-card"><h3>🏠 Lobi</h3>
-            <button class="mp-btn go big" data-a="create" ${S.busy ? 'disabled' : ''}>➕ YENİ LOBİ KUR</button>
-            <div class="mp-row" style="margin-top:10px"><input id="mpJoinCode" maxlength="6" placeholder="Oda kodu (ör. K7M2Q)" style="text-transform:uppercase"><button class="mp-btn blue" data-a="join" ${S.busy ? 'disabled' : ''}>🚪 KATIL</button></div>
-            ${S.busy ? '<div class="mp-desc">Bağlanıyor…</div>' : ''}
-            ${S.err ? `<div class="mp-err">${esc(S.err)}</div>` : ''}
+        <div class="mp-grid2">
+            <button class="mp-tile t-quick" data-a="quick" ${S.busy ? 'disabled' : ''}><span class="i">⚡</span><b>HIZLI KATIL</b><small>${open ? open + ' açık lobi' : 'boş lobi ara'}</small></button>
+            <button class="mp-tile t-new ${S.create ? 'sel' : ''}" data-a="togglecreate"><span class="i">➕</span><b>LOBİ KUR</b><small>adı · mod · gizlilik</small></button>
+        </div>
+        ${S.create ? `<div class="mp-card mp-create"><h3>🏗️ Yeni lobi</h3>
+            <input id="mpLName" maxlength="24" placeholder="${esc((me.name || 'Ejderha') + "'in lobisi")}" data-keep style="width:100%">
+            <div class="mp-seg" style="margin-top:8px">${Object.keys(MODES).map(k => `<button class="${cm === k ? 'sel' : ''}" data-a="cmode" data-m="${k}">${MODES[k].icon} ${MODES[k].name}</button>`).join('')}</div>
+            <div class="mp-seg" style="margin-top:8px"><button class="${!S.cPriv ? 'sel' : ''}" data-a="cpriv" data-v="0">🌐 Herkese açık</button><button class="${S.cPriv ? 'sel' : ''}" data-a="cpriv" data-v="1">🔒 Sadece kodla</button></div>
+            <div class="mp-desc">${S.cPriv ? 'Lobi listede görünmez, sadece oda kodunu bilenler girer.' : 'Lobi aşağıdaki listede herkese görünür.'}</div>
+            <button class="mp-btn go big" style="margin-top:8px" data-a="create" ${S.busy ? 'disabled' : ''}>🔥 LOBİYİ KUR</button></div>` : ''}
+        ${S.busy ? '<div class="mp-desc"><span class="mp-spin"></span> Bağlanıyor…</div>' : ''}
+        ${S.err ? `<div class="mp-err">${esc(S.err)}</div>` : ''}
+        <div class="mp-card"><h3>🌐 Açık Lobiler <span class="mp-live">● CANLI</span></h3>${list}</div>
+        <div class="mp-card"><h3>🔑 Kodla katıl</h3>
+            <div class="mp-row"><input id="mpJoinCode" maxlength="6" placeholder="Oda kodu (ör. K7M2Q)" style="text-transform:uppercase" data-keep><button class="mp-btn blue" data-a="join" ${S.busy ? 'disabled' : ''}>🚪 KATIL</button></div>
         </div>
         <div class="mp-card"><h3>🔎 Arkadaşını ID ile bul</h3>
-            <div class="mp-row"><input id="mpFind" placeholder="BÖRÜ-1234"><button class="mp-btn" data-a="find">Ara</button></div>
-            ${S.lookup ? (S.lookup.none ? '<div class="mp-desc">Bu ID ile oyuncu bulunamadı.</div>' : `<div class="mp-pl" style="margin-top:8px"><span class="ic">${skinCard(S.lookup.dragon).icon}</span><div><div class="nm">${esc(S.lookup.name)} <span class="sub">${esc(S.lookup.code)}</span></div>${statsLine(S.lookup)}</div></div><div class="mp-desc">Onu oyuna çağırmak için lobi kur ve oda kodunu gönder.</div>`) : ''}
+            <div class="mp-row"><input id="mpFind" placeholder="BÖRÜ-1234" data-keep><button class="mp-btn" data-a="find">Ara</button></div>
+            ${S.lookup ? (S.lookup.none ? '<div class="mp-desc">Bu ID ile oyuncu bulunamadı.</div>' : `<div style="margin-top:8px">${profileMini(Object.assign({}, S.lookup), '<span class="mp-chev">›</span>').replace('data-a="profile"', 'data-a="viewp" data-id="' + esc(S.lookup.id) + '"')}</div><div class="mp-desc">Onu oyuna çağırmak için lobi kur ve oda kodunu gönder.</div>`) : ''}
         </div>
-        <div class="mp-desc">Ücretsiz. Aynı haritada telefon, tablet ve bilgisayardan birlikte oynayabilirsiniz. Maçlar kendi dünyandaki ilerlemeni değiştirmez.</div>`;
+        <div class="mp-desc">Ücretsiz. Telefon, tablet ve bilgisayardan aynı haritada birlikte oynayın. Maçlar kendi dünyandaki ilerlemeni değiştirmez.</div>`;
+    }
+    function profileHtml() {
+        const own = !S.viewId || S.viewId === me.id;
+        const p = own ? localProfile() : (S.profiles[S.viewId] || (S.lookup && S.lookup.id === S.viewId ? S.lookup : null) || profOf(S.viewId));
+        if (!p) return `<button class="mp-x" data-a="pback">✖</button><h2>PROFİL</h2><div class="mp-empty">Profil bulunamadı.</div>`;
+        const ps = +p.play_seconds || 0, rk = rankOf(ps), t = fmtPlayBig(ps), f = FRAMES[p.frame] || FRAMES.ates;
+        let st = {}; if (own) { try { st = BORU.profileStats(); } catch (e) {} }
+        const wr = p.matches ? Math.round((p.wins || 0) / p.matches * 100) : 0;
+        const tiles = [
+            ['🎮', p.matches || 0, 'MAÇ'], ['🏆', p.wins || 0, 'GALİBİYET'], ['📈', '%' + wr, 'KAZANMA'], ['🔥', p.kills || 0, 'ÖLDÜRME'],
+            ['👑', p.boss_kills || 0, 'BOSS'], ['🏰', p.hives || 0, 'KOVAN'], ['💥', fmtNum(p.damage || 0), 'HASAR'], ['⭐', p.max_level || st.maxLevel || 1, 'EN YÜKSEK SV']
+        ];
+        if (own && st.skinTotal) tiles.push(['🐉', st.skins + '/' + st.skinTotal, 'KOSTÜM'], ['🌍', st.worlds || 1, 'DÜNYA']);
+        const days = own ? (() => { const out = []; for (let i = 6; i >= 0; i--) { const d = new Date(Date.now() - i * 864e5), k = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); out.push({ l: ['Pz', 'Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct'][d.getDay()], v: PF.days[k] || 0 }); } return out; })() : null;
+        const mx = days ? Math.max(600, ...days.map(d => d.v)) : 1;
+        return `<button class="mp-x" data-a="pback">✖</button>
+        <div class="mp-hero" style="--fa:${f.a};--fb:${f.b}">
+            <div class="mp-hero-bg"></div>
+            ${avatarHtml(p.avatar, p.frame, 104, 'big')}
+            <div class="mp-hero-n">${esc(p.name)}</div>
+            <div class="mp-hero-r">${rk.r.ic} ${rk.r.name}</div>
+            ${p.code ? `<span class="mp-id" data-a="copyid2" data-c="${esc(p.code)}">${esc(p.code)}</span>` : ''}
+            ${p.bio ? `<div class="mp-bio">“${esc(p.bio)}”</div>` : ''}
+        </div>
+        <div class="mp-card mp-time"><div class="lbl">⏱ TOPLAM OYNAMA SÜRESİ</div>
+            <div class="big"><b>${t.h}</b><small>saat</small><b>${String(t.m).padStart(2, '0')}</b><small>dakika</small>${own ? `<b class="sec">${String(t.s).padStart(2, '0')}</b><small>sn</small>` : ''}</div>
+            <div class="mp-xp big"><i style="width:${Math.round(rk.p * 100)}%"></i></div>
+            <div class="sub">${rk.nx ? `Sonraki rütbe ${rk.nx.ic} <b>${rk.nx.name}</b> → ${fmtPlay(rk.nx.h * 3600 - ps)} kaldı` : '👑 En yüksek rütbedesin!'}${own && PF.sess > 30 ? ' · bu oturum: ' + fmtPlay(PF.sess) : ''}</div>
+            ${days ? `<div class="mp-week">${days.map(d => `<div><i style="height:${Math.max(3, Math.round(d.v / mx * 46))}px"></i><span>${d.l}</span></div>`).join('')}</div><div class="mp-desc" style="margin-top:2px">Son 7 gün · bugün ${fmtPlay(days[6].v)}</div>` : ''}
+        </div>
+        <div class="mp-tiles">${tiles.map(([i, v, l]) => `<div class="mp-tl"><div class="v">${i} ${v}</div><div class="l">${l}</div></div>`).join('')}</div>
+        <div class="mp-card"><h3>🎖️ Rütbe yolu</h3><div class="mp-ranks">${RANKS.map(r => `<div class="${hoursOf(ps) >= r.h ? 'got' : ''} ${r === rk.r ? 'cur' : ''}"><span>${r.ic}</span><b>${r.name}</b><small>${r.h} sa</small></div>`).join('')}</div></div>
+        ${own ? `<div class="mp-card"><h3>🖼️ Avatar</h3><div class="mp-avs">${AVATARS.map(a => `<button class="${PF.avatar === a ? 'sel' : ''}" data-a="setav" data-v="${a}">${a}</button>`).join('')}</div></div>
+        <div class="mp-card"><h3>💠 Çerçeve <small style="color:#999;font-weight:normal">oynadıkça açılır</small></h3><div class="mp-frs">${Object.keys(FRAMES).map(k => { const fr = FRAMES[k], ok = frameOk(k, ps); return `<button class="${PF.frame === k ? 'sel' : ''} ${ok ? '' : 'lock'}" data-a="setfr" data-v="${k}" ${ok ? '' : 'disabled'}>${avatarHtml(PF.avatar, k, 46)}<b>${fr.name}</b><small>${ok ? (PF.frame === k ? '✔ takılı' : 'seç') : '🔒 ' + fr.h + ' saat'}</small></button>`; }).join('')}</div></div>
+        <div class="mp-card"><h3>✍️ Hakkımda</h3><div class="mp-row"><input id="mpBio" maxlength="80" placeholder="Ör. Kara deliklerin efendisi. Takıma katıl!" value="${esc(PF.bio)}" data-keep></div></div>
+        <div class="mp-card"><h3>🐉 Ejderha adı</h3><div class="mp-row"><input id="mpName" maxlength="14" placeholder="Ejderhanın adı" value="${esc(me.name)}" data-keep></div></div>` : ''}
+        <div class="mp-foot"><button class="mp-btn go big" data-a="pback">${S.back === 'lobby' ? '🏠 LOBİYE DÖN' : S.back === 'menu' ? '↩ GERİ' : '⚔️ ÇEVRİMİÇİ SAVAŞA GİT'}</button></div>`;
+    }
+    function fmtNum(n) { n = +n || 0; return n >= 1e6 ? (n / 1e6).toFixed(1) + 'M' : n >= 1e3 ? (n / 1e3).toFixed(1) + 'B' : String(Math.round(n)); }
+    function chatHtml() {
+        const rows = S.chat.map(c => c.sys ? `<div class="sys">${esc(c.txt)}</div>` : `<div class="${c.from === me.id ? 'me' : ''}"><b>${esc(c.name)}:</b> ${esc(c.txt)}</div>`).join('') || '<div class="sys">Sohbet burada görünür. Selam ver! 👋</div>';
+        return `<div class="mp-card"><h3>💬 Lobi sohbeti</h3><div class="mp-chat" id="mpChatLog">${rows}</div>
+            <div class="mp-quick">${['👋 Selam!', '🔥 Hadi başlayalım', '⏳ 1 dk', '👍', '😂', '🐉 GG'].map(q => `<button data-a="qchat" data-v="${esc(q)}">${esc(q)}</button>`).join('')}</div>
+            <div class="mp-row" style="margin-top:6px"><input id="mpChatIn" maxlength="140" placeholder="Mesaj yaz…" data-keep enterkeyhint="send"><button class="mp-btn" data-a="chat">➤</button></div></div>`;
     }
     function lobbyHtml() {
         const host = isHost(), mode = MODES[S.mode], blockers = startBlockers();
@@ -850,18 +1191,22 @@
             const sk = skinCard(m.skin), p = peers.get(m.id), net = m.id === me.id ? '' : `<span class="mp-net ${p && p.ok() ? 'on' : ''}">${p && p.ok() ? 'bağlı' : 'bağlanıyor'}</span>`;
             const tc = S.mode === 'team' ? TEAMS[m.team === 1 ? 1 : 0].color : sk.color;
             const spk = voice.speaking.has(m.id) ? '🔊' : (m.mic ? '🎤' : '');
-            return `<div class="mp-pl" style="border-left-color:${tc}"><span class="ic">${sk.icon}</span>
-                <div><div class="nm">${m.id === S.hostId ? '👑 ' : ''}${esc(m.name)}${m.id === me.id ? ' (sen)' : ''} <span class="sub">${esc(m.code || '')}</span></div>
-                <div class="sub">${esc(sk.name)}${S.mode === 'team' ? ' · <b style="color:' + tc + '">' + TEAMS[m.team === 1 ? 1 : 0].name + '</b>' : ''} ${net}</div>${statsLine(S.profiles[m.id])}</div>
+            const pp = profOf(m.id) || {}, rk = rankOf(pp.play_seconds || 0);
+            return `<div class="mp-pl ${m.ready ? 'isr' : ''}" style="border-left-color:${tc};--tc:${tc}">${avatarHtml(pp.avatar || m.av, pp.frame || m.fr, 46, '')}
+                <div class="mp-pl-t" data-a="viewp" data-id="${esc(m.id)}"><div class="nm">${m.id === S.hostId ? '👑 ' : ''}${esc(m.name)}${m.id === me.id ? ' <span class="you">SEN</span>' : ''}</div>
+                <div class="sub">${rk.r.ic} ${rk.r.name} · ⏱ ${fmtPlay(pp.play_seconds || 0)}</div>
+                <div class="sub"><span style="color:${sk.color}">${sk.icon} ${esc(sk.name)}</span>${S.mode === 'team' ? ' · <b style="color:' + tc + '">' + TEAMS[m.team === 1 ? 1 : 0].name + '</b>' : ''} ${net}</div></div>
                 <div class="rt">${spk}${m.id !== me.id && (voice.els.has(m.id) || voice.heard.has(m.id) || m.mic) ? `<button class="mp-btn" style="padding:4px 8px;font-size:13px" data-a="mute" data-id="${esc(m.id)}">${voice.muted.has(m.id) ? '🔇' : '🔈'}</button>` : ''}<span class="rdy ${m.ready ? 'y' : ''}">${m.ready ? 'HAZIR' : 'bekliyor'}</span></div></div>`;
         }).join('');
         const lm = S.lastMatch;
         const last = lm ? `<div class="mp-card"><h3>📜 Bu odadaki son maç · ${MODES[lm.mode] ? MODES[lm.mode].icon + ' ' + MODES[lm.mode].name : ''}</h3>
             <div class="mp-desc" style="text-align:left">🏆 ${esc(lm.winner || '-')} · ⏱ ${fmtTime((lm.duration_s || 0) * 1000)}</div>${boardTable(lm.results || [], lm.mode)}</div>` : '';
+        const empty = Array.from({ length: Math.max(0, Math.min(MAX_PLAYERS, 4) - S.members.length) }, () => '<div class="mp-pl ghost"><span class="mp-av empty" style="--sz:46px"><i>+</i></span><div class="sub">Boş yer · davet linki gönder</div></div>').join('');
         return `<button class="mp-x" data-a="leave" title="Lobiden çık">✖</button>
-        <h2>🏠 LOBİ</h2>
-        <div class="mp-card" style="text-align:center"><div class="sub" style="font-size:12px;color:#aaa">ODA KODU · arkadaşlarına gönder</div>
-            <div class="mp-code">${esc(S.code)}</div>
+        <h2><span class="mp-h2i">🏠</span> ${esc(S.lname || 'LOBİ')}</h2>
+        <div class="mp-card glow" style="text-align:center"><div class="sub" style="font-size:12px;color:#aaa">ODA KODU · arkadaşlarına gönder</div>
+            <div class="mp-code" data-a="copycode">${esc(S.code)}</div>
+            <div class="mp-desc" style="margin-top:0">${S.pub ? '🌐 Açık lobi listesinde görünüyor' : '🔒 Gizli · sadece kodla girilir'}${host ? ` · <a href="#" data-a="togglepub" style="color:#ffcc66">${S.pub ? 'gizle' : 'herkese aç'}</a>` : ''}</div>
             <div class="mp-row" style="justify-content:center;margin-top:6px"><button class="mp-btn" data-a="share">📤 Davet Linki Gönder</button><button class="mp-btn ${voice.on ? 'ok' : ''}" data-a="mic">${voice.on ? '🎤 Mikrofon Açık' : '🎤 Sesli Sohbet'}</button></div>
         </div>
         ${playing ? '<div class="mp-card" style="text-align:center;color:#ffd24a">⚔️ Bu odada maç sürüyor. Bitince bir sonrakine katılabilirsin.</div>' : ''}
@@ -873,8 +1218,9 @@
             <div class="mp-skins">${skins.map(s => `<div class="mp-skin ${me.skin === s.id ? 'sel' : ''}" style="color:${s.color};border-color:${me.skin === s.id ? s.color : '#444'}" data-a="skin" data-s="${esc(s.id)}"><span class="i">${s.icon}</span>${esc(s.name)}</div>`).join('')}</div>
             ${S.mode === 'team' ? `<div class="mp-teams" style="margin-top:10px">${TEAMS.map((t, i) => `<button class="mp-btn" style="border-color:${t.color};${S.team === i ? 'background:' + t.color + '55' : ''}" data-a="team" data-t="${i}">${S.team === i ? '✔ ' : ''}${t.name} Takım</button>`).join('')}</div>` : ''}
         </div>
-        <div class="mp-card"><h3>👥 Oyuncular (${S.members.length}/${MAX_PLAYERS})</h3>${players}</div>
+        <div class="mp-card"><h3>👥 Oyuncular (${S.members.length}/${MAX_PLAYERS}) <span class="mp-live">${S.members.filter(m => m.ready).length} hazır</span></h3>${players}${empty}</div>
         ${S.err ? `<div class="mp-err">${esc(S.err)}</div>` : ''}
+        ${chatHtml()}
         ${last}
         <div class="mp-foot"><button class="mp-btn big ${S.ready ? 'ok' : ''}" data-a="ready">${S.ready ? '✅ HAZIRSIN (iptal için dokun)' : '✋ HAZIRIM'}</button>
         ${host ? `<button class="mp-btn go big" style="margin-top:10px" data-a="start" ${blockers.length ? 'disabled' : ''}>⚔️ MAÇI BAŞLAT</button>${blockers.length ? `<div class="mp-warn">${esc(blockers.join(' · '))}</div>` : ''}` : '<div class="mp-desc" style="margin-top:8px">Herkes hazır olunca oda sahibi maçı başlatır.</div>'}</div>`;
@@ -894,6 +1240,7 @@
         <div class="mp-card" style="margin-top:12px">${boardTable(m.board, M.mode)}</div>
         <div class="mp-card"><h3>📈 Genel skorun</h3>${statsLine(S.profiles[me.id])}</div>
         ${rematchHtml(M)}
+        ${S.room ? chatHtml() : ''}
         <button class="mp-btn big" style="margin-top:10px" data-a="relobby">🏠 LOBİYE DÖN (${esc(M.room)})</button>
         <button class="mp-btn big" style="margin-top:10px" data-a="menu">↩ ANA MENÜ</button>`;
     }
@@ -931,13 +1278,30 @@
         }
     }
     function onInput(e) {
+        if (e.target.id === 'mpBio') { PF.bio = e.target.value.slice(0, 80); savePF(); clearTimeout(onInput.b); onInput.b = setTimeout(() => syncExtras(true), 1200); return; }
         if (e.target.id === 'mpName') { me.name = e.target.value.slice(0, 14); LS.setItem('boruMpName', me.name); clearTimeout(onInput.t); onInput.t = setTimeout(() => { saveProfile().then(render); pushMeta(); }, 700); }
     }
     async function onClick(e) {
         const b = e.target.closest('[data-a]'); if (!b) return;
         const a = b.dataset.a;
+        if (a !== 'chat' && b.tagName === 'A') e.preventDefault();
         if (a === 'close') { S.open = false; render(); }
-        else if (a === 'create') joinRoom(newCode(), true);
+        else if (a === 'profile') { S.back = S.screen === 'profile' ? S.back : S.screen; S.viewId = null; S.screen = 'profile'; render(); $('#mpRoot .mp-scr').scrollTop = 0; }
+        else if (a === 'viewp') { const id = b.dataset.id; if (!id) return; S.back = S.screen; S.viewId = id; S.screen = 'profile'; if (id !== me.id && !S.profiles[id]) fetchProfiles([id]); render(); $('#mpRoot .mp-scr').scrollTop = 0; }
+        else if (a === 'pback') { const bk = S.back; S.viewId = null; if (bk === 'menu') { S.open = false; S.screen = S.room ? 'lobby' : 'home'; } else S.screen = (bk === 'lobby' && S.room) ? 'lobby' : (bk === 'end' && S.match && S.match.over) ? 'end' : 'home'; render(); renderMenuProfile(); }
+        else if (a === 'setav') { PF.avatar = b.dataset.v; savePF(); syncExtras(true); pushMeta(); render(); renderMenuProfile(); }
+        else if (a === 'setfr') { if (!frameOk(b.dataset.v, myPlay())) return; PF.frame = b.dataset.v; savePF(); syncExtras(true); pushMeta(); render(); renderMenuProfile(); }
+        else if (a === 'quick') quickJoin();
+        else if (a === 'togglecreate') { S.create = !S.create; S.err = ''; render(); }
+        else if (a === 'cmode') { S.cMode = b.dataset.m; render(); }
+        else if (a === 'cpriv') { S.cPriv = b.dataset.v === '1'; render(); }
+        else if (a === 'joinc') joinRoom(b.dataset.c, false);
+        else if (a === 'togglepub') { if (!isHost()) return; S.pub = !S.pub; try { sessionStorage.setItem('boruLobby_' + S.code, JSON.stringify({ pub: S.pub, lname: S.lname })); } catch (er) {} pushMeta(); render(); }
+        else if (a === 'chat') { const i = $('#mpChatIn'); if (i) { sendChat(i.value); i.value = ''; i.focus(); } }
+        else if (a === 'qchat') sendChat(b.dataset.v);
+        else if (a === 'copycode') { try { await navigator.clipboard.writeText(S.code); toast('Oda kodu kopyalandı: ' + S.code); } catch (er) {} }
+        else if (a === 'copyid2') { try { await navigator.clipboard.writeText(b.dataset.c); toast('ID kopyalandı: ' + b.dataset.c); } catch (er) {} }
+        else if (a === 'create') joinRoom(newCode(), true, { mode: S.cMode, priv: S.cPriv, lname: (($('#mpLName') || {}).value || '').trim() });
         else if (a === 'join') joinRoom(($('#mpJoinCode') || {}).value, false);
         else if (a === 'leave') leaveRoom();
         else if (a === 'mode') setMode(b.dataset.m);
@@ -970,13 +1334,23 @@
             if (!me.name) me.name = (window.BORU && BORU.savedName()) || '';
             if (!me.skin && window.BORU) me.skin = BORU.activeSkin();
             if (S.screen !== 'lobby') S.screen = 'home';
-            render(); saveProfile().then(render);
+            render(); saveProfile().then(render); dirOpen();
+        },
+        profile() {
+            mount(); S.open = true;
+            if (!me.name) me.name = (window.BORU && BORU.savedName()) || '';
+            if (S.screen !== 'profile') S.back = (S.screen === 'lobby' || S.screen === 'end') ? S.screen : 'menu';
+            S.viewId = null; S.screen = 'profile'; render(); saveProfile().then(render);
         },
         _state: S, _me: me, _voice: voice, _peers: peers
     };
     // Davet linkiyle gelindiyse doğrudan odaya gir
     function boot() {
         mount(); prepTurn();
+        if (!me.name && window.BORU) { try { me.name = BORU.savedName() || ''; } catch (e) {} }
+        renderMenuProfile(); setInterval(renderMenuProfile, 30000);
+        setInterval(() => { if (S.open && S.screen === 'profile' && !S.viewId && !(document.activeElement && document.activeElement.tagName === 'INPUT')) render(); }, 1000);
+        if (me.code) setTimeout(() => syncExtras(true), 4000);
         const code = new URLSearchParams(location.search).get('oda');
         if (code) { window.MPUI.open(); if (me.name) joinRoom(code, false); else { S.err = 'Odaya katılmak için ejderhana isim ver, sonra KATIL\'a bas.'; render(); setTimeout(() => { const i = $('#mpJoinCode'); if (i) i.value = code; }, 0); } }
     }
