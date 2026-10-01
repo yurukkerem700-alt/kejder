@@ -35,9 +35,12 @@
         return turnReady;
     }
     const MODES = {
-        coop: { name: 'Birlikte', icon: '🤝', desc: 'Müttefiksiniz, birbirinize hasar veremezsiniz. Fethedilen kovanlar ORTAK sayılır, kara deliğe hep birlikte girip aynı bossla savaşırsınız. Köle ve asker yok. Düşen 2 dk sonra sığınakta dirilir.' },
-        ffa: { name: 'Herkes Tek', icon: '⚔️', desc: 'Herkes herkese karşı. Kendi askerlerin kovanlardan çıkar. Düşen elenir, sona kalan kazanır.' },
-        team: { name: 'Takım Savaşı', icon: '🛡️', desc: 'Kızıl ve Mavi takım (2v2, 3v3...). Takım arkadaşına hasar yok. Son ayakta kalan takım kazanır.' }
+        coop: { name: 'Birlikte', icon: '🤝', tag: 'Ekip · PvE', desc: 'Müttefiksiniz, birbirinize hasar veremezsiniz. Fethedilen kovanlar ORTAK sayılır, kara deliğe hep birlikte girip aynı bossla savaşırsınız. Köle ve asker yok. Düşen 2 dk sonra sığınakta dirilir.',
+            tags: ['<span class="mp-tag p">🕳️ Kara delik: toplam 50 kovan</span>', '<span class="mp-tag g">🐉 Tüm kostümler açık · güç vermez</span>', '<span class="mp-tag">✨ 2 dk sonra diriliş</span>'] },
+        ffa: { name: 'Herkes Tek', icon: '⚔️', tag: 'Serbest PvP', desc: 'Herkes herkese karşı. Kendi askerlerin kovanlardan çıkar. Düşen elenir, sona kalan kazanır.',
+            tags: ['<span class="mp-tag p">🕳️ Kara delik: toplam 50 kovan</span>', '<span class="mp-tag">💀 Düşen elenir</span>'] },
+        team: { name: 'Takım Savaşı', icon: '🛡️', tag: 'Kızıl vs Mavi', desc: 'Kızıl ve Mavi takım (2v2, 3v3...). Takım arkadaşına hasar yok. Son ayakta kalan takım kazanır.',
+            tags: ['<span class="mp-tag p">🕳️ Kara delik: takımın toplamı 50 kovan</span>', '<span class="mp-tag">🛡️ Dost ateşi yok</span>'] }
     };
     const TEAMS = [{ name: 'Kızıl', color: '#ff4a3a' }, { name: 'Mavi', color: '#3aa8ff' }];
     const $ = (s, r) => (r || document).querySelector(s);
@@ -515,7 +518,7 @@
             case 'vs': setRemoteSpeaking(m.from, m.on); break;
             case 'vc': playRelay(m.from, m.d); break;
             // Ortak veri (Birlikte modu)
-            case 'hv': if (M && M.mode === 'coop' && window.BORU && M.roster.has(m.from)) { if (m.id) BORU.allyCapturedHive(m.id); BORU.setAllyHives(m.from, m.n); } break;
+            case 'hv': if (M && window.BORU && M.roster.has(m.from)) { if (M.mode === 'coop' && m.id) BORU.allyCapturedHive(m.id); if (poolsWith(m.from)) BORU.setAllyHives(m.from, m.n); } break;
             case 'bhgo': if (M && M.mode === 'coop' && window.BORU && M.startedAt && !M.over) { feed('🕳️ ' + nameOf(m.from) + ' kara deliğe girdi — herkes içeri çekiliyor!', '#b77bff'); BORU.netEnterBH(m.lvl); } break;
             case 'bhwin': if (M && M.mode === 'coop' && window.BORU) { feed('🏆 Kara delik bossu yenildi!', '#ffd24a'); BORU.netBhWin(m.lvl); } break;
             case 'bd': if (M && M.mode === 'coop' && window.BORU && BORU.bhIsAuth()) BORU.bossDamageIn(m.d); break;
@@ -654,6 +657,8 @@
         if (M.mode === 'ffa') return true;
         const a = M.roster.get(id), b = M.roster.get(me.id); return !!(a && b && a.team !== b.team);
     }
+    // Kara delik eşiği için kovanları ortak sayılan oyuncular: Takım modunda yalnızca takım arkadaşları, diğer modlarda herkes
+    function poolsWith(id) { const M = S.match; if (!M || id === me.id) return false; if (M.mode !== 'team') return true; const a = M.roster.get(id), b = M.roster.get(me.id); return !!(a && b && a.team === b.team); }
     function colorOf(id) {
         const M = S.match; const r = M && M.roster.get(id);
         if (M && M.mode === 'team' && r) return TEAMS[r.team].color;
@@ -686,7 +691,7 @@
         B.onLocalDeath = onLocalDeath;
         B.onHiveCaptured = (h) => {
             const t = '🏰 ' + me.name + ' bir kovanı fethetti'; feed(t, '#ffd24a'); sendAll({ t: 'note', txt: t, c: '#ffd24a' });
-            if (M.mode === 'coop') sendAll({ t: 'hv', id: h && h.id, n: B.ownHives() });
+            sendAll(M.mode === 'coop' ? { t: 'hv', id: h && h.id, n: B.ownHives() } : { t: 'hv', n: B.ownHives() });
         };
         B.playerCount = () => { let n = 0; for (const id of M.roster.keys()) if (!M.left.has(id)) n++; return Math.max(1, n); };
         // Kara delik hakemi: kara delikteki (ölmemiş) oyunculardan kimliği en küçük olan bossun gerçek canını tutar
@@ -730,10 +735,8 @@
         if (prev && s.q != null && prev.q != null && s.q <= prev.q && prev.q - s.q < 100000) { prev.t = performance.now(); return; }
         M.states.set(id, Object.assign({ t: performance.now() }, s)); if (s.st) M.stats.set(id, s.st);
         setRemoteSpeaking(id, s.sp);
-        if (M.mode === 'coop' && window.BORU) {
-            if (s.st && s.st.ho != null) BORU.setAllyHives(id, s.st.ho);
-            if (s.bs) BORU.remoteBossState(s.bs);
-        }
+        if (window.BORU && s.st && s.st.ho != null && poolsWith(id)) BORU.setAllyHives(id, s.st.ho);
+        if (M.mode === 'coop' && window.BORU && s.bs) BORU.remoteBossState(s.bs);
         if (M.left.has(id)) { M.left.delete(id); feed('🔌 ' + nameOf(id) + ' geri bağlandı', '#66ffcc'); }
         if (M.mode === 'coop' && !s.d && M.dead.has(id)) M.dead.delete(id);
         const r = M.roster.get(id);
@@ -748,7 +751,7 @@
             lastSend = now;
             const s = BORU.localState(); s.m = voice.on ? 1 : 0; s.sp = voice.talk ? 1 : 0; s.q = ++seq; s.ts = Math.round(now);
             // Skor tablosu verisi her pakette değil, saniyede bir gider (paketler küçülür, telefon ağı rahatlar)
-            if (now - lastStats > 1000) { lastStats = now; const st = BORU.stats(); st.pk = M.pk; st.dh = M.deaths; if (M.mode === 'coop') st.ho = BORU.ownHives(); s.st = st; }
+            if (now - lastStats > 1000) { lastStats = now; const st = BORU.stats(); st.pk = M.pk; st.dh = M.deaths; st.ho = BORU.ownHives(); s.st = st; }
             // Kara delik hakemiysek ortak bossun durumu da pakete eklenir
             if (M.mode === 'coop' && s.ar) { const bs = BORU.bossState(); if (bs) s.bs = bs; }
             const str = JSON.stringify({ t: 'st', s }); const relay = [];
@@ -832,92 +835,131 @@
 
     // ------------------------------------------------------------------ ARAYÜZ
     const css = `
-    #mpRoot{position:fixed;inset:0;z-index:600;display:none;font-family:Arial,Helvetica,sans-serif;color:#eee}
+    #mpRoot{--mp-acc:#ff9a2e;--mp-acc2:#ffcf6a;--mp-bg:#0a0709;--mp-card:rgba(255,255,255,.035);--mp-line:rgba(255,170,70,.18);--mp-txt:#f1ebe4;--mp-dim:#a89c92;
+        position:fixed;inset:0;z-index:600;display:none;font-family:'Segoe UI',system-ui,-apple-system,Roboto,Arial,sans-serif;color:var(--mp-txt)}
     #mpRoot.on{display:block}
-    #mpRoot .mp-scr{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y!important;background:radial-gradient(ellipse at top,#1d0c06 0%,#070508 70%);padding:18px 14px 40px;box-sizing:border-box}
-    #mpRoot .mp-wrap{max-width:720px;margin:0 auto}
+    #mpRoot .mp-scr{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y!important;
+        background:radial-gradient(1200px 520px at 50% -140px,rgba(255,110,20,.28),transparent 70%),radial-gradient(700px 400px at 100% 100%,rgba(120,40,200,.14),transparent 70%),linear-gradient(180deg,#140a08,#070508 60%);
+        padding:calc(env(safe-area-inset-top,0px) + 16px) 14px 40px;box-sizing:border-box}
+    #mpRoot .mp-wrap{max-width:720px;margin:0 auto;animation:mpFade .28s ease-out}
+    @keyframes mpFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
     #mpRoot .mp-scr *{touch-action:pan-y}
-    #mpRoot .mp-skins,#mpRoot .mp-skins *{touch-action:pan-x!important;-webkit-overflow-scrolling:touch}
+    #mpRoot .mp-skins,#mpRoot .mp-skins *{touch-action:pan-x pan-y!important;-webkit-overflow-scrolling:touch}
     #mpRoot input{touch-action:manipulation!important}
     #mpRoot .mp-btn,#mpRoot .mp-mode,#mpRoot .mp-skin{-webkit-tap-highlight-color:transparent}
     #mpRoot .mp-card table{display:block;overflow-x:auto;touch-action:pan-x pan-y}
-    #mpRoot .mp-foot{position:sticky;bottom:-40px;margin:12px -14px -40px;padding:10px 14px calc(env(safe-area-inset-bottom,0px) + 14px);background:linear-gradient(180deg,rgba(7,5,8,0),rgba(7,5,8,.92) 22%,#070508);z-index:2}
-    #mpRoot h2{margin:4px 40px 14px;text-align:center;color:#ffaa33;letter-spacing:1px;font-size:24px;text-shadow:0 0 14px #ff5500}
-    #mpRoot .mp-x{position:absolute;top:10px;right:12px;background:none;border:1px solid #555;color:#ccc;border-radius:8px;font-size:18px;padding:4px 10px;cursor:pointer}
-    #mpRoot .mp-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,170,51,.25);border-radius:12px;padding:12px;margin-bottom:12px}
-    #mpRoot .mp-card h3{margin:0 0 8px;font-size:15px;color:#ffcc88}
-    #mpRoot input{background:#140c08;border:1px solid #664422;color:#fff;border-radius:8px;padding:10px;font-size:16px;box-sizing:border-box}
-    #mpRoot .mp-btn{background:rgba(255,120,0,.15);border:1px solid #ff8800;color:#fff;border-radius:10px;padding:10px 14px;font-size:15px;font-weight:bold;cursor:pointer}
-    #mpRoot .mp-btn:disabled{opacity:.4;cursor:default}
-    #mpRoot .mp-btn.big{width:100%;padding:14px;font-size:17px}
-    #mpRoot .mp-btn.go{background:linear-gradient(90deg,#b32400,#ff7a00);border-color:#ffcc66}
-    #mpRoot .mp-btn.ok{background:rgba(0,200,100,.25);border-color:#33ff99}
-    #mpRoot .mp-btn.blue{background:rgba(0,140,255,.18);border-color:#3aa8ff}
+    #mpRoot .mp-foot{position:sticky;bottom:-40px;margin:12px -14px -40px;padding:12px 14px calc(env(safe-area-inset-bottom,0px) + 16px);background:linear-gradient(180deg,rgba(7,5,8,0),rgba(7,5,8,.94) 24%,#070508);z-index:2}
+    #mpRoot h2{margin:6px 44px 4px;text-align:center;font-size:25px;font-weight:900;letter-spacing:2px;background:linear-gradient(180deg,#fff3d6,#ffb347 55%,#ff6a00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px rgba(255,100,0,.45))}
+    #mpRoot .mp-sub{text-align:center;color:var(--mp-dim);font-size:12.5px;margin:0 0 16px;letter-spacing:.3px}
+    #mpRoot .mp-x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;width:38px;height:38px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);color:#ddd;border-radius:50%;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s}
+    #mpRoot .mp-x:hover{background:rgba(255,80,40,.25);border-color:#ff7a40}
+    #mpRoot .mp-card{position:relative;background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border:1px solid var(--mp-line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 8px 24px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.05)}
+    #mpRoot .mp-card h3{margin:0 0 10px;font-size:12px;color:var(--mp-acc2);text-transform:uppercase;letter-spacing:1.4px;font-weight:800;display:flex;align-items:center;gap:6px}
+    #mpRoot .mp-card h3 .cnt{margin-left:auto;font-size:11px;color:var(--mp-dim);letter-spacing:.5px;text-transform:none;font-weight:600}
+    #mpRoot input{background:rgba(0,0,0,.4);border:1px solid rgba(255,160,70,.3);color:#fff;border-radius:11px;padding:11px 12px;font-size:16px;box-sizing:border-box;outline:none;transition:border-color .15s,box-shadow .15s}
+    #mpRoot input:focus{border-color:var(--mp-acc);box-shadow:0 0 0 3px rgba(255,140,40,.18)}
+    #mpRoot .mp-btn{background:rgba(255,140,40,.1);border:1px solid rgba(255,150,60,.55);color:#fff;border-radius:12px;padding:10px 14px;font-size:14.5px;font-weight:700;cursor:pointer;transition:transform .08s,background .15s,box-shadow .15s}
+    #mpRoot .mp-btn:hover{background:rgba(255,140,40,.2)}
+    #mpRoot .mp-btn:active{transform:scale(.97)}
+    #mpRoot .mp-btn:disabled{opacity:.38;cursor:default;transform:none}
+    #mpRoot .mp-btn.big{width:100%;padding:15px;font-size:16.5px;letter-spacing:.6px}
+    #mpRoot .mp-btn.go{background:linear-gradient(180deg,#ff8a1e,#d93a00);border-color:#ffc16a;box-shadow:0 6px 20px rgba(255,90,0,.35),inset 0 1px 0 rgba(255,255,255,.3);text-shadow:0 1px 2px rgba(0,0,0,.4)}
+    #mpRoot .mp-btn.go:not(:disabled){animation:mpGlow 2.4s ease-in-out infinite}
+    @keyframes mpGlow{50%{box-shadow:0 6px 28px rgba(255,120,0,.6),inset 0 1px 0 rgba(255,255,255,.3)}}
+    #mpRoot .mp-btn.ok{background:linear-gradient(180deg,rgba(40,220,130,.35),rgba(0,140,70,.35));border-color:#44ffaa}
+    #mpRoot .mp-btn.blue{background:rgba(40,150,255,.16);border-color:#4ab0ff}
     #mpRoot .mp-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
     #mpRoot .mp-row>input{flex:1;min-width:120px}
-    #mpRoot .mp-id{font-family:monospace;font-size:18px;color:#ffd24a;background:#1a1208;border:1px dashed #aa7722;border-radius:8px;padding:6px 10px;cursor:pointer}
-    #mpRoot .mp-stats{display:flex;gap:6px;flex-wrap:wrap;font-size:12px;color:#bbb;margin-top:6px}
-    #mpRoot .mp-stats span{background:rgba(255,255,255,.06);border-radius:6px;padding:3px 7px}
-    #mpRoot .mp-err{color:#ff6666;text-align:center;margin:8px 0;font-weight:bold}
-    #mpRoot .mp-code{font-size:38px;font-weight:bold;letter-spacing:6px;color:#fff;text-align:center;font-family:monospace;text-shadow:0 0 12px #ff6600}
+    #mpRoot .mp-id{font-family:ui-monospace,Consolas,monospace;font-size:16px;color:#ffd24a;background:rgba(255,200,60,.08);border:1px dashed rgba(255,200,80,.55);border-radius:11px;padding:10px 12px;cursor:pointer;white-space:nowrap}
+    #mpRoot .mp-id:after{content:' ⧉';opacity:.6;font-size:13px}
+    #mpRoot .mp-stats{display:flex;gap:5px;flex-wrap:wrap;font-size:11.5px;color:#cfc3b8;margin-top:8px}
+    #mpRoot .mp-stats span{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:3px 9px}
+    #mpRoot .mp-err{color:#ff7a7a;text-align:center;margin:10px 0 0;font-weight:700;background:rgba(255,50,50,.08);border:1px solid rgba(255,80,80,.3);border-radius:10px;padding:8px}
+    #mpRoot .mp-or{display:flex;align-items:center;gap:10px;color:var(--mp-dim);font-size:11px;margin:12px 0 10px;letter-spacing:1px}
+    #mpRoot .mp-or:before,#mpRoot .mp-or:after{content:'';flex:1;height:1px;background:rgba(255,255,255,.1)}
+    #mpRoot .mp-codebox{text-align:center;padding:18px 14px;background:radial-gradient(400px 140px at 50% 0,rgba(255,120,20,.22),transparent 70%),linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02))}
+    #mpRoot .mp-code{display:inline-flex;gap:6px;margin:8px 0 12px;cursor:pointer}
+    #mpRoot .mp-code i{font-style:normal;width:46px;height:56px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;font-family:ui-monospace,Consolas,monospace;color:#fff;background:rgba(0,0,0,.45);border:1px solid rgba(255,170,80,.55);border-radius:12px;box-shadow:inset 0 -3px 0 rgba(255,120,0,.35),0 0 18px rgba(255,100,0,.15);text-shadow:0 0 10px rgba(255,140,40,.7)}
+    #mpRoot .mp-lbl{font-size:11px;color:var(--mp-dim);letter-spacing:1.5px;text-transform:uppercase}
     #mpRoot .mp-modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    #mpRoot .mp-mode{border:1px solid #553311;border-radius:10px;padding:10px 6px;text-align:center;cursor:pointer;background:rgba(0,0,0,.25)}
-    #mpRoot .mp-mode.sel{border-color:#ffaa33;background:rgba(255,120,0,.18);box-shadow:0 0 12px rgba(255,120,0,.4)}
+    #mpRoot .mp-mode{position:relative;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:12px 8px;text-align:center;cursor:pointer;background:rgba(0,0,0,.28);transition:.15s}
+    #mpRoot .mp-mode:hover{border-color:rgba(255,170,80,.5)}
+    #mpRoot .mp-mode.sel{border-color:var(--mp-acc);background:linear-gradient(180deg,rgba(255,130,20,.24),rgba(255,80,0,.08));box-shadow:0 0 0 1px rgba(255,150,50,.4),0 6px 20px rgba(255,100,0,.22)}
+    #mpRoot .mp-mode.sel:after{content:'✓';position:absolute;top:6px;right:8px;font-size:12px;color:var(--mp-acc2);font-weight:900}
+    #mpRoot .mp-mode.lock{cursor:default}
     #mpRoot .mp-mode b{display:block;font-size:14px;margin-top:4px}
-    #mpRoot .mp-mode .i{font-size:26px}
-    #mpRoot .mp-desc{font-size:12px;color:#aaa;margin-top:8px;text-align:center}
-    #mpRoot .mp-pl{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px;background:rgba(0,0,0,.3);margin-bottom:6px;border-left:4px solid #555}
-    #mpRoot .mp-pl .ic{font-size:26px;width:36px;text-align:center}
-    #mpRoot .mp-pl .nm{font-weight:bold;font-size:15px}
-    #mpRoot .mp-pl .sub{font-size:11px;color:#aaa}
-    #mpRoot .mp-pl .rt{margin-left:auto;display:flex;gap:6px;align-items:center;font-size:18px}
-    #mpRoot .mp-pl .rdy{font-size:12px;padding:3px 8px;border-radius:6px;background:#332;color:#aaa}
-    #mpRoot .mp-pl .rdy.y{background:#0a4;color:#fff}
-    #mpRoot .mp-skins{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
-    #mpRoot .mp-skin{flex:0 0 auto;border:1px solid #444;border-radius:10px;padding:6px 8px;text-align:center;cursor:pointer;min-width:70px;font-size:11px;background:rgba(0,0,0,.3)}
-    #mpRoot .mp-skin .i{font-size:24px;display:block}
-    #mpRoot .mp-skin.sel{border-width:2px;box-shadow:0 0 10px currentColor}
+    #mpRoot .mp-mode small{display:block;font-size:10.5px;color:var(--mp-dim);margin-top:2px}
+    #mpRoot .mp-mode .i{font-size:28px;line-height:1}
+    #mpRoot .mp-desc{font-size:12.5px;color:var(--mp-dim);margin-top:10px;text-align:center;line-height:1.45}
+    #mpRoot .mp-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:10px}
+    #mpRoot .mp-tag{font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#e8ddd2}
+    #mpRoot .mp-tag.p{background:rgba(183,123,255,.14);border-color:rgba(183,123,255,.45);color:#dcc4ff}
+    #mpRoot .mp-tag.g{background:rgba(60,255,160,.1);border-color:rgba(60,255,160,.4);color:#9dffd0}
+    #mpRoot .mp-pl{display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:13px;background:rgba(0,0,0,.3);margin-bottom:7px;border:1px solid rgba(255,255,255,.06);position:relative;overflow:hidden}
+    #mpRoot .mp-pl:before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--pc,#555)}
+    #mpRoot .mp-pl.me{background:linear-gradient(90deg,rgba(255,200,80,.1),rgba(0,0,0,.3) 60%);border-color:rgba(255,200,80,.25)}
+    #mpRoot .mp-pl .ic{font-size:24px;width:44px;height:44px;flex:0 0 44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--pc,#888) 45%,transparent),rgba(0,0,0,.5));border:2px solid var(--pc,#555);position:relative}
+    #mpRoot .mp-pl .ic.spk{box-shadow:0 0 0 3px rgba(51,255,153,.5),0 0 14px #33ff99}
+    #mpRoot .mp-pl .nm{font-weight:800;font-size:15px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+    #mpRoot .mp-pl .sub{font-size:11px;color:var(--mp-dim);font-weight:500}
+    #mpRoot .mp-pl .rt{margin-left:auto;display:flex;gap:6px;align-items:center;font-size:17px;flex:0 0 auto}
+    #mpRoot .mp-pl .rdy{font-size:11px;font-weight:800;padding:5px 9px;border-radius:20px;background:rgba(255,255,255,.07);color:#aaa;letter-spacing:.5px}
+    #mpRoot .mp-pl .rdy.y{background:linear-gradient(180deg,#20d27a,#0a8a48);color:#fff;box-shadow:0 0 12px rgba(40,220,120,.35)}
+    #mpRoot .mp-pl .mp-stats{margin-top:5px}
+    #mpRoot .mp-empty{border:1px dashed rgba(255,255,255,.12);border-radius:13px;padding:12px;text-align:center;color:#6f6660;font-size:12.5px;margin-bottom:7px}
+    #mpRoot .mp-skins{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-auto-columns:84px;gap:7px;overflow-x:auto;padding:2px 2px 8px;scrollbar-width:thin}
+    #mpRoot .mp-skin{border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:8px 4px 7px;text-align:center;cursor:pointer;font-size:10.5px;line-height:1.2;background:rgba(0,0,0,.32);color:#ddd;transition:.12s;min-height:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+    #mpRoot .mp-skin .i{font-size:24px;display:block;width:36px;height:36px;line-height:36px;border-radius:50%;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--sc) 40%,transparent),transparent 70%)}
+    #mpRoot .mp-skin.sel{border:2px solid var(--sc);background:color-mix(in srgb,var(--sc) 16%,rgba(0,0,0,.4));box-shadow:0 0 14px color-mix(in srgb,var(--sc) 45%,transparent);color:#fff}
     #mpRoot .mp-teams{display:flex;gap:8px}
     #mpRoot .mp-teams .mp-btn{flex:1}
-    #mpRoot .mp-warn{font-size:12px;color:#ffbb66;text-align:center;margin-top:6px}
-    #mpRoot .mp-net{font-size:10px;padding:2px 6px;border-radius:6px;background:#333;color:#aaa}
-    #mpRoot .mp-net.on{background:#063;color:#8f8}
-    #mpCount{position:fixed;inset:0;z-index:610;display:none;align-items:center;justify-content:center;flex-direction:column;background:rgba(0,0,0,.55);pointer-events:none}
+    #mpRoot .mp-warn{font-size:12px;color:#ffbb66;text-align:center;margin-top:8px}
+    #mpRoot .mp-net{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(255,255,255,.07);color:#aaa}
+    #mpRoot .mp-net.on{background:rgba(40,220,120,.18);color:#8f8}
+    #mpCount{position:fixed;inset:0;z-index:610;display:none;align-items:center;justify-content:center;flex-direction:column;background:radial-gradient(circle,rgba(40,10,0,.55),rgba(0,0,0,.75));pointer-events:none}
     #mpCount.on{display:flex}
-    #mpCountNum{font-size:120px;font-weight:bold;color:#fff;text-shadow:0 0 40px #ff5500}
-    #mpCount .lbl{font-size:20px;color:#ffcc88;margin-top:10px}
-    #mpHud{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 76px);z-index:450;display:none;flex-direction:column;align-items:center;pointer-events:none;gap:5px}
+    #mpCountNum{font-size:130px;font-weight:900;color:#fff;text-shadow:0 0 40px #ff5500,0 0 90px rgba(255,80,0,.6);animation:mpBeat 1s ease-out infinite;font-family:'Segoe UI',system-ui,Arial,sans-serif}
+    @keyframes mpBeat{0%{transform:scale(1.35);opacity:.2}25%{transform:scale(1);opacity:1}100%{transform:scale(.92);opacity:.9}}
+    #mpCount .lbl{font-size:18px;color:#ffcc88;margin-top:14px;letter-spacing:3px;text-transform:uppercase;font-weight:800;padding:8px 18px;border:1px solid rgba(255,170,80,.4);border-radius:30px;background:rgba(0,0,0,.4)}
+    #mpHud{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 76px);z-index:450;display:none;flex-direction:column;align-items:center;pointer-events:none;gap:6px;font-family:'Segoe UI',system-ui,Arial,sans-serif}
     #mpHud.on{display:flex}
-    #mpHud .bar{display:flex;gap:6px;align-items:center;pointer-events:auto}
-    #mpHud .tm{background:rgba(0,0,0,.65);border:1px solid rgba(255,170,51,.5);border-radius:14px;padding:4px 12px;font-weight:bold;font-size:15px;color:#fff;font-family:monospace}
-    #mpHud .hb{background:rgba(0,0,0,.65);border:1px solid #666;border-radius:14px;color:#fff;font-size:15px;padding:3px 9px;cursor:pointer;touch-action:manipulation}
-    #mpHud .hb.on{border-color:#33ff99;background:rgba(0,120,60,.6)}
-    #mpChips{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;max-width:92vw}
-    #mpChips .c{background:rgba(0,0,0,.55);border-radius:8px;padding:2px 6px;font-size:11px;color:#fff;border-bottom:3px solid #555;min-width:56px;text-align:center;pointer-events:auto;cursor:pointer;touch-action:manipulation}
-    #mpChips .c.dead{opacity:.45;text-decoration:line-through}
-    #mpChips .c .h{height:3px;background:#222;border-radius:2px;margin-top:2px;overflow:hidden}
-    #mpChips .c .h i{display:block;height:100%;background:#3f8}
-    #mpChips .c.spk{box-shadow:0 0 8px #33ff99}
-    #mpFeed{display:flex;flex-direction:column;align-items:center;gap:3px}
-    #mpFeed div{background:rgba(0,0,0,.6);border-radius:8px;padding:3px 10px;font-size:13px;font-weight:bold;animation:mpIn .25s ease-out;transition:opacity .6s}
+    #mpHud .bar{display:flex;gap:6px;align-items:center;pointer-events:auto;background:rgba(8,5,10,.62);border:1px solid rgba(255,170,80,.28);border-radius:22px;padding:3px;box-shadow:0 4px 14px rgba(0,0,0,.4)}
+    #mpHud .tm{padding:4px 10px;font-weight:800;font-size:14px;color:#fff;font-family:ui-monospace,Consolas,monospace;letter-spacing:.5px}
+    #mpHud .hb{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:18px;color:#fff;font-size:15px;padding:3px 10px;cursor:pointer;touch-action:manipulation}
+    #mpHud .hb.on{border-color:#33ff99;background:rgba(0,150,70,.55);box-shadow:0 0 10px rgba(51,255,153,.4)}
+    #mpChips{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;max-width:92vw}
+    #mpChips .c{background:rgba(8,5,10,.66);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:3px 8px 4px;font-size:11px;font-weight:700;color:#fff;min-width:60px;text-align:center;pointer-events:auto;cursor:pointer;touch-action:manipulation;position:relative;overflow:hidden}
+    #mpChips .c:before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--cc,#888)}
+    #mpChips .c.me{border-color:rgba(255,210,74,.45)}
+    #mpChips .c.dead{opacity:.42;filter:grayscale(1)}
+    #mpChips .c .h{height:4px;background:rgba(255,255,255,.12);border-radius:3px;margin-top:3px;overflow:hidden}
+    #mpChips .c .h i{display:block;height:100%;background:#3f8;border-radius:3px;transition:width .25s}
+    #mpChips .c.spk{box-shadow:0 0 0 1px #33ff99,0 0 10px rgba(51,255,153,.6)}
+    #mpFeed{display:flex;flex-direction:column;align-items:center;gap:4px}
+    #mpFeed div{background:linear-gradient(90deg,rgba(0,0,0,0),rgba(8,5,10,.75) 15%,rgba(8,5,10,.75) 85%,rgba(0,0,0,0));padding:4px 22px;font-size:12.5px;font-weight:700;animation:mpIn .25s ease-out;transition:opacity .6s;text-shadow:0 1px 2px #000}
     @keyframes mpIn{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
-    #mpDeath{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:455;display:none;text-align:center;pointer-events:none;color:#fff;text-shadow:0 0 12px #000}
+    #mpDeath{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);z-index:455;display:none;text-align:center;pointer-events:none;color:#fff;background:radial-gradient(ellipse,rgba(40,0,5,.7),rgba(0,0,0,0) 70%);padding:30px 60px;font-family:'Segoe UI',system-ui,Arial,sans-serif}
     #mpDeath.on{display:block}
-    #mpDeath b{display:block;font-size:34px;color:#ff4455}
-    #mpToast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:700;background:rgba(0,0,0,.85);border:1px solid #ffaa33;color:#fff;padding:8px 14px;border-radius:10px;font-size:14px;display:none;max-width:88vw;text-align:center}
+    #mpDeath b{display:block;font-size:36px;font-weight:900;color:#ff4455;letter-spacing:3px;text-shadow:0 0 20px rgba(255,0,40,.7)}
+    #mpDeath span{font-size:14px;color:#ddd}
+    #mpToast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 90px);transform:translateX(-50%);z-index:700;background:rgba(10,6,10,.92);border:1px solid #ffaa33;color:#fff;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:600;display:none;max-width:88vw;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.5);font-family:'Segoe UI',system-ui,Arial,sans-serif}
     #mpRoot table{width:100%;border-collapse:collapse;font-size:13px}
-    #mpRoot th,#mpRoot td{padding:6px 4px;text-align:center;border-bottom:1px solid rgba(255,255,255,.08)}
-    #mpRoot th{color:#ffcc88;font-size:11px}
+    #mpRoot th,#mpRoot td{padding:8px 5px;text-align:center;border-bottom:1px solid rgba(255,255,255,.06);white-space:nowrap}
+    #mpRoot th{color:var(--mp-acc2);font-size:10.5px;text-transform:uppercase;letter-spacing:.6px}
     #mpRoot td.l{text-align:left}
-    #mpRoot .mp-win{text-align:center;font-size:34px;font-weight:bold;margin:8px 0 2px}
+    #mpRoot tr.me td{background:rgba(255,200,80,.08)}
+    #mpRoot tr.first td:first-child:before{content:'👑 '}
+    #mpRoot .mp-win{text-align:center;font-size:40px;font-weight:900;margin:10px 0 4px;letter-spacing:3px;animation:mpPop .5s cubic-bezier(.2,1.6,.4,1)}
+    @keyframes mpPop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
+    #mpRoot .mp-hero{text-align:center;padding:20px 12px 16px;margin-bottom:12px;border-radius:18px;border:1px solid rgba(255,170,80,.25);background:radial-gradient(500px 200px at 50% 0,var(--hc,rgba(255,120,20,.3)),transparent 70%),rgba(0,0,0,.25)}
     body.mp-match #hireBossBtn,body.mp-match #hireBtnM,body.mp-match #callBtn{display:none!important}
     /* Mobil: maç şeridi üst bilgi ve sığınak butonunun altına iner, butonlar büyür ve arası açılır */
     body.m #mpHud{top:calc(env(safe-area-inset-top,0px) + 132px);left:calc(env(safe-area-inset-left,0px) + 8px);right:calc(env(safe-area-inset-right,0px) + 96px);gap:8px}
-    body.m #mpHud .bar{gap:14px}
-    body.m #mpHud .tm{font-size:13px;padding:6px 12px}
-    body.m #mpHud .hb{min-width:44px;height:40px;font-size:18px;padding:0 10px;border-radius:20px}
-    body.m #mpChips{gap:8px;max-width:68vw}
-    body.m #mpChips .c{padding:4px 8px;font-size:11px}
+    body.m #mpHud .bar{gap:8px}
+    body.m #mpHud .tm{font-size:13px;padding:6px 10px}
+    body.m #mpHud .hb{min-width:44px;height:38px;font-size:18px;padding:0 10px;border-radius:19px}
+    body.m #mpChips{gap:6px;max-width:68vw}
+    body.m #mpChips .c{padding:4px 9px 5px;font-size:11px}
     @media (orientation:landscape) and (max-height:520px){body.m #mpHud{top:calc(env(safe-area-inset-top,0px) + 50px)}body.m #mpChips{max-width:50vw}}
     /* ---- v6: profil, açık lobiler, sohbet ---- */
     #mpRoot .mp-scr{background:radial-gradient(ellipse 120% 60% at 50% -10%,#3a1306 0%,#170806 45%,#070508 80%)}
@@ -1057,6 +1099,8 @@
     let toastT = null;
     function toast(t, c) { const el = $('#mpToast'); if (!el) return; el.textContent = t; el.style.borderColor = c || '#ffaa33'; el.style.display = 'block'; clearTimeout(toastT); toastT = setTimeout(() => el.style.display = 'none', 3200); }
     function feed(t, c) {
+        // Maç bildirimleri oyunun kenar bildirimlerine gider (ekranın ortasını kapatmaz, kısa görünür)
+        if (window.sideNote) { window.sideNote(t, c || '#fff', false); return; }
         const f = $('#mpFeed'); if (!f) return;
         const d = document.createElement('div'); d.textContent = t; d.style.color = c || '#fff'; f.prepend(d);
         while (f.children.length > 4) f.lastChild.remove();
@@ -1184,8 +1228,8 @@
     }
     function lobbyHtml() {
         const host = isHost(), mode = MODES[S.mode], blockers = startBlockers();
-        const skins = window.BORU ? BORU.skins() : [];
-        if (!me.skin || !skins.some(s => s.id === me.skin)) me.skin = (skins[0] && skins[0].id) || 'magma';
+        const skins = window.BORU ? BORU.skins(S.mode) : [];
+        if (!me.skin || !skins.some(s => s.id === me.skin)) { const was = me.skin; me.skin = (skins[0] && skins[0].id) || 'magma'; if (was !== me.skin) pushMeta(); }
         const playing = S.members.find(m => m.id === S.hostId && m.phase === 'playing') && !S.match;
         const players = S.members.map(m => {
             const sk = skinCard(m.skin), p = peers.get(m.id), net = m.id === me.id ? '' : `<span class="mp-net ${p && p.ok() ? 'on' : ''}">${p && p.ok() ? 'bağlı' : 'bağlanıyor'}</span>`;
@@ -1211,11 +1255,12 @@
         </div>
         ${playing ? '<div class="mp-card" style="text-align:center;color:#ffd24a">⚔️ Bu odada maç sürüyor. Bitince bir sonrakine katılabilirsin.</div>' : ''}
         <div class="mp-card"><h3>🎮 Mod ${host ? '(sen seçiyorsun)' : '(oda sahibi seçer)'}</h3>
-            <div class="mp-modes">${Object.keys(MODES).map(k => `<div class="mp-mode ${S.mode === k ? 'sel' : ''}" data-a="mode" data-m="${k}"><span class="i">${MODES[k].icon}</span><b>${MODES[k].name}</b></div>`).join('')}</div>
+            <div class="mp-modes">${Object.keys(MODES).map(k => `<div class="mp-mode ${S.mode === k ? 'sel' : ''} ${host ? '' : 'lock'}" data-a="mode" data-m="${k}"><span class="i">${MODES[k].icon}</span><div><b>${MODES[k].name}</b><small>${MODES[k].tag}</small></div></div>`).join('')}</div>
             <div class="mp-desc">${mode.desc}</div>
+            <div class="mp-tags">${(mode.tags || []).join('')}</div>
         </div>
-        <div class="mp-card"><h3>🐉 Ejderhan</h3>
-            <div class="mp-skins">${skins.map(s => `<div class="mp-skin ${me.skin === s.id ? 'sel' : ''}" style="color:${s.color};border-color:${me.skin === s.id ? s.color : '#444'}" data-a="skin" data-s="${esc(s.id)}"><span class="i">${s.icon}</span>${esc(s.name)}</div>`).join('')}</div>
+        <div class="mp-card"><h3>🐉 Ejderhan <span class="cnt">${S.mode === 'coop' ? 'Birlikte: tüm kostümler açık, yalnızca görünüş' : skins.length + ' kostüm'}</span></h3>
+            <div class="mp-skins">${skins.map(s => `<div class="mp-skin ${me.skin === s.id ? 'sel' : ''}" style="--sc:${s.color}" data-a="skin" data-s="${esc(s.id)}"><span class="i">${s.icon}</span>${esc(s.name)}</div>`).join('')}</div>
             ${S.mode === 'team' ? `<div class="mp-teams" style="margin-top:10px">${TEAMS.map((t, i) => `<button class="mp-btn" style="border-color:${t.color};${S.team === i ? 'background:' + t.color + '55' : ''}" data-a="team" data-t="${i}">${S.team === i ? '✔ ' : ''}${t.name} Takım</button>`).join('')}</div>` : ''}
         </div>
         <div class="mp-card"><h3>👥 Oyuncular (${S.members.length}/${MAX_PLAYERS}) <span class="mp-live">${S.members.filter(m => m.ready).length} hazır</span></h3>${players}${empty}</div>
@@ -1228,16 +1273,18 @@
     function boardTable(board, mode) {
         const rows = [...board].sort((a, b) => (b.alive - a.alive) || (b.pk - a.pk) || (b.k - a.k));
         return `<table><tr><th class="l">Oyuncu</th>${mode !== 'coop' ? '<th>⚔️ Yaktı</th>' : ''}<th>🦇 Düşman</th><th>🏰 Kovan</th><th>👑 Boss</th><th>💥 Hasar</th><th>💀</th><th>⭐ Sv</th></tr>
-            ${rows.map(b => `<tr><td class="l" style="color:${mode === 'team' ? TEAMS[b.team === 1 ? 1 : 0].color : '#fff'}">${skinCard(b.skin).icon} ${esc(b.name)}${b.id === me.id ? ' (sen)' : ''}</td>${mode !== 'coop' ? `<td>${b.pk}</td>` : ''}<td>${b.k}</td><td>${b.hv}</td><td>${b.bs}</td><td>${Math.round(b.dl)}</td><td>${b.dh}</td><td>${b.lv}</td></tr>`).join('')}</table>`;
+            ${rows.map((b, i) => `<tr class="${b.id === me.id ? 'me' : ''} ${i === 0 ? 'first' : ''}"><td class="l" style="color:${mode === 'team' ? TEAMS[b.team === 1 ? 1 : 0].color : '#fff'}">${skinCard(b.skin).icon} ${esc(b.name)}${b.id === me.id ? ' (sen)' : ''}</td>${mode !== 'coop' ? `<td>${b.pk}</td>` : ''}<td>${b.k}</td><td>${b.hv}</td><td>${b.bs}</td><td>${Math.round(b.dl)}</td><td>${b.dh}</td><td>${b.lv}</td></tr>`).join('')}</table>`;
     }
     function endHtml() {
         const M = S.match, m = M && M.result; if (!m) return '';
         const title = M.mode === 'coop' ? (m.winner.kind === 'none' ? '🤝 MAÇ BİTTİ' : '🏆 ZAFER!') : (M.won ? '🏆 ZAFER!' : '💀 YENİLGİ');
         const col = M.won ? '#ffd24a' : (M.mode === 'coop' ? '#8dffcf' : '#ff5566');
-        return `<h2>${MODES[M.mode].icon} ${MODES[M.mode].name} · SONUÇ</h2>
-        <div class="mp-win" style="color:${col}">${title}</div>
-        <div class="mp-desc" style="font-size:15px;color:#ddd">🏆 ${esc(m.winner.label)} · ⏱ ${fmtTime(m.dur * 1000)}</div>
-        <div class="mp-card" style="margin-top:12px">${boardTable(m.board, M.mode)}</div>
+        const hc = M.won ? 'rgba(255,200,40,.35)' : (M.mode === 'coop' ? 'rgba(60,255,180,.25)' : 'rgba(255,40,60,.3)');
+        return `<h2>SONUÇ</h2>
+        <div class="mp-sub">${MODES[M.mode].icon} ${MODES[M.mode].name}</div>
+        <div class="mp-hero" style="--hc:${hc}"><div class="mp-win" style="color:${col};text-shadow:0 0 24px ${col}">${title}</div>
+        <div class="mp-desc" style="font-size:15px;color:#eee;margin-top:4px">🏆 ${esc(m.winner.label)} · ⏱ ${fmtTime(m.dur * 1000)}</div></div>
+        <div class="mp-card"><h3>📊 Skor tablosu</h3>${boardTable(m.board, M.mode)}</div>
         <div class="mp-card"><h3>📈 Genel skorun</h3>${statsLine(S.profiles[me.id])}</div>
         ${rematchHtml(M)}
         ${S.room ? chatHtml() : ''}
@@ -1257,10 +1304,10 @@
             const st = r.id === me.id ? BORU.localState() : M.states.get(r.id);
             const hp = st ? Math.max(0, Math.min(1, st.hp / (st.mh || 1))) : 1;
             const dead = M.left.has(r.id) || !isAlive(r.id);
-            const c = M.mode === 'team' ? TEAMS[r.team].color : (r.id === me.id ? '#ffd24a' : '#888');
+            const c = M.mode === 'team' ? TEAMS[r.team].color : (r.id === me.id ? '#ffd24a' : skinCard(st && st.sk || r.skin).color || '#888');
             let net = '';
-            if (r.id !== me.id && !M.left.has(r.id)) { const p = peers.get(r.id), st2 = M.states.get(r.id); if (p && p.okS()) { const ms = Math.round(p.rtt / 2); net = ms ? ' <span style="color:' + (ms < 80 ? '#6f6' : ms < 180 ? '#fd4' : '#f66') + '">' + ms + 'ms</span>' : ''; } else net = st2 && performance.now() - st2.t < 2000 ? ' <span style="color:#fd4">📡</span>' : ' <span style="color:#f66">⚠</span>'; }
-            return `<div class="c ${dead ? 'dead' : ''} ${voice.speaking.has(r.id) ? 'spk' : ''}" data-id="${r.id === me.id ? '' : esc(r.id)}" style="border-bottom-color:${c}">${voice.muted.has(r.id) ? '🔇' : voice.speaking.has(r.id) ? '🔊' : ''}${esc(r.name)}${M.left.has(r.id) ? ' 🚪' : ''}${net}<div class="h"><i style="width:${Math.round(hp * 100)}%;background:${hostileTo(r.id) ? '#ff4455' : '#33ff88'}"></i></div></div>`;
+            if (r.id !== me.id && !M.left.has(r.id)) { const p = peers.get(r.id), st2 = M.states.get(r.id); if (p && p.okS()) { const ms = Math.round(p.rtt / 20) * 10; /* 10 ms adımlarla: şerit her ölçümde yeniden çizilmesin */ net = ms ? ' <span style="color:' + (ms < 80 ? '#6f6' : ms < 180 ? '#fd4' : '#f66') + '">' + ms + 'ms</span>' : ''; } else net = st2 && performance.now() - st2.t < 2000 ? ' <span style="color:#fd4">📡</span>' : ' <span style="color:#f66">⚠</span>'; }
+            return `<div class="c ${dead ? 'dead' : ''} ${r.id === me.id ? 'me' : ''} ${voice.speaking.has(r.id) ? 'spk' : ''}" data-id="${r.id === me.id ? '' : esc(r.id)}" style="--cc:${c}">${voice.muted.has(r.id) ? '🔇' : voice.speaking.has(r.id) ? '🔊' : ''}${esc(r.name)}${M.left.has(r.id) ? ' 🚪' : ''}${net}<div class="h"><i style="width:${Math.round(hp * 100)}%;background:${hostileTo(r.id) ? '#ff4455' : '#33ff88'}"></i></div></div>`;
         }).join('');
         if (html !== renderChips.last) { renderChips.last = html; el.innerHTML = html; } // değişmediyse DOM'a dokunma (kasmayı önler)
     }
@@ -1314,6 +1361,7 @@
         else if (a === 'relobby') backToLobby();
         else if (a === 'rematch') voteRematch();
         else if (a === 'menu') backToMenu();
+        else if (a === 'copycode') { try { await navigator.clipboard.writeText(S.code); toast('Oda kodu kopyalandı: ' + S.code); } catch (er) {} }
         else if (a === 'copyid') { try { await navigator.clipboard.writeText(me.code); toast('ID kopyalandı: ' + me.code); } catch (er) {} }
         else if (a === 'share') {
             const u = new URL(location.href); u.search = ''; u.searchParams.set('oda', S.code); const link = u.toString();
