@@ -1498,7 +1498,7 @@
         function readWorld(id, key) { return localStorage.getItem(worldPrefix(id) + key); }
 
         const canvas = document.getElementById('dragonCanvas');
-        const ctx = canvas.getContext('2d');
+        let ctx = canvas.getContext('2d'); // let: kostüm vitrini (kostum.js) önizleme tuvaline geçici olarak yönlendirir
         // GÖLGE SINIRI: düşük/orta grafik kalitesinde pahalı shadowBlur değerleri kısılır
         (function () { const d = Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype, 'shadowBlur'); if (!d || !d.set) return; ctx._sbMax = 999;
             Object.defineProperty(ctx, 'shadowBlur', { configurable: true, get() { return d.get.call(this); }, set(v) { d.set.call(this, Math.min(v, this._sbMax)); } }); })();
@@ -1997,6 +1997,7 @@
 
         function renderMarketItems() {
             const container = document.getElementById('marketContent'); container.innerHTML = ''; container.style.display = '';
+            if (currentMarketTab === 'skins' && window.KOSTUM) { window.KOSTUM.render(container); return; }
             if (currentMarketTab === 'skins') {
                 const marketSkins = skinsDB.slice(0);
                 marketSkins.forEach(skin => {
@@ -9011,6 +9012,7 @@
         // kesiştiği yerde altına gölge düşer; kuyruk uzantısı da artık düz bir çubuk gibi arkada sürüklenmiyor,
         // gövdenin izini adım adım takip ediyor (halat fiziği), böylece kıvrılınca kuyruk da kıvrılıyor.
         // =====================================================================
+        let PV_HOVER = false; // kostüm vitrini: bacaklar koşmaz, havada gevşek sarkık durur
         let ORG_TAIL = [];
         function orgTailFollow(n, ext) {
             const A = joints[n - 1], B = joints[n - 2]; let sp = Math.hypot(A.x - B.x, A.y - B.y); if (!(sp > 0.5)) sp = 8;
@@ -9812,10 +9814,10 @@
                 // b) Bu parçadan çıkan kanatlar ve bacaklar (gövdenin altında)
                 for (const wg of wings) if (wg.k >= lo && wg.k < hi) drawWing(wg);
                 if (cfg.legs === 'dragon') { for (let i = Math.max(lo, i0 + 2); i < Math.min(hi, split - 2); i++) { if ((i - i0) % 3) continue; const p = pts[i]; if (p.r < 4 * G * S) continue; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a);
-                    const ph = tick * (isBreathingFire ? 14 : 8) - i * 0.8; for (const side of [1, -1]) orgDragonLeg(ctx, side, p.r, G * S * Math.max(0.55, p.r / (20 * G * S)), P, body, ph + (side > 0 ? 0 : Math.PI), 1); ctx.restore(); } }
+                    const ph = PV_HOVER ? -1.85 + 0.3 * Math.sin(tick * 1.3 - i * 0.7) : tick * (isBreathingFire ? 14 : 8) - i * 0.8; for (const side of [1, -1]) orgDragonLeg(ctx, side, p.r, G * S * Math.max(0.55, p.r / (20 * G * S)), P, body, ph + (side > 0 || PV_HOVER ? 0 : Math.PI), 1); ctx.restore(); } }
                 else if (cfg.legs) for (let i = Math.max(lo, i0 + 2); i < Math.min(hi, split - 1); i++) { const p = pts[i]; if (p.r < 4 * G * S) continue; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); orgLegs(ctx, i, p.r, G * S * 0.9 * Math.max(0.55, p.r / (20 * G * S)), P); ctx.restore(); }
-                for (const ak of [armK, armK2]) if (ak >= lo && ak < hi && ak >= 0) { const p = pts[ak]; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); const ph = tick * (isBreathingFire ? 10 : 3) + (ak === armK2 ? 1.5 : 0);
-                    for (const side of [1, -1]) orgDragonLeg(ctx, side, p.r, G * S * Math.min(1.1, cfg.thick || 1) * 0.9, P, body, ph + (side > 0 ? 0 : Math.PI), ak === armK2 ? 1.15 : 1); ctx.restore(); }
+                for (const ak of [armK, armK2]) if (ak >= lo && ak < hi && ak >= 0) { const p = pts[ak]; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.a); const ph = PV_HOVER ? -1.85 + 0.3 * Math.sin(tick * 1.1 + ak) : tick * (isBreathingFire ? 10 : 3) + (ak === armK2 ? 1.5 : 0);
+                    for (const side of [1, -1]) orgDragonLeg(ctx, side, p.r, G * S * Math.min(1.1, cfg.thick || 1) * 0.9, P, body, ph + (side > 0 || PV_HOVER ? 0 : Math.PI), ak === armK2 ? 1.15 : 1); ctx.restore(); }
                 // c) Deri
                 if (chg && hi >= glowFrom) { ctx.shadowBlur = 30; ctx.shadowColor = chgCol; }
                 if (ghost && hiQ) { ctx.shadowBlur = 18; ctx.shadowColor = '#bfe4ff'; }
@@ -13795,6 +13797,7 @@
         })();
     </script>
     <script src="plus.js?v=3"></script>
+    <script src="kostum.js?v=1"></script>
     <script src="ui.js?v=1" defer></script>
     <script src="mp.js?v=7" defer></script>
     <script src="icons.js?v=2" defer></script>
