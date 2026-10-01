@@ -1007,6 +1007,34 @@
             body.m .tp-why-t { padding: 1px 6px !important; font-size: 9px !important; }
             body.m #hintToast { top: calc(var(--sat) + 40px) !important; max-width: 56vw; font-size: 11px !important; }
         }
+
+        /* ===================== MOBİL DENGE DÜZELTMELERİ ===================== */
+        body.m .overlay h1 { font-size: clamp(22px, 7vw, 32px); }
+        body.m .action-btn { padding: 10px 20px; font-size: 14px; letter-spacing: 1px; margin-top: 10px; max-width: 92vw; box-sizing: border-box; }
+        body.m .menu-btns .action-btn { padding: 11px 6px; font-size: 13px; margin-top: 0; }
+        body.m .menu-btns #startBtn, body.m .menu-btns #continueBtn { font-size: 16px; padding: 14px; }
+        body.m .jr-box, body.m .goal-box { padding: 14px 14px; }
+        body.m .jr-box h2, body.m .goal-box h2 { font-size: 18px; letter-spacing: 2px; }
+        body.m .gl-lore { font-size: 13px; }
+        body.m .gl-step { font-size: 12px; padding: 8px 10px; }
+        body.m .skin-preview { width: 56px; height: 56px; font-size: 28px; }
+        body.m .market-content { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 10px; }
+        body.m #mobGrid { grid-template-columns: repeat(2, 50px); gap: 6px; }
+        body.m #mobGrid .mobBtn { width: 50px; height: 50px; font-size: 9px; }
+        body.m #joystickZone { width: 108px; height: 108px; }
+        body.m #fireBtn { width: 76px !important; height: 76px !important; font-size: 12px; }
+        body.m #mpRoot .mp-btn { padding: 9px 12px; font-size: 13.5px; }
+        body.m #mpRoot .mp-btn.big { padding: 12px; font-size: 15px; }
+        body.m #mpRoot .mp-btn.sm { padding: 7px 11px; font-size: 12px; }
+        body.m #mpRoot .mp-mode .i { font-size: 22px; }
+        body.m #mpRoot .mp-arena-b .mp-btn { min-width: 0; padding: 10px 8px; font-size: 13px; }
+        body.m #mpRoot .mp-avs button { font-size: 18px; }
+        @media (orientation: landscape) and (max-height: 520px) {
+            body.m #joystickZone { width: 96px; height: 96px; }
+            body.m #fireBtn { width: 66px !important; height: 66px !important; }
+            body.m #mobGrid { grid-template-columns: repeat(3, 44px); }
+            body.m #mobGrid .mobBtn { width: 44px; height: 44px; font-size: 8px; }
+        }
     </style>
 </head>
 <body>
@@ -13247,7 +13275,21 @@
         ['startBtn', 'continueBtn'].forEach(id => document.getElementById(id).addEventListener('click', goFullscreen));
         (function () { let go = false; try { go = sessionStorage.getItem('boruAutoStart') === '1'; sessionStorage.removeItem('boruAutoStart'); } catch (e) {}
             if (go) setTimeout(() => { const b = document.getElementById('startBtn'); if (b && !gameActive) b.click(); }, 400); })();
-        if ('serviceWorker' in navigator && location.protocol === 'https:') { window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {})); }
+        if ('serviceWorker' in navigator && location.protocol === 'https:') {
+            window.addEventListener('load', () => navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(reg => {
+                const chk = () => { try { reg.update(); } catch (e) {} };
+                document.addEventListener('visibilitychange', () => { if (!document.hidden) chk(); });
+                setInterval(chk, 30 * 60 * 1000);
+            }).catch(() => {}));
+            // Yeni sürüm yüklenince (ana ekrandan açılan uygulama dahil) bir sonraki uygun anda sayfayı yenile
+            let reloading = false, hadCtl = !!navigator.serviceWorker.controller;
+            navigator.serviceWorker.addEventListener('controllerchange', () => { if (!hadCtl) { hadCtl = true; return; } if (reloading) return; reloading = true; location.reload(); });
+            // Sürüm kontrolü: sunucudaki sayfanın imzası değiştiyse uygulamaya dönüldüğünde yenile (oyun sırasında değil)
+            let sig = null;
+            const sigOf = () => fetch('./?v=' + Date.now(), { cache: 'no-store' }).then(r => (r.headers.get('etag') || r.headers.get('last-modified') || '') + '|' + r.headers.get('content-length')).catch(() => null);
+            sigOf().then(v => { sig = v; });
+            document.addEventListener('visibilitychange', () => { if (document.hidden) return; sigOf().then(v => { if (v && sig && v !== sig && !(typeof gameActive !== 'undefined' && gameActive)) location.reload(); else if (v && !sig) sig = v; }); });
+        }
 
         // =====================================================================
         // ÇOK OYUNCULU KÖPRÜ: mp.js (lobi, bağlantı, ses) oyunla bu nesne üzerinden konuşur.
