@@ -9603,9 +9603,6 @@
                 if (live && ABIL.cd <= 0) { let br = 0; const R = 230 * G * S;
                     for (let i = projectiles.length - 1; i >= 0; i--) { const p = projectiles[i]; for (let k = 0; k < n; k += 4) { const j = joints[k]; if ((p.x - j.x) ** 2 + (p.y - j.y) ** 2 < R * R) { abFx({ k: 'shard', x: p.x, y: p.y, life: 22 }); projectiles.splice(i, 1); br++; break; } } }
                     ABIL.cd = br ? 150 : 6; if (br) { applyShake(4); try { playTone(1400, 'triangle', 0.12, 0.05); } catch (_) {} } }
-                // arkada süzülen kırık yansıma
-                if (hiQ) { ctx.save(); ctx.globalAlpha = 0.18 + 0.06 * Math.sin(tick * 3); ctx.strokeStyle = '#ff2a3a'; ctx.lineWidth = 3 * G; ctx.setLineDash([10, 8]); ctx.beginPath();
-                    for (let i = 0; i < n; i += 2) { const j = joints[i]; const ox = -Math.sin(j.angle) * 60 * G, oy = Math.cos(j.angle) * 60 * G; if (!i) ctx.moveTo(j.x - camX + ox, j.y - camY + oy); else ctx.lineTo(j.x - camX + ox, j.y - camY + oy); } ctx.stroke(); ctx.restore(); }
             }
             // --- Ateşyurt Varisi: kor arıları ---
             else if (id === 'emberheir') {

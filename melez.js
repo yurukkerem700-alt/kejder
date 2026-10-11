@@ -648,8 +648,6 @@
                         projectiles.splice(p, 1); br++; break; } } }
                     MS.cd[i] = br ? a.cd : 6; if (br) applyShake(4);
                 }
-                if (hiQ) { c.save(); c.globalAlpha = 0.16 + 0.06 * Math.sin(tick * 3); c.strokeStyle = a.col; c.lineWidth = 3 * G; c.setLineDash([10, 8]); c.beginPath();
-                    for (let k = 0; k < n; k += 2) { const j = joints[k], ox = -Math.sin(j.angle) * 58 * G, oy = Math.cos(j.angle) * 58 * G; k ? c.lineTo(j.x - camX + ox, j.y - camY + oy) : c.moveTo(j.x - camX + ox, j.y - camY + oy); } c.stroke(); c.restore(); }
             } else if (a.t === 'leech') {
                 if (live && MS.cd[i] <= 0) {
                     MS.cd[i] = a.every; let hit = 0; const Rr = a.R * G * S;
