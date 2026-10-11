@@ -1358,14 +1358,13 @@
 
     <div id="marketModal">
         <div class="market-container">
-            <div class="market-title"><i class="ic-market" aria-hidden="true"></i><div>KADİM PAZAR<small>kostüm · karaborsa · ordu · iksir · bölge · hazine</small></div><i class="ic-market" style="transform:scaleX(-1)" aria-hidden="true"></i></div>
+            <div class="market-title"><i class="ic-market" aria-hidden="true"></i><div>KADİM PAZAR<small>kostüm · karaborsa · ordu · iksir · hazine</small></div><i class="ic-market" style="transform:scaleX(-1)" aria-hidden="true"></i></div>
             <div class="market-header">
                 <button class="tab-btn active" onclick="switchMarketTab(this, 'skins')">🐉 KOSTÜMLER</button>
                 <button class="tab-btn" onclick="switchMarketTab(this, 'blackmarket')" style="color: #ff3366;">🏴‍☠️ KARABORSA (ÖZELLEŞTİR)</button>
                 <button class="tab-btn" onclick="switchMarketTab(this, 'army')" style="color: #66aaff;">⚔️ ORDU</button>
                 <button class="tab-btn" onclick="switchMarketTab(this, 'quests')" style="color: #ffd700;">🗺️ GÖREVLER</button>
                 <button class="tab-btn" onclick="switchMarketTab(this, 'potions')" style="color: #00ffcc;">🧪 İKSİRLER</button>
-                <button class="tab-btn" onclick="switchMarketTab(this, 'regions')" style="color: #b9a8ff;">🔒 BÖLGELER</button>
                 <button class="tab-btn" onclick="switchMarketTab(this, 'treasury')" style="color: #ffd24a;">🏛️ HAZİNE</button>
             </div>
             <div class="market-stats">Mevcut Coin: <span id="marketCoinDisplay">0</span> 💰 | Max Seviye: <span id="marketLevelDisplay">1</span> 👑</div>
@@ -2099,23 +2098,6 @@
                     }
                 }
                 container.innerHTML = html;
-            } else if (currentMarketTab === 'regions') {
-                container.style.display = 'block';
-                let html = `<div style="max-width:700px; margin:0 auto;"><div style="text-align:center; color:#b9a8ff; margin-bottom:6px; font-size:14px; font-weight:bold;">Bölge Mühürleri</div>
-                    <div style="text-align:center; color:#aaa; font-size:12px; margin-bottom:16px;">Kül Ormanı ve Kar Dağları açık. Diğer bölgeler için: önceki bölgenin kralını yen + seviye + coin. Mühürler her yeni seferde sıfırlanır.</div>`;
-                const row = (icon, name, body, color) => `<div style="background:#1a1229; border:2px solid ${color}; border-radius:12px; padding:14px 16px; margin-bottom:12px;"><div style="color:#fff; font-weight:bold; font-size:15px; margin-bottom:8px;">${icon} ${name}</div>${body}</div>`;
-                html += row('🌲', 'Kül Ormanı', '<div style="color:#00ff66;">🔓 Açık (başlangıç)</div>', '#2d6a4f');
-                html += row('🏔️', 'Ebedi Kar Dağları', '<div style="color:#00ff66;">🔓 Açık · Kral: ' + (royalDead('kar') ? '✔ yenildi' : 'Buztepe') + '</div>', '#2d6a4f');
-                for (const b of Object.keys(REGION_DEFS)) {
-                    const d = REGION_DEFS[b], open = regionOpen(b), s = regionStatus(b);
-                    const chk = (ok, txt) => `<div style="color:${ok ? '#00ff66' : '#ff6a8a'}; font-size:13px;">${ok ? '✔' : '✖'} ${txt}</div>`;
-                    let body;
-                    if (open) body = '<div style="color:#00ff66;">🔓 Mühür kırıldı</div>';
-                    else body = chk(s.royalOk, s.needName + ' kralını yen') + chk(s.lvlOk, 'Seviye ' + runLevel() + '/' + d.lvl) + chk(s.coinOk, 'Coin ' + coins.toLocaleString('tr-TR') + '/' + d.cost.toLocaleString('tr-TR'))
-                        + `<button class="btn-equip" style="margin-top:10px; background:#222; border-color:${s.ok ? '#00ff66' : '#555'}; color:${s.ok ? '#00ff66' : '#777'};" ${s.ok ? '' : 'disabled'} onclick="unlockRegion('${b}', event)">${s.ok ? 'MÜHRÜ KIR (' + d.cost.toLocaleString('tr-TR') + ')' : 'ŞARTLAR EKSİK'}</button>`;
-                    html += row(d.icon, d.name, body, open ? '#2d6a4f' : '#3d2963');
-                }
-                container.innerHTML = html + '</div>';
             } else if (currentMarketTab === 'treasury') {
                 TREASURY.forEach(it => {
                     const lv = tLvl(it.id), maxed = lv >= TREASURY_MAX, c = treasuryCost(it), ok = coins >= c;
@@ -4409,69 +4391,7 @@
         function royalNearby() { for (const b of activeBosses) if (b.type === 'royal' && (b.x - world.dragonX) ** 2 + (b.y - world.dragonY) ** 2 < 2400 * 2400) return true; return false; }
         function nearThrone(x, y, d) { return ROYALS.some(r => Math.hypot(x - r.throne.x, y - r.throne.y) < d); }
 
-        // =====================================================================
-        // BÖLGE MÜHÜRLERİ: Kül Ormanı ve Kar Dağları baştan açık. Diğer biyomlar mühürlüdür; mührü kırmak için
-        // önceki bölgenin kralını yenmek, belli bir seviyeye gelmek ve coin ödemek gerekir. Sıra: Kar → Buz → Çöl → Deniz.
-        // Mühürlü bölgeye girilemez (kenarda durur/kayar). Her yeni seferde mühürler sıfırlanır (krallar gibi).
-        // =====================================================================
-        var REGION_DEFS = {
-            buz:   { name: 'Kutup Buzulu', icon: '❄️', lvl: 8,  cost: 8000,  need: 'kar' },
-            col:   { name: 'Kavurucu Çöl', icon: '🏜️', lvl: 14, cost: 25000, need: 'buz' },
-            deniz: { name: 'Derin Deniz Abis', icon: '🌊', lvl: 20, cost: 80000, need: 'col' }
-        };
-        var regionState = safeParseJSON('boruRegions', {});
-        let regionHintCd = 0;
-        function regionOpen(b) { return !REGION_DEFS || !REGION_DEFS[b] || !!(regionState && regionState[b]) || royalDead(b); }
-        function regionLockedAt(x, y) { if (MP.active) return null; const n = getBiomeAt(x, y).name; return regionOpen(n) ? null : n; }
-        function runLevel() { if (gameActive) return level; try { const s = JSON.parse(store.getItem('boruSaveState')); return (s && s.level) || 1; } catch (e) { return 1; } }
-        function regionStatus(b) {
-            const d = REGION_DEFS[b]; const needR = royalById(d.need);
-            const royalOk = royalDead(d.need), lvlOk = runLevel() >= d.lvl, coinOk = coins >= d.cost;
-            return { royalOk, lvlOk, coinOk, ok: royalOk && lvlOk && coinOk, needName: needR ? needR.short : d.need };
-        }
-        function nextRegion() { for (const b of Object.keys(REGION_DEFS)) if (!regionOpen(b)) return b; return null; }
-        function regionTip() {
-            if (MP.active) return ''; const b = nextRegion(); if (!b) return '';
-            const d = REGION_DEFS[b], s = regionStatus(b);
-            const need = []; if (!s.royalOk) need.push('önce ' + s.needName + ' kralını yen'); if (!s.lvlOk) need.push('Sv ' + d.lvl); if (!s.coinOk) need.push(d.cost.toLocaleString('tr-TR') + ' coin');
-            return '🗺️ Sıradaki bölge: ' + d.icon + ' ' + d.name + (need.length ? ' — ' + need.join(' · ') : ' — MÜHÜR KIRILABİLİR (Pazar › Bölgeler)');
-        }
         function persistCoins() { store.setItem('boruBackupCoins', coins); try { const s = JSON.parse(store.getItem('boruSaveState')); if (s) { s.coins = coins; store.setItem('boruSaveState', JSON.stringify(s)); } } catch (e) {} }
-        window.unlockRegion = function (b, ev) {
-            if (ev) ev.stopPropagation(); const d = REGION_DEFS[b]; if (!d || regionOpen(b) || !regionStatus(b).ok) return;
-            coins -= d.cost; regionState[b] = true; store.setItem('boruRegions', JSON.stringify(regionState)); persistCoins();
-            updateMarketUI(); renderMarketItems(); SND.play('buy');
-            if (gameActive) { try { showWaveTextLocal('🔓 ' + d.name.toUpperCase() + ' MÜHRÜ KIRILDI', true, '#ffd24a'); } catch (e) {} renderGoal(); renderObjective(); }
-        };
-        // Hareket sonrası: mühürlü bölgeye girmeye çalışırsak eski konuma (kenar boyunca kayarak) geri döneriz.
-        function regionGuard(ox, oy) {
-            if (regionHintCd > 0) regionHintCd--;
-            const nx = world.dragonX, ny = world.dragonY; if (nx === ox && ny === oy) return;
-            const b = regionLockedAt(nx, ny); if (!b) return;
-            if (regionLockedAt(ox, oy)) return; // zaten içerideysek (ışınlanma/eski kayıt) serbest: dışarı çıkabilsin
-            if (!regionLockedAt(nx, oy)) world.dragonY = oy; else if (!regionLockedAt(ox, ny)) world.dragonX = ox; else { world.dragonX = ox; world.dragonY = oy; }
-            if (regionHintCd <= 0) { regionHintCd = 240; const d = REGION_DEFS[b]; hintToast('🔒 ' + d.name + ' mühürlü — Duraklat › Pazar › 🗺️ BÖLGELER', '#b9a8ff', 3200); }
-        }
-        // Mühürlü bölgeleri ekranda karartıp mor bir sisle gösterir (düşük çözünürlüklü maske, yumuşak kenar).
-        const SEAL = { cv: null, c: null, w: 0, h: 0, img: null };
-        function drawRegionSeals() {
-            if (MP.active || !nextRegion()) return;
-            const vw = canvas.width / viewScale, vh = canvas.height / viewScale;
-            const cell = Math.max(48, Math.ceil(Math.max(vw, vh) / 64));
-            const gx0 = Math.floor(camX / cell), gy0 = Math.floor(camY / cell), gw = Math.ceil(vw / cell) + 2, gh = Math.ceil(vh / cell) + 2;
-            if (!SEAL.cv) { SEAL.cv = document.createElement('canvas'); SEAL.c = SEAL.cv.getContext('2d'); }
-            if (SEAL.w !== gw || SEAL.h !== gh) { SEAL.w = gw; SEAL.h = gh; SEAL.cv.width = gw; SEAL.cv.height = gh; SEAL.img = SEAL.c.createImageData(gw, gh); }
-            const d = SEAL.img.data; let any = false;
-            for (let j = 0; j < gh; j++) for (let i = 0; i < gw; i++) {
-                const k = (j * gw + i) * 4, locked = !!regionLockedAt((gx0 + i + 0.5) * cell, (gy0 + j + 0.5) * cell);
-                d[k] = 24; d[k + 1] = 6; d[k + 2] = 48; d[k + 3] = locked ? 150 : 0; if (locked) any = true;
-            }
-            if (!any) return;
-            SEAL.c.putImageData(SEAL.img, 0, 0);
-            ctx.save(); ctx.imageSmoothingEnabled = true; ctx.globalAlpha = 0.85 + Math.sin(tick * 1.5) * 0.1;
-            ctx.drawImage(SEAL.cv, 0, 0, gw, gh, gx0 * cell - camX, gy0 * cell - camY, gw * cell, gh * cell);
-            ctx.restore();
-        }
 
         // =====================================================================
         // HAZİNE: coin'in kalıcı harcama yeri. Her yükseltme tekrar tekrar alınır, bedeli her seviyede %40 artar.
@@ -6367,7 +6287,7 @@
             joints = []; for (let i = 0; i < 20; i++) joints.push({ x: 0, y: 0, angle: 0 });
             stats.fireVolume = 4; stats.rageEfficiency = 1; stats.fireSizeMult = 1; stats.critChance = 0;
             hiredBosses = []; hiveSoldiers = []; hiveTrophies = []; hives = []; hiveStates = {}; store.removeItem('boruHiveStates'); renderTerritoryPanel();
-            royalState = {}; ROYALS.forEach(r => { royalState[r.id] = { dead: false }; }); store.removeItem('boruRoyals'); royalFx = []; regionState = {}; store.removeItem('boruRegions');
+            royalState = {}; ROYALS.forEach(r => { royalState[r.id] = { dead: false }; }); store.removeItem('boruRoyals'); royalFx = [];
             generateQuests();
             // Bu dünyada hikâye henüz izlenmediyse önce açılış animasyonu oynar
             if (!store.getItem('boruStorySeen')) { store.setItem('boruStorySeen', '1'); playStory(() => prepGameStart()); }
@@ -10666,7 +10586,6 @@
                 else if (currentBiome.name === 'deniz') { ctx.fillStyle = `rgba(30,80,160,${0.05 + weatherPulse*0.05})`; ctx.fillRect(0, 0, canvas.width/viewScale, canvas.height/viewScale); }
 
                 drawScorches();
-                drawRegionSeals();
                 drawWorldEdge();
                 if (blackHolePortal) { drawBlackHolePortal(blackHolePortal, camX, camY); }
             }
@@ -11080,8 +10999,7 @@
             if (bhCycle() > 0) return 'kapattığım geçitlerin yankıları geri dönüyor; her biri daha güçlü, daha aç.';
             return ['içimde büyüttüğüm öfkenin yansıması beni bekliyor.', 'yıkılmış yurdum Ateşyurt\'a ve onu yutan Sürü Ana\'ya giden yol.', 'sürüyü gönderen üç başlı kıyametin mezarlığı.'][blackHoleTier % 3];
         }
-        function objectiveInfo() { const o = objectiveInfoBase(), t = regionTip(); return t && !inMirrorArena ? { t: o.t, w: o.w + '<br>' + t } : o; }
-        function objectiveInfoBase() {
+        function objectiveInfo() {
             if (inMirrorArena) { const t = arenaTier(); return { t: '🕳️ ' + t.bossName + '\'yı yen', w: ['Öfkemin üç kat büyümüş yansıması. Onu yenmeden kendimi yenemem.', 'Ateşyurt\'u yutan sürünün anası. Önce Kovan Kalplerini yak — onlar onu koruyor.', 'Başlar yenilenir. Üçünü birden düşür; kalp ancak o zaman açılır.'][currentArenaTier] }; }
             const bt = nextBHTier();
             if (!bt) return { t: '👑 Sefer tamamlandı', w: 'Gökyüzü artık bizim.' };
@@ -11103,7 +11021,6 @@
             }
             // Mobil: tek satırlık kısa amaç
             let m; if (window.BORU && BORU.seeAll) m = '⚔️ Son ejderha kal'; else if (inMirrorArena) m = '🕳️ Bossu yen: ' + arenaTier().bossName; else if (!bt) m = '👑 Sefer tamam'; else if (blackHolePortal) m = '🕳️ Kara deliğe gir'; else m = '🎯 ' + Math.min(totalHivesCapturedLifetime, nextBHReq()) + '/' + nextBHReq() + ' kovan';
-            { const rt = (!inMirrorArena && !(window.BORU && BORU.seeAll)) ? regionTip() : ''; if (rt) h += '<div class="g2" style="margin-top:5px;color:#c9b8ff">' + rt + '</div>'; }
             h += '<span class="gmob">' + m + '</span>';
             if (el._h !== h) { el._h = h; el.innerHTML = h; el.classList.toggle('ok', !!blackHolePortal); }
         }
@@ -11499,7 +11416,6 @@
             const currentMaxSpeed = stats.baseMaxSpeed * camComp * (spacePressed ? 1.5 : 1.0) * (isRageActive ? 1.2 : 1.0) * slowMultiplier * (activePotions.speedPotion > 0 ? 1.4 : 1.0) * biomeSpeedMult();
             const screenDx = mouseScreenX - canvas.width / 2; const screenDy = mouseScreenY - canvas.height / 2; const distFromCenter = Math.hypot(screenDx, screenDy);
 
-            const regOx = world.dragonX, regOy = world.dragonY;
             if (distFromCenter > world.deadZone && !isSuperBeamCharging && !isSuperBeamFiring) {
                 let speedRatio = Math.min(1, (distFromCenter - world.deadZone) / (world.comfortZone - world.deadZone));
                 let cSpeed = currentMaxSpeed * speedRatio;
@@ -11509,7 +11425,6 @@
             // DÜNYANIN SINIRI: ötesine geçilemez
             if (!inMirrorArena && !isArenaTransitioning) { const wd = Math.hypot(world.dragonX, world.dragonY); if (wd > WORLD_R) { world.dragonX *= WORLD_R / wd; world.dragonY *= WORLD_R / wd; if (!(worldEdgeHintCd > 0)) { hintToast('🌑 Dünyanın sınırı: ötesi boşluk', '#b9a8ff', 2200); worldEdgeHintCd = 900; } } }
             if (worldEdgeHintCd > 0) worldEdgeHintCd--;
-            if (!inMirrorArena && !isArenaTransitioning && !MP.active) regionGuard(regOx, regOy);
             // GÜVENLİ BÖLGE MANTIĞI
             if (inMirrorArena && !isArenaTransitioning) { const po = { x: world.dragonX, y: world.dragonY }; clampToArena(po, 30); world.dragonX = po.x; world.dragonY = po.y; }
             let distToSafe = Math.hypot(world.dragonX - safeZone.x, world.dragonY - safeZone.y);
