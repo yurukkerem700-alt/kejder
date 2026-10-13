@@ -1,4 +1,4 @@
-<p align="center"><img src=".github/cover.png" alt="BÖRÜ: SON KRAL" width="100%"></p>
+<p align="center"><img src=".github/cover.jpg" alt="BÖRÜ: SON KRAL" width="100%"></p>
 
 # BÖRÜ: SON KRAL
 
