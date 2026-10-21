@@ -1626,7 +1626,8 @@
         let viewScale = userZoom;
 
         // --- GELİŞMİŞ AYARLAR ---
-        let gfxQuality = store.getItem('boruGfx') || (isMobile ? 'mid' : 'high');
+        let gfxQuality = store.getItem('boruGfx') || 'mid';
+        if (!['low', 'mid', 'high'].includes(gfxQuality)) gfxQuality = 'mid';
         const gfxMultMap = { low: 0.45, mid: 0.75, high: 1.0 };
         let uiSettings = Object.assign({ minimap: true, showName: false, showLore: true }, (function(){ try { return JSON.parse(store.getItem('boruUiSettings')) || {}; } catch(e) { return {}; } })());
         function applyUiSettings() {
@@ -1638,7 +1639,7 @@
             document.querySelectorAll('#gfxSelector .opt-btn').forEach(b => b.classList.toggle('active', b.dataset.v === gfxQuality));
             document.querySelectorAll('#fpsSelector .opt-btn').forEach(b => b.classList.toggle('active', +b.dataset.v === fpsCap));
             // Gölge bulanıklığı telefon ekran kartını en çok yoran çizim: mobilde orta kalitede daha kısık
-            ctx._sbMax = ({ low: 0, mid: isMobile ? 5 : 10, high: isMobile ? 16 : 999 })[gfxQuality] ?? 999;
+            ctx._sbMax = ({ low: 0, mid: isMobile ? 5 : 10, high: isMobile ? 12 : 16 })[gfxQuality] ?? 999;
         }
         // KARE HIZI SINIRI: mobilde varsayılan 30 FPS (oyun mantığı yine saniyede 60 adım çalışır, sadece
         // ekran yarı sıklıkta çizilir). Isınma, pil tüketimi ve ısınınca gelen kasmalar belirgin azalır.
@@ -7152,6 +7153,7 @@
 
         // --- SIFIRDAN TASARLANMIŞ DÜŞMAN ÇİZİMLERİ (gradyan gölgeleme + daha fazla anatomik detay) ---
         function drawBatEnemy(ctx, e, isHit, tick) {
+            if (ctxMuted) return;
             const s = e.size; const batFlap = Math.sin(tick * 10 + e.wobble) * 0.85;
             const bodyGrad = ctx.createRadialGradient(-s*0.3, -s*0.3, s*0.1, 0, 0, s*1.2);
             if (isHit) { bodyGrad.addColorStop(0, '#ffffff'); bodyGrad.addColorStop(1, '#dddddd'); }
@@ -7186,6 +7188,7 @@
         }
 
         function drawScorpionEnemy(ctx, e, isHit, tick) {
+            if (ctxMuted) return;
             const s = e.size;
             const shellGrad = ctx.createRadialGradient(-s*0.2, -s*0.3, s*0.1, 0, 0, s*1.3);
             if (isHit) { shellGrad.addColorStop(0, '#ffffff'); shellGrad.addColorStop(1, '#eeeeee'); }
@@ -7231,6 +7234,7 @@
         }
 
         function drawKobraEnemy(ctx, e, isHit, tick) {
+            if (ctxMuted) return;
             const s = e.size;
             const scaleGrad = ctx.createRadialGradient(-s*0.3, -s*0.3, s*0.1, 0, 0, s*1.3);
             if (isHit) { scaleGrad.addColorStop(0, '#ffffff'); scaleGrad.addColorStop(1, '#eeeeee'); }
@@ -7265,6 +7269,7 @@
         }
 
         function drawBeetleEnemy(ctx, e, isHit, tick) {
+            if (ctxMuted) return;
             const s = e.size;
             const shellGrad = ctx.createRadialGradient(-s*0.35, -s*0.4, s*0.1, 0, 0, s*1.2);
             if (isHit) { shellGrad.addColorStop(0, '#ffffff'); shellGrad.addColorStop(1, '#eeeeee'); }
@@ -7301,6 +7306,7 @@
         // Kovanları savunan asıl "asker böcekler" bunlar - beetle/scorpion'dan farklı olarak yakınlaşıp
         // hızlı bir iğne saldırısı yapıp geri sıçrıyor, bu da onu yakalanması zor ama düşük hasarlı yapıyor.
         function drawWaspEnemy(ctx, e, isHit, tick) {
+            if (ctxMuted) return;
             const s = e.size;
             let flap = Math.sin(tick * 25) * 0.5;
             // Kanatlar (arkada, titreşen)
@@ -7328,6 +7334,7 @@
         }
 
         function drawSkeletonEnemy(ctx, e, isHit, tick) {
+            if (ctxMuted) return;
             const s = e.size;
             const boneGrad = ctx.createRadialGradient(-s*0.3, -s*0.3, s*0.1, 0, 0, s*1.2);
             if (isHit) { boneGrad.addColorStop(0, '#ffffff'); boneGrad.addColorStop(1, '#ffffff'); }
@@ -7904,12 +7911,17 @@
         // KOVAN ASKERİ v3: YAVRU EJDERHA - Magma Börü'nün küçük bir kopyası gibi: tırpan kanatlar, kor
         // parıltılı sırt dikenleri, kıvrık küçük boynuzlar, iri parlayan gözler. Saldırırken minik bir alev
         // püskürtür. Renkleri marketteki yavru kostümünden gelir.
+        function inView(x, y, margin = 100) {
+            return x >= camX - margin && y >= camY - margin &&
+                x <= camX + canvas.width / viewScale + margin && y <= camY + canvas.height / viewScale + margin;
+        }
         function drawHiveSoldier(s) {
             const P = armyPal('soldier'); const z = s.size / 24; const col = s.called ? '#00ffcc' : P.main; const hue = hexToHue(col);
             if (s.strike > 0) s.strike -= 0.07;
             if (!s.joints) s.joints = Array.from({ length: 7 }, () => ({ x: s.x, y: s.y, angle: s.angle }));
             const J = s.joints; J[0].x = s.x; J[0].y = s.y; J[0].angle = s.angle;
             for (let k = 1; k < J.length; k++) { const pv = J[k - 1], c = J[k]; c.angle = Math.atan2(pv.y - c.y, pv.x - c.x); c.x = pv.x - Math.cos(c.angle) * 7 * z; c.y = pv.y - Math.sin(c.angle) * 7 * z; }
+            if (ctxMuted || !inView(s.x, s.y, Math.max(120, s.size * 4))) return;
             // kanatlar
             const wj = J[2]; const flap = Math.sin(tick * 9 + s.wobble) * 0.45;
             ctx.save(); ctx.translate(wj.x - camX, wj.y - camY); ctx.rotate(wj.angle); ctx.scale(0.3 * z, 0.3 * z);
@@ -8270,7 +8282,11 @@
 
         // Sabit Ok Çizimi
         // MİNİ HARİTA: sığınak, ejderha, kovanlar ve aktif bosslar küçük bir dairesel haritada gösterilir.
+        let minimapLastDraw = -Infinity;
         function drawMinimap() {
+            const now = performance.now();
+            if (ctxMuted || now - minimapLastDraw < 100) return;
+            minimapLastDraw = now;
             const W = minimapCanvas.width, H = minimapCanvas.height, cx = W/2, cy = H/2;
             const scale = 0.022; // dünya birimi -> minimap pikseli
             const range = cx - 8;
@@ -8690,7 +8706,7 @@
         }
         function drawKazuma(S, G) {
             const n = joints.length; if (n < 4) return;
-            const hiQ = gfxQuality !== 'low'; const fullQ = gfxQuality === 'high';
+            const hiQ = gfxQuality !== 'low' && FX.q > 0.4; const fullQ = gfxQuality === 'high' && FX.q > 0.75;
             const body = isRageActive ? ['#c8ecff', '#1f5c96', '#03101f'] : KZP.body;
             const memb = isRageActive ? ['#3a5cc0', '#121e5a', '#030618'] : KZP.membrane;
             const vein = isRageActive ? (activeTheme.rageBlueMode ? '#66ccff' : '#ffffff') : KZP.vein;
@@ -9554,7 +9570,7 @@
             const live = !isPaused && gameActive && !(MP.active && MP.localDead) && !spacePressed && !MP.noSkinBuffs;
             const D = Math.max(6, stats.fireDamage || 10); const H = joints[0], ha = H.angle;
             const mouth = { x: H.x + Math.cos(ha) * 50 * G * S, y: H.y + Math.sin(ha) * 50 * G * S };
-            const hiQ = gfxQuality !== 'low'; const P = (ORG_SKINS[id] || {}).pal || { vein: activeTheme.mainColor, body: ['#fff', '#888', '#000'], bone: '#fff', scaleEdge: '#fff', membrane: ['#fff', '#888', '#000'] };
+            const hiQ = gfxQuality !== 'low' && FX.q > 0.4; const P = (ORG_SKINS[id] || {}).pal || { vein: activeTheme.mainColor, body: ['#fff', '#888', '#000'], bone: '#fff', scaleEdge: '#fff', membrane: ['#fff', '#888', '#000'] };
             if (live) { ABIL.t++; if (ABIL.cd > 0) ABIL.cd--; }
             const segR = 22 * G * S;
             // --- Mürekkep Ejderi: solungaç avı ---
@@ -9842,7 +9858,7 @@
         }
         function drawOrganic(S, G, cfg, ghost) {
             const n = joints.length; if (n < 4) return;
-            const hiQ = gfxQuality !== 'low'; const fullQ = gfxQuality === 'high';
+            const hiQ = gfxQuality !== 'low' && FX.q > 0.4; const fullQ = gfxQuality === 'high' && FX.q > 0.75;
             const P0 = ghost ? Object.assign({}, cfg.pal, ORG_GHOST, { irid: false }) : cfg.pal;
             const P = Object.assign({}, P0);
             if (isRageActive && !ghost) { P.body = ['#c8ecff', '#1f5c96', '#03101f']; P.membrane = ['#3a5cc0', '#121e5a', '#030618']; P.vein = activeTheme.rageBlueMode ? '#66ccff' : '#ffffff'; }
@@ -9854,6 +9870,7 @@
             const raw = joints.map(j => ({ x: j.x - camX, y: j.y - camY, a: j.angle }));
             const ext = Math.round(n * (cfg.tailExt || 0));
             if (ext) { orgTailFollow(n, ext); for (let m = 0; m < ext; m++) { const q = ORG_TAIL[m]; raw.push({ x: q.x - camX, y: q.y - camY, a: q.angle }); } }
+            if (ctxMuted) return;
             const N = raw.length; const pts = [];
             for (let i = 0; i < N; i++) { const t = i / (N - 1); const tn = i / (n - 1);
                 let w; if (tn < nl) w = nw + (1 - nw) * Math.pow(tn / nl, 2); else w = Math.pow(Math.max(0, 1 - (t - nl * (n - 1) / (N - 1)) / (1 - nl * (n - 1) / (N - 1))), cfg.taper || 0.85);
@@ -10548,17 +10565,23 @@
         }
         // KASMA ÖNLEYİCİ: kareler uzun süre yavaş gelirse efekt yükü ve gölge bulanıklığı otomatik azalır
         function fxPerfSample(dt) {
-            FX.ema = FX.ema * 0.95 + Math.min(dt, 100) * 0.05;
-            // Yavaşlık eşiği seçilen kare hızına göre (30 FPS'te 33 ms normaldir, yavaşlık sayılmaz)
-            if (FX.ema > (fpsCap === 30 ? 44 : 24)) FX.slowT++; else if (FX.slowT > 0) FX.slowT--;
-            if (FX.slowT > 90 && FX.q > 0.55) { FX.q = 0.55; ctx._sbMax = Math.min(ctx._sbMax, 4); FX.slowT = 0; }
-            else if (FX.slowT > 90 && FX.q > 0.4) { FX.q = 0.4; ctx._sbMax = 0; FX.slowT = 0; }
-            // Efektler kısıldığı hâlde hâlâ kasıyorsa (OTO çözünürlükte) çizim çözünürlüğü kademeli düşer: %100 → %85 → %70
-            else if (FX.slowT > 90 && resMode === 'auto' && renderScale > 0.7) { setRenderScale(renderScale > 0.86 ? 0.85 : 0.7); FX.slowT = 0; FX.fastT = 0; }
-            // Uzun süre rahat akıyorsa çözünürlük bir kademe geri yükselir (titreşmesin diye eşik çok daha düşük)
-            if (resMode === 'auto' && renderScale < 1) {
-                const budget = 1000 / fpsCap; if (FX.ema < budget * 1.15 && (FX.work || 0) < budget * 0.35) FX.fastT = (FX.fastT || 0) + 1; else FX.fastT = 0;
-                if (FX.fastT > 900) { setRenderScale(renderScale < 0.8 ? 0.85 : 1); FX.fastT = 0; }
+            const budget = 1000 / fpsCap;
+            FX.ema = FX.ema * 0.92 + Math.min(dt, 100) * 0.08;
+            const slow = FX.ema > budget * 1.3 || (FX.work || 0) > budget * 0.85;
+            FX.slowT = slow ? (FX.slowT || 0) + Math.min(dt, 100) : Math.max(0, (FX.slowT || 0) - dt);
+            if (FX.slowT > 750) {
+                if (FX.q > 0.55) FX.q = 0.55;
+                else if (FX.q > 0.4) FX.q = 0.4;
+                else if (resMode === 'auto' && renderScale > 0.5) setRenderScale(Math.max(0.5, Math.round((renderScale - 0.15) * 100) / 100));
+                ctx._sbMax = FX.q <= 0.4 ? 0 : Math.min(ctx._sbMax, 4);
+                FX.slowT = 0; FX.fastT = 0;
+            }
+            const comfortable = FX.ema < budget * 1.15 && (FX.work || 0) < budget * 0.35;
+            FX.fastT = comfortable ? (FX.fastT || 0) + Math.min(dt, 100) : 0;
+            if (FX.fastT > 15000) {
+                if (resMode === 'auto' && renderScale < 1) setRenderScale(Math.min(1, Math.round((renderScale + 0.15) * 100) / 100));
+                else if (FX.q < 1) { FX.q = FX.q < 0.55 ? 0.55 : 1; applyUiSettings(); }
+                FX.fastT = 0;
             }
         }
         let worldEdgeHintCd = 0;
@@ -10658,8 +10681,9 @@
         }
         function gameLoop(now) {
             if (!gameActive) { loopRunning = false; return; }
-            // 30 FPS sınırı: bu kareyi atla (geçen süre bir sonraki karede toplu işlenir, oyun hızı aynı kalır)
-            if (fpsCap === 30 && now - loopLast < 1000 / 30 - 4) { requestAnimationFrame(gameLoop); return; }
+            if (document.hidden || isPaused) { loopLast = now; loopAcc = 0; requestAnimationFrame(gameLoop); return; }
+            // 30/60 FPS sınırı: 120/144 Hz ekranlarda gereksiz döngüleri de atla (geçen süre bir sonraki karede toplu işlenir, oyun hızı aynı kalır)
+            if (now - loopLast < 1000 / fpsCap - 1) { requestAnimationFrame(gameLoop); return; }
             let dt = now - loopLast; loopLast = now; if (dt > 250) dt = 250; fxPerfSample(dt);
             if (hitStop > 0) { hitStop -= dt; requestAnimationFrame(gameLoop); return; }
             loopAcc += dt;
@@ -10673,7 +10697,7 @@
                 try { gameStep(); } finally { if (more) ctxMute(false); }
                 loopAcc -= STEP_MS; n++; if (!gameActive) break;
             }
-            FX.work = (FX.work || 0) * 0.95 + (performance.now() - now) * 0.05; // bu karede oyun mantığı + çizim komutlarına giden süre
+            FX.work = (FX.work || 0) * 0.8 + (performance.now() - now) * 0.2; // bu karede oyun mantığı + çizim komutlarına giden süre
             if (loopAcc > STEP_MS * 3) loopAcc = 0;
             if (loopAcc < -STEP_MS) loopAcc = -STEP_MS;
             if (!gameActive) { loopRunning = false; return; }
@@ -11853,6 +11877,7 @@
             escortTick++; if (escortMsgCd > 0) escortMsgCd--;
             if (escortTick % 30 === 0) rebalanceEscorts();
             const escMains = hiredBosses.slice(0, ESC_MAIN); const escSlots = [0, 0];
+            const soldierHomes = new Map(hives.map(h => [h.id, h]));
             for (let si = hiveSoldiers.length - 1; si >= 0; si--) {
                 let s = hiveSoldiers[si];
                 if (s.hp !== undefined && s.hp <= 0) { for (let k = 0; k < 5; k++) trailParticles.push({ x: s.x, y: s.y, life: 1.0, size: 8 + Math.random()*6, color: '#2288ff' }); hiveSoldiers.splice(si, 1); continue; }
@@ -11894,7 +11919,7 @@
                     if (s.assaultTarget) soldierEngage(s, s.assaultTarget, 1.3); else assignToEscort(s);
                     drawHiveSoldier(s); continue;
                 }
-                let homeHive = hives.find(hh => hh.id === s.hiveId);
+                let homeHive = soldierHomes.get(s.hiveId);
                 if (!homeHive || homeHive.status !== 'friendly') { hiveSoldiers.splice(si, 1); continue; }
                 const gp = nearestPlayer(homeHive.x, homeHive.y); let distPlayerToHive = Math.hypot(homeHive.x - gp.x, homeHive.y - gp.y);
                 let guardMode = distPlayerToHive < 900;
@@ -12311,6 +12336,7 @@
                     for (let p of fireNear(e.x, e.y, e.size)) { if (p.life > 0.3 && (e.x-p.x)**2 + (e.y-p.y)**2 < (e.size + p.size*0.4)**2) { e.hp = -9999; p.life -= 0.15; isHitF = true; } }
                     if (e.hp <= 0) { onFleeingKilled(e); enemies.splice(i, 1); continue; }
                     if (e.fleeTimer > 240 || fdist > 900) { enemies.splice(i, 1); continue; }
+                    if (ctxMuted || !inView(e.x, e.y, Math.max(100, e.size * 5))) continue;
                     const ex = e.x - camX; const ey = e.y - camY;
                     ctx.save(); ctx.translate(ex, ey); ctx.rotate(Math.atan2(fdy, fdx)); ctx.globalAlpha = 0.85;
                     if (e.type === 'bat') { drawBatEnemy(ctx, e, isHitF, tick); } else { drawKobraEnemy(ctx, e, isHitF, tick); }
@@ -12444,6 +12470,7 @@
                     enemies.splice(i, 1); continue;
                 }
 
+                if (ctxMuted || !inView(e.x, e.y, Math.max(100, e.size * 5))) continue;
                 const ex = e.x - camX; const ey = e.y - camY;
                 ctx.save(); ctx.translate(ex, ey); ctx.rotate(angleToDragon);
 
@@ -13928,6 +13955,6 @@
     <script src="kostum.js?v=2"></script>
     <script src="ui.js?v=1" defer></script>
     <script src="mp.js?v=7" defer></script>
-    <script src="icons.js?v=3" defer></script>
+    <script src="icons.js?v=4" defer></script>
 </body>
 </html>

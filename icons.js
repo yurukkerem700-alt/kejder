@@ -382,6 +382,7 @@
     }
     function scan(root) {
         if (!root) return;
+        if (root.nodeType === 1 && (root.closest('.gi') || SKIP.test(root.nodeName))) return;
         if (root.nodeType === 1) cleanTree(root);
         if (root.nodeType === 3) { swap(root); return; }
         if (root.nodeType !== 1 || SKIP.test(root.nodeName) || (root.classList && root.classList.contains('gi'))) return;
@@ -390,11 +391,15 @@
     }
     // Değişiklikleri toplayıp kare başına bir kez işle (oyun HUD'unu yormasın)
     let q = new Set(), raf = 0;
-    const flush = () => { raf = 0; const items = [...q]; q = new Set(); for (const n of items) { if (n.isConnected) scan(n); } };
+    const flush = () => {
+        raf = 0; const items = [...q]; q.clear(); mo.disconnect();
+        try { for (const n of items) { if (n.isConnected) scan(n); } }
+        finally { mo.observe(document.body, { childList: true, subtree: true, characterData: true }); }
+    };
     const mo = new MutationObserver((ms) => {
         for (const m of ms) {
             if (m.type === 'characterData') { if (m.target.nodeValue && TEST.test(m.target.nodeValue)) q.add(m.target); }
-            else m.addedNodes.forEach(n => { if (n.nodeType === 1 || (n.nodeType === 3 && TEST.test(n.nodeValue))) q.add(n); });
+            else m.addedNodes.forEach(n => { if ((n.nodeType === 1 && !n.closest('.gi') && !SKIP.test(n.nodeName)) || (n.nodeType === 3 && TEST.test(n.nodeValue) && !inSkip(n))) q.add(n); });
         }
         if (q.size && !raf) raf = requestAnimationFrame(flush);
     });
