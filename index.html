@@ -1045,6 +1045,14 @@
             body.m #mobGrid { grid-template-columns: repeat(3, 44px); }
             body.m #mobGrid .mobBtn { width: 44px; height: 44px; font-size: 8px; }
         }
+        body.in-game #xpBar, body.in-game #safeZoneIndicator, body.in-game #hireBossBtn,
+        body.in-game #sanctuaryBtn, body.in-game #skillBtn, body.in-game #rpBtn { animation: none !important; }
+        .sanct-box { background: linear-gradient(145deg,#242b24,#111b17); border:1px solid #a28d5b; border-radius:8px; box-shadow:0 20px 70px #0009; }
+        .sanct-box h2 { color:#e1ca96; text-shadow:none; font-family:Georgia,serif; }
+        .sanct-info div { border-color:#796e4e; background:#101c17; }
+        .sanct-card { background:linear-gradient(140deg,#30382d,#1a241e); border-color:#675e45; border-radius:5px; }
+        .sanct-card .sc-d { color:#c4c8b4; line-height:1.55; }
+        .sanct-card button { background:#9d8143; color:#fff3d6; border-color:#c3a568; }
     </style>
 </head>
 <body>
@@ -2994,16 +3002,66 @@
             for (let k = 0; k < 20; k++) xpGems.push({ x: safeZone.x + (Math.random() - 0.5) * 120, y: safeZone.y + (Math.random() - 0.5) * 120, size: 14 });
         }
 
+        let sanctuaryGround = null;
+        function drawSanctuaryGround(cx, cy, R) {
+            const key = [R, sanct.walls, sanct.hq, sanct.spring].join(':');
+            if (!sanctuaryGround || sanctuaryGround.key !== key) {
+                const extent = R + 100, size = Math.min(1536, Math.ceil(extent * 2));
+                const layer = document.createElement('canvas'); layer.width = layer.height = size;
+                const c = layer.getContext('2d'), scale = size / (extent * 2); c.scale(scale, scale); c.translate(extent, extent);
+                let seed = 713; const random = () => ((seed = Math.imul(seed, 1664525) + 1013904223 >>> 0) / 4294967296);
+                c.fillStyle = 'rgba(0,0,0,.28)'; c.beginPath(); c.ellipse(10, 22, R + 30, R + 12, 0, 0, Math.PI * 2); c.fill();
+                c.save(); c.beginPath(); c.arc(0, 0, R - 9, 0, Math.PI * 2); c.clip();
+                const g = c.createRadialGradient(-R * .25, -R * .3, 20, 0, 0, R); g.addColorStop(0, '#646353'); g.addColorStop(1, '#303d34'); c.fillStyle = g; c.fillRect(-R, -R, R * 2, R * 2);
+                for (let y = -R; y < R; y += 38) for (let x = -R; x < R; x += 56) {
+                    const xx = x + (Math.round(y / 38) % 2) * 28, shade = 60 + Math.floor(random() * 24);
+                    c.fillStyle = `rgb(${shade + 13},${shade + 14},${shade + 4})`; c.strokeStyle = 'rgba(18,25,20,.5)'; c.lineWidth = 2;
+                    c.beginPath(); c.moveTo(xx + 3, y + 3); c.lineTo(xx + 50, y + 2 + random() * 4); c.lineTo(xx + 53, y + 31); c.lineTo(xx + 4, y + 35); c.closePath(); c.fill(); c.stroke();
+                    if (random() < .2) { c.strokeStyle = '#4e5b3c'; c.lineWidth = 3; c.beginPath(); c.moveTo(xx + 3, y + 4); c.lineTo(xx + 5, y + 25); c.stroke(); }
+                }
+                c.strokeStyle = 'rgba(183,166,120,.28)'; c.lineWidth = 5; c.beginPath(); c.arc(0, 0, R * .48, 0, Math.PI * 2); c.stroke();
+                // Radial walkways lead to the fountain, altar and entrance.
+                c.strokeStyle = 'rgba(177,159,120,.32)'; c.lineWidth = 26; c.beginPath(); c.moveTo(0, R); c.lineTo(0, -R * .5); c.moveTo(-R * .58, 40); c.lineTo(R * .58, 40); c.stroke();
+                // Weathered refuge buildings: shadows, stone plinths and layered timber roofs.
+                const building = (x, y, w, h, roof, label) => {
+                    c.fillStyle = 'rgba(0,0,0,.35)'; c.fillRect(x - w / 2 + 9, y - h / 2 + 14, w + 12, h + 14);
+                    c.fillStyle = '#5e5e4c'; c.strokeStyle = '#252c23'; c.lineWidth = 3; c.fillRect(x - w / 2 - 4, y - h / 2 - 4, w + 8, h + 8); c.strokeRect(x - w / 2 - 4, y - h / 2 - 4, w + 8, h + 8);
+                    c.fillStyle = roof; c.beginPath(); c.moveTo(x - w / 2 - 10, y - h / 2); c.lineTo(x, y - h / 2 - 14); c.lineTo(x + w / 2 + 10, y - h / 2); c.lineTo(x + w / 2 + 8, y + h / 2); c.lineTo(x, y + h / 2 + 12); c.lineTo(x - w / 2 - 8, y + h / 2); c.closePath(); c.fill(); c.stroke();
+                    c.strokeStyle = 'rgba(215,192,134,.35)'; c.lineWidth = 2;
+                    for (let yy = y - h / 2 + 10; yy < y + h / 2; yy += 13) { c.beginPath(); c.moveTo(x - w / 2 + 3, yy); c.lineTo(x + w / 2 - 3, yy + 1); c.stroke(); }
+                    c.strokeStyle = '#b2a17a'; c.lineWidth = 4; c.beginPath(); c.moveTo(x, y - h / 2 - 10); c.lineTo(x, y + h / 2 + 10); c.stroke();
+                    c.fillStyle = '#d7c59a'; c.font = 'bold 10px Georgia'; c.textAlign = 'center'; c.fillText(label, x, y + h / 2 + 32);
+                };
+                building(R * -.34, R * -.33, 85, 62, '#514b3b', 'MUHAFIZLAR');
+                building(R * .2, R * -.44, 110 + Math.min(20, sanct.hq * 2), 74, '#574539', 'KARARGÂH');
+                building(R * -.43, R * .27, 68, 55, '#414d3e', 'ERZAK');
+                for (let i = 0; i < 70; i++) {
+                    const angle = random() * Math.PI * 2, rr = R * (.82 + random() * .12), x = Math.cos(angle) * rr, y = Math.sin(angle) * rr;
+                    c.strokeStyle = random() > .5 ? '#6b7651' : '#465940'; c.lineWidth = 2;
+                    c.beginPath(); c.moveTo(x, y); c.quadraticCurveTo(x - 6, y - 6, x - 3, y - 13); c.moveTo(x, y); c.quadraticCurveTo(x + 6, y - 5, x + 9, y - 9); c.stroke();
+                }
+                c.restore();
+                const blocks = Math.ceil(R * 2 * Math.PI / 46);
+                for (let k = 0; k < blocks; k++) {
+                    const a = k / blocks * Math.PI * 2; if (Math.abs(a - Math.PI / 2) < .12) continue;
+                    c.save(); c.translate(Math.cos(a) * R, Math.sin(a) * R); c.rotate(a);
+                    c.fillStyle = sanct.walls ? '#555d55' : '#666654'; c.strokeStyle = '#242d27'; c.lineWidth = 2;
+                    c.fillRect(-12 - sanct.walls * .5, -20, 24 + sanct.walls, 39); c.strokeRect(-12 - sanct.walls * .5, -20, 24 + sanct.walls, 39);
+                    c.fillStyle = '#8a8c76'; c.fillRect(-12 - sanct.walls * .5, -20, 7, 39); c.restore();
+                }
+                // Gate pylons and a central carved dragon crest.
+                for (const side of [-1, 1]) { c.fillStyle = '#343e35'; c.fillRect(side * 55 - 16, R - 30, 32, 60); c.fillStyle = '#8c8b6e'; c.fillRect(side * 55 - 20, R - 36, 40, 10); }
+                c.strokeStyle = '#ac9c6e'; c.lineWidth = 3; c.beginPath(); c.moveTo(-30, -100); c.bezierCurveTo(55, -155, 70, -65, 0, -65); c.bezierCurveTo(-40, -65, -45, -115, 12, -125); c.stroke();
+                sanctuaryGround = { key, layer, extent };
+            }
+            const { layer, extent } = sanctuaryGround; ctx.drawImage(layer, cx - extent, cy - extent, extent * 2, extent * 2);
+        }
         // Sığınak yapıları: surlar, şifa pınarı, sunak ve nöbetçi kuleleri (hem çizim hem kule mantığı)
         function updateAndDrawSanctuary() {
             const cx = safeZone.x - camX, cy = safeZone.y - camY, R = safeZone.radius;
-            // Surlar
-            if (sanct.walls > 0) {
-                ctx.save(); ctx.strokeStyle = '#3a4a44'; ctx.lineWidth = 10 + sanct.walls * 2; ctx.setLineDash([36, 10]);
-                ctx.beginPath(); ctx.arc(cx, cy, R + 6, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
-                ctx.strokeStyle = 'rgba(0,255,204,0.35)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, R + 6 + (10 + sanct.walls * 2) / 2, 0, Math.PI * 2); ctx.stroke();
-                ctx.restore();
-            }
+            const visible = !ctxMuted && inView(safeZone.x, safeZone.y, R + 130);
+            if (visible) {
+            drawSanctuaryGround(cx, cy, R);
             // Şifa pınarı
             const px = cx - 90, py = cy + 40;
             ctx.save();
@@ -3017,7 +3075,7 @@
             ctx.save(); ctx.fillStyle = '#4a4038'; ctx.strokeStyle = '#1a1410'; ctx.lineWidth = 2;
             ctx.fillRect(ax - 26, ay - 8, 52, 22); ctx.strokeRect(ax - 26, ay - 8, 52, 22); ctx.fillRect(ax - 32, ay + 14, 64, 8);
             if (ready) { ctx.shadowBlur = 20 + Math.sin(tick * 5) * 8; ctx.shadowColor = '#ffd700'; }
-            ctx.font = '30px Arial'; ctx.textAlign = 'center'; ctx.fillText(ready ? '🎁' : '📦', ax, ay - 12 + (ready ? Math.sin(tick * 4) * 4 : 0)); ctx.shadowBlur = 0;
+            ctx.fillStyle = '#664328'; ctx.fillRect(ax - 20, ay - 31, 40, 24); ctx.strokeStyle = '#b79b55'; ctx.lineWidth = 3; ctx.strokeRect(ax - 20, ay - 31, 40, 24); ctx.fillStyle = ready ? '#edc56a' : '#8f815d'; ctx.fillRect(ax - 3, ay - 25, 6, 10); ctx.shadowBlur = 0; ctx.textAlign = 'center';
             ctx.fillStyle = ready ? '#ffd700' : '#9cc'; ctx.font = 'bold 11px Segoe UI';
             ctx.fillText(ready ? 'HAZİNE HAZIR!' : Math.ceil((sanct.nextAltar - Date.now()) / 1000) + ' sn', ax, ay + 38);
             ctx.restore();
@@ -3029,6 +3087,7 @@
               ctx.fillStyle = '#ffaa44'; ctx.shadowBlur = 14 + Math.sin(tick * 3) * 5; ctx.shadowColor = '#ff6a00';
               ctx.beginPath(); ctx.ellipse(mx, my - 36 + Math.sin(tick * 4) * 1.5, 4, 7 + Math.sin(tick * 6) * 1.5, 0, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
               ctx.fillStyle = 'rgba(255,220,190,0.75)'; ctx.font = 'italic 11px Segoe UI'; ctx.textAlign = 'center'; ctx.fillText('Annemin düştüğü yer', mx, my + 26); ctx.restore(); }
+            } // visible sanctuary decorations; tower combat continues offscreen.
             // Nöbetçi kuleleri
             const n = sanct.towers * 2; if (towerCooldowns.length !== n) towerCooldowns = new Array(n).fill(0);
             const dmg = (40 + 35 * sanct.towers) * (1 + currentWave * 0.08); const cd = sanct.towers <= 5 ? 50 - sanct.towers * 5 : Math.max(14, 25 - (sanct.towers - 5) * 2);
@@ -3041,6 +3100,7 @@
                     if (!best) for (const b of activeBosses) { const d = Math.hypot(b.x - tx, b.y - ty); if (d < bd) { bd = d; best = b; } }
                     if (best) { towerBolts.push({ x: tx, y: ty - 30, t: best, dmg: best.maxHp ? dmg * 0.5 : dmg, life: 90 }); towerCooldowns[k] = cd; if (Math.random() < 0.3) playTone(1200, 'sine', 0.06, 0.05); }
                 }
+                if (!visible) continue;
                 const sx = tx - camX, sy = ty - camY; const fire = towerCooldowns[k] > cd - 8;
                 ctx.save(); ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.beginPath(); ctx.ellipse(sx, sy + 6, 20, 8, 0, 0, Math.PI * 2); ctx.fill();
                 let tg = ctx.createLinearGradient(sx - 14, 0, sx + 14, 0); tg.addColorStop(0, '#3a4640'); tg.addColorStop(0.5, '#7a8a84'); tg.addColorStop(1, '#2a322e');
@@ -7911,6 +7971,45 @@
         // KOVAN ASKERİ v3: YAVRU EJDERHA - Magma Börü'nün küçük bir kopyası gibi: tırpan kanatlar, kor
         // parıltılı sırt dikenleri, kıvrık küçük boynuzlar, iri parlayan gözler. Saldırırken minik bir alev
         // püskürtür. Renkleri marketteki yavru kostümünden gelir.
+        function drawArenaDragon(r, theme) {
+            if (ctxMuted || !r.joints || r.joints.length < 2) return;
+            const J = r.joints, n = J.length, G = (r.gf || 1) * (r.sm || 1);
+            const pal = (ORG_SKINS[theme.id] || {}).pal;
+            const colors = pal && pal.body || ['#a79a82', theme.mainColor || '#53755d', '#15231c'];
+            const stride = Math.max(1, Math.ceil(n / 22)), pts = [];
+            for (let i = 0; i < n; i += stride) pts.push({ j: J[i], r: (4 + 18 * Math.pow(1 - i / n, .8)) * G });
+            if ((n - 1) % stride) pts.push({ j: J[n - 1], r: 3 * G });
+            const h = J[0], wing = J[Math.min(n - 1, Math.max(2, Math.round(n * .22)))];
+            ctx.save(); ctx.globalAlpha = r.g ? .4 : 1;
+            ctx.save(); ctx.translate(wing.x - camX, wing.y - camY); ctx.rotate(wing.angle);
+            const flap = .75 + Math.sin(tick * 1.8 + r.x * .001) * .23;
+            for (const side of [-1, 1]) {
+                ctx.fillStyle = colors[1]; ctx.strokeStyle = colors[0]; ctx.lineWidth = 1.5 * G;
+                ctx.beginPath(); ctx.moveTo(14 * G, side * 9 * G);
+                ctx.bezierCurveTo(10 * G, side * 45 * G, 35 * G, side * 90 * G * flap, -35 * G, side * 125 * G * flap);
+                ctx.quadraticCurveTo(-20 * G, side * 72 * G, -74 * G, side * 67 * G * flap);
+                ctx.quadraticCurveTo(-47 * G, side * 28 * G, -25 * G, side * 8 * G); ctx.closePath(); ctx.fill(); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(8 * G, side * 12 * G); ctx.quadraticCurveTo(-3 * G, side * 60 * G, -35 * G, side * 125 * G * flap); ctx.stroke();
+            }
+            ctx.restore();
+            ctx.fillStyle = colors[1]; ctx.strokeStyle = colors[2]; ctx.lineWidth = 2 * G;
+            ctx.beginPath();
+            for (let side = 1; side >= -1; side -= 2) {
+                const list = side === 1 ? pts : pts.slice().reverse();
+                for (let k = 0; k < list.length; k++) {
+                    const p = list[k], x = p.j.x - camX - Math.sin(p.j.angle) * p.r * side, y = p.j.y - camY + Math.cos(p.j.angle) * p.r * side;
+                    if (side === 1 && k === 0) ctx.moveTo(x, y);
+                    else { const prev = k ? list[k - 1] : p; const px = prev.j.x - camX - Math.sin(prev.j.angle) * prev.r * side, py = prev.j.y - camY + Math.cos(prev.j.angle) * prev.r * side; ctx.quadraticCurveTo(px, py, (px + x) / 2, (py + y) / 2); }
+                }
+            }
+            ctx.closePath(); ctx.fill(); ctx.stroke();
+            ctx.strokeStyle = colors[0]; ctx.lineWidth = 2 * G; ctx.beginPath();
+            for (let i = 0; i < pts.length; i++) { const p = pts[i].j; if (!i) ctx.moveTo(p.x - camX, p.y - camY); else ctx.lineTo(p.x - camX, p.y - camY); } ctx.stroke();
+            ctx.translate(h.x - camX, h.y - camY); ctx.rotate(h.angle);
+            ctx.fillStyle = colors[1]; ctx.beginPath(); ctx.moveTo(-18 * G, -18 * G); ctx.quadraticCurveTo(38 * G, -23 * G, 42 * G, 0); ctx.quadraticCurveTo(38 * G, 23 * G, -18 * G, 18 * G); ctx.closePath(); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = colors[0]; for (const side of [-1, 1]) { ctx.beginPath(); ctx.moveTo(-8 * G, side * 13 * G); ctx.quadraticCurveTo(-42 * G, side * 32 * G, -32 * G, side * 22 * G); ctx.lineTo(-20 * G, side * 9 * G); ctx.fill(); }
+            ctx.fillStyle = '#ffe4a0'; ctx.beginPath(); ctx.ellipse(17 * G, -9 * G, 5 * G, 2 * G, -.2, 0, Math.PI * 2); ctx.ellipse(17 * G, 9 * G, 5 * G, 2 * G, .2, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+        }
         function inView(x, y, margin = 100) {
             return x >= camX - margin && y >= camY - margin &&
                 x <= camX + canvas.width / viewScale + margin && y <= camY + canvas.height / viewScale + margin;
@@ -8706,7 +8805,7 @@
         }
         function drawKazuma(S, G) {
             const n = joints.length; if (n < 4) return;
-            const hiQ = gfxQuality !== 'low' && FX.q > 0.4; const fullQ = gfxQuality === 'high' && FX.q > 0.75;
+            const hiQ = gfxQuality !== 'low' && FX.q > 0.55; const fullQ = gfxQuality === 'high' && FX.q > 0.75;
             const body = isRageActive ? ['#c8ecff', '#1f5c96', '#03101f'] : KZP.body;
             const memb = isRageActive ? ['#3a5cc0', '#121e5a', '#030618'] : KZP.membrane;
             const vein = isRageActive ? (activeTheme.rageBlueMode ? '#66ccff' : '#ffffff') : KZP.vein;
@@ -9570,7 +9669,7 @@
             const live = !isPaused && gameActive && !(MP.active && MP.localDead) && !spacePressed && !MP.noSkinBuffs;
             const D = Math.max(6, stats.fireDamage || 10); const H = joints[0], ha = H.angle;
             const mouth = { x: H.x + Math.cos(ha) * 50 * G * S, y: H.y + Math.sin(ha) * 50 * G * S };
-            const hiQ = gfxQuality !== 'low' && FX.q > 0.4; const P = (ORG_SKINS[id] || {}).pal || { vein: activeTheme.mainColor, body: ['#fff', '#888', '#000'], bone: '#fff', scaleEdge: '#fff', membrane: ['#fff', '#888', '#000'] };
+            const hiQ = gfxQuality !== 'low' && FX.q > 0.55; const P = (ORG_SKINS[id] || {}).pal || { vein: activeTheme.mainColor, body: ['#fff', '#888', '#000'], bone: '#fff', scaleEdge: '#fff', membrane: ['#fff', '#888', '#000'] };
             if (live) { ABIL.t++; if (ABIL.cd > 0) ABIL.cd--; }
             const segR = 22 * G * S;
             // --- Mürekkep Ejderi: solungaç avı ---
@@ -9858,7 +9957,7 @@
         }
         function drawOrganic(S, G, cfg, ghost) {
             const n = joints.length; if (n < 4) return;
-            const hiQ = gfxQuality !== 'low' && FX.q > 0.4; const fullQ = gfxQuality === 'high' && FX.q > 0.75;
+            const hiQ = gfxQuality !== 'low' && FX.q > 0.55; const fullQ = gfxQuality === 'high' && FX.q > 0.75;
             const P0 = ghost ? Object.assign({}, cfg.pal, ORG_GHOST, { irid: false }) : cfg.pal;
             const P = Object.assign({}, P0);
             if (isRageActive && !ghost) { P.body = ['#c8ecff', '#1f5c96', '#03101f']; P.membrane = ['#3a5cc0', '#121e5a', '#030618']; P.vein = activeTheme.rageBlueMode ? '#66ccff' : '#ffffff'; }
@@ -10569,6 +10668,12 @@
             FX.ema = FX.ema * 0.92 + Math.min(dt, 100) * 0.08;
             const slow = FX.ema > budget * 1.3 || (FX.work || 0) > budget * 0.85;
             FX.slowT = slow ? (FX.slowT || 0) + Math.min(dt, 100) : Math.max(0, (FX.slowT || 0) - dt);
+            // React to sustained severe stalls before the multi-stage quality ladder can take seconds.
+            if (FX.slowT > 250 && FX.ema > budget * 2) {
+                FX.q = 0.4; ctx._sbMax = 0;
+                if (resMode === 'auto') setRenderScale(Math.min(renderScale, renderScale > .65 ? .65 : .5));
+                FX.slowT = 0; FX.fastT = 0;
+            }
             if (FX.slowT > 750) {
                 if (FX.q > 0.55) FX.q = 0.55;
                 else if (FX.q > 0.4) FX.q = 0.4;
@@ -10669,9 +10774,14 @@
         const CTX_NOP = () => {}, CTX_DUMMY_GRAD = { addColorStop: CTX_NOP, setTransform: CTX_NOP }, CTX_GRAD = () => CTX_DUMMY_GRAD;
         const CTX_GRAD_OPS = ['createRadialGradient', 'createLinearGradient', 'createConicGradient', 'createPattern'];
         let ctxMuted = null;
+        // Simulation-only steps use plain JS state: no native Canvas property setters, raster or GPU work.
+        const SIM_CTX = { canvas, globalAlpha: 1, _rs: 1, _sbMax: 0, font: '12px sans-serif',
+            measureText(t) { return { width: String(t).length * 7 }; } };
+        for (const k of CTX_DRAW_OPS) SIM_CTX[k] = CTX_NOP;
+        for (const k of CTX_GRAD_OPS) SIM_CTX[k] = CTX_GRAD;
         function ctxMute(on) {
-            if (on) { if (ctxMuted) return; ctxMuted = ctx; ctx.save(); for (const k of CTX_DRAW_OPS) ctx[k] = CTX_NOP; for (const k of CTX_GRAD_OPS) ctx[k] = CTX_GRAD; }
-            else { const c = ctxMuted; if (!c) return; ctxMuted = null; for (const k of CTX_DRAW_OPS) delete c[k]; for (const k of CTX_GRAD_OPS) delete c[k]; c.restore(); }
+            if (on) { if (ctxMuted) return; ctxMuted = ctx; ctx = SIM_CTX; }
+            else if (ctxMuted) { ctx = ctxMuted; ctxMuted = null; }
         }
         let loopRunning = false, loopLast = 0, loopAcc = 0, hitStop = 0;
         function animate() {
@@ -13710,7 +13820,7 @@
                     if (R.size === 0) return;
                     const now = performance.now(), vw = canvas.width / viewScale, vh = canvas.height / viewScale;
                     // Yetişme adımlarında (ekran çizilmiyorken) uzak ejderhaları boşuna çizme: yalnızca konum/hasar işlenir
-                    const drawing = !Object.prototype.hasOwnProperty.call(ctx, 'fill');
+                    const drawing = !ctxMuted;
                     for (const r of R.values()) {
                         if (now - r.seen > 6000) continue;
                         B.sampleRemote(r, now);
@@ -13723,9 +13833,11 @@
                         MP.players.set(r.id, r); // kükreme dalgası sahibinin ağzını takip etsin
                         // Kükreme: karşı taraftaki sayaç arttıysa dalgayı burada da oynat
                         if (r.ro != null) { if (r.roSeen == null) r.roSeen = r.ro; else if (r.ro > r.roSeen) { r.roSeen = r.ro; roars.push({ owner: r.id, x: r.x, y: r.y, angle: r.a, radius: 20, life: 1.0, seed: Math.random() * 100, vis: 1 }); } }
-                        const onScreen = r.x > camX - 900 && r.x < camX + vw + 900 && r.y > camY - 900 && r.y < camY + vh + 900;
+                        const bodyMargin = Math.max(180, n * seg + 160 * (r.gf || 1));
+                        const onScreen = inView(r.x, r.y, bodyMargin);
+                        const fireOnScreen = inView(r.x, r.y, 350 * (r.gf || 1));
                         // Ekran dışındaki oyuncunun alevi görünmez: parçacık üretme (en büyük FPS kaybı buydu)
-                        if (onScreen && r.f && !r.g && !r.bc && !r.bf) B.spawnRemoteFire(r);
+                        if (fireOnScreen && r.f && !r.g && !r.bc && !r.bf) B.spawnRemoteFire(r);
                         if (drawing) {
                             // Işın ekrana uzaktan da girebilir (3200 birim): çizimi ekrana göre değil ışına göre yap
                             if (r.bf && !r.g) B.drawRemoteBeam(r);
@@ -13740,6 +13852,7 @@
                 },
                 drawRemote(r) {
                     const theme = skinsDB.find(s => s.id === r.sk) || skinsDB[0];
+                    if (R.size > 3 || isMobile || FX.q < 0.75) { drawArenaDragon(r, theme); B.drawTag(r); return; }
                     // PERFORMANS: uzak ejderhalar daha hafif kalitede çizilir (gölge bulanıklığı yok, kesişim gölgesi yok,
                     // telefonda ve kasan cihazda düşük detay). Kendi ejderhan her zaman seçtiğin kalitede kalır.
                     const sv = [joints, activeTheme, spacePressed, isRageActive, isBreathingFire, isSuperBeamCharging, isSuperBeamFiring, gfxQuality, ctx._sbMax, ORG_TAIL];
@@ -13776,10 +13889,10 @@
                 },
                 spawnRemoteFire(r) {
                     const fq = (typeof FX !== 'undefined' && FX.q) || 1;
-                    if (RF.length > (isMobile ? 140 : 320) * fq) return;
+                    if (RF.length > (isMobile ? 100 : 180) * fq) return;
                     const G = (r.gf || 1) * (r.sm || 1), a = r.a, m = 35 * G, mx = r.x + Math.cos(a) * m, my = r.y + Math.sin(a) * m;
                     const vx = r.pvx || 0, vy = r.pvy || 0, spr = B.spriteFor(r.sk, r.r), q = fq * (isMobile ? 0.7 : 1);
-                    const n = Math.max(2, Math.round((r.r ? 5 : 3) * q));
+                    const n = Math.max(1, Math.round((r.r ? 3 : 2) * q));
                     for (let i = 0; i < n; i++) {
                         const sp = (Math.random() - 0.5) * 0.4, v = (Math.random() * 6 + 6.8) * (1 + Math.max(0, G - 1.7) * 0.6), f0 = Math.random();
                         RF.push({ x: mx + Math.cos(a) * v * f0, y: my + Math.sin(a) * v * f0, vx: Math.cos(a + sp) * v + vx * 0.7, vy: Math.sin(a + sp) * v + vy * 0.7, life: 1, decay: 0.029, size: (Math.random() * 16 + 14) * G, growth: Math.random() * 2.5 + 1.5, spr });
@@ -13794,6 +13907,7 @@
                         if (p.life <= 0) { RF[i] = RF[RF.length - 1]; RF.pop(); continue; } // splice yerine takas: çöp ve kaydırma yok
                         const sz = p.size * (p.life > 0.38 ? 1 : 1.08), px = p.x - camX, py = p.y - camY, h = sz / 2;
                         if (px + h < 0 || py + h < 0 || px - h > vw || py - h > vh) continue; // ekran dışı: çizme
+                        if (ctxMuted) continue;
                         ctx.globalAlpha = p.life > 0.38 ? Math.min(1, (p.life - 0.3) * 1.15) : p.life * 1.9;
                         ctx.drawImage(p.spr, px - h, py - h, sz, sz);
                     }
@@ -13954,7 +14068,7 @@
     <script src="melez.js?v=1"></script>
     <script src="kostum.js?v=2"></script>
     <script src="ui.js?v=1" defer></script>
-    <script src="mp.js?v=7" defer></script>
+    <script src="mp.js?v=8" defer></script>
     <script src="icons.js?v=4" defer></script>
 </body>
 </html>

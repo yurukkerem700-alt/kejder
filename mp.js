@@ -750,19 +750,19 @@
     function mkBot(r, sp) {
         const ang = Math.atan2(-sp.y, -sp.x);
         return { id: r.id, name: r.name, skin: r.skin, x: sp.x, y: sp.y, a: ang + rnd(-.5, .5), vx: 0, vy: 0, cur: 0, hp: 2400, mh: 2400, lv: 1, gf: 1, sm: 1, k: 0, hv: 0, bs: 0, dl: 0, pk: 0, dh: 0, q: 0,
-            dead: false, f: 0, ro: 0, skill: rnd(.55, 1), aggr: rnd(.35, 1), spd: rnd(10.2, 14), turn: rnd(.05, .085), react: rnd(.4, 1.2), phase: rnd(0, 6.28),
+            dead: false, f: 0, ro: 0, skill: rnd(.7, 1), aggr: rnd(.7, 1), spd: rnd(10.2, 14), turn: rnd(.075, .11), react: rnd(.14, .34), phase: rnd(0, 6.28),
             tgt: null, tgtT: rnd(0, 600), engageAt: 0, wx: 0, wy: 0, wT: 0, idle: 0, flee: 0, strafe: Math.random() < .5 ? 1 : -1, strafeT: 0, hurtT: -1e9, by: null, byT: 0,
-            farmT: rnd(5000, 14000), roarT: rnd(15000, 40000), gate: 1, gateT: rnd(1000, 3000) };
+            farmT: rnd(5000, 14000), roarT: rnd(4000, 9000), gate: 1, gateT: rnd(1000, 3000) };
     }
     // Canlı ejderhalar: gerçek oyuncular + savaşçılar (isabet testi için gövde eklemleriyle)
     function dragonList(M) {
         const out = [];
-        if (!BORU.isDead() && !M.left.has(me.id)) { const lb = BORU.localBody(), ls = BORU.localState(); out.push({ id: me.id, x: lb.x, y: lb.y, G: lb.G, joints: lb.joints, inv: !lb.alive, hp: ls.hp, mh: ls.mh || 1, human: true }); }
+        if (!BORU.isDead() && !M.left.has(me.id)) { const lb = BORU.localBody(), ls = BORU.localState(); out.push({ id: me.id, x: lb.x, y: lb.y, a: ls.a, f: ls.f, G: lb.G, joints: lb.joints, inv: !lb.alive, hp: ls.hp, mh: ls.mh || 1, human: true }); }
         for (const id of M.roster.keys()) {
             if (id === me.id) continue;
             const b = BOT.list.get(id), r = BORU.remotes.get(id);
-            if (b) { if (!b.dead) out.push({ id, x: b.x, y: b.y, G: b.gf * b.sm, joints: r && r.joints && r.joints.length ? r.joints : null, inv: false, hp: b.hp, mh: b.mh, bot: true }); }
-            else if (!M.bots.has(id) && isAlive(id)) { const st = M.states.get(id); if (!st || !r) continue; out.push({ id, x: r.x, y: r.y, G: (r.gf || 1) * (r.sm || 1), joints: r.joints, inv: !!st.g, hp: st.hp, mh: st.mh || 1, human: true }); }
+            if (b) { if (!b.dead) out.push({ id, x: b.x, y: b.y, a: b.a, f: b.f, G: b.gf * b.sm, joints: r && r.joints && r.joints.length ? r.joints : null, inv: false, hp: b.hp, mh: b.mh, bot: true }); }
+            else if (!M.bots.has(id) && isAlive(id)) { const st = M.states.get(id); if (!st || !r) continue; out.push({ id, x: r.x, y: r.y, a: r.a, f: st.f, G: (r.gf || 1) * (r.sm || 1), joints: r.joints, inv: !!st.g, hp: st.hp, mh: st.mh || 1, human: true }); }
         }
         return out;
     }
@@ -779,73 +779,79 @@
         return false;
     }
     function botThink(b, D, F, dt, now, R) {
-        const G = b.gf * b.sm, ms = dt * 1000;
-        // Büyüme ve istatistik: zamanla düşman avlıyor, kovan alıyor
-        b.farmT -= ms;
-        if (b.farmT <= 0) {
-            b.farmT = rnd(5000, 14000); b.k += 1 + Math.floor(Math.random() * 3); if (Math.random() < .09) b.hv++; if (Math.random() < .012) b.bs++;
-            const lv = Math.min(30, 1 + Math.floor(b.k / 7));
-            if (lv !== b.lv) { const fr = b.hp / b.mh; b.lv = lv; b.mh = 2400 + (lv - 1) * 45; b.hp = Math.min(b.mh, fr * b.mh + 120); b.gf = 1 + (lv - 1) * 0.05; }
-        }
-        const calm = now - b.hurtT > 7000, hpF = b.hp / b.mh;
-        b.hp = Math.min(b.mh, b.hp + b.mh * (b.flee > 0 ? 0.012 : calm ? 0.004 : 0) * dt);
-        if (b.flee > 0) b.flee -= ms;
-        // Hedef seçimi (insan gibi: bazen kararsız, zayıf olana yönelir, saldırana karşılık verir)
+        const G = b.gf * b.sm, ms = dt * 1000, hpF = b.hp / b.mh;
+        // Growth reflects actual combat. No invisible farming, free kills or captured hives.
+        const lv = Math.min(30, 1 + Math.floor(b.dl / 3600 + b.pk * 1.5));
+        if (lv > b.lv) { const fraction = b.hp / b.mh; b.lv = lv; b.mh = 2400 + (lv - 1) * 45; b.hp = fraction * b.mh; b.gf = 1 + (lv - 1) * .05; }
+        if (now - b.hurtT > 8000 && !b.tgt) b.hp = Math.min(b.mh, b.hp + b.mh * .003 * dt);
+        b.flee = Math.max(0, b.flee - ms);
         b.tgtT -= ms;
-        if (b.tgtT <= 0) {
-            b.tgtT = rnd(450, 1300); let best = null, bs = 1e9; const sight = R < 3200 ? 3600 : 2500;
+        if (b.tgtT <= 0 || !D.some(q => q.id === b.tgt && !q.inv && q.hp > 0)) {
+            b.tgtT = rnd(200, 450); let best = null, score = Infinity;
             for (const q of D) {
-                if (q.id === b.id || q.inv) continue;
-                const d = Math.hypot(q.x - b.x, q.y - b.y); if (d > sight) continue;
-                let sc = d - (1 - q.hp / q.mh) * 700 + rnd(0, 400) + (q.id === b.tgt ? -280 : 0);
-                if (b.by === q.id && now - b.byT < 6000) sc -= 500;
-                if (sc < bs) { bs = sc; best = q; }
+                if (q.id === b.id || q.inv || q.hp <= 0) continue;
+                const d = Math.hypot(q.x - b.x, q.y - b.y);
+                if (d > Math.min(6000, R * 2)) continue;
+                const priority = d - (1 - q.hp / q.mh) * 350 - (q.id === b.tgt ? 220 : 0) - (q.id === b.by && now - b.byT < 5000 ? 380 : 0);
+                if (priority < score) { score = priority; best = q; }
             }
-            const nt = best ? best.id : null;
-            if (nt !== b.tgt) { b.tgt = nt; b.engageAt = now + b.react * 1000 * rnd(.6, 1.4); }
-            if (best && hpF < 0.27 && b.flee <= 0 && Math.hypot(best.x - b.x, best.y - b.y) < 1500 && Math.random() < .75) b.flee = rnd(3500, 7000);
+            const id = best ? best.id : null;
+            if (id !== b.tgt) { b.tgt = id; b.engageAt = now + b.react * 1000; b.track = null; }
         }
-        const tgt = b.tgt ? D.find(q => q.id === b.tgt) : null;
-        if (b.tgt && !tgt) b.tgt = null;
-        let ang = b.a, mult = .8, d = 0, angTo = 0, fire = false;
-        if (b.idle > 0) { b.idle -= ms; mult = 0; }
-        if (tgt) {
-            const dx = tgt.x - b.x, dy = tgt.y - b.y; d = Math.hypot(dx, dy); angTo = Math.atan2(dy, dx);
-            if (b.flee > 0) { ang = angTo + Math.PI + Math.sin(now / 700 + b.phase) * .5; mult = 1.05; }
+        const target = D.find(q => q.id === b.tgt && !q.inv && q.hp > 0);
+        let desired = Math.atan2(-b.y, -b.x), speed = .8, distance = Infinity;
+        b.mode = 'hunt';
+        if (target) {
+            const dx = target.x - b.x, dy = target.y - b.y; distance = Math.hypot(dx, dy);
+            // Estimate velocity from observed positions, never from hidden input.
+            const previous = b.track;
+            let vx = 0, vy = 0;
+            if (previous && previous.id === target.id) { const frames = Math.max(.25, (now - previous.t) * .06); vx = Math.max(-20, Math.min(20, (target.x - previous.x) / frames)); vy = Math.max(-20, Math.min(20, (target.y - previous.y) / frames)); }
+            b.track = { id: target.id, x: target.x, y: target.y, t: now };
+            const lead = Math.min(16, distance / Math.max(5, b.spd) * .3) * b.skill;
+            const aim = Math.atan2(dy + vy * lead, dx + vx * lead);
+            desired = aim + Math.sin(now / 650 + b.phase) * (1 - b.skill) * .12;
+            b.mode = distance > 270 * G ? 'pursue' : 'attack';
+            speed = distance > 270 * G ? 1.08 : distance < 125 * G ? .24 : .48;
+            if (hpF < .18 && target.hp / target.mh > .35 && now > (b.retreatUntil || 0) && !b.flee) { b.flee = rnd(1400, 2600); b.retreatUntil = now + 10000; }
+            if (b.flee > 0) { b.mode = 'retreat'; desired = Math.atan2(-dy, -dx) + b.strafe * .35; speed = 1.1; }
             else {
-                b.strafeT -= ms; if (b.strafeT <= 0) { b.strafeT = rnd(900, 2600); if (Math.random() < .5) b.strafe = -b.strafe; }
-                const wob = Math.sin(now / 430 + b.phase) * (1.2 - b.skill) * .14;
-                if (d > 230 * G) { ang = angTo + wob; mult = 1; }
-                else if (d < 115 * G) { ang = angTo + Math.PI * .8 * b.strafe; mult = .6; }
-                else { ang = angTo + b.strafe * .26 + wob; mult = .5; }
-                if (b.idle <= 0 && now > b.engageAt && d < 240 * Math.max(1, G) * .98 && Math.abs(angDiff(angTo, b.a)) < .33 && b.gate) fire = true;
+                // Dodge an observed breath cone; short lateral movement, then re-engage.
+                const enemyAngle = target.a != null ? target.a : target.joints && target.joints[0] ? target.joints[0].angle : null;
+                const incoming = target.f && enemyAngle != null && distance < 450 * Math.max(1, target.G) && Math.abs(angDiff(Math.atan2(-dy, -dx), enemyAngle)) < .38;
+                if (incoming && now > (b.dodgeCooldown || 0)) { b.dodgeUntil = now + rnd(300, 550); b.dodgeCooldown = now + 1100; }
+                if (incoming && now < (b.dodgeUntil || 0)) { desired += b.strafe * .65; speed = .9; b.mode = 'evade'; }
+                else if (distance < 85 * G) desired += b.strafe * .55;
             }
-        } else if (b.idle <= 0) {
-            b.wT -= ms;
-            if (b.wT <= 0 || Math.hypot(b.wx - b.x, b.wy - b.y) < 260) {
-                b.wT = rnd(4000, 9000); const rr = Math.sqrt(Math.random()) * R * .72, aa = rnd(0, 6.283); b.wx = Math.cos(aa) * rr; b.wy = Math.sin(aa) * rr;
-                if (Math.random() < .14) b.idle = rnd(900, 2400);
-            }
-            ang = Math.atan2(b.wy - b.y, b.wx - b.x) + Math.sin(now / 900 + b.phase) * .08; mult = .8;
+        } else {
+            b.track = null; b.wT -= ms;
+            if (b.wT <= 0 || Math.hypot(b.wx - b.x, b.wy - b.y) < 150) { b.wT = rnd(1800, 3200); const angle = rnd(0, Math.PI * 2), radius = Math.min(R * .45, 1700); b.wx = Math.cos(angle) * radius; b.wy = Math.sin(angle) * radius; }
+            desired = Math.atan2(b.wy - b.y, b.wx - b.x);
         }
-        // Kenara yaklaştıysa merkeze dön
-        const dc = Math.hypot(b.x, b.y);
-        if (dc > R - 420) { const w = Math.min(1, (dc - (R - 420)) / 300) * .8, tc = Math.atan2(-b.y, -b.x); ang = b.a + angDiff(ang, b.a) * (1 - w) + angDiff(tc, b.a) * w; if (b.idle > 0) { b.idle = 0; mult = .8; } }
-        const turn = b.turn * F * (b.flee > 0 ? 1.25 : 1), df = angDiff(ang, b.a);
-        b.a += Math.max(-turn, Math.min(turn, df)) + rnd(-.004, .004) * F;
-        b.cur += (b.spd * mult * (fire ? .55 : 1) - b.cur) * Math.min(1, .12 * F);
-        const px = b.x, py = b.y;
-        b.x += Math.cos(b.a) * b.cur * F; b.y += Math.sin(b.a) * b.cur * F;
-        const nd = Math.hypot(b.x, b.y); if (nd > R - 6) { b.x *= (R - 6) / nd; b.y *= (R - 6) / nd; }
-        b.vx = (b.x - px) / F; b.vy = (b.y - py) / F;
-        // Alev: nişan alırken kısa aralarla (insan gibi tuşa basıp bırakır)
-        b.gateT -= ms; if (b.gateT <= 0) { b.gate = Math.random() < .86 ? 1 : 0; b.gateT = b.gate ? rnd(1400, 3600) : rnd(250, 700); }
+        // Keep a little space without making every bot orbit endlessly.
+        if (b.mode !== 'retreat') for (const q of D) {
+            if (q.id === b.id || q.id === b.tgt) continue;
+            const dx = b.x - q.x, dy = b.y - q.y, d2 = dx * dx + dy * dy;
+            if (d2 > 1 && d2 < 110 * 110) desired += angDiff(Math.atan2(dy, dx), desired) * .12;
+        }
+        const edge = Math.hypot(b.x, b.y), margin = Math.min(500, R * .2);
+        if (edge > R - margin) { const weight = Math.min(.9, Math.max(0, (edge - R + margin) / margin)); desired += angDiff(Math.atan2(-b.y, -b.x), desired) * weight; speed = Math.max(.85, speed); }
+        const turn = b.turn * F * (b.mode === 'evade' ? 1.25 : 1);
+        b.a += Math.max(-turn, Math.min(turn, angDiff(desired, b.a)));
+        b.gateT -= ms;
+        if (b.gateT <= 0) { b.gate = b.gate ? 0 : 1; b.gateT = b.gate ? rnd(1100, 2400) : rnd(120, 280); }
+        const fire = target && b.mode !== 'retreat' && now >= b.engageAt && b.gate && coneHit(b, target);
         b.f = fire ? 1 : 0;
+        b.cur += (b.spd * speed * (fire ? .8 : 1) - b.cur) * Math.min(1, .15 * F);
+        const px = b.x, py = b.y; b.x += Math.cos(b.a) * b.cur * F; b.y += Math.sin(b.a) * b.cur * F;
+        const nd = Math.hypot(b.x, b.y); if (nd > R - 6) { b.x *= (R - 6) / nd; b.y *= (R - 6) / nd; }
+        b.vx = (b.x - px) / Math.max(.01, F); b.vy = (b.y - py) / Math.max(.01, F);
         if (fire) {
-            const dmg = 4.2 * F * (.55 + .4 * b.skill);
-            for (const q of D) { if (q.id === b.id || q.inv) continue; if (coneHit(b, q)) { const e = BOT.acc.get(q.id) || { d: 0, by: b.id }; e.d += dmg; e.by = b.id; BOT.acc.set(q.id, e); b.dl += dmg; } }
+            const damage = 4.2 * F * (.55 + .4 * b.skill);
+            for (const q of D) if (q.id !== b.id && !q.inv && coneHit(b, q)) { const hit = BOT.acc.get(q.id) || { d: 0, by: b.id }; hit.d += damage; hit.by = b.id; BOT.acc.set(q.id, hit); b.dl += damage; }
         }
-        b.roarT -= ms; if (b.roarT <= 0) { b.roarT = rnd(18000, 45000); if (tgt && d < 900) b.ro++; }
+        b.roarT -= ms;
+        if (b.roarT <= 0 && target && distance < 520 && b.mode !== 'retreat') { b.roarT = rnd(7000, 13000); b.ro++; }
     }
     function flushBotHits(now) {
         if (!BOT.acc.size || now - BOT.lastAcc < 120) return; BOT.lastAcc = now;
@@ -860,7 +866,7 @@
     function botHit(id, d, by) {
         const b = BOT.list.get(id); if (!b || b.dead || !(d > 0)) return;
         b.hp -= Math.min(d, 700); b.hurtT = performance.now(); b.by = by || null; b.byT = b.hurtT;
-        if (by && by !== id && (!b.tgt || Math.random() < .35 * b.aggr)) { b.tgt = by; b.tgtT = rnd(1500, 3000); }
+        if (by && by !== id && (!b.tgt || Math.random() < .8 * b.aggr)) { b.tgt = by; b.tgtT = 400; b.engageAt = b.hurtT + b.react * 500; }
         if (b.hp <= 0) botDie(b, by);
     }
     function botDie(b, by) {
@@ -1910,7 +1916,7 @@
             S.viewId = null; S.screen = 'profile'; render(); saveProfile().then(render);
         },
         _state: S, _me: me, _voice: voice, _peers: peers, _sp: { SP, specMount, specLoop },
-        _bot: { BOT, botHit, botDie, arenaR }
+        _bot: { BOT, botHit, botDie, arenaR, ...(TEST ? { mkBot, botThink, coneHit } : {}) }
     };
     // Davet linkiyle gelindiyse doğrudan odaya gir
     function boot() {
